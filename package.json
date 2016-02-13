@@ -11,15 +11,13 @@
 		"name": "David Kudera",
 		"email": "kudera.d@gmail.com"
 	},
-	"dependencies": {
-		"es7-reflect-metadata": "~1.5.5"
-	},
 	"devDependencies": {
 		"gulp": "~3.9.1",
 		"gulp-util": "~3.0.7",
 		"webpack": "~1.12.13",
 		"ts-loader": "~0.8.1",
 		"typescript": "~1.7.5",
+		"es7-reflect-metadata": "~1.5.5",
 		"mocha": "~2.4.5",
 		"gulp-mocha-phantomjs": "~0.11.0",
 		"chai": "~3.5.0",

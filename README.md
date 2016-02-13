@@ -43,6 +43,7 @@ That's why I created yet another JS framework.
 
 ```
 $ npm install slicky
+$ npm install es7-reflect-metadata
 ```
 
 ## Bootstrap
@@ -50,6 +51,8 @@ $ npm install slicky
 For bootstraping a new application you have to create some main file, like `bootstrap.ts`:
 
 ```ts
+import 'es7-reflect-metadata/dist/browser';
+
 import {Application} from 'slicky/core';
 import {Container} from 'slicky/di';
 
