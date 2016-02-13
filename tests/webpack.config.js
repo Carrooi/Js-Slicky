@@ -1,6 +1,3 @@
-"use strict";
-
-
 module.exports = {
 	devtool: 'source-map',
 	debug: true,

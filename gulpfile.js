@@ -1,11 +1,8 @@
-"use strict";
-
-
-let gulp = require('gulp');
-let gutil = require('gulp-util');
+var gulp = require('gulp');
+var gutil = require('gulp-util');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 
-let webpack = require('webpack');
+var webpack = require('webpack');
 
 
 gulp.task('compile-tests', function(done) {
