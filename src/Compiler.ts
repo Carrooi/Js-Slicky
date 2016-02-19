@@ -42,7 +42,7 @@ export class Compiler
 
 		if (el.parentElement) {
 			testEl = el.parentElement;
-		} else {
+		} else if (el instanceof Element) {
 			testEl = document.createElement('div');
 			testEl.appendChild(el);
 		}
@@ -52,7 +52,7 @@ export class Compiler
 			let controllerData = controllers[i];
 			let elements: Array<Element> = [];
 
-			if (checkSelf) {
+			if (checkSelf && testEl) {
 				let component = Dom.querySelector(controllerData.metadata.getSelector(), testEl);
 				if (component === el) {
 					elements.push(<Element>el);
