@@ -2,6 +2,17 @@ export class Dom
 {
 
 
+	static querySelector(selector: string, parent?: Element): Element
+	{
+		if (parent) {
+			return parent.querySelector(selector);
+
+		} else {
+			return document.querySelector(selector);
+		}
+	}
+
+
 	static querySelectorAll(selector: string, parent?: Element): NodeListOf<Element>
 	{
 		if (parent) {

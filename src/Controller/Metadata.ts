@@ -4,7 +4,8 @@ import {makeDecorator, makePropDecorator} from '../Util/Decorators';
 
 declare interface ComponentOptions
 {
-	name: string;
+	selector: string;
+	name?: string;
 	template?: string;
 }
 
@@ -14,6 +15,8 @@ export class ComponentMetadataDefinition
 {
 
 
+	private selector: string;
+
 	private name: string;
 
 	private template: string;
@@ -21,18 +24,23 @@ export class ComponentMetadataDefinition
 
 	constructor(options: ComponentOptions)
 	{
-		if (typeof options.name === 'undefined') {
-			throw new Error('Missing name options in @Component annotation.');
+		if (typeof options.selector === 'undefined' && typeof options.name !== 'undefined') {
+			console.log('Option @Component::name is deprecated, use selector instead (@Component({selector: \'[data-component="' + options.name + '"]\'})');
+			options.selector = '[data-component="' + options.name + '"]';
 		}
 
-		this.name = options.name;
+		if (typeof options.selector === 'undefined') {
+			throw new Error('Missing selector option in @Component annotation.');
+		}
+
+		this.selector = options.selector;
 		this.template = typeof options.template !== 'undefined' ? options.template : null;
 	}
 
 
-	public getName(): string
+	public getSelector(): string
 	{
-		return this.name;
+		return this.selector;
 	}
 
 

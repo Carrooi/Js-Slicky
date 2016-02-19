@@ -31,33 +31,48 @@ describe('#Compiler', () => {
 
 	describe('compile()', () => {
 
-		it('should throw an error if controller not exists', () => {
-			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
-
-			expect(() => {
-				compiler.compile(el);
-			}).to.throw(Error, 'Component test is not registered.');
-		});
-
 		it('should compile element', () => {
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {}
 
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
+			el.setAttribute('test', 'test');
 
 			compiler.compile(el);
 
-			expect(el['__controller']).to.be.an.instanceOf(Test);
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+			expect(el['__controllers'][0]).to.be.an.instanceOf(Test);
+		});
+
+		it('should compile element with more controllers', () => {
+			@Component({selector: '[test1]'})
+			class Test1 {}
+
+			@Component({selector: '[test2]'})
+			class Test2 {}
+
+			application.registerController(Test1);
+			application.registerController(Test2);
+
+			let el = document.createElement('div');
+			el.setAttribute('test1', 'test1');
+			el.setAttribute('test2', 'test2');
+
+			compiler.compile(el);
+
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(2);
+			expect(el['__controllers'][0]).to.be.an.instanceOf(Test1);
+			expect(el['__controllers'][1]).to.be.an.instanceOf(Test2);
 		});
 
 		it('should call onInit method on controller', () => {
 			let called = false;
 
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				onInit() {
 					called = true;
@@ -67,7 +82,7 @@ describe('#Compiler', () => {
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
+			el.setAttribute('test', 'test');
 
 			compiler.compile(el);
 
@@ -75,13 +90,13 @@ describe('#Compiler', () => {
 		});
 
 		it('should set template', () => {
-			@Component({name: 'test', template: 'lorem ipsum'})
+			@Component({selector: '[test]', template: 'lorem ipsum'})
 			class Test {}
 
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
+			el.setAttribute('test', 'test');
 
 			compiler.compile(el);
 
@@ -89,7 +104,7 @@ describe('#Compiler', () => {
 		});
 
 		it('should load input', () => {
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Input()
 				public input1: string;
@@ -98,18 +113,44 @@ describe('#Compiler', () => {
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
+			el.setAttribute('test', 'test');
+			el.setAttribute('input1', 'hello');
+
+			compiler.compile(el);
+
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
+
+			expect(test.input1).to.be.equal('hello');
+		});
+
+		it('should load input with different name', () => {
+			@Component({selector: '[test]'})
+			class Test {
+				@Input('data-input1')
+				public input1: string;
+			}
+
+			application.registerController(Test);
+
+			let el = document.createElement('div');
+			el.setAttribute('test', 'test');
 			el.setAttribute('data-input1', 'hello');
 
 			compiler.compile(el);
 
-			let test = <Test>el['__controller'];
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
 
 			expect(test.input1).to.be.equal('hello');
 		});
 
 		it('should not load input', () => {
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Input()
 				public input1: string;
@@ -118,17 +159,20 @@ describe('#Compiler', () => {
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
+			el.setAttribute('test', 'test');
 
 			compiler.compile(el);
 
-			let test = <Test>el['__controller'];
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
 
 			expect(test.input1).to.be.equal(null);
 		});
 
 		it('should not load input and use default value', () => {
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Input()
 				public input1: string = 'bye';
@@ -137,17 +181,20 @@ describe('#Compiler', () => {
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
+			el.setAttribute('test', 'test');
 
 			compiler.compile(el);
 
-			let test = <Test>el['__controller'];
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
 
 			expect(test.input1).to.be.equal('bye');
 		});
 
 		it('should load input as number', () => {
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Input()
 				public input1: number;
@@ -156,18 +203,21 @@ describe('#Compiler', () => {
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
-			el.setAttribute('data-input1', '54');
+			el.setAttribute('test', 'test');
+			el.setAttribute('input1', '54');
 
 			compiler.compile(el);
 
-			let test = <Test>el['__controller'];
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
 
 			expect(test.input1).to.be.equal(54);
 		});
 
 		it('should load input as boolean', () => {
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Input()
 				public input1: boolean = true;
@@ -176,18 +226,21 @@ describe('#Compiler', () => {
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
-			el.setAttribute('data-input1', 'false');
+			el.setAttribute('test', 'test');
+			el.setAttribute('input1', 'false');
 
 			compiler.compile(el);
 
-			let test = <Test>el['__controller'];
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
 
 			expect(test.input1).to.be.equal(false);
 		});
 
 		it('should load itself as an element', () => {
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Element()
 				public el;
@@ -196,17 +249,20 @@ describe('#Compiler', () => {
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
+			el.setAttribute('test', 'test');
 
 			compiler.compile(el);
 
-			let test = <Test>el['__controller'];
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
 
 			expect(test.el).to.be.equal(el);
 		});
 
 		it('should load child element', () => {
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Element('span')
 				public child;
@@ -215,12 +271,15 @@ describe('#Compiler', () => {
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
+			el.setAttribute('test', 'test');
 			el.innerHTML = '<span>hello</span>';
 
 			compiler.compile(el);
 
-			let test = <Test>el['__controller'];
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
 
 			expect(test.child.nodeName.toLowerCase()).to.be.equal('span');
 			expect(test.child.innerHTML).to.be.equal('hello');
@@ -229,7 +288,7 @@ describe('#Compiler', () => {
 		it('should call event on main element', (done) => {
 			let called = false;
 
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Event('click')
 				public onClick() {
@@ -240,7 +299,7 @@ describe('#Compiler', () => {
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
+			el.setAttribute('test', 'test');
 
 			compiler.compile(el);
 
@@ -254,7 +313,7 @@ describe('#Compiler', () => {
 		it('should call event on child element', (done) => {
 			let called = false;
 
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Event('a', 'click')
 				public onClick() {
@@ -265,7 +324,7 @@ describe('#Compiler', () => {
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
+			el.setAttribute('test', 'test');
 
 			let link = document.createElement('a');
 			el.appendChild(link);
@@ -282,7 +341,7 @@ describe('#Compiler', () => {
 		it('should call event on attached child element', (done) => {
 			let called = false;
 
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Element('a')
 				public btn;
@@ -296,7 +355,7 @@ describe('#Compiler', () => {
 			application.registerController(Test);
 
 			let el = document.createElement('div');
-			el.setAttribute('data-component', 'test');
+			el.setAttribute('test', 'test');
 
 			let link = document.createElement('a');
 			el.appendChild(link);

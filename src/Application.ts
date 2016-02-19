@@ -11,37 +11,31 @@ import {Functions} from './Util/Functions';
 let Reflect = global.Reflect;
 
 
-declare interface InputsList
+export declare interface InputsList
 {
 	[name: string]: InputMetadataDefinition;
 }
 
 
-declare interface EventsList
+export declare interface EventsList
 {
 	[name: string]: EventMetadataDefinition;
 }
 
 
-declare interface ElementsList
+export declare interface ElementsList
 {
 	[name: string]: ElementMetadataDefinition;
 }
 
 
-declare interface ControllerType
+export declare interface ControllerDefinition
 {
 	controller: Function;
 	metadata: ComponentMetadataDefinition;
 	inputs: InputsList;
 	events: EventsList;
 	elements: ElementsList;
-}
-
-
-declare interface ControllersList
-{
-	[name: string]: ControllerType;
 }
 
 
@@ -54,7 +48,7 @@ export class Application
 
 	private compiler: Compiler;
 
-	private controllers: ControllersList = {};
+	private controllers: Array<ControllerDefinition> = [];
 
 
 	constructor(container: Container)
@@ -110,69 +104,25 @@ export class Application
 			}
 		}
 
-		this.controllers[componentMetadata.getName()] = {
+		this.controllers.push({
 			controller: controller,
 			metadata: componentMetadata,
 			inputs: inputs,
 			events: events,
 			elements: elements,
-		};
+		});
 	}
 
 
-	public hasController(name: string): boolean
+	public getControllers(): Array<ControllerDefinition>
 	{
-		return typeof this.controllers[name] !== 'undefined';
+		return this.controllers;
 	}
 
 
-	public createController(name: string): any
+	public createController(controller: any): any
 	{
-		if (!this.hasController(name)) {
-			throw new Error('Component ' + name + ' is not registered.');
-		}
-
-		return this.container.create(<ConcreteType>this.controllers[name].controller);
-	}
-
-
-	public getControllerMetadata(name: string): ComponentMetadataDefinition
-	{
-		if (!this.hasController(name)) {
-			throw new Error('Component ' + name + ' is not registered.');
-		}
-
-		return this.controllers[name].metadata;
-	}
-
-
-	public getControllerInputs(name: string): InputsList
-	{
-		if (!this.hasController(name)) {
-			throw new Error('Component ' + name + ' is not registered.');
-		}
-
-		return this.controllers[name].inputs;
-	}
-
-
-	public getControllerEvents(name: string): EventsList
-	{
-		if (!this.hasController(name)) {
-			throw new Error('Component ' + name + ' is not registered.');
-		}
-
-		return this.controllers[name].events;
-	}
-
-
-	public getControllerElements(name: string): ElementsList
-	{
-		if (!this.hasController(name)) {
-			throw new Error('Component ' + name + ' is not registered.');
-		}
-
-		return this.controllers[name].elements;
+		return this.container.create(controller);
 	}
 
 

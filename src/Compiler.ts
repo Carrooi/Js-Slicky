@@ -2,8 +2,10 @@ import {Dom} from './Util/Dom';
 import {Container} from './DI/Container';
 import {Injectable} from './DI/Metadata';
 import {ConcreteType, global} from './Facade/Lang';
-import {Application} from "./Application";
-import {Functions} from "./Util/Functions";
+import {Application, ControllerDefinition, InputsList, EventsList} from './Application';
+import {Functions} from './Util/Functions';
+import {ComponentMetadataDefinition} from './Controller/Metadata';
+import {ElementsList} from "./Application";
 
 
 let Reflect = global.Reflect;
@@ -34,51 +36,63 @@ export class Compiler
 	}
 
 
-	public compile(el?: Element)
+	public compile(el: Element|Document = document, checkSelf = true)
 	{
-		if (el && el.hasAttribute('data-component')) {
-			this.compileElement(<HTMLElement>el);
+		let testEl: Element = null;
+
+		if (el.parentElement) {
+			testEl = el.parentElement;
+		} else {
+			testEl = document.createElement('div');
+			testEl.appendChild(el);
 		}
 
-		this.compileInnerElement(<HTMLElement>el);
+		let controllers = this.application.getControllers();
+		for (let i = 0; i < controllers.length; i++) {
+			let controllerData = controllers[i];
+			let elements: Array<Element> = [];
+
+			if (checkSelf) {
+				let component = Dom.querySelector(controllerData.metadata.getSelector(), testEl);
+				if (component === el) {
+					elements.push(<Element>el);
+				}
+			}
+
+			let components = Dom.querySelectorAll(controllerData.metadata.getSelector(), <Element>el);
+			for (let j = 0; j < components.length; j++) {
+				elements.push(components[i]);
+			}
+
+			for (let j = 0; j < elements.length; j++) {
+				let controller = this.application.createController(controllerData.controller);
+				this.compileElement(<HTMLElement>elements[j], controller, controllerData);
+			}
+		}
 	}
 
 
-	private compileInnerElement(el?: HTMLElement)
+	private compileElement(el: HTMLElement, controller: any, definition: ControllerDefinition)
 	{
-		let components = Dom.querySelectorAll('[data-component]', el);
-		for (let i = 0; i < components.length; i++) {
-			this.compileElement(<HTMLElement>components[i]);
-		}
-	}
-
-
-	private compileElement(el: HTMLElement)
-	{
-		let name = el.getAttribute('data-component');
-
-		if (!this.application.hasController(name)) {
-			throw new Error('Component ' + name + ' is not registered.');
+		if (definition.metadata.hasTemplate()) {
+			el.innerHTML = definition.metadata.getTemplate();
+			this.compile(el, false);
 		}
 
-		let controller = this.application.createController(name);
-
-		el['__controller'] = controller;
-
-		let metadata = this.application.getControllerMetadata(name);
-		let inputs = this.application.getControllerInputs(name);
-		let events = this.application.getControllerEvents(name);
-		let elements = this.application.getControllerElements(name);
-
-		if (metadata.hasTemplate()) {
-			el.innerHTML = metadata.getTemplate();
-			this.compileInnerElement(el);
+		if (typeof el['__controllers'] === 'undefined') {
+			el['__controllers'] = [];
 		}
+
+		el['__controllers'].push(controller);
+
+		let inputs = definition.inputs;
+		let elements = definition.elements;
+		let events = definition.events;
 
 		for (let inputName in inputs) {
 			if (inputs.hasOwnProperty(inputName)) {
 				let input = inputs[inputName];
-				let realInputName = 'data-' + (input.hasName() ? input.getName() : inputName);
+				let realInputName = input.hasName() ? input.getName() : inputName;
 
 				let realValue = el.hasAttribute(realInputName) ?
 					this.parseInput(el.getAttribute(realInputName), Reflect.getMetadata('design:type', controller, inputName)) :

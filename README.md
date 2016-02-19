@@ -67,10 +67,10 @@ app.run();
 
 Now we can create some first controller.
 
-Controllers are classes which are adding some JS behavior to existing html code with `data-component` attribute.
+Controllers are classes which are adding some JS behavior to existing html elements.
 
 ```html
-<div data-component="app-component">
+<div super-cool-counter>
 	<span>0</span>
 	<a href="#">Add number!</a>
 </div>
@@ -80,7 +80,7 @@ Controllers are classes which are adding some JS behavior to existing html code 
 import {Component, Element, Event} from 'slicky/core';
 
 @Component({
-	name: 'app-component',
+	selector: '[super-cool-counter]',
 })
 export class Counter
 {
@@ -101,6 +101,8 @@ export class Counter
 
 As you can see there are no templates and no data binding (at least for now). Instead we have access to elements inside 
 of our component and we can also attach events there. This idea comes from [spine.js](http://spinejs.com/).
+
+**`selector` option in `@Component` can be any valid CSS DOM query.** 
 
 Now you just need to register this component in `bootstrap.js`:
 
@@ -124,7 +126,7 @@ If your component has `onInit` method, slicky will call it immediately after ini
 import {Component} from 'slicky/core';
 
 @Component({
-	name: 'app-component',
+	selector: '[app-component]',
 })
 export class Counter
 {
@@ -145,7 +147,7 @@ valid css selector.
 If you omit the selector, you'll get access to component's element itself.
 
 ```html
-<div data-component="app-component">
+<div app-component>
 	<span></span>
 </div>
 ```
@@ -154,7 +156,7 @@ If you omit the selector, you'll get access to component's element itself.
 import {Component, Element} from 'slicky/core';
 
 @Component({
-	name: 'app-component',
+	selector: '[app-component]',
 })
 export class Counter
 {
@@ -182,7 +184,7 @@ With `@Event` annotation you can attach some methods to DOM events like `click`,
 import {Component, Event} from 'slicky/core';
 
 @Component({
-	name: 'app-component',
+	selector: '[app-component]',
 })
 export class Counter
 {
@@ -229,7 +231,7 @@ Inputs in slicky are similar to inputs in angular 2. You can use `@Input` annota
 outside of your component.
 
 ```html
-<div data-component="article" data-article-id="5">
+<div article article-id="5">
 	lorem ipsum dolor sit amet
 </div>
 ```
@@ -238,7 +240,7 @@ outside of your component.
 import {Component, Input} from 'slicky/core';
 
 @Component({
-	name: 'app-component',
+	selector: '[article]',
 })
 export class Counter
 {

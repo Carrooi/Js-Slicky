@@ -26,56 +26,8 @@ describe('#Application', () => {
 			}).to.throw(Error, 'Controller Test is not valid component, please add @Component annotation.');
 		});
 
-	});
-
-	describe('hasController()', () => {
-
-		it('should return false', () => {
-			expect(application.hasController('test')).to.be.equal(false);
-		});
-
-		it('should return true', () => {
-			@Component({name: 'test'})
-			class Test {}
-
-			application.registerController(Test);
-
-			expect(application.hasController('test')).to.be.equal(true);
-		});
-
-	});
-
-	describe('createController()', () => {
-
-		it('should throw an error for not registered component', () => {
-			expect(() => {
-				application.createController('test');
-			}).to.throw(Error, 'Component test is not registered.');
-		});
-
-		it('should create instance of entity', () => {
-			@Component({name: 'test'})
-			class Test {}
-
-			application.registerController(Test);
-
-			let test = application.createController('test');
-
-			expect(test).to.be.an.instanceOf(Test);
-		});
-
-	});
-
-	describe('getControllerInputs()', () => {
-
-		it('should throw an error for not registered component', () => {
-			expect(() => {
-				application.getControllerInputs('test');
-			}).to.throw(Error, 'Component test is not registered.');
-		});
-
-		it('should return controllers events', () => {
-			@Component({name: 'test'})
+		it('should have controllers events', () => {
+			@Component({selector: '[test]'})
 			class Test {
 				@Input()
 				private input1: string;
@@ -85,7 +37,7 @@ describe('#Application', () => {
 
 			application.registerController(Test);
 
-			let inputs = application.getControllerInputs('test');
+			let inputs = application.getControllers()[0].inputs;
 
 			expect(inputs).to.have.all.keys('input1', 'input2');
 
@@ -97,18 +49,8 @@ describe('#Application', () => {
 			expect((<InputMetadataDefinition>inputs['input2']).getName()).to.be.equal('input-2');
 		});
 
-	});
-
-	describe('getControllerEvents()', () => {
-
-		it('should throw an error for not registered component', () => {
-			expect(() => {
-				application.getControllerEvents('test');
-			}).to.throw(Error, 'Component test is not registered.');
-		});
-
 		it('should return controllers inputs', () => {
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Event('mouseover')
 				onMouseOver() {}
@@ -118,7 +60,7 @@ describe('#Application', () => {
 
 			application.registerController(Test);
 
-			let events = application.getControllerEvents('test');
+			let events = application.getControllers()[0].events;
 
 			expect(events).to.have.all.keys('onMouseOver', 'onClick');
 
@@ -131,18 +73,8 @@ describe('#Application', () => {
 			expect((<EventMetadataDefinition>events['onClick']).getName()).to.be.equal('click');
 		});
 
-	});
-
-	describe('getControllerElements()', () => {
-
-		it('should throw an error for not registered component', () => {
-			expect(() => {
-				application.getControllerElements('test');
-			}).to.throw(Error, 'Component test is not registered.');
-		});
-
 		it('should return controllers inputs', () => {
-			@Component({name: 'test'})
+			@Component({selector: '[test]'})
 			class Test {
 				@Element()
 				public test1;
@@ -152,7 +84,7 @@ describe('#Application', () => {
 
 			application.registerController(Test);
 
-			let elements = application.getControllerElements('test');
+			let elements = application.getControllers()[0].elements;
 
 			expect(elements).to.have.all.keys('test1', 'test2');
 
@@ -162,6 +94,21 @@ describe('#Application', () => {
 			expect((<ElementMetadataDefinition>elements['test1']).hasSelector()).to.be.equal(false);
 			expect((<ElementMetadataDefinition>elements['test2']).hasSelector()).to.be.equal(true);
 			expect((<ElementMetadataDefinition>elements['test2']).getSelector()).to.be.equal('button');
+		});
+
+	});
+
+	describe('createController()', () => {
+
+		it('should create instance of entity', () => {
+			@Component({selector: '[test]'})
+			class Test {}
+
+			application.registerController(Test);
+
+			let test = application.createController(Test);
+
+			expect(test).to.be.an.instanceOf(Test);
 		});
 
 	});
