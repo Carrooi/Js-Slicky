@@ -61,7 +61,7 @@ export class Compiler
 
 			let components = Dom.querySelectorAll(controllerData.metadata.getSelector(), <Element>el);
 			for (let j = 0; j < components.length; j++) {
-				elements.push(components[i]);
+				elements.push(components[j]);
 			}
 
 			for (let j = 0; j < elements.length; j++) {
