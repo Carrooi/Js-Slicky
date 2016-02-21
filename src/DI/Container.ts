@@ -39,14 +39,26 @@ export class Container
 	}
 
 
-	public provide(service: ConcreteType, options?: ProvideOptions): void
+	public provide(service: ConcreteType|Array<ConcreteType|Array<ConcreteType|ProvideOptions>>, options?: ProvideOptions): void
 	{
+		if (Object.prototype.toString.call(service) === '[object Array]') {
+			for (let i = 0; i < service.length; i++) {
+				if (Object.prototype.toString.call(service[i]) === '[object Array]' && service[i].length === 2) {
+					this.provide(service[i][0], service[i][1]);
+				} else {
+					this.provide(service[i]);
+				}
+			}
+
+			return;
+		}
+
 		if (!Annotations.hasAnnotation(service, InjectableMetadataDefinition)) {
-			throw new Error('Can not register ' + Functions.getName(service) + ' service into DI container without @Injectable() annotation.');
+			throw new Error('Can not register ' + Functions.getName(<ConcreteType>service) + ' service into DI container without @Injectable() annotation.');
 		}
 
 		this.services.push({
-			service: service,
+			service: <ConcreteType>service,
 			options: options,
 			instance: null,
 		});

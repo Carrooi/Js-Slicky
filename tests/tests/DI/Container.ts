@@ -61,6 +61,55 @@ describe('#DI/Container', () => {
 			expect(called).to.be.equal(1);
 		});
 
+		it('should provide more services', () => {
+			@Injectable()
+			class Test1 {}
+
+			@Injectable()
+			class Test2 {}
+
+			let container = new Container;
+
+			container.provide([
+				Test1,
+				Test2,
+			]);
+
+			expect(container.get(Test1)).to.be.an.instanceOf(Test1);
+			expect(container.get(Test2)).to.be.an.instanceOf(Test2);
+		});
+
+		it('should provide more services with options', () => {
+			@Injectable()
+			class Test1 {}
+
+			@Injectable()
+			class Test2 {}
+
+			let container = new Container;
+			let called = 0;
+
+			container.provide([
+				[Test1, {
+					useFactory: () => {
+						called++;
+						return new Test1;
+					},
+				}],
+				[Test2, {
+					useFactory: () => {
+						called++;
+						return new Test2;
+					},
+				}],
+			]);
+
+			expect(container.get(Test1)).to.be.an.instanceOf(Test1);
+			expect(container.get(Test2)).to.be.an.instanceOf(Test2);
+
+			expect(called).to.be.equal(2);
+		});
+
 	});
 
 	describe('get()', () => {
