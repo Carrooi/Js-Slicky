@@ -26,6 +26,17 @@ describe('#Application', () => {
 			}).to.throw(Error, 'Controller Test is not valid component, please add @Component annotation.');
 		});
 
+		it('should register controller', () => {
+			@Component({selector: '[test]'})
+			class Test {}
+
+			expect(application.getControllers()).to.have.length(0);
+
+			application.registerController(Test);
+
+			expect(application.getControllers()).to.have.length(1);
+		});
+
 		it('should have controllers events', () => {
 			@Component({selector: '[test]'})
 			class Test {
@@ -94,6 +105,27 @@ describe('#Application', () => {
 			expect((<ElementMetadataDefinition>elements['test1']).hasSelector()).to.be.equal(false);
 			expect((<ElementMetadataDefinition>elements['test2']).hasSelector()).to.be.equal(true);
 			expect((<ElementMetadataDefinition>elements['test2']).getSelector()).to.be.equal('button');
+		});
+
+	});
+
+	describe('registerControllers()', () => {
+
+		it('should register many controllers', () => {
+			@Component({selector: '[test1]'})
+			class Test1 {}
+
+			@Component({selector: '[test2]'})
+			class Test2 {}
+
+			expect(application.getControllers()).to.have.length(0);
+
+			application.registerControllers([
+				Test1,
+				Test2,
+			]);
+
+			expect(application.getControllers()).to.have.length(2);
 		});
 
 	});

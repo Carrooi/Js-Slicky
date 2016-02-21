@@ -114,6 +114,14 @@ export class Application
 	}
 
 
+	public registerControllers(controllers: Array<Function>): void
+	{
+		for (let i = 0; i < controllers.length; i++) {
+			this.registerController(controllers[i]);
+		}
+	}
+
+
 	public getControllers(): Array<ControllerDefinition>
 	{
 		return this.controllers;
