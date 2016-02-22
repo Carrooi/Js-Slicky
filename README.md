@@ -254,6 +254,52 @@ export class Counter
 Now you'll find `5` in `id` property. If you provide type of property, slicky will automatically try to transform 
 value of property into needed type. In this case into `integer`. Supported types are `number`, `string` and `boolean`.
 
+These input properties are actually attributes, but you can also work with elements' properties. This is mostly handy 
+when you have parent component which creates child component with some data.
+
+```ts
+import {Component, Input} from 'slicky/core';
+import {Compiler} from 'slicky/src/Compiler';
+
+@Component({
+	selector: '[child]',
+})
+export class Child
+{
+
+	@Input('[myData]')
+	private data: any;
+
+}
+
+@Component({
+	selector: '[parent]',
+})
+export class Parent
+{
+
+	private compiler: Compiler;
+	
+	constructor(compiler: Compiler)
+	{
+		this.compiler = compiler;
+	}
+
+	public addChild(data: any): void
+	{
+		let child = document.createElement('div');
+		child.myData = data;
+		
+		this.compiler.compile(child);
+		
+		// todo: append child to parent
+	}
+
+}
+```
+
+`data` is now accessible in child component `data` property.
+
 ## Dependency injection
 
 Of course you can create some services (like model classes) and let our DI container pass them automatically to your 

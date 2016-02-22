@@ -239,6 +239,55 @@ describe('#Compiler', () => {
 			expect(test.input1).to.be.equal(false);
 		});
 
+		it('should load inputs from element property', () => {
+			@Component({selector: '[test]'})
+			class Test {
+				@Input('[testProperty]')
+				public input: Array<number>;
+			}
+
+			application.registerController(Test);
+
+			let data = [1, 2, 3];
+
+			let el = document.createElement('div');
+			el.setAttribute('test', 'test');
+			el['testProperty'] = data;
+
+			compiler.compile(el);
+
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
+
+			expect(test.input).to.be.equal(data);
+		});
+
+		it('should not load inputs from element property but use default value', () => {
+			let data = [4, 5, 6];
+
+			@Component({selector: '[test]'})
+			class Test {
+				@Input('[testProperty]')
+				public input: Array<number> = data;
+			}
+
+			application.registerController(Test);
+
+			let el = document.createElement('div');
+			el.setAttribute('test', 'test');
+
+			compiler.compile(el);
+
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
+
+			expect(test.input).to.be.equal(data);
+		});
+
 		it('should load itself as an element', () => {
 			@Component({selector: '[test]'})
 			class Test {

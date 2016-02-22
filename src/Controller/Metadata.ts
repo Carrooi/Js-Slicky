@@ -104,10 +104,21 @@ export class InputMetadataDefinition
 
 	private name: string;
 
+	private propertyInput: boolean = false;
+
 
 	constructor(name?: string)
 	{
-		this.name = name;
+		if (name) {
+			let m = name.match(/^\[(.+)?]$/);
+
+			if (m) {
+				this.name = m[1];
+				this.propertyInput = true;
+			} else {
+				this.name = name;
+			}
+		}
 	}
 
 
@@ -120,6 +131,12 @@ export class InputMetadataDefinition
 	public getName(): string
 	{
 		return this.name;
+	}
+
+
+	public isPropertyInput(): boolean
+	{
+		return this.propertyInput === true;
 	}
 
 }

@@ -93,11 +93,14 @@ export class Compiler
 			if (inputs.hasOwnProperty(inputName)) {
 				let input = inputs[inputName];
 				let realInputName = input.hasName() ? input.getName() : inputName;
+				let realValue = null;
 
-				let realValue = el.hasAttribute(realInputName) ?
-					this.parseInput(el.getAttribute(realInputName), Reflect.getMetadata('design:type', controller, inputName)) :
-					null
-				;
+				if (input.isPropertyInput()) {
+					realValue = el[input.getName()] ? el[input.getName()] : null;
+
+				} else if (el.hasAttribute(realInputName)) {
+					realValue = this.parseInput(el.getAttribute(realInputName), Reflect.getMetadata('design:type', controller, inputName));
+				}
 
 				if (realValue === null && typeof controller[inputName] !== 'undefined') {
 					continue;
