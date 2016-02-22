@@ -287,6 +287,7 @@ export class Parent
 	public addChild(data: any): void
 	{
 		let child = document.createElement('div');
+		child.setAttribute('child', 'child');
 		child.myData = data;
 		
 		this.compiler.compile(child);
