@@ -258,8 +258,7 @@ These input properties are actually attributes, but you can also work with eleme
 when you have parent component which creates child component with some data.
 
 ```ts
-import {Component, Input} from 'slicky/core';
-import {Compiler} from 'slicky/src/Compiler';
+import {Component, Input, Compiler} from 'slicky/core';
 
 @Component({
 	selector: '[child]',
