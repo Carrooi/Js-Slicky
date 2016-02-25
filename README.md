@@ -300,6 +300,23 @@ export class Parent
 
 `data` is now accessible in child component `data` property.
 
+Last option for inputs is `@Required()` annotation. If you'll forgot to set such input in your HTML, slicky will throw 
+an error about missing required input.
+
+```ts
+@Component({
+	selector: '[component]',
+})
+export class Parent
+{
+
+	@Input()
+	@Required()
+	public data: any;
+
+}
+```
+
 ## Dependency injection
 
 Of course you can create some services (like model classes) and let our DI container pass them automatically to your 

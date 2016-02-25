@@ -102,8 +102,13 @@ export class Compiler
 					realValue = this.parseInput(el.getAttribute(realInputName), Reflect.getMetadata('design:type', controller, inputName));
 				}
 
-				if (realValue === null && typeof controller[inputName] !== 'undefined') {
-					continue;
+				if (realValue === null) {
+					if (typeof controller[inputName] !== 'undefined') {
+						continue;
+					} else if (input.isRequired()) {
+						// todo: in which element? better error message
+						throw new Error("Component's input " + Functions.getName(definition.controller) + '::' + inputName + ' was not found in element.');
+					}
 				}
 
 				controller[inputName] = realValue;

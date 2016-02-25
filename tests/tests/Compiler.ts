@@ -1,6 +1,6 @@
 import {Compiler} from '../../src/Compiler';
 import {Container} from '../../di';
-import {Application, Component, Input, Event, Element} from '../../core';
+import {Application, Component, Input, Event, Element, Required} from '../../core';
 
 
 import chai = require('chai');
@@ -286,6 +286,74 @@ describe('#Compiler', () => {
 			let test = <Test>el['__controllers'][0];
 
 			expect(test.input).to.be.equal(data);
+		});
+
+		it('should load required input', () => {
+			@Component({selector: '[test]'})
+			class Test {
+				@Input()
+				@Required()
+				public input;
+			}
+
+			application.registerController(Test);
+
+			let el = document.createElement('div');
+			el.setAttribute('test', 'test');
+			el.setAttribute('input', 'hello');
+
+			compiler.compile(el);
+
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
+
+			expect(test.input).to.be.equal('hello');
+		});
+
+		it('should load required property input', () => {
+			@Component({selector: '[test]'})
+			class Test {
+				@Required()
+				@Input('[testProperty]')
+				public input;
+			}
+
+			application.registerController(Test);
+
+			let data = [1, 2, 3];
+
+			let el = document.createElement('div');
+			el.setAttribute('test', 'test');
+			el['testProperty'] = data;
+
+			compiler.compile(el);
+
+			expect(el['__controllers']).to.be.an('array');
+			expect(el['__controllers']).to.have.length(1);
+
+			let test = <Test>el['__controllers'][0];
+
+			expect(test.input).to.be.equal(data);
+		});
+
+		it('should throw an error for required input', () => {
+			@Component({selector: '[test]'})
+			class Test {
+				@Input()
+				@Required()
+				public input;
+			}
+
+			application.registerController(Test);
+
+			let el = document.createElement('div');
+			el.setAttribute('test', 'test');
+
+			expect(() => {
+				compiler.compile(el);
+			}).to.throw(Error, "Component's input Test::input was not found in element.");
 		});
 
 		it('should load itself as an element', () => {

@@ -106,6 +106,8 @@ export class InputMetadataDefinition
 
 	private propertyInput: boolean = false;
 
+	private required: boolean = false;
+
 
 	constructor(name?: string)
 	{
@@ -139,6 +141,18 @@ export class InputMetadataDefinition
 		return this.propertyInput === true;
 	}
 
+
+	public isRequired(): boolean
+	{
+		return this.required === true;
+	}
+
+
+	public setRequired(required: boolean): void
+	{
+		this.required = required;
+	}
+
 }
 
 
@@ -170,7 +184,15 @@ export class ElementMetadataDefinition
 }
 
 
+@CONST()
+export class RequiredMetadataDefinition
+{
+
+}
+
+
 export var Component = makeDecorator(ComponentMetadataDefinition);
 export var Event = makePropDecorator(EventMetadataDefinition);
 export var Input = makePropDecorator(InputMetadataDefinition);
 export var Element = makePropDecorator(ElementMetadataDefinition);
+export var Required = makePropDecorator(RequiredMetadataDefinition);

@@ -2,7 +2,7 @@ import {Container} from './DI/Container';
 import {Injectable} from './DI/Metadata';
 import {Dom} from './Util/Dom';
 import {global, ConcreteType} from './Facade/Lang';
-import {ComponentMetadataDefinition, InputMetadataDefinition, EventMetadataDefinition, ElementMetadataDefinition} from './Controller/Metadata';
+import {ComponentMetadataDefinition, InputMetadataDefinition, EventMetadataDefinition, ElementMetadataDefinition, RequiredMetadataDefinition} from './Controller/Metadata';
 import {Compiler} from './Compiler';
 import {Annotations} from './Util/Annotations';
 import {Functions} from './Util/Functions';
@@ -85,10 +85,16 @@ export class Application
 
 		for (let propName in propMetadata) {
 			if (propMetadata.hasOwnProperty(propName)) {
+				let inputMetadata: InputMetadataDefinition = null;
+				let requiredMetadata: RequiredMetadataDefinition = null;
+
 				for (let i = 0; i < propMetadata[propName].length; i++) {
 					if (propMetadata[propName][i] instanceof InputMetadataDefinition) {
-						inputs[propName] = propMetadata[propName][i];
-						break;
+						inputMetadata = propMetadata[propName][i];
+					}
+
+					if (propMetadata[propName][i] instanceof RequiredMetadataDefinition) {
+						requiredMetadata = propMetadata[propName][i];
 					}
 
 					if (propMetadata[propName][i] instanceof EventMetadataDefinition) {
@@ -100,6 +106,14 @@ export class Application
 						elements[propName] = propMetadata[propName][i];
 						break;
 					}
+				}
+
+				if (inputMetadata !== null) {
+					if (requiredMetadata !== null) {
+						inputMetadata.setRequired(true);
+					}
+
+					inputs[propName] = inputMetadata;
 				}
 			}
 		}
