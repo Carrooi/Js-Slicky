@@ -304,6 +304,8 @@ Last option for inputs is `@Required()` annotation. If you'll forgot to set such
 an error about missing required input.
 
 ```ts
+import {Component, Input, Required} from 'slicky/core';
+
 @Component({
 	selector: '[component]',
 })
