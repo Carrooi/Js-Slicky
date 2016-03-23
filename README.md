@@ -388,3 +388,6 @@ container.provide(Users, {
 	}
 });
 ```
+
+Services registered via `useFactory` option doesn't need to have `@Injectable()` annotation, so you can use this option 
+to register libraries which are not compatible with slicky.

@@ -39,7 +39,7 @@ export class Container
 	}
 
 
-	public provide(service: ConcreteType|Array<ConcreteType|Array<ConcreteType|ProvideOptions>>, options?: ProvideOptions): void
+	public provide(service: ConcreteType|Array<ConcreteType|Array<ConcreteType|ProvideOptions>>, options: ProvideOptions = {}): void
 	{
 		if (Object.prototype.toString.call(service) === '[object Array]') {
 			for (let i = 0; i < service.length; i++) {
@@ -53,7 +53,7 @@ export class Container
 			return;
 		}
 
-		if (!Annotations.hasAnnotation(service, InjectableMetadataDefinition)) {
+		if (!Annotations.hasAnnotation(service, InjectableMetadataDefinition) && typeof options.useFactory === 'undefined') {
 			throw new Error('Can not register ' + Functions.getName(<ConcreteType>service) + ' service into DI container without @Injectable() annotation.');
 		}
 
@@ -70,7 +70,7 @@ export class Container
 		for (let i = 0; i < this.services.length; i++) {
 			if (this.services[i].service === service) {
 				if (this.services[i].instance === null) {
-					if (typeof this.services[i].options !== 'undefined' && typeof this.services[i].options.useFactory !== 'undefined') {
+					if (typeof this.services[i].options.useFactory !== 'undefined') {
 						this.services[i].instance = this.create(<ConcreteType>this.services[i].options.useFactory);
 					} else {
 						this.services[i].instance = this.create(this.services[i].service);

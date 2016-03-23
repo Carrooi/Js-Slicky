@@ -10,16 +10,6 @@ describe('#DI/Container', () => {
 
 	describe('provide()', () => {
 
-		it('should throw an error if service is without @Injectable annotation', () => {
-			class Test {}
-
-			let container = new Container;
-
-			expect(() => {
-				container.provide(Test);
-			}).to.throw(Error, 'Can not register Test service into DI container without @Injectable() annotation.');
-		});
-
 		it('should return self', () => {
 			let container = new Container;
 			let container2 = new Container;
@@ -108,6 +98,30 @@ describe('#DI/Container', () => {
 			expect(container.get(Test2)).to.be.an.instanceOf(Test2);
 
 			expect(called).to.be.equal(2);
+		});
+
+		it('should throw an error if service is without @Injectable annotation', () => {
+			class Test {}
+
+			let container = new Container;
+
+			expect(() => {
+				container.provide(Test);
+			}).to.throw(Error, 'Can not register Test service into DI container without @Injectable() annotation.');
+		});
+
+		it('should not throw an error about missing @Injectable for services with useFactory option', () => {
+			class Test1 {}
+
+			let container = new Container;
+
+			container.provide(Test1, {
+				useFactory: () => {
+					return new Test1;
+				}
+			})
+
+			expect(container.get(Test1)).to.be.an.instanceOf(Test1);
 		});
 
 	});
