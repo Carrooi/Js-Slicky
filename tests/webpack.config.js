@@ -30,7 +30,7 @@ module.exports = {
 					],
 					'configFileName': './tsconfig.json'
 				},
-				exclude: [ /\.(spec|e2e)\.ts$/, /node_modules\/(?!(ng2-.+))/ ]
+				exclude: []
 			}
 		],
 		noParse: []
