@@ -1,12 +1,12 @@
 import {Annotations} from '../Util/Annotations';
-import {DirectiveMetadataDefinition, EventMetadataDefinition, InputMetadataDefinition, RequiredMetadataDefinition} from './Metadata';
+import {DirectiveMetadataDefinition, HostEventMetadataDefinition, InputMetadataDefinition, RequiredMetadataDefinition} from './Metadata';
 import {Functions} from '../Util/Functions';
 import {global} from '../Facade/Lang';
 
 
 export declare interface EventsList
 {
-	[name: string]: EventMetadataDefinition;
+	[name: string]: HostEventMetadataDefinition;
 }
 
 
@@ -64,7 +64,7 @@ export class DirectiveParser
 						requiredMetadata = propMetadata[propName][i];
 					}
 
-					if (propMetadata[propName][i] instanceof EventMetadataDefinition) {
+					if (propMetadata[propName][i] instanceof HostEventMetadataDefinition) {
 						events[propName] = propMetadata[propName][i];
 						break;
 					}

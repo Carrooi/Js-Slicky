@@ -79,10 +79,10 @@ same as directive's input.
 
 ## Events
 
-Creating DOM events subscribers can be done with `@Event` annotation. 
+Creating DOM events subscribers can be done with `@HostEvent` annotation. 
 
 ```ts
-import {Directive, ElementRef, Event} from 'slicky/core';
+import {Directive, ElementRef, HostEvent} from 'slicky/core';
 
 @Directive({
 	selector: 'a[confirm]',
@@ -97,7 +97,7 @@ export class ConfirmationLink implements OnInit
 		this.elementRef = elementRef;
 	}
 
-	@Event('click')
+	@HostEvent('click')
 	public onClick(e: Event): void
 	{
 		e.preventDefault();
@@ -115,10 +115,10 @@ export class ConfirmationLink implements OnInit
 ```
 
 Slicky also allows you to attach subscriber to element's children just by 
-changing the `@Event` annotation slightly.
+changing the `@HostEvent` annotation slightly.
 
 ```ts
-@Event('a.child-selector', 'click')
+@HostEvent('a.child-selector', 'click')
 public onChildClick(e: Event): void
 {
 }

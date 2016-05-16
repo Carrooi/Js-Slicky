@@ -2,7 +2,7 @@ import {Compiler} from '../../src/Compiler';
 import {OnInit, OnDestroy} from '../../src/Interfaces';
 import {Container} from '../../di';
 import {Dom} from '../../src/Util/Dom';
-import {Application, Component, Input, Event, Element, Required} from '../../core';
+import {Application, Component, Input, HostEvent, HostElement, Required} from '../../core';
 import {View} from '../../src/Views/View';
 import {ElementRef} from '../../src/Templating/ElementRef';
 import {ControllerView} from '../../src/Entity/ControllerView';
@@ -256,7 +256,7 @@ describe('#Compiler', () => {
 		it('should load itself as an element', () => {
 			@Component({selector: '[test]'})
 			class Test {
-				@Element()
+				@HostElement()
 				public el;
 			}
 
@@ -279,7 +279,7 @@ describe('#Compiler', () => {
 		it('should load child element', () => {
 			@Component({selector: '[test]'})
 			class Test {
-				@Element('span')
+				@HostElement('span')
 				public child;
 			}
 
@@ -305,7 +305,7 @@ describe('#Compiler', () => {
 
 			@Component({selector: '[test]'})
 			class Test {
-				@Event('click')
+				@HostEvent('click')
 				public onClick() {
 					called++;
 				}
@@ -331,7 +331,7 @@ describe('#Compiler', () => {
 
 			@Component({selector: '[test]'})
 			class Test {
-				@Event('a', 'click')
+				@HostEvent('a', 'click')
 				public onClick() {
 					called++;
 				}
@@ -357,10 +357,10 @@ describe('#Compiler', () => {
 
 			@Component({selector: '[test]'})
 			class Test {
-				@Element('a')
+				@HostElement('a')
 				public btn;
 
-				@Event('@btn', 'click')
+				@HostEvent('@btn', 'click')
 				public onClick() {
 					called++;
 				}

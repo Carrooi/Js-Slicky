@@ -74,7 +74,7 @@ import {Component, Element} from 'slicky/core';
 class Test
 {
 
-	@Element('div > span')
+	@HostElement('div > span')
 	public child: HTMLElement;
 
 }
@@ -82,5 +82,5 @@ class Test
 
 ## Limitations
 
-`@Event` annotations are not always working nicely with custom templates, so you 
+`@HostEvent` annotations are not always working nicely with custom templates, so you 
 should probably avoid doing that and use event binding instead.

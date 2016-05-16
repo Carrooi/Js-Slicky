@@ -1,4 +1,4 @@
-export {Component, Element, Event, Input, Required, Directive} from './src/Entity/Metadata';
+export {Component, HostElement, HostEvent, Input, Required, Directive} from './src/Entity/Metadata';
 export {Application} from './src/Application';
 export {Compiler} from './src/Compiler';
 export {View} from './src/Views/View';

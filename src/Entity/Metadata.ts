@@ -68,7 +68,7 @@ export class ComponentMetadataDefinition extends DirectiveMetadataDefinition
 
 
 @CONST()
-export class EventMetadataDefinition
+export class HostEventMetadataDefinition
 {
 
 
@@ -95,6 +95,22 @@ export class EventMetadataDefinition
 
 
 @CONST()
+export class HostElementMetadataDefinition
+{
+
+
+	public selector: string;
+
+
+	constructor(selector?: string)
+	{
+		this.selector = selector ? selector : null;
+	}
+
+}
+
+
+@CONST()
 export class InputMetadataDefinition
 {
 
@@ -115,22 +131,6 @@ export class InputMetadataDefinition
 
 
 @CONST()
-export class ElementMetadataDefinition
-{
-
-
-	public selector: string;
-
-
-	constructor(selector?: string)
-	{
-		this.selector = selector ? selector : null;
-	}
-
-}
-
-
-@CONST()
 export class RequiredMetadataDefinition
 {
 
@@ -140,7 +140,7 @@ export class RequiredMetadataDefinition
 export var Directive = makeDecorator(DirectiveMetadataDefinition);
 
 export var Component = makeDecorator(ComponentMetadataDefinition);
-export var Event = makePropDecorator(EventMetadataDefinition);
+export var HostEvent = makePropDecorator(HostEventMetadataDefinition);
+export var HostElement = makePropDecorator(HostElementMetadataDefinition);
 export var Input = makePropDecorator(InputMetadataDefinition);
-export var Element = makePropDecorator(ElementMetadataDefinition);
 export var Required = makePropDecorator(RequiredMetadataDefinition);

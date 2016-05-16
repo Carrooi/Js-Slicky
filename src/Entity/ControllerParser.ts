@@ -1,13 +1,13 @@
 import {Annotations} from '../Util/Annotations';
 import {Functions} from '../Util/Functions';
 import {global} from '../Facade/Lang';
-import {ComponentMetadataDefinition, ElementMetadataDefinition} from './Metadata';
+import {ComponentMetadataDefinition, HostElementMetadataDefinition} from './Metadata';
 import {DirectiveParser, DirectiveDefinition} from './DirectiveParser';
 
 
 export declare interface ElementsList
 {
-	[name: string]: ElementMetadataDefinition;
+	[name: string]: HostElementMetadataDefinition;
 }
 
 
@@ -47,7 +47,7 @@ export class ControllerParser extends DirectiveParser
 		for (let propName in propMetadata) {
 			if (propMetadata.hasOwnProperty(propName)) {
 				for (let i = 0; i < propMetadata[propName].length; i++) {
-					if (propMetadata[propName][i] instanceof ElementMetadataDefinition) {
+					if (propMetadata[propName][i] instanceof HostElementMetadataDefinition) {
 						elements[propName] = propMetadata[propName][i];
 						break;
 					}

@@ -1,5 +1,5 @@
 import {ControllerParser} from '../../../src/Entity/ControllerParser';
-import {Component, Input, InputMetadataDefinition, Event, EventMetadataDefinition, Element, ElementMetadataDefinition} from '../../../src/Entity/Metadata';
+import {Component, Input, InputMetadataDefinition, HostEvent, HostEventMetadataDefinition, HostElement, HostElementMetadataDefinition} from '../../../src/Entity/Metadata';
 
 import chai = require('chai');
 import {ComponentMetadataDefinition} from "../../../src/Entity/Metadata";
@@ -64,9 +64,9 @@ describe('#Entity/ControllerParser', () => {
 		it('should return controllers events', () => {
 			@Component({selector: '[test]'})
 			class Test {
-				@Event('mouseover')
+				@HostEvent('mouseover')
 				onMouseOver() {}
-				@Event('a', 'click')
+				@HostEvent('a', 'click')
 				onClick() {}
 			}
 
@@ -76,21 +76,21 @@ describe('#Entity/ControllerParser', () => {
 
 			expect(events).to.have.all.keys('onMouseOver', 'onClick');
 
-			expect(events['onMouseOver']).to.be.an.instanceOf(EventMetadataDefinition);
-			expect(events['onClick']).to.be.an.instanceOf(EventMetadataDefinition);
+			expect(events['onMouseOver']).to.be.an.instanceOf(HostEventMetadataDefinition);
+			expect(events['onClick']).to.be.an.instanceOf(HostEventMetadataDefinition);
 
-			expect((<EventMetadataDefinition>events['onMouseOver']).el).to.be.equal('@');
-			expect((<EventMetadataDefinition>events['onMouseOver']).name).to.be.equal('mouseover');
-			expect((<EventMetadataDefinition>events['onClick']).el).to.be.equal('a');
-			expect((<EventMetadataDefinition>events['onClick']).name).to.be.equal('click');
+			expect((<HostEventMetadataDefinition>events['onMouseOver']).el).to.be.equal('@');
+			expect((<HostEventMetadataDefinition>events['onMouseOver']).name).to.be.equal('mouseover');
+			expect((<HostEventMetadataDefinition>events['onClick']).el).to.be.equal('a');
+			expect((<HostEventMetadataDefinition>events['onClick']).name).to.be.equal('click');
 		});
 
 		it('should return controllers elements', () => {
 			@Component({selector: '[test]'})
 			class Test {
-				@Element()
+				@HostElement()
 				public test1;
-				@Element('button')
+				@HostElement('button')
 				public test2;
 			}
 
@@ -100,11 +100,11 @@ describe('#Entity/ControllerParser', () => {
 
 			expect(elements).to.have.all.keys('test1', 'test2');
 
-			expect(elements['test1']).to.be.an.instanceOf(ElementMetadataDefinition);
-			expect(elements['test2']).to.be.an.instanceOf(ElementMetadataDefinition);
+			expect(elements['test1']).to.be.an.instanceOf(HostElementMetadataDefinition);
+			expect(elements['test2']).to.be.an.instanceOf(HostElementMetadataDefinition);
 
-			expect((<ElementMetadataDefinition>elements['test1']).selector).to.be.equal(null);
-			expect((<ElementMetadataDefinition>elements['test2']).selector).to.be.equal('button');
+			expect((<HostElementMetadataDefinition>elements['test1']).selector).to.be.equal(null);
+			expect((<HostElementMetadataDefinition>elements['test2']).selector).to.be.equal('button');
 		});
 
 	});

@@ -1,5 +1,5 @@
 import {DirectiveParser} from '../../../src/Entity/DirectiveParser';
-import {Directive, DirectiveMetadataDefinition, Event, EventMetadataDefinition} from '../../../src/Entity/Metadata';
+import {Directive, DirectiveMetadataDefinition, HostEvent, HostEventMetadataDefinition} from '../../../src/Entity/Metadata';
 
 import chai = require('chai');
 
@@ -42,9 +42,9 @@ describe('#Entity/DirectiveParser', () => {
 				selector: '[test]',
 			})
 			class Test {
-				@Event('mouseover')
+				@HostEvent('mouseover')
 				onMouseOver() {}
-				@Event('a', 'click')
+				@HostEvent('a', 'click')
 				onClick() {}
 			}
 
@@ -56,13 +56,13 @@ describe('#Entity/DirectiveParser', () => {
 
 			expect(events).to.have.all.keys('onMouseOver', 'onClick');
 
-			expect(events['onMouseOver']).to.be.an.instanceOf(EventMetadataDefinition);
-			expect(events['onClick']).to.be.an.instanceOf(EventMetadataDefinition);
+			expect(events['onMouseOver']).to.be.an.instanceOf(HostEventMetadataDefinition);
+			expect(events['onClick']).to.be.an.instanceOf(HostEventMetadataDefinition);
 
-			expect((<EventMetadataDefinition>events['onMouseOver']).el).to.be.equal('@');
-			expect((<EventMetadataDefinition>events['onMouseOver']).name).to.be.equal('mouseover');
-			expect((<EventMetadataDefinition>events['onClick']).el).to.be.equal('a');
-			expect((<EventMetadataDefinition>events['onClick']).name).to.be.equal('click');
+			expect((<HostEventMetadataDefinition>events['onMouseOver']).el).to.be.equal('@');
+			expect((<HostEventMetadataDefinition>events['onMouseOver']).name).to.be.equal('mouseover');
+			expect((<HostEventMetadataDefinition>events['onClick']).el).to.be.equal('a');
+			expect((<HostEventMetadataDefinition>events['onClick']).name).to.be.equal('click');
 		});
 
 	});
