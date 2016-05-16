@@ -7,6 +7,13 @@ import {Injectable, InjectableMetadataDefinition} from './Metadata';
 let Reflect = global.Reflect;
 
 
+export declare interface CustomServiceDefinition
+{
+	service: any,
+	options: ProvideOptions,
+}
+
+
 declare interface ProvideOptions
 {
 	useFactory?: Function;
@@ -67,25 +74,17 @@ export class Container
 
 	public get(service: ConcreteType): any
 	{
-		for (let i = 0; i < this.services.length; i++) {
-			if (this.services[i].service === service) {
-				if (this.services[i].instance === null) {
-					if (typeof this.services[i].options.useFactory !== 'undefined') {
-						this.services[i].instance = this.create(<ConcreteType>this.services[i].options.useFactory);
-					} else {
-						this.services[i].instance = this.create(this.services[i].service);
-					}
-				}
+		let instance = this.getFromList(this.services, service);
 
-				return this.services[i].instance;
-			}
+		if (!instance) {
+			throw new Error('Service ' + Functions.getName(service) + ' is not registered in DI container.');
 		}
 
-		throw new Error('Service ' + Functions.getName(service) + ' is not registered in DI container.');
+		return instance;
 	}
 
 
-	public create(obj: ConcreteType): any
+	public create(obj: ConcreteType, use: Array<CustomServiceDefinition> = []): any
 	{
 		let services = Reflect.getMetadata('design:paramtypes', obj);
 		if (!services) {
@@ -94,7 +93,13 @@ export class Container
 
 		let inject = [];
 		for (let i = 0; i < services.length; i++) {
-			inject.push(this.get(services[i]));
+			let instance = this.getFromList(use, services[i]);
+
+			if (!instance) {
+				instance = this.get(services[i]);
+			}
+
+			inject.push(instance);
 		}
 
 		let construct = function(constructor, args) {
@@ -111,6 +116,26 @@ export class Container
 		};
 
 		return construct(obj, inject);
+	}
+
+
+	private getFromList(services: Array<Service>, service: ConcreteType): any
+	{
+		for (let i = 0; i < services.length; i++) {
+			if (services[i].service === service) {
+				if (services[i].instance == null) {
+					if (typeof services[i].options.useFactory !== 'undefined') {
+						services[i].instance = this.create(<ConcreteType>services[i].options.useFactory);
+					} else {
+						services[i].instance = this.create(services[i].service);
+					}
+				}
+
+				return services[i].instance;
+			}
+		}
+
+		return null;
 	}
 
 }
