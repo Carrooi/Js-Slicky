@@ -1,14 +1,26 @@
+import {OnInit, OnUpdate, OnChange} from './Interfaces';
 import {Dom} from './Util/Dom';
 import {Container} from './DI/Container';
 import {Injectable} from './DI/Metadata';
-import {ConcreteType, global} from './Facade/Lang';
-import {Application, ControllerDefinition, InputsList, EventsList} from './Application';
+import {ControllerParser, ControllerDefinition} from './Entity/ControllerParser';
+import {DirectiveParser, DirectiveDefinition} from './Entity/DirectiveParser';
 import {Functions} from './Util/Functions';
-import {ComponentMetadataDefinition} from './Controller/Metadata';
-import {ElementsList} from "./Application";
-
-
-let Reflect = global.Reflect;
+import {TextParser} from './Templating/Parsers/TextParser';
+import {AttributeParser} from './Templating/Parsers/AttributeParser';
+import {TextBinding} from './Templating/Binding/TextBinding';
+import {EventBinding} from './Templating/Binding/EventBinding';
+import {PropertyBinding} from './Templating/Binding/PropertyBinding';
+import {AttributeBinding} from './Templating/Binding/AttributeBinding';
+import {View} from './Views/View';
+import {ElementRef} from './Templating/ElementRef';
+import {TemplateRef} from './Templating/TemplateRef';
+import {Annotations} from './Util/Annotations';
+import {Helpers} from './Util/Helpers';
+import {ChangedObject} from './Util/Watcher';
+import {ComponentMetadataDefinition} from './Entity/Metadata';
+import {DirectiveMetadataDefinition} from './Entity/Metadata';
+import {ExpressionParser, Expression} from './Templating/Parsers/ExpressionParser';
+import {EmbeddedView} from './Views/EmbeddedView';
 
 
 @Injectable()
@@ -16,179 +28,393 @@ export class Compiler
 {
 
 
-	private application: Application;
+	public static FILTER_DELIMITER = '|';
+	public static FILTER_ARGUMENT_DELIMITER = ':';
+
+	public static CLOAK_CSS_CLASS = 'slicky-cloak';
+
+	public static IGNORED_ELEMENTS = ['SCRIPT', 'STYLE', 'TEMPLATE'];
 
 
-	constructor(application: Application)
+	private container: Container;
+
+
+	constructor(container: Container)
 	{
-		this.application = application;
+		this.container = container;
 	}
 
 
-	public compileHtml(html: string, elName: string = 'div'): HTMLElement
+	public compile(view: View, controller: any): void
 	{
-		let el = document.createElement(elName);
-		el.innerHTML = html;
+		let metadata = ControllerParser.getControllerMetadata(controller);
+		let definition = ControllerParser.parse(controller, metadata);
+		let el = Dom.querySelector(definition.metadata.selector, <Element>view.el.nativeEl);
 
-		this.compile(el);
+		if (!el) {
+			return;
+		}
 
-		return el;
+		view.directives = [controller];
+
+		this.compileElement(view, <HTMLElement>el);
 	}
 
 
-	public compile(el: Element|Document = document, checkSelf = true)
+	public compileNodes(view: View|EmbeddedView, nodes: NodeList|Array<Node>): void
 	{
-		let testEl: Element = null;
-
-		if (el.parentElement) {
-			testEl = el.parentElement;
-		} else if (el instanceof Element) {
-			testEl = document.createElement('div');
-			testEl.appendChild(el);
+		if (nodes instanceof NodeList) {
+			nodes = Helpers.toArray(nodes);
 		}
 
-		let controllers = this.application.getControllers();
-		for (let i = 0; i < controllers.length; i++) {
-			let controllerData = controllers[i];
-			let elements: Array<Element> = [];
+		let getView = (view: View|EmbeddedView, node: Node): View => {
+			return view instanceof View ? view : (<EmbeddedView>view).createNodeView(node);
+		};
 
-			if (checkSelf && testEl) {
-				let component = Dom.querySelector(controllerData.metadata.getSelector(), testEl);
-				if (component === el) {
-					elements.push(<Element>el);
-				}
-			}
+		for (let i = 0; i < nodes.length; i++) {
+			let child = nodes[i];
 
-			let components = Dom.querySelectorAll(controllerData.metadata.getSelector(), <Element>el);
-			for (let j = 0; j < components.length; j++) {
-				elements.push(components[j]);
-			}
+			if (child.nodeType === Node.TEXT_NODE) {
+				this.compileText(getView(view, child), <Text>child);
 
-			for (let j = 0; j < elements.length; j++) {
-				let controller = this.application.createController(controllerData.controller);
-				this.compileElement(<HTMLElement>elements[j], controller, controllerData);
-			}
-		}
-	}
-
-
-	private compileElement(el: HTMLElement, controller: any, definition: ControllerDefinition)
-	{
-		if (definition.metadata.hasTemplate()) {
-			el.innerHTML = definition.metadata.getTemplate();
-			this.compile(el, false);
-		}
-
-		if (typeof el['__controllers'] === 'undefined') {
-			el['__controllers'] = [];
-		}
-
-		el['__controllers'].push(controller);
-
-		let inputs = definition.inputs;
-		let elements = definition.elements;
-		let events = definition.events;
-
-		for (let inputName in inputs) {
-			if (inputs.hasOwnProperty(inputName)) {
-				let input = inputs[inputName];
-				let realInputName = input.hasName() ? input.getName() : inputName;
-				let realValue = null;
-
-				if (input.isPropertyInput()) {
-					realValue = el[input.getName()] ? el[input.getName()] : null;
-
-				} else if (el.hasAttribute(realInputName)) {
-					realValue = this.parseInput(el.getAttribute(realInputName), Reflect.getMetadata('design:type', controller, inputName));
+			} else if (child.nodeType === Node.ELEMENT_NODE) {
+				if (child.nodeName.toUpperCase() !== 'TEMPLATE') {
+					child = this.tryTransformToTemplate(<Element>child);
 				}
 
-				if (realValue === null) {
-					if (typeof controller[inputName] !== 'undefined') {
-						continue;
-					} else if (input.isRequired()) {
-						// todo: in which element? better error message
-						throw new Error("Component's input " + Functions.getName(definition.controller) + '::' + inputName + ' was not found in element.');
+				let innerView = getView(view, child);
+
+				if (child.nodeName.toUpperCase() === 'TEMPLATE') {
+					let childRef = ElementRef.getByNode(child);
+
+					innerView = View.getByElement(childRef, innerView);
+
+					innerView.createMarker();
+					innerView.remove();
+				}
+
+				this.compileElement(innerView, <HTMLElement>child);
+			}
+		}
+	}
+
+
+	public compileElement(parentView: View, el: HTMLElement): void
+	{
+		let parseInner = true;
+
+		if (Compiler.IGNORED_ELEMENTS.indexOf(el.nodeName.toUpperCase()) > -1) {
+			parseInner = false;
+		}
+
+		let directives: Array<{directive: any, metadata: DirectiveMetadataDefinition, definition: DirectiveDefinition, instance: any}> = [];
+
+		let elementRef = ElementRef.getByNode(el);
+		let view = View.getByElement(elementRef, parentView);
+
+		let attributes = elementRef.getAttributes();
+
+		for (let i = 0; i < view.directives.length; i++) {
+			let directive = view.directives[i];
+			let metadata: DirectiveMetadataDefinition;
+			let definition: DirectiveDefinition;
+
+			if (Annotations.hasAnnotation(directive, ComponentMetadataDefinition)) {
+				metadata = ControllerParser.getControllerMetadata(directive);
+				definition = ControllerParser.parse(directive, <ComponentMetadataDefinition>metadata);
+			} else {
+				metadata = DirectiveParser.getDirectiveMetadata(directive);
+				definition = DirectiveParser.parse(directive, metadata);
+			}
+
+			if (Dom.matches(el, metadata.selector)) {
+				let instance = this.createDirective(view, definition, el);
+
+				view.attachDirective(definition, instance);
+
+				directives.push({
+					directive: directive,
+					metadata: metadata,
+					definition: definition,
+					instance: instance,
+				});
+			}
+		}
+
+		for (let i = 0; i < attributes.length; i++) {
+			let attr = attributes[i];
+
+			if (attr.expression === '') {
+				continue;
+			}
+
+			if (attr.property && Dom.propertyExists(el, attr.name)) {
+				view.attachBinding(new PropertyBinding(el, attr.name), attr.expression);
+				attr.bound = true;
+			}
+
+			if (attr.event) {
+				view.attachBinding(new EventBinding(view, el, attr.name, attr.expression), attr.expression);
+				attr.bound = true;
+			}
+
+			if (!attr.property && !attr.event) {
+				let expr = AttributeParser.parse(attr.expression);
+
+				if (expr !== "'" + attr.expression + "'") {
+					view.attachBinding(new AttributeBinding(el, attr.name), expr);
+					attr.bound = true;
+				}
+			}
+		}
+
+		let innerCompilationNeeded = true;
+		for (let i = 0; i < directives.length; i++) {
+			let definition = directives[i].definition;
+			let instance = directives[i].instance;
+
+			if (definition.metadata instanceof ComponentMetadataDefinition && (<ComponentMetadataDefinition>definition.metadata).template) {
+				el.innerHTML = (<ComponentMetadataDefinition>definition.metadata).template;
+				innerCompilationNeeded = true;
+			}
+
+			if (el.innerHTML !== '' && definition.metadata.compileInner && innerCompilationNeeded) {
+				this.compileNodes(view, el.childNodes);
+			}
+
+			let hasOnChange = typeof instance['onChange'] === 'function';
+			let hasOnUpdate = typeof instance['onUpdate'] === 'function';
+
+			((instance, definition, hasOnChange, hasOnUpdate) => {
+				let processInput = (inputName: string, required: boolean, expr: Expression, changed: Array<ChangedObject> = null) => {
+					let stop = false;
+
+					if (hasOnChange) {
+						stop = (<OnChange>instance).onChange(inputName, changed) === false;
+					}
+
+					if (!stop) {
+						let value = ExpressionParser.parse(expr, view.parameters, view.filters);
+
+						instance[inputName] = value;
+
+						if (hasOnUpdate) {
+							(<OnUpdate>instance).onUpdate(inputName, value);
+						}
+					}
+				};
+
+				for (let inputName in definition.inputs) {
+					if (definition.inputs.hasOwnProperty(inputName)) {
+						let input = definition.inputs[inputName];
+						let realInputName = input.name ? input.name : inputName;
+
+						let attr = elementRef.getAttribute(realInputName);
+
+						if (!attr) {
+							if (typeof el[realInputName] === 'undefined') {
+								if (input.required) {
+									throw new Error('Component\'s input ' + Functions.getName(definition.directive) + '::' + inputName + ' was not found in ' + Dom.getReadableName(<Element>el) + ' element.');
+								} else if (typeof instance[inputName] !== 'undefined') {
+									continue;
+								}
+							}
+
+							instance[inputName] = el[realInputName];
+
+						} else {
+							if (attr.property) {
+								let expr = ExpressionParser.precompile(attr.expression);
+
+								processInput(inputName, input.required, expr);
+
+								((inputName, required, expr) => {
+									view.watch(expr, (changed) => {
+										processInput(inputName, required, expr, changed);
+									});
+								})(inputName, input.required, expr);
+							} else {
+								instance[inputName] = attr.expression;
+							}
+
+							attr.bound = true;
+						}
 					}
 				}
+			})(instance, definition, hasOnChange, hasOnUpdate);
 
-				controller[inputName] = realValue;
+			for (let i = 0; i < attributes.length; i++) {
+				if (attributes[i].property && !attributes[i].bound) {
+					throw new Error('Could not bind property ' + attributes[i].name + ' to element ' + Dom.getReadableName(el) + ' or to any of its directives.');
+				}
 			}
-		}
 
-		for (let elementName in elements) {
-			if (elements.hasOwnProperty(elementName)) {
-				let element = elements[elementName];
+			innerCompilationNeeded = false;
 
-				if (element.hasSelector()) {
-					let subElements = Dom.querySelectorAll(element.getSelector(), el);
+			if (definition.metadata instanceof ComponentMetadataDefinition) {
+				let elements = (<ControllerDefinition>definition).elements;
+				for (let elementName in elements) {
+					if (elements.hasOwnProperty(elementName)) {
+						let element = elements[elementName];
 
-					if (subElements.length === 0) {
-						controller[elementName] = null;
+						if (element.selector) {
+							let subElements = Dom.querySelectorAll(element.selector, el);
 
-					} else if (subElements.length === 1) {
-						controller[elementName] = subElements[0];
+							if (subElements.length === 0) {
+								instance[elementName] = null;
+
+							} else if (subElements.length === 1) {
+								instance[elementName] = subElements[0];
+
+							} else {
+								instance[elementName] = subElements;
+							}
+						} else {
+							instance[elementName] = el;
+						}
+					}
+				}
+			}
+
+			for (let eventName in definition.events) {
+				if (definition.events.hasOwnProperty(eventName)) {
+					let event = definition.events[eventName];
+
+					if (event.el === '@') {
+						Dom.addEventListener(el, event.name, instance, instance[eventName]);
 
 					} else {
-						controller[elementName] = subElements;
-					}
-				} else {
-					controller[elementName] = el;
-				}
-			}
-		}
+						if (typeof event.el === 'string' && (<string>event.el).substr(0, 1) === '@') {
+							let childName = (<string>event.el).substr(1);
+							if (typeof instance[childName] === 'undefined') {
+								throw new Error('Can not add event listener for @' + childName + ' at ' + Functions.getName(instance));
+							}
 
-		for (let eventName in events) {
-			if (events.hasOwnProperty(eventName)) {
-				let event = events[eventName];
+							Dom.addEventListener(instance[childName], event.name, instance, instance[eventName]);
 
-				if (event.getEl() === '@') {
-					Dom.addEventListener(el, event.getName(), controller, controller[eventName]);
+						} else if (typeof event.el === 'string') {
+							let eventEls = Dom.querySelectorAll(<string>event.el, el);
+							for (let j = 0; j < eventEls.length; j++) {
+								Dom.addEventListener(eventEls[j], event.name, instance, instance[eventName]);
+							}
 
-				} else {
-					if (typeof event.getEl() === 'string' && (<string>event.getEl()).substr(0, 1) === '@') {
-						let childName = (<string>event.getEl()).substr(1);
-						if (typeof controller[childName] === 'undefined') {
-							throw new Error('Can not add event listener for @' + childName + ' at ' + Functions.getName(controller));
+						} else if (event.el instanceof Window || event.el instanceof Node) {
+							Dom.addEventListener(<Node>event.el, event.name, instance, instance[eventName]);
+
 						}
-
-						Dom.addEventListener(controller[childName], event.getName(), controller, controller[eventName]);
-
-					} else if (typeof event.getEl() === 'string') {
-						let eventEls = Dom.querySelectorAll(<string>event.getEl(), el);
-						for (let j = 0; j < eventEls.length; j++) {
-							Dom.addEventListener(eventEls[j], event.getName(), controller, controller[eventName]);
-						}
-
-					} else if (event.getEl() instanceof Window || event.getEl() instanceof Node) {
-						Dom.addEventListener(<Node>event.getEl(), event.getName(), controller, controller[eventName]);
-
 					}
 				}
 			}
+
+			if (typeof instance['onInit'] === 'function') {
+				(<OnInit>instance).onInit();
+			}
 		}
 
-		if (typeof controller['onInit'] === 'function') {
-			controller.onInit();
+		Dom.removeCssClass(el, Compiler.CLOAK_CSS_CLASS);
+
+		if (parseInner && innerCompilationNeeded) {
+			this.compileNodes(view, el.childNodes);
 		}
 	}
 
 
-	private parseInput(value: any, expects: any): any
+	public compileText(view: View, text: Text): void
 	{
-		if (expects === Boolean) {
-			return value === '' ?
-				false :
-				(JSON.parse(value) ? true : false)
-			;
+		let tokens = TextParser.parse(text.nodeValue);
 
-		} else if (expects === Number) {
-			return value === '' ?
-				null :
-				JSON.parse(value)
-			;
+		if (tokens.length > 1 || (tokens.length === 1 && tokens[0].type !== TextParser.TYPE_TEXT)) {
+			for (let i = 0; i < tokens.length; i++) {
+				let token = tokens[i];
+				let newText = document.createTextNode(token.value);
+
+				text.parentNode.insertBefore(newText, text);
+
+				if (token.type === TextParser.TYPE_BINDING) {
+					view.attachBinding(new TextBinding(newText), token.value);
+				}
+			}
+
+			text.parentNode.removeChild(text);
+		}
+	}
+
+
+	private createDirective(view: View, definition: DirectiveDefinition, el: Element): any
+	{
+		let elementRef = ElementRef.getByNode(el);
+		let templateRef = new TemplateRef(elementRef);
+
+		if (definition.metadata instanceof ComponentMetadataDefinition) {
+			view.updateWithController(<ControllerDefinition>definition);
 		}
 
-		return value;
+		return this.container.create(<any>definition.directive, [
+			{
+				service: ElementRef,
+				options: {
+					useFactory: () => elementRef,
+				},
+			},
+			{
+				service: TemplateRef,
+				options: {
+					useFactory: () => templateRef,
+				},
+			},
+			{
+				service: View,
+				options: {
+					useFactory: () => view,
+				},
+			},
+		]);
+	}
+
+
+	private tryTransformToTemplate(el: Element): Element
+	{
+		let parent = el;
+		let templateEl: HTMLElement = null;
+		let removeAttrs = [];
+
+		for (let i = 0; i < el.attributes.length; i++) {
+			let attribute = el.attributes[i];
+			if (attribute.name.match(/^\*/)) {
+				let templateParent = document.createElement('div');
+				templateParent.innerHTML = '<template [' + attribute.name.substr(1) + ']="' + attribute.value + '"></template>';
+
+				let template = <HTMLElement>templateParent.children[0];
+
+				templateParent.removeChild(template);
+
+				if (templateEl) {
+					templateEl.appendChild(template);
+				} else {
+					parent = template;
+				}
+
+				removeAttrs.push(attribute.name);
+
+				templateEl = template;
+			}
+		}
+
+		if (templateEl) {
+			for (let i = 0; i < removeAttrs.length; i++) {
+				el.removeAttribute(removeAttrs[i]);
+			}
+
+			el.parentElement.insertBefore(parent, el);
+
+			if (templateEl['content']) {
+				templateEl['content'].appendChild(el);
+			} else {
+				templateEl.appendChild(el);
+			}
+		}
+
+		return parent
 	}
 
 }

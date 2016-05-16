@@ -186,6 +186,85 @@ describe('#DI/Container', () => {
 			}).to.throw(Error, 'Service Test2 is not registered in DI container.');
 		});
 
+		it('should provide custom service', () => {
+			class Test3 {}
+
+			@Injectable()
+			class Test2 {}
+
+			@Injectable()
+			class Test1 {
+				constructor(public test2: Test2, public test3: Test3) {}
+			}
+
+			let container = new Container;
+			let called = false;
+
+			container.provide(Test1);
+			container.provide(Test2);
+
+			let test = <Test1>container.create(Test1, [
+				{
+					service: Test3,
+					options: {
+						useFactory: () => {
+							called = true;
+							return new Test3;
+						},
+					},
+				},
+			]);
+
+			expect(called).to.be.equal(true);
+			expect(test).to.be.an.instanceOf(Test1);
+			expect(test.test2).to.be.an.instanceOf(Test2);
+			expect(test.test3).to.be.an.instanceOf(Test3);
+		});
+
+		it('should overwrite registered service with custom', () => {
+			@Injectable()
+			class Test3 {
+				custom = false;
+			}
+
+			@Injectable()
+			class Test2 {}
+
+			@Injectable()
+			class Test1 {
+				constructor(public test2: Test2, public test3: Test3) {}
+			}
+
+			let container = new Container;
+			let called = false;
+
+			container.provide(Test1);
+			container.provide(Test2);
+			container.provide(Test3);
+
+			let test = <Test1>container.create(Test1, [
+				{
+					service: Test3,
+					options: {
+						useFactory: () => {
+							called = true;
+
+							let instance = new Test3;
+							instance.custom = true;
+
+							return instance;
+						},
+					},
+				},
+			]);
+
+			expect(called).to.be.equal(true);
+			expect(test).to.be.an.instanceOf(Test1);
+			expect(test.test2).to.be.an.instanceOf(Test2);
+			expect(test.test3).to.be.an.instanceOf(Test3);
+			expect(test.test3.custom).to.be.equal(true);
+		});
+
 	});
 
 });
