@@ -15,19 +15,20 @@ export class EventBinding implements IBinding
 
 	private el: Element;
 
-	private attr: string;
-
 	private call: string;
 
-	private listener: Function;
+	private events: Array<string>;
+
+	private listeners: Array<{event: string, listener: Function}> = [];
 
 
 	constructor(view: View, el: Element, attr: string, call: string)
 	{
 		this.view = view;
 		this.el = el;
-		this.attr = attr;
 		this.call = call;
+
+		this.events = attr.split('|');
 	}
 
 
@@ -45,22 +46,33 @@ export class EventBinding implements IBinding
 
 		let expr = ExpressionParser.precompile('[' + parts[2] + ']');
 
-		this.listener = Dom.addEventListener(this.el, this.attr, this, (e: Event) => {
-			let innerScope = Objects.merge(scope, {
-				'$event': e,
-				'$this': this.el,
-			});
+		for (let i = 0; i < this.events.length; i++) {
+			((event) => {
+				this.listeners.push({
+					event: event,
+					listener: Dom.addEventListener(this.el, event, this, (e: Event) => {
+						let innerScope = Objects.merge(scope, {
+							'$event': e,
+							'$this': this.el,
+						});
 
-			let args = ExpressionParser.parse(expr, innerScope);
+						let args = ExpressionParser.parse(expr, innerScope);
 
-			obj.obj[obj.key].apply(obj.obj, args);
-		});
+						obj.obj[obj.key].apply(obj.obj, args);
+					}),
+				});
+			})(this.events[i]);
+		}
 	}
 
 
 	public detach(): void
 	{
-		Dom.removeEventListener(this.el, this.attr, this.listener);
+		for (let i = 0; i < this.listeners.length; i++) {
+			Dom.removeEventListener(this.el, this.listeners[i].event, this.listeners[i].listener);
+		}
+
+		this.listeners = [];
 	}
 
 

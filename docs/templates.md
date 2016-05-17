@@ -65,6 +65,12 @@ You can also listen for some events directly from templates just like in angular
 <a href="#" (click)="callMe($event)">click</a>
 ```
 
+or listening to multiple events from one definition:
+
+```html
+<input type="text" (change|keyup|paste)="onInputChanged($event)">
+```
+
 ## Template element
 
 When you create HTML element `<template>` it will be removed from DOM and kept 

@@ -147,4 +147,37 @@ describe('#Templating/Binding/EventBinding', () => {
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
 
+	it('should call many event listeners from one definition', (done) => {
+		let code = 'obj.onChange($event)';
+		let called = 0;
+
+		let parent = document.createElement('div');
+		parent.innerHTML = '<a href="#" (click|mousedown)="' + code + '"></a>';
+
+		let el = <HTMLElement>parent.childNodes[0];
+
+		let view = new View(new ElementRef(el), {
+			obj: {
+				onChange: function(e: Event) {
+					expect(e).to.be.an.instanceOf(Event);
+					expect(this).to.be.equal(view.parameters['obj']);
+
+					called++;
+				},
+			},
+		});
+
+		let binding = new EventBinding(view, el, 'click|mousedown', code);
+
+		view.attachBinding(binding, code);
+
+		el.dispatchEvent(Dom.createMouseEvent('click'));
+		el.dispatchEvent(Dom.createMouseEvent('mousedown'));
+
+		setTimeout(() => {
+			expect(called).to.be.equal(2);
+			done();
+		}, 100);
+	});
+
 });
