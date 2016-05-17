@@ -173,15 +173,6 @@ export class Compiler
 			let definition = directives[i].definition;
 			let instance = directives[i].instance;
 
-			if (definition.metadata instanceof ComponentMetadataDefinition && (<ComponentMetadataDefinition>definition.metadata).template) {
-				el.innerHTML = (<ComponentMetadataDefinition>definition.metadata).template;
-				innerCompilationNeeded = true;
-			}
-
-			if (el.innerHTML !== '' && definition.metadata.compileInner && innerCompilationNeeded) {
-				this.compileNodes(view, el.childNodes);
-			}
-
 			let hasOnChange = typeof instance['onChange'] === 'function';
 			let hasOnUpdate = typeof instance['onUpdate'] === 'function';
 
@@ -247,6 +238,15 @@ export class Compiler
 				if (attributes[i].property && !attributes[i].bound) {
 					throw new Error('Could not bind property ' + attributes[i].name + ' to element ' + Dom.getReadableName(el) + ' or to any of its directives.');
 				}
+			}
+
+			if (definition.metadata instanceof ComponentMetadataDefinition && (<ComponentMetadataDefinition>definition.metadata).template) {
+				el.innerHTML = (<ComponentMetadataDefinition>definition.metadata).template;
+				innerCompilationNeeded = true;
+			}
+
+			if (el.innerHTML !== '' && definition.metadata.compileInner && innerCompilationNeeded) {
+				this.compileNodes(view, el.childNodes);
 			}
 
 			innerCompilationNeeded = false;
