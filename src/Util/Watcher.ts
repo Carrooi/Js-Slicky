@@ -111,6 +111,11 @@ export class Watcher
 
 		for (let i = 0; i < expr.dependencies.length; i++) {
 			let dependency = Code.interpolateObjectElement(this.parameters, expr.dependencies[i]);
+
+			if (dependency.obj == null) {
+				continue;
+			}
+
 			let current = dependency.obj[dependency.key];
 			let copy = null;
 
