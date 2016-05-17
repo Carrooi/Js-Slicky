@@ -31,11 +31,7 @@ export class ExpressionParser
 				exports.push(dependency.name);
 			}
 
-			if (typeof scope[dependency.name] === 'undefined') {
-				if (typeof window[dependency.name] !== 'undefined') {
-					throw new Error('Using global variables is forbidden in "' + expr.code + '" expression.');
-				}
-
+			if (typeof scope[dependency.name] === 'undefined' && dependency.exportable) {
 				instantiate.push(dependency.name);
 			} else {
 				exprScope[dependency.name] = scope[dependency.name];

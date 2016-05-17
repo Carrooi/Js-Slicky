@@ -134,19 +134,6 @@ describe('#Templating/Parsers/ExpressionParser', () => {
 			}).to.throw(Error, 'Could not call filter "b" in "a | b" expression, filter is not registered.');
 		});
 
-		it('should throw an error when accessing global variable', () => {
-			let expr: Expression = {
-				code: 'document',
-				expr: {value: 'document', type: TypeParser.TYPE_EXPRESSION},
-				dependencies: [{code: 'document', name: 'document', exportable: false, path: []}],
-				filters: [],
-			};
-
-			expect(() => {
-				ExpressionParser.parse(expr);
-			}).to.throw(Error, 'Using global variables is forbidden in "document" expression.');
-		});
-
 		it('should evaluate simple variable from expression', () => {
 			let expr: Expression = {
 				code: 'a',
@@ -160,11 +147,11 @@ describe('#Templating/Parsers/ExpressionParser', () => {
 			expect(result).to.be.equal(42);
 		});
 
-		it('should automatically instantiate undefined variables', () => {
+		it('should automatically instantiate undefined exportable variables', () => {
 			let expr: Expression = {
-				code: 'a',
+				code: '#a',
 				expr: {value: 'a', type: TypeParser.TYPE_EXPRESSION},
-				dependencies: [{code: 'a', name: 'a', exportable: false, path: []}],
+				dependencies: [{code: '#a', name: 'a', exportable: true, path: []}],
 				filters: [],
 			};
 
