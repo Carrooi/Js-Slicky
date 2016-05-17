@@ -207,7 +207,7 @@ export class Compiler
 				for (let inputName in definition.inputs) {
 					if (definition.inputs.hasOwnProperty(inputName)) {
 						let input = definition.inputs[inputName];
-						let realInputName = input.name ? input.name : inputName;
+						let realInputName = (input.name ? input.name : inputName).toLowerCase();
 
 						let attr = elementRef.getAttribute(realInputName);
 

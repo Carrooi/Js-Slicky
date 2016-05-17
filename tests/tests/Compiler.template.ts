@@ -377,6 +377,41 @@ describe('#Compiler/template', () => {
 			expect(el.innerText).to.be.equal('num: 20 / num: 4');
 		});
 
+		it('should set component input with upper cased name', (done) => {
+			@Component({
+				selector: '[test]',
+			})
+			class Test {
+				@Input() upperCasedInput;
+			}
+
+			@Component({
+				selector: '[app]',
+				directives: [Test],
+			})
+			class Main {}
+
+			let parent = document.createElement('div');
+			parent.innerHTML = '<div app><div test [upperCasedInput]="a"></div></div>';
+
+			var view = new View(new ElementRef(parent), {a: 'hello'});
+
+			compiler.compile(view, Main);
+			view.watcher.run();
+
+			let innerView = <View>view.children[0].children[0];
+			let component: Test = (<any>innerView.entities[0]).instance;
+
+			expect(component.upperCasedInput).to.be.equal('hello');
+
+			innerView.parameters['a'] = 'bye';
+
+			setTimeout(() => {
+				expect(component.upperCasedInput).to.be.equal('bye');
+				done();
+			}, 100);
+		});
+
 		it('should update component\'s input', (done) => {
 			@Component({
 				selector: '[test]',

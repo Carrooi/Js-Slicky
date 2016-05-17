@@ -117,7 +117,7 @@ export class ElementRef
 			for (let i = 0; i < this.nativeEl.attributes.length; i++) {
 				let attr = this.nativeEl.attributes[i];
 
-				let name = attr.name;
+				let name = attr.name.toLowerCase();
 
 				let property = false;
 				let event = false;
