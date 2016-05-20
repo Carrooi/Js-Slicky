@@ -27,6 +27,10 @@ export class Code
 		let regex = /\#?[a-zA-Z_\$][a-zA-Z_\$0-9\.\[\]]*/g;
 		let variables = code.match(regex);
 
+		if (!variables) {
+			return [];
+		}
+
 		return variables.filter((value: string, i: number) => {
 			let exported = variables.indexOf('#' + value);
 
