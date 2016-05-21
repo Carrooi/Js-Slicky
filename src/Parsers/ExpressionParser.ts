@@ -18,7 +18,7 @@ export class ExpressionParser
 {
 
 
-	public static parse(expr: Expression, scope: any = {}, filters: {[name: string]: any} = {}): any
+	public static parse(expr: Expression, scope: any = {}): any
 	{
 		let exprScope = {};
 		let instantiate = [];
@@ -49,23 +49,6 @@ export class ExpressionParser
 					scope[exportVar] = evalResult.exports[exportVar];
 				}
 			}
-		}
-
-		for (let i = 0; i < expr.filters.length; i++) {
-			let filter = expr.filters[i];
-
-			if (typeof filters[filter.name] === 'undefined') {
-				throw new Error('Could not call filter "' + filter.name + '" in "' + expr.code + '" expression, filter is not registered.');
-			}
-
-			let args = [result];
-
-			for (let j = 0; j < filter.args.length; j++) {
-				let arg = filter.args[j];
-				args.push(arg.type === TypeParser.TYPE_PRIMITIVE ? arg.value : SafeEval.run('return ' + arg.value, exprScope, {instantiate: instantiate}).result);
-			}
-
-			result = filters[filter.name].transform.apply(filters[filter.name], args);
 		}
 
 		return result;

@@ -116,24 +116,6 @@ describe('#Parsers/ExpressionParser', () => {
 
 	describe('parse()', () => {
 
-		it('should throw an error when filter is not registered', () => {
-			let expr: Expression = {
-				code: 'a | b',
-				expr: {value: 'a', type: TypeParser.TYPE_EXPRESSION},
-				dependencies: [{code: 'a', name: 'a', exportable: false, path: []}],
-				filters: [
-					{
-						name: 'b',
-						args: [],
-					},
-				],
-			};
-
-			expect(() => {
-				ExpressionParser.parse(expr, {a: 1});
-			}).to.throw(Error, 'Could not call filter "b" in "a | b" expression, filter is not registered.');
-		});
-
 		it('should evaluate simple variable from expression', () => {
 			let expr: Expression = {
 				code: 'a',
@@ -201,98 +183,6 @@ describe('#Parsers/ExpressionParser', () => {
 			});
 
 			expect(result).to.be.equal(4);
-		});
-
-		it('should evaluate expression with simple filter', () => {
-			let expr: Expression = {
-				code: 's | trim',
-				expr: {value: 's', type: TypeParser.TYPE_EXPRESSION},
-				dependencies: [{code: 's', name: 's', exportable: false, path: []}],
-				filters: [
-					{
-						name: 'trim',
-						args: [],
-					},
-				],
-			};
-
-			let result = ExpressionParser.parse(expr, {s: '   text   '}, {
-				trim: {
-					transform: (str: string) => {
-						expect(str).to.be.equal('   text   ');
-						return str.trim();
-					},
-				},
-			});
-
-			expect(result).to.be.equal('text');
-		});
-
-		it('should evaluate expressions with many advanced filters', () => {
-			let expr: Expression = {
-				code: 'str + "-" | a | b : 5 : "B:|B" : \'C|:C\' | c : p1 + p2 + p3 - p4',
-				expr: {value: 'str + "-"', type: TypeParser.TYPE_EXPRESSION},
-				dependencies: [
-					{code: 'str', name: 'str', exportable: false, path: []},
-					{code: 'p1', name: 'p1', exportable: false, path: []},
-					{code: 'p2', name: 'p2', exportable: false, path: []},
-					{code: 'p3', name: 'p3', exportable: false, path: []},
-					{code: 'p4', name: 'p4', exportable: false, path: []},
-				],
-				filters: [
-					{
-						name: 'a',
-						args: [],
-					},
-					{
-						name: 'b',
-						args: [
-							{value: 5, type: TypeParser.TYPE_PRIMITIVE},
-							{value: 'B:|B', type: TypeParser.TYPE_PRIMITIVE},
-							{value: 'C|:C', type: TypeParser.TYPE_PRIMITIVE},
-						],
-					},
-					{
-						name: 'c',
-						args: [
-							{value: 'p1 + p2 + p3 - p4', type: TypeParser.TYPE_EXPRESSION},
-						],
-					},
-				],
-			};
-
-			let result = ExpressionParser.parse(expr, {
-				str: '-',
-				p1: 1,
-				p2: 2,
-				p3: 3,
-				p4: 4,
-			}, {
-				a: {
-					transform: (str: string) => {
-						expect(str).to.be.equal('--');
-						return str + 'a';
-					},
-				},
-				b: {
-					transform: (str: string, num: number, b: string, c: string) => {
-						expect(str).to.be.equal('--a');
-						expect(num).to.be.equal(5);
-						expect(b).to.be.equal('B:|B');
-						expect(c).to.be.equal('C|:C');
-						return str + 'b';
-					},
-				},
-				c: {
-					transform: (str: string, pNum: number) => {
-						expect(str).to.be.equal('--ab');
-						expect(pNum).to.be.equal(2);
-						return str + 'c';
-					},
-				},
-			});
-
-			expect(result).to.be.equal('--abc');
 		});
 
 	});

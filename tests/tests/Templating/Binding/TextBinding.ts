@@ -37,9 +37,10 @@ describe('#Templating/Binding/TextBinding', () => {
 				c: 3,
 			});
 
-			let binding = new TextBinding(text);
+			let expr = ExpressionParser.precompile('a + b + c - 2');
+			let binding = new TextBinding(text, expr, view);
 
-			view.attachBinding(binding, ExpressionParser.precompile('a + b + c - 2'));
+			view.attachBinding(binding, expr);
 
 			expect(el.innerText).to.be.equal('4');
 		});
@@ -59,9 +60,10 @@ describe('#Templating/Binding/TextBinding', () => {
 
 			view.watcher.run();
 
-			let binding = new TextBinding(text);
+			var expr = ExpressionParser.precompile(code);
+			let binding = new TextBinding(text, expr, view);
 
-			view.attachBinding(binding, ExpressionParser.precompile(code));
+			view.attachBinding(binding, expr);
 
 			expect(el.innerHTML).to.be.equal('4');
 
@@ -92,9 +94,10 @@ describe('#Templating/Binding/TextBinding', () => {
 
 			view.watcher.run();
 
-			let binding = new TextBinding(text);
+			let expr = ExpressionParser.precompile(code);
+			let binding = new TextBinding(text, expr, view);
 
-			view.attachBinding(binding, ExpressionParser.precompile(code));
+			view.attachBinding(binding, expr);
 
 			expect(el.innerHTML).to.be.equal('4');
 

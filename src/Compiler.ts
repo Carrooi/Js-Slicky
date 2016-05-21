@@ -188,7 +188,7 @@ export class Compiler
 					}
 
 					if (!stop) {
-						let value = ExpressionParser.parse(expr, view.parameters, view.filters);
+						let value = ExpressionParser.parse(expr, view.parameters);
 
 						instance[inputName] = value;
 
@@ -335,7 +335,7 @@ export class Compiler
 
 				if (token.type === TextParser.TYPE_BINDING) {
 					let expr = ExpressionParser.precompile(token.value);
-					view.attachBinding(new TextBinding(newText), expr);
+					view.attachBinding(new TextBinding(newText, expr, view), expr);
 				}
 			}
 

@@ -13,7 +13,9 @@ import {Objects} from '../Util/Objects';
 import {Arrays} from '../Util/Arrays';
 import {Annotations} from '../Util/Annotations';
 import {Functions} from '../Util/Functions';
+import {SafeEval} from '../Util/SafeEval';
 import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
+import {TypeParser} from '../Parsers/TypeParser';
 import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
 import {Container} from '../DI/Container';
 
@@ -138,7 +140,7 @@ export class View extends AbstractView
 
 		if (hasOnChange || hasOnUpdate) {
 			if (hasOnUpdate) {
-				binding['onUpdate'](ExpressionParser.parse(expression, this.parameters, this.filters));
+				binding['onUpdate'](ExpressionParser.parse(expression, this.parameters));
 			}
 
 			this.watch(expression, (changed) => {
@@ -147,7 +149,7 @@ export class View extends AbstractView
 				}
 
 				if (hasOnUpdate) {
-					binding['onUpdate'](ExpressionParser.parse(expression, this.parameters, this.filters));
+					binding['onUpdate'](ExpressionParser.parse(expression, this.parameters));
 				}
 			});
 		}
@@ -189,6 +191,29 @@ export class View extends AbstractView
 		if (this.el.nativeEl.parentElement) {
 			this.el.nativeEl.parentElement.removeChild(this.el.nativeEl);
 		}
+	}
+
+
+	public applyFilters(value: string, expr: Expression): any
+	{
+		for (let i = 0; i < expr.filters.length; i++) {
+			let filter = expr.filters[i];
+
+			if (typeof this.filters[filter.name] === 'undefined') {
+				throw new Error('Could not call filter "' + filter.name + '" in "' + expr.code + '" expression, filter is not registered.');
+			}
+
+			let args = [value];
+
+			for (let j = 0; j < filter.args.length; j++) {
+				let arg = filter.args[j];
+				args.push(arg.type === TypeParser.TYPE_PRIMITIVE ? arg.value : SafeEval.run('return ' + arg.value, this.parameters).result);
+			}
+
+			value = this.filters[filter.name].transform.apply(this.filters[filter.name], args);
+		}
+
+		return value;
 	}
 
 }
