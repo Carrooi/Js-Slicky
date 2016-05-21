@@ -5,6 +5,7 @@ import {Application} from '../../../../src/Application';
 import {Compiler} from '../../../../src/Compiler';
 import {Container} from '../../../../src/DI/Container';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
+import {ExpressionParser} from '../../../../src/Parsers/ExpressionParser';
 
 import chai = require('chai');
 
@@ -41,7 +42,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click', code);
 
-		view.attachBinding(binding, 'onClick($event)');
+		view.attachBinding(binding, ExpressionParser.precompile('onClick($event)'));
 
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
@@ -67,7 +68,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click', code);
 
-		view.attachBinding(binding, 'obj.onClick($event)');
+		view.attachBinding(binding, ExpressionParser.precompile('obj.onClick($event)'));
 
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
@@ -94,7 +95,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click', code);
 
-		view.attachBinding(binding, code);
+		view.attachBinding(binding, ExpressionParser.precompile(code));
 
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
@@ -119,7 +120,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click', code);
 
-		view.attachBinding(binding, code);
+		view.attachBinding(binding, ExpressionParser.precompile(code));
 
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
@@ -142,7 +143,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click', code);
 
-		view.attachBinding(binding, code);
+		view.attachBinding(binding, ExpressionParser.precompile(code));
 
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
@@ -169,7 +170,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click|mousedown', code);
 
-		view.attachBinding(binding, code);
+		view.attachBinding(binding, ExpressionParser.precompile(code));
 
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 		el.dispatchEvent(Dom.createMouseEvent('mousedown'));

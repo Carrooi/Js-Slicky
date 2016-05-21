@@ -148,20 +148,23 @@ export class Compiler
 				continue;
 			}
 
+			let expr = ExpressionParser.precompile(attr.expression);
+
 			if (attr.property && Dom.propertyExists(el, attr.name)) {
-				view.attachBinding(new PropertyBinding(el, attr.name), attr.expression);
+				view.attachBinding(new PropertyBinding(el, attr.name), expr);
 				attr.bound = true;
 			}
 
 			if (attr.event) {
-				view.attachBinding(new EventBinding(view, el, attr.name, attr.expression), attr.expression);
+				view.attachBinding(new EventBinding(view, el, attr.name, attr.expression), expr);
 				attr.bound = true;
 			}
 
 			if (!attr.property && !attr.event) {
-				let expr = AttributeParser.parse(attr.expression);
+				let attrExpr = AttributeParser.parse(attr.expression);
 
-				if (expr !== "'" + attr.expression + "'") {
+				if (attrExpr !== "'" + attr.expression + "'") {
+					expr = ExpressionParser.precompile(attrExpr);
 					view.attachBinding(new AttributeBinding(el, attr.name), expr);
 					attr.bound = true;
 				}
@@ -331,7 +334,8 @@ export class Compiler
 				text.parentNode.insertBefore(newText, text);
 
 				if (token.type === TextParser.TYPE_BINDING) {
-					view.attachBinding(new TextBinding(newText), token.value);
+					let expr = ExpressionParser.precompile(token.value);
+					view.attachBinding(new TextBinding(newText), expr);
 				}
 			}
 

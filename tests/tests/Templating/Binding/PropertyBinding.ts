@@ -4,6 +4,7 @@ import {Application} from '../../../../src/Application';
 import {Compiler} from '../../../../src/Compiler';
 import {Container} from '../../../../src/DI/Container';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
+import {ExpressionParser} from '../../../../src/Parsers/ExpressionParser';
 
 import chai = require('chai');
 
@@ -38,7 +39,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			let binding = new PropertyBinding(el, 'test');
 
-			view.attachBinding(binding, 'hello');
+			view.attachBinding(binding, ExpressionParser.precompile('hello'));
 
 			expect(el['test']).to.be.equal('good day');
 		});
@@ -59,7 +60,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			let binding = new PropertyBinding(el, 'test');
 
-			view.attachBinding(binding, 'obj.greetings[0]');
+			view.attachBinding(binding, ExpressionParser.precompile('obj.greetings[0]'));
 
 			expect(el['test']).to.be.equal('good day');
 		});
@@ -80,7 +81,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			let binding = new PropertyBinding(el, 'test');
 
-			view.attachBinding(binding, 'a + b + c');
+			view.attachBinding(binding, ExpressionParser.precompile('a + b + c'));
 
 			expect(el['test']).to.be.equal(6);
 		});
@@ -97,7 +98,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			let binding = new PropertyBinding(el, 'innerHTML');
 
-			view.attachBinding(binding, 'hello');
+			view.attachBinding(binding, ExpressionParser.precompile('hello'));
 
 			expect(el.innerHTML).to.be.equal('good day');
 		});
@@ -116,7 +117,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			let binding = new PropertyBinding(el, 'style.border');
 
-			view.attachBinding(binding, 'border');
+			view.attachBinding(binding, ExpressionParser.precompile('border'));
 
 			expect(el.style.border).to.be.equal('1px solid red');
 		});
@@ -135,7 +136,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			let binding = new PropertyBinding(el, 'style.border');
 
-			view.attachBinding(binding, 'border');
+			view.attachBinding(binding, ExpressionParser.precompile('border'));
 
 			expect(el.style.border).to.be.equal('');
 		});
@@ -154,7 +155,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			let binding = new PropertyBinding(el, 'class.alert');
 
-			view.attachBinding(binding, 'hasAlert');
+			view.attachBinding(binding, ExpressionParser.precompile('hasAlert'));
 
 			expect(el.classList.contains('alert')).to.be.equal(true);
 		});
@@ -173,7 +174,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			let binding = new PropertyBinding(el, 'class.alert');
 
-			view.attachBinding(binding, 'hasAlert');
+			view.attachBinding(binding, ExpressionParser.precompile('hasAlert'));
 
 			expect(el.classList.contains('alert')).to.be.equal(false);
 		});
@@ -194,7 +195,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			let binding = new PropertyBinding(el, 'test');
 
-			view.attachBinding(binding, 'hello');
+			view.attachBinding(binding, ExpressionParser.precompile('hello'));
 
 			expect(el['test']).to.be.equal('good day');
 
@@ -226,7 +227,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			let binding = new PropertyBinding(el, 'test');
 
-			view.attachBinding(binding, 'a[0].b');
+			view.attachBinding(binding, ExpressionParser.precompile('a[0].b'));
 
 			expect(el['test']).to.be.equal('good day');
 
@@ -258,7 +259,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			let binding = new PropertyBinding(el, 'test');
 
-			view.attachBinding(binding, 'hello');
+			view.attachBinding(binding, ExpressionParser.precompile('hello'));
 
 			expect(el['test']).to.be.equal('good day');
 

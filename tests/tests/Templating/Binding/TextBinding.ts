@@ -4,6 +4,7 @@ import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {Container} from '../../../../src/DI/Container';
 import {Compiler} from '../../../../src/Compiler';
 import {Application} from '../../../../src/Application';
+import {ExpressionParser} from '../../../../src/Parsers/ExpressionParser';
 
 import chai = require('chai');
 
@@ -38,7 +39,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 			let binding = new TextBinding(text);
 
-			view.attachBinding(binding, 'a + b + c - 2');
+			view.attachBinding(binding, ExpressionParser.precompile('a + b + c - 2'));
 
 			expect(el.innerText).to.be.equal('4');
 		});
@@ -60,7 +61,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 			let binding = new TextBinding(text);
 
-			view.attachBinding(binding, code);
+			view.attachBinding(binding, ExpressionParser.precompile(code));
 
 			expect(el.innerHTML).to.be.equal('4');
 
@@ -93,7 +94,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 			let binding = new TextBinding(text);
 
-			view.attachBinding(binding, code);
+			view.attachBinding(binding, ExpressionParser.precompile(code));
 
 			expect(el.innerHTML).to.be.equal('4');
 

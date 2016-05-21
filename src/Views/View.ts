@@ -13,7 +13,7 @@ import {Objects} from '../Util/Objects';
 import {Arrays} from '../Util/Arrays';
 import {Annotations} from '../Util/Annotations';
 import {Functions} from '../Util/Functions';
-import {ExpressionParser} from '../Parsers/ExpressionParser';
+import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
 import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
 import {Container} from '../DI/Container';
 
@@ -129,7 +129,7 @@ export class View extends AbstractView
 	}
 
 
-	public attachBinding(binding: IBinding, expression: string): void
+	public attachBinding(binding: IBinding, expression: Expression): void
 	{
 		binding.attach();
 
@@ -137,19 +137,17 @@ export class View extends AbstractView
 		let hasOnUpdate = typeof binding['onUpdate'] === 'function';
 
 		if (hasOnChange || hasOnUpdate) {
-			let expr = ExpressionParser.precompile(expression);
-
 			if (hasOnUpdate) {
-				binding['onUpdate'](ExpressionParser.parse(expr, this.parameters, this.filters));
+				binding['onUpdate'](ExpressionParser.parse(expression, this.parameters, this.filters));
 			}
 
-			this.watch(expr, (changed) => {
+			this.watch(expression, (changed) => {
 				if (hasOnChange) {
 					binding['onChange'](changed);
 				}
 
 				if (hasOnUpdate) {
-					binding['onUpdate'](ExpressionParser.parse(expr, this.parameters, this.filters));
+					binding['onUpdate'](ExpressionParser.parse(expression, this.parameters, this.filters));
 				}
 			});
 		}
