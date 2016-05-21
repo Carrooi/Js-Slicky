@@ -4,7 +4,9 @@ import {ControllerParser} from '../../../src/Entity/ControllerParser';
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
 import {ElementRef} from '../../../src/Templating/ElementRef';
 import {TemplateRef} from '../../../src/Templating/TemplateRef';
+import {Filter} from '../../../src/Templating/Filters/Metadata';
 import {ControllerView} from '../../../src/Entity/ControllerView';
+import {Container} from '../../../src/DI/Container';
 
 import chai = require('chai');
 
@@ -37,22 +39,29 @@ describe('#Views/View', () => {
 	describe('updateWithController()', () => {
 
 		it('should update values with data from controller', () => {
+			@Filter({
+				name: 'a',
+			})
+			class TestFilter {
+				transform() {}
+			}
+
 			let directives = [{}, {}];
-			let filters = {a: () => {}};
 
 			@Component({
 				selector: '[test]',
 				controllerAs: 'test',
 				directives: directives,
-				filters: filters,
+				filters: [TestFilter],
 			})
 			class Controller {}
 
+			let container = new Container;
 			let view = new View(new ElementRef(document.createElement('div')), {a: 1});
 			let metadata = ControllerParser.getControllerMetadata(Controller);
 			let definition = ControllerParser.parse(Controller, metadata);
 
-			view.updateWithController(definition);
+			view.updateWithController(container, definition);
 
 			expect(view.parameters).to.be.eql({
 				a: 1
@@ -60,7 +69,7 @@ describe('#Views/View', () => {
 
 			expect(view.directives).to.be.eql(directives);
 			expect(view.filters).to.contain.keys(['a']);
-			expect(view.filters['a']).to.be.equal(filters.a);
+			expect(view.filters['a']).to.be.an.instanceof(TestFilter);
 			expect(view.entities).to.be.eql([]);
 		});
 

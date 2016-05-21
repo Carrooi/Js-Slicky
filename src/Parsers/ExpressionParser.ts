@@ -65,7 +65,7 @@ export class ExpressionParser
 				args.push(arg.type === TypeParser.TYPE_PRIMITIVE ? arg.value : SafeEval.run('return ' + arg.value, exprScope, {instantiate: instantiate}).result);
 			}
 
-			result = filters[filter.name].apply(null, args);
+			result = filters[filter.name].transform.apply(filters[filter.name], args);
 		}
 
 		return result;

@@ -346,7 +346,7 @@ export class Compiler
 		let templateRef = new TemplateRef(elementRef);
 
 		if (definition.metadata instanceof ComponentMetadataDefinition) {
-			view.updateWithController(<ControllerDefinition>definition);
+			view.updateWithController(this.container, <ControllerDefinition>definition);
 		}
 
 		return this.container.create(<any>definition.directive, [

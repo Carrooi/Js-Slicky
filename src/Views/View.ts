@@ -1,17 +1,21 @@
 import {AbstractView, ParametersList} from './AbstractView';
-import {ControllerDefinition} from './../Entity/ControllerParser';
-import {IBinding} from './../Templating/Binding/IBinding';
-import {ElementRef} from './../Templating/ElementRef';
-import {TemplateRef} from './../Templating/TemplateRef';
-import {DirectiveDefinition} from './../Entity/DirectiveParser';
-import {AbstractEntityView} from './../Entity/AbstractEntityView';
-import {ControllerView} from './../Entity/ControllerView';
-import {DirectiveView} from './../Entity/DirectiveView';
+import {ControllerDefinition} from '../Entity/ControllerParser';
+import {IBinding} from '../Templating/Binding/IBinding';
+import {ElementRef} from '../Templating/ElementRef';
+import {TemplateRef} from '../Templating/TemplateRef';
+import {DirectiveDefinition} from '../Entity/DirectiveParser';
+import {AbstractEntityView} from '../Entity/AbstractEntityView';
+import {ControllerView} from '../Entity/ControllerView';
+import {DirectiveView} from '../Entity/DirectiveView';
 import {EmbeddedView} from './EmbeddedView';
 import {ComponentMetadataDefinition} from './../Entity/Metadata';
-import {Objects} from './../Util/Objects';
-import {Arrays} from './../Util/Arrays';
+import {Objects} from '../Util/Objects';
+import {Arrays} from '../Util/Arrays';
+import {Annotations} from '../Util/Annotations';
+import {Functions} from '../Util/Functions';
 import {ExpressionParser} from '../Parsers/ExpressionParser';
+import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
+import {Container} from '../DI/Container';
 
 
 export class View extends AbstractView
@@ -101,7 +105,7 @@ export class View extends AbstractView
 	}
 
 
-	public updateWithController(definition: ControllerDefinition): void
+	public updateWithController(container: Container, definition: ControllerDefinition): void
 	{
 		let directives = definition.metadata.directives;
 		let filters = definition.metadata.filters;
@@ -112,10 +116,15 @@ export class View extends AbstractView
 			}
 		}
 
-		for (let name in filters) {
-			if (filters.hasOwnProperty(name)) {
-				this.filters[name] = filters[name];
+		for (let i = 0; i < filters.length; i++) {
+			let filter = filters[i];
+			let filterMetadata: FilterMetadataDefinition = Annotations.getAnnotation(filter, FilterMetadataDefinition);
+
+			if (!filterMetadata) {
+				throw new Error('Filter ' + Functions.getName(filter) + ' is not valid filter, please add @Filter annotation.');
 			}
+
+			this.filters[filterMetadata.name] = container.create(filter);
 		}
 	}
 

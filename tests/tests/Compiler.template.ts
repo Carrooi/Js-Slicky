@@ -7,6 +7,7 @@ import {View} from '../../src/Views/View';
 import {IfDirective} from '../../src/Directives/IfDirective';
 import {ForDirective} from '../../src/Directives/ForDirective';
 import {ElementRef} from '../../src/Templating/ElementRef';
+import {Filter} from '../../src/Templating/Filters/Metadata';
 import {Directive} from '../../src/Entity/Metadata';
 import {ControllerView} from '../../src/Entity/ControllerView';
 
@@ -270,15 +271,20 @@ describe('#Compiler/template', () => {
 		});
 
 		it('should add custom filter to template', () => {
+			@Filter({
+				name: 'plus',
+			})
+			class PlusFilter {
+				transform(num) {
+					return num + 1;
+				}
+			}
+
 			@Component({
 				selector: '[test]',
 				controllerAs: 'test',
 				template: '{{ test.num | plus }}',
-				filters: {
-					plus: (num) => {
-						return num + 1;
-					}
-				}
+				filters: [PlusFilter],
 			})
 			class Test {
 				num = 1;

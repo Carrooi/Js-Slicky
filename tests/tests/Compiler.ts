@@ -1,5 +1,5 @@
 import {Compiler} from '../../src/Compiler';
-import {OnInit, OnDestroy} from '../../src/Interfaces';
+import {OnDestroy} from '../../src/Interfaces';
 import {Container} from '../../di';
 import {Dom} from '../../src/Util/Dom';
 import {Application, Component, Input, HostEvent, HostElement, Required} from '../../core';

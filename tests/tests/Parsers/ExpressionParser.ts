@@ -217,9 +217,11 @@ describe('#Parsers/ExpressionParser', () => {
 			};
 
 			let result = ExpressionParser.parse(expr, {s: '   text   '}, {
-				trim: function(str: string) {
-					expect(str).to.be.equal('   text   ');
-					return str.trim();
+				trim: {
+					transform: (str: string) => {
+						expect(str).to.be.equal('   text   ');
+						return str.trim();
+					},
 				},
 			});
 
@@ -266,21 +268,27 @@ describe('#Parsers/ExpressionParser', () => {
 				p3: 3,
 				p4: 4,
 			}, {
-				a: function(str: string) {
-					expect(str).to.be.equal('--');
-					return str + 'a';
+				a: {
+					transform: (str: string) => {
+						expect(str).to.be.equal('--');
+						return str + 'a';
+					},
 				},
-				b: function(str: string, num: number, b: string, c: string) {
-					expect(str).to.be.equal('--a');
-					expect(num).to.be.equal(5);
-					expect(b).to.be.equal('B:|B');
-					expect(c).to.be.equal('C|:C');
-					return str + 'b';
+				b: {
+					transform: (str: string, num: number, b: string, c: string) => {
+						expect(str).to.be.equal('--a');
+						expect(num).to.be.equal(5);
+						expect(b).to.be.equal('B:|B');
+						expect(c).to.be.equal('C|:C');
+						return str + 'b';
+					},
 				},
-				c: function(str: string, pNum: number) {
-					expect(str).to.be.equal('--ab');
-					expect(pNum).to.be.equal(2);
-					return str + 'c';
+				c: {
+					transform: (str: string, pNum: number) => {
+						expect(str).to.be.equal('--ab');
+						expect(pNum).to.be.equal(2);
+						return str + 'c';
+					},
 				},
 			});
 

@@ -15,7 +15,7 @@ declare interface ComponentOptions extends DirectiveOptions
 	template?: string,
 	components?: Array<any>,
 	directives?: Array<any>,
-	filters?: {[name: string]: Function},
+	filters?: Array<any>,
 }
 
 
@@ -49,7 +49,7 @@ export class ComponentMetadataDefinition extends DirectiveMetadataDefinition
 
 	public directives: Array<any>;
 
-	public filters: {[name: string]: Function};
+	public filters: Array<any>;
 
 
 	constructor(options: ComponentOptions)
@@ -61,7 +61,7 @@ export class ComponentMetadataDefinition extends DirectiveMetadataDefinition
 		this.controllerAs = typeof options.controllerAs !== 'undefined' ? options.controllerAs : null;
 		this.template = typeof options.template !== 'undefined' ? options.template : null;
 		this.directives = typeof options.directives !== 'undefined' ? options.directives : [];
-		this.filters = typeof options.filters !== 'undefined' ? options.filters : {};
+		this.filters = typeof options.filters !== 'undefined' ? options.filters : [];
 	}
 
 }
@@ -138,7 +138,6 @@ export class RequiredMetadataDefinition
 
 
 export var Directive = makeDecorator(DirectiveMetadataDefinition);
-
 export var Component = makeDecorator(ComponentMetadataDefinition);
 export var HostEvent = makePropDecorator(HostEventMetadataDefinition);
 export var HostElement = makePropDecorator(HostElementMetadataDefinition);

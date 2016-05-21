@@ -59,6 +59,10 @@ class Menu {}
 class App {}
 ```
 
+## Filters
+
+See [filters](./filters.md).
+
 ## Elements
 
 If you want to have simple access to some elements inside of your component 

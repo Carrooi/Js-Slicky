@@ -22,27 +22,7 @@ Elements' attributes are parsed like this as well.
 
 ### Filters
 
-There are also some filters which can be used in text expressions like this:
-
-```html
-<span>{{ message | truncate : '300' : '...' | replace : '_' : '-' }}</span>
-```
-
-This expression truncates `message` variable to max 300 letters, adds `...` if 
-text is longer than that and replaces all underscore letters with dashes.
-
-**List of default filters**:
-
-* `truncate(length, append = "&hellip;")`
-* `substr(from, length)`
-* `trim`
-* `replace(search, replace = "")`
-* `join(list, glue)`
-* `lower`
-* `upper`
-* `firstUpper`
-* `length`
-* `json`
+See [filters](./filters.md).
 
 ## Property binding
 

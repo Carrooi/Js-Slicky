@@ -1,4 +1,15 @@
-import {DefaultFilters} from '../../../../src/Templating/Filters/DefaultFilters';
+import {
+	TruncateFilter,
+	SubstrFilter,
+	TrimFilter,
+	ReplaceFilter,
+	JoinFilter,
+	LowerFilter,
+	UpperFilter,
+	FirstUpperFilter,
+	LengthFilter,
+	JsonFilter,
+} from '../../../../src/Templating/Filters/DefaultFilters';
 
 import chai = require('chai');
 
@@ -11,11 +22,11 @@ describe('#Templating/Filters/Filters', () => {
 	describe('truncate()', () => {
 
 		it('should not truncate short text', () => {
-			expect(DefaultFilters.truncate('lorem ipsum', 50)).to.be.equal('lorem ipsum');
+			expect((new TruncateFilter).transform('lorem ipsum', 50)).to.be.equal('lorem ipsum');
 		});
 
 		it('should truncate long text', () => {
-			expect(DefaultFilters.truncate('lorem ipsum', 6)).to.be.equal('lorem&hellip;');
+			expect((new TruncateFilter).transform('lorem ipsum', 6)).to.be.equal('lorem&hellip;');
 		});
 
 	});
@@ -23,7 +34,7 @@ describe('#Templating/Filters/Filters', () => {
 	describe('substr()', () => {
 
 		it('should return substring', () => {
-			expect(DefaultFilters.substr('lorem ipsum', 2, 3)).to.be.equal('rem');
+			expect((new SubstrFilter).transform('lorem ipsum', 2, 3)).to.be.equal('rem');
 		});
 
 	});
@@ -31,7 +42,7 @@ describe('#Templating/Filters/Filters', () => {
 	describe('trim()', () => {
 
 		it('should trim text', () => {
-			expect(DefaultFilters.trim('  lorem ipsum  ')).to.be.equal('lorem ipsum');
+			expect((new TrimFilter).transform('  lorem ipsum  ')).to.be.equal('lorem ipsum');
 		});
 
 	});
@@ -39,7 +50,7 @@ describe('#Templating/Filters/Filters', () => {
 	describe('replace()', () => {
 
 		it('should replace all occurrences of string', () => {
-			expect(DefaultFilters.replace('lorem ipsum dolor sit amet', ' ', '+')).to.be.equal('lorem+ipsum+dolor+sit+amet');
+			expect((new ReplaceFilter).transform('lorem ipsum dolor sit amet', ' ', '+')).to.be.equal('lorem+ipsum+dolor+sit+amet');
 		});
 
 	});
@@ -47,7 +58,7 @@ describe('#Templating/Filters/Filters', () => {
 	describe('join()', () => {
 
 		it('should join list of strings', () => {
-			expect(DefaultFilters.join(['lorem', 'ipsum', 'dolor'], ' ')).to.be.equal('lorem ipsum dolor');
+			expect((new JoinFilter).transform(['lorem', 'ipsum', 'dolor'], ' ')).to.be.equal('lorem ipsum dolor');
 		});
 
 	});
@@ -55,15 +66,15 @@ describe('#Templating/Filters/Filters', () => {
 	describe('lower()', () => {
 
 		it('should lower all characters', () => {
-			expect(DefaultFilters.lower('LOREM IPSUM')).to.be.equal('lorem ipsum');
+			expect((new LowerFilter).transform('LOREM IPSUM')).to.be.equal('lorem ipsum');
 		});
 
 	});
 
-	describe('lower()', () => {
+	describe('upper()', () => {
 
 		it('should upper all characters', () => {
-			expect(DefaultFilters.upper('lorem ipsum')).to.be.equal('LOREM IPSUM');
+			expect((new UpperFilter).transform('lorem ipsum')).to.be.equal('LOREM IPSUM');
 		});
 
 	});
@@ -71,7 +82,7 @@ describe('#Templating/Filters/Filters', () => {
 	describe('firstUpper()', () => {
 
 		it('should upper case first character', () => {
-			expect(DefaultFilters.firstUpper('lorem ipsum')).to.be.equal('Lorem ipsum');
+			expect((new FirstUpperFilter).transform('lorem ipsum')).to.be.equal('Lorem ipsum');
 		});
 
 	});
@@ -79,7 +90,7 @@ describe('#Templating/Filters/Filters', () => {
 	describe('length()', () => {
 
 		it('should return length of item', () => {
-			expect(DefaultFilters.length('lorem ipsum')).to.be.equal(11);
+			expect((new LengthFilter).transform('lorem ipsum')).to.be.equal(11);
 		});
 
 	});
@@ -87,7 +98,7 @@ describe('#Templating/Filters/Filters', () => {
 	describe('json()', () => {
 
 		it('should return stringified object', () => {
-			expect(DefaultFilters.json({a: 1})).to.be.equal('{"a":1}');
+			expect((new JsonFilter).transform({a: 1})).to.be.equal('{"a":1}');
 		});
 
 	});
