@@ -1,5 +1,5 @@
 import {Watcher, WatcherCallback} from '../Util/Watcher';
-import {Expression} from '../Templating/Parsers/ExpressionParser';
+import {Expression} from '../Parsers/ExpressionParser';
 import {DefaultFilters} from './../Templating/Filters/DefaultFilters';
 
 

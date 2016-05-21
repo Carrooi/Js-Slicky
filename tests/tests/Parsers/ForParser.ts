@@ -1,4 +1,4 @@
-import {ForParser} from '../../../../src/Templating/Parsers/ForParser';
+import {ForParser} from '../../../src/Parsers/ForParser';
 
 import chai = require('chai');
 
@@ -6,7 +6,7 @@ import chai = require('chai');
 let expect = chai.expect;
 
 
-describe('#Templating/Parsers/ForParser', () => {
+describe('#Parsers/ForParser', () => {
 
 	describe('parse()', () => {
 

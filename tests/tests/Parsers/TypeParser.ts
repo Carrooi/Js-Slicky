@@ -1,4 +1,4 @@
-import {TypeParser} from '../../../../src/Templating/Parsers/TypeParser';
+import {TypeParser} from '../../../src/Parsers/TypeParser';
 
 import chai = require('chai');
 
@@ -6,7 +6,7 @@ import chai = require('chai');
 let expect = chai.expect;
 
 
-describe('#Templating/Parsers/TypeParser', () => {
+describe('#Parsers/TypeParser', () => {
 
 	describe('parse()', () => {
 

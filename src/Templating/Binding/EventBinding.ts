@@ -2,8 +2,8 @@ import {IBinding} from './IBinding';
 import {Dom} from '../../Util/Dom';
 import {Code} from '../../Util/Code';
 import {Objects} from '../../Util/Objects';
-import {VariableParser} from '../Parsers/VariableParser';
-import {ExpressionParser} from '../Parsers/ExpressionParser';
+import {VariableParser} from '../../Parsers/VariableParser';
+import {ExpressionParser} from '../../Parsers/ExpressionParser';
 import {View} from '../../Views/View';
 
 

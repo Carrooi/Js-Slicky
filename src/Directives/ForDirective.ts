@@ -5,7 +5,7 @@ import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {View} from '../Views/View';
 import {EmbeddedView} from '../Views/EmbeddedView';
-import {ForParser, ForToken} from'../Templating/Parsers/ForParser';
+import {ForParser, ForToken} from'../Parsers/ForParser';
 import {Code} from '../Util/Code';
 import {SafeEval} from '../Util/SafeEval';
 import {ChangedObject} from '../Util/Watcher';

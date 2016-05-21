@@ -5,8 +5,8 @@ import {Injectable} from './DI/Metadata';
 import {ControllerParser, ControllerDefinition} from './Entity/ControllerParser';
 import {DirectiveParser, DirectiveDefinition} from './Entity/DirectiveParser';
 import {Functions} from './Util/Functions';
-import {TextParser} from './Templating/Parsers/TextParser';
-import {AttributeParser} from './Templating/Parsers/AttributeParser';
+import {TextParser} from './Parsers/TextParser';
+import {AttributeParser} from './Parsers/AttributeParser';
 import {TextBinding} from './Templating/Binding/TextBinding';
 import {EventBinding} from './Templating/Binding/EventBinding';
 import {PropertyBinding} from './Templating/Binding/PropertyBinding';
@@ -19,7 +19,7 @@ import {Helpers} from './Util/Helpers';
 import {ChangedObject} from './Util/Watcher';
 import {ComponentMetadataDefinition} from './Entity/Metadata';
 import {DirectiveMetadataDefinition} from './Entity/Metadata';
-import {ExpressionParser, Expression} from './Templating/Parsers/ExpressionParser';
+import {ExpressionParser, Expression} from './Parsers/ExpressionParser';
 import {EmbeddedView} from './Views/EmbeddedView';
 
 

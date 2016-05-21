@@ -1,4 +1,4 @@
-import {TextParser} from '../../../../src/Templating/Parsers/TextParser';
+import {TextParser} from '../../../src/Parsers/TextParser';
 
 import chai = require('chai');
 
@@ -9,7 +9,7 @@ let expect = chai.expect;
 /**
  * @see https://github.com/mikeric/rivets/blob/094572cbeb1dacfb5dabfc850dddb357adaa8f86/spec/rivets/text_template_parser.js
  */
-describe('#Templating/Parsers/TextParser', () => {
+describe('#Parsers/TextParser', () => {
 
 	describe('parse()', () => {
 

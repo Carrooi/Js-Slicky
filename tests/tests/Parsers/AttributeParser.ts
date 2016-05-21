@@ -1,4 +1,4 @@
-import {AttributeParser} from '../../../../src/Templating/Parsers/AttributeParser';
+import {AttributeParser} from '../../../src/Parsers/AttributeParser';
 
 import chai = require('chai');
 
@@ -6,7 +6,7 @@ import chai = require('chai');
 let expect = chai.expect;
 
 
-describe('#Templating/Parsers/TextParser', () => {
+describe('#Parsers/TextParser', () => {
 
 	describe('parse()', () => {
 

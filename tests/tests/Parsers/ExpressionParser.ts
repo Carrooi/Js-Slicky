@@ -1,6 +1,6 @@
-import {ExpressionParser, Expression} from '../../../../src/Templating/Parsers/ExpressionParser';
-import {TypeParser} from '../../../../src/Templating/Parsers/TypeParser';
-import {VariableParser} from '../../../../src/Templating/Parsers/VariableParser';
+import {ExpressionParser, Expression} from '../../../src/Parsers/ExpressionParser';
+import {TypeParser} from '../../../src/Parsers/TypeParser';
+import {VariableParser} from '../../../src/Parsers/VariableParser';
 
 import chai = require('chai');
 
@@ -8,7 +8,7 @@ import chai = require('chai');
 let expect = chai.expect;
 
 
-describe('#Templating/Parsers/ExpressionParser', () => {
+describe('#Parsers/ExpressionParser', () => {
 
 	describe('precompile()', () => {
 

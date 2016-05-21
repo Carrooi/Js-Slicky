@@ -1,4 +1,4 @@
-import {VariableParser} from '../../../../src/Templating/Parsers/VariableParser';
+import {VariableParser} from '../../../src/Parsers/VariableParser';
 
 import chai = require('chai');
 
@@ -6,7 +6,7 @@ import chai = require('chai');
 let expect = chai.expect;
 
 
-describe('#Templating/Parsers/VariableParser', () => {
+describe('#Parsers/VariableParser', () => {
 
 	describe('parse()', () => {
 

@@ -1,5 +1,5 @@
 import {Code} from '../../../src/Util/Code';
-import {VariableParser, VariableToken} from '../../../src/Templating/Parsers/VariableParser';
+import {VariableParser, VariableToken} from '../../../src/Parsers/VariableParser';
 
 import chai = require('chai');
 

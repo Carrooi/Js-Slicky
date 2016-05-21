@@ -1,5 +1,5 @@
 import {ParametersList} from '../Views/AbstractView';
-import {Expression} from '../Templating/Parsers/ExpressionParser';
+import {Expression} from '../Parsers/ExpressionParser';
 import {Code, InterpolatedObjectElement} from './Code';
 import {Helpers} from './Helpers';
 import {Objects} from './Objects';

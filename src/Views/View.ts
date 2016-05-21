@@ -11,7 +11,7 @@ import {EmbeddedView} from './EmbeddedView';
 import {ComponentMetadataDefinition} from './../Entity/Metadata';
 import {Objects} from './../Util/Objects';
 import {Arrays} from './../Util/Arrays';
-import {ExpressionParser} from '../Templating/Parsers/ExpressionParser';
+import {ExpressionParser} from '../Parsers/ExpressionParser';
 
 
 export class View extends AbstractView

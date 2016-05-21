@@ -1,4 +1,4 @@
-import {VariableToken} from '../Templating/Parsers/VariableParser';
+import {VariableToken} from '../Parsers/VariableParser';
 
 
 export declare interface InterpolatedObjectElement

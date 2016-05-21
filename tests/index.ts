@@ -9,12 +9,12 @@ import './tests/Templating/ElementRef';
 
 import './tests/Templating/Filters/Filters';
 
-import './tests/Templating/Parsers/TypeParser';
-import './tests/Templating/Parsers/VariableParser';
-import './tests/Templating/Parsers/TextParser';
-import './tests/Templating/Parsers/AttributeParser';
-import './tests/Templating/Parsers/ExpressionParser';
-import './tests/Templating/Parsers/ForParser';
+import './tests/Parsers/TypeParser';
+import './tests/Parsers/VariableParser';
+import './tests/Parsers/TextParser';
+import './tests/Parsers/AttributeParser';
+import './tests/Parsers/ExpressionParser';
+import './tests/Parsers/ForParser';
 
 import './tests/Templating/Binding/PropertyBinding';
 import './tests/Templating/Binding/EventBinding';

@@ -1,7 +1,5 @@
-import {View} from '../../../src/Views/View';
-import {ElementRef} from '../../../src/Templating/ElementRef';
 import {Watcher} from '../../../src/Util/Watcher';
-import {ExpressionParser} from '../../../src/Templating/Parsers/ExpressionParser';
+import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
 
 import chai = require('chai');
 
