@@ -39,7 +39,7 @@ import {appTranslations} from './translations';
 @Component({
 	selector: 'app',
 	filters: [TranslateFilter],
-	translations: translations,
+	translations: appTranslations,
 })
 export class AppComponent
 {
