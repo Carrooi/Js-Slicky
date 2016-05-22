@@ -25,6 +25,8 @@ export abstract class AbstractView
 
 	public filters: {[name: string]: any} = DefaultFilters;
 
+	public translations: {[locale: string]: any} = {};
+
 
 	constructor(parent?: AbstractView, parameters: ParametersList = {})
 	{

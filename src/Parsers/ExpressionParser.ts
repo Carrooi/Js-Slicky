@@ -140,7 +140,7 @@ export class ExpressionParser
 
 	private static delimiterRegExp(delimiter: string): RegExp
 	{
-		return new RegExp('(\'[^\']+\'|"[^"]+"|[^\\' + delimiter + '])+', 'g');
+		return new RegExp('(\'[^\']+\'|"[^"]+"|\{[^\{]+\}|[^\\' + delimiter + '])+', 'g');
 	}
 
 }

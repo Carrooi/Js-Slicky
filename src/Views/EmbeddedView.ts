@@ -90,6 +90,7 @@ export class EmbeddedView extends AbstractView
 
 		view.filters = Objects.clone(this.filters);
 		view.directives = Arrays.clone(this.directives);
+		view.translations = Objects.clone(this.translations);
 
 		return view;
 	}

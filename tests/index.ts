@@ -36,3 +36,4 @@ import './tests/DI/Container';
 import './tests/Application';
 import './tests/Compiler';
 import './tests/Compiler.template';
+import './tests/Compiler.translations';

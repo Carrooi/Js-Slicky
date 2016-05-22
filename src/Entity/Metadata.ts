@@ -16,6 +16,7 @@ declare interface ComponentOptions extends DirectiveOptions
 	components?: Array<any>,
 	directives?: Array<any>,
 	filters?: Array<any>,
+	translations?: {[locale: string]: any},
 }
 
 
@@ -51,6 +52,8 @@ export class ComponentMetadataDefinition extends DirectiveMetadataDefinition
 
 	public filters: Array<any>;
 
+	public translations: {[locale: string]: any};
+
 
 	constructor(options: ComponentOptions)
 	{
@@ -62,6 +65,7 @@ export class ComponentMetadataDefinition extends DirectiveMetadataDefinition
 		this.template = typeof options.template !== 'undefined' ? options.template : null;
 		this.directives = typeof options.directives !== 'undefined' ? options.directives : [];
 		this.filters = typeof options.filters !== 'undefined' ? options.filters : [];
+		this.translations = typeof options.translations !== 'undefined' ? options.translations : {};
 	}
 
 }

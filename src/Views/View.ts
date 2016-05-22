@@ -17,6 +17,7 @@ import {SafeEval} from '../Util/SafeEval';
 import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
 import {TypeParser} from '../Parsers/TypeParser';
 import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
+import {ViewAware} from '../Templating/Filters/ViewAware';
 import {Container} from '../DI/Container';
 
 
@@ -74,6 +75,7 @@ export class View extends AbstractView
 
 		view.filters = Objects.clone(this.filters);
 		view.directives = Arrays.clone(this.directives);
+		view.translations = Objects.clone(this.translations);
 
 		return view;
 	}
@@ -86,6 +88,7 @@ export class View extends AbstractView
 		view.filters = Objects.clone(this.filters);
 		view.directives = Arrays.clone(this.directives);
 		view.parameters = Objects.clone(this.parameters);
+		view.translations = Objects.clone(this.translations);
 
 		view.attach(this.createMarker());
 
@@ -111,6 +114,7 @@ export class View extends AbstractView
 	{
 		let directives = definition.metadata.directives;
 		let filters = definition.metadata.filters;
+		let translations = definition.metadata.translations;
 
 		for (let i = 0; i < directives.length; i++) {
 			if (this.directives.indexOf(directives[i]) < 0) {
@@ -127,6 +131,20 @@ export class View extends AbstractView
 			}
 
 			this.filters[filterMetadata.name] = container.create(filter);
+		}
+		
+		for (let locale in translations) {
+			if (translations.hasOwnProperty(locale)) {
+				if (typeof this.translations[locale] === 'undefined') {
+					this.translations[locale] = {};
+				}
+
+				for (let groupName in translations[locale]) {
+					if (translations[locale].hasOwnProperty(groupName)) {
+						this.translations[locale][groupName] = translations[locale][groupName];
+					}
+				}
+			}
 		}
 	}
 
@@ -204,13 +222,18 @@ export class View extends AbstractView
 			}
 
 			let args = [value];
+			let filterInstance = this.filters[filter.name];
 
 			for (let j = 0; j < filter.args.length; j++) {
 				let arg = filter.args[j];
 				args.push(arg.type === TypeParser.TYPE_PRIMITIVE ? arg.value : SafeEval.run('return ' + arg.value, this.parameters).result);
 			}
 
-			value = this.filters[filter.name].transform.apply(this.filters[filter.name], args);
+			if (typeof filterInstance['onView'] === 'function') {
+				(<ViewAware>filterInstance).onView(this);
+			}
+
+			value = filterInstance.transform.apply(filterInstance, args);
 		}
 
 		return value;
