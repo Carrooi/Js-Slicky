@@ -30,7 +30,6 @@ describe('#Views/View', () => {
 
 			expect(fork.el.nativeEl).to.not.be.equal(view.el.nativeEl);
 			expect(fork.parameters).to.be.eql(view.parameters).and.not.equal(view.parameters);
-			expect(fork.directives).to.be.eql(view.directives).and.not.equal(view.directives);
 			expect(fork.filters).to.be.eql(view.filters).and.not.equal(view.filters);
 		});
 

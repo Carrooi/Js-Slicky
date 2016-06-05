@@ -140,8 +140,7 @@ export class Compiler
 		let innerCompilationNeeded = false;
 		let directiveExists = false;
 
-		for (let i = 0; i < view.directives.length; i++) {
-			let directive = view.directives[i];
+		view.eachDirective((directive) => {
 			let isComponent = false;
 			let metadata: DirectiveMetadataDefinition;
 			let definition: DirectiveDefinition;
@@ -172,7 +171,7 @@ export class Compiler
 					innerCompilationNeeded = true;
 				}
 			}
-		}
+		});
 
 		if (components.length > 1) {
 			throw new Error('Can not attach more than 1 components (' + components.join(', ') + ') to ' + Dom.getReadableName(el) + ' element.');

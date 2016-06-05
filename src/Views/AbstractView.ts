@@ -65,4 +65,38 @@ export abstract class AbstractView
 		this.watcher.watch(expr, cb);
 	}
 
+
+	public eachDirective(iterator: (directive: any) => void): void
+	{
+		let iterated = [];
+
+		for (let i = 0; i < this.directives.length; i++) {
+			let directive = this.directives[i];
+
+			if (iterated.indexOf(directive) > -1) {
+				continue;
+			}
+
+			iterated.push(directive);
+			iterator(directive);
+		}
+
+		let parent = this.parent;
+
+		while (parent) {
+			for (let i = 0; i < parent.directives.length; i++) {
+				let directive = parent.directives[i];
+
+				if (iterated.indexOf(directive) > -1) {
+					continue;
+				}
+
+				iterated.push(directive);
+				iterator(directive);
+			}
+
+			parent = parent.parent;
+		}
+	}
+
 }

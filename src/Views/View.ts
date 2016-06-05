@@ -74,7 +74,6 @@ export class View extends AbstractView
 		let view = new View(el, parameters, this);
 
 		view.filters = Objects.clone(this.filters);
-		view.directives = Arrays.clone(this.directives);
 		view.translations = Objects.clone(this.translations);
 
 		return view;
@@ -86,7 +85,6 @@ export class View extends AbstractView
 		let view = new EmbeddedView(this, templateRef);
 
 		view.filters = Objects.clone(this.filters);
-		view.directives = Arrays.clone(this.directives);
 		view.parameters = Objects.clone(this.parameters);
 		view.translations = Objects.clone(this.translations);
 
@@ -117,9 +115,7 @@ export class View extends AbstractView
 		let translations = definition.metadata.translations;
 
 		for (let i = 0; i < directives.length; i++) {
-			if (this.directives.indexOf(directives[i]) < 0) {
-				this.directives.push(directives[i]);
-			}
+			this.directives.push(directives[i]);
 		}
 
 		for (let i = 0; i < filters.length; i++) {
