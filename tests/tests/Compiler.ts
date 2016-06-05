@@ -448,58 +448,29 @@ describe('#Compiler', () => {
 			expect(calledInner).to.be.equal(1);
 		});
 
-		it('should initialize inner component for many parents just once', () => {
-			let calledApp = 0;
-			let calledParentOne = 0;
-			let calledParentTwo = 0;
-			let calledChild = 0;
+		it('should not allow to attach more than 1 component to element', () => {
+			@Component({
+				selector: '[one]',
+			})
+			class One {}
 
 			@Component({
-				selector: '[child]',
+				selector: '[two]',
 			})
-			class Child {
-				constructor() {
-					calledChild++;
-				}
-			}
-
-			@Component({
-				selector: '[parent-one]',
-			})
-			class ParentOne {
-				constructor() {
-					calledParentOne++;
-				}
-			}
-
-			@Component({
-				selector: '[parent-two]',
-			})
-			class ParentTwo {
-				constructor() {
-					calledParentTwo++;
-				}
-			}
+			class Two {}
 
 			@Component({
 				selector: '[app]',
-				directives: [ParentOne, ParentTwo, Child],
+				directives: [One, Two],
 			})
-			class App {
-				constructor() {
-					calledApp++;
-				}
-			}
+			class App {}
 
 			let parent = document.createElement('div');
-			parent.innerHTML = '<div app><div parent-one parent-two><div child></div></div></div>';
+			parent.innerHTML = '<div app><div one two></div></div>';
 
-			compiler.compile(new View(new ElementRef(parent)), App);
-
-			expect(calledApp).to.be.equal(1);
-			expect(calledParentOne).to.be.equal(1);
-			expect(calledParentTwo).to.be.equal(1);
-			expect(calledChild).to.be.equal(1);
+			expect(() => {
+				compiler.compile(new View(new ElementRef(parent)), App);
+			}).to.throw(Error, 'Can not attach more than 1 components (One, Two) to div element.');
 		});
 
 	});

@@ -108,6 +108,7 @@ export class Compiler
 		}
 
 		let directives: Array<{directive: any, metadata: DirectiveMetadataDefinition, definition: DirectiveDefinition, instance: any}> = [];
+		let components: Array<string> = [];
 
 		let elementRef = ElementRef.getByNode(el);
 		let view = View.getByElement(elementRef, parentView);
@@ -116,10 +117,12 @@ export class Compiler
 
 		for (let i = 0; i < view.directives.length; i++) {
 			let directive = view.directives[i];
+			let isComponent = false;
 			let metadata: DirectiveMetadataDefinition;
 			let definition: DirectiveDefinition;
 
 			if (Annotations.hasAnnotation(directive, ComponentMetadataDefinition)) {
+				isComponent = true;
 				metadata = ControllerParser.getControllerMetadata(directive);
 				definition = ControllerParser.parse(directive, <ComponentMetadataDefinition>metadata);
 			} else {
@@ -128,6 +131,10 @@ export class Compiler
 			}
 
 			if (Dom.matches(el, metadata.selector)) {
+				if (isComponent) {
+					components.push(Functions.getName(directive));
+				}
+
 				let instance = this.createDirective(view, definition, el);
 
 				view.attachDirective(definition, instance);
@@ -139,6 +146,10 @@ export class Compiler
 					instance: instance,
 				});
 			}
+		}
+
+		if (components.length > 1) {
+			throw new Error('Can not attach more than 1 components (' + components.join(', ') + ') to ' + Dom.getReadableName(el) + ' element.');
 		}
 
 		for (let i = 0; i < attributes.length; i++) {
