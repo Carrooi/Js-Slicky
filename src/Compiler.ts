@@ -12,7 +12,7 @@ import {EventBinding} from './Templating/Binding/EventBinding';
 import {PropertyBinding} from './Templating/Binding/PropertyBinding';
 import {AttributeBinding} from './Templating/Binding/AttributeBinding';
 import {View} from './Views/View';
-import {ElementRef} from './Templating/ElementRef';
+import {ElementRef, AttributesList} from './Templating/ElementRef';
 import {TemplateRef} from './Templating/TemplateRef';
 import {Annotations} from './Util/Annotations';
 import {Helpers} from './Util/Helpers';
@@ -90,9 +90,7 @@ export class Compiler
 				let innerView = getView(view, child);
 
 				if (child.nodeName.toUpperCase() === 'TEMPLATE') {
-					let childRef = ElementRef.getByNode(child);
-
-					innerView = View.getByElement(childRef, innerView);
+					innerView = View.getByElement(ElementRef.getByNode(child), innerView);
 
 					innerView.createMarker();
 					innerView.remove();
@@ -109,34 +107,36 @@ export class Compiler
 		let elementRef = ElementRef.getByNode(el);
 		let view = View.getByElement(elementRef, parentView);
 
-		let attributes = elementRef.getAttributes();
+		let attributes = ElementRef.getAttributes(el);
 
-		for (let i = 0; i < attributes.length; i++) {
-			let attr = attributes[i];
+		for (let attrName in attributes) {
+			if (attributes.hasOwnProperty(attrName)) {
+				let attr = attributes[attrName];
 
-			if (attr.expression === '') {
-				continue;
-			}
+				if (attr.expression === '') {
+					continue;
+				}
 
-			let expr = ExpressionParser.precompile(attr.expression);
+				let expr = ExpressionParser.precompile(attr.expression);
 
-			if (attr.property && Dom.propertyExists(el, attr.name)) {
-				view.attachBinding(new PropertyBinding(el, attr.name), expr);
-				attr.bound = true;
-			}
-
-			if (attr.event) {
-				view.attachBinding(new EventBinding(view, el, attr.name, attr.expression), expr);
-				attr.bound = true;
-			}
-
-			if (!attr.property && !attr.event) {
-				let attrExpr = AttributeParser.parse(attr.expression);
-
-				if (attrExpr !== "'" + attr.expression + "'") {
-					expr = ExpressionParser.precompile(attrExpr);
-					view.attachBinding(new AttributeBinding(el, attr.name), expr);
+				if (attr.property && Dom.propertyExists(el, attr.name)) {
+					view.attachBinding(new PropertyBinding(el, attr.name), expr);
 					attr.bound = true;
+				}
+
+				if (attr.event) {
+					view.attachBinding(new EventBinding(view, el, attr.name, attr.expression), expr);
+					attr.bound = true;
+				}
+
+				if (!attr.property && !attr.event) {
+					let attrExpr = AttributeParser.parse(attr.expression);
+
+					if (attrExpr !== "'" + attr.expression + "'") {
+						expr = ExpressionParser.precompile(attrExpr);
+						view.attachBinding(new AttributeBinding(el, attr.name), expr);
+						attr.bound = true;
+					}
 				}
 			}
 		}
@@ -170,7 +170,7 @@ export class Compiler
 
 				view.attachDirective(definition, instance);
 
-				let innerCompiled = this.processDirective(el, view, elementRef, definition, instance);
+				let innerCompiled = this.processDirective(el, view, attributes, definition, instance);
 
 				if (!innerCompiled && definition.metadata.compileInner) {
 					innerCompilationNeeded = true;
@@ -294,10 +294,8 @@ export class Compiler
 	}
 
 
-	private processDirective(el: HTMLElement, view: View, elementRef: ElementRef, definition: DirectiveDefinition, instance: any): boolean
+	private processDirective(el: HTMLElement, view: View, attributes: AttributesList, definition: DirectiveDefinition, instance: any): boolean
 	{
-		let attributes = elementRef.getAttributes();
-
 		let innerCompiled = false;
 
 		let hasOnChange = typeof instance['onChange'] === 'function';
@@ -327,9 +325,9 @@ export class Compiler
 					let input = definition.inputs[inputName];
 					let realInputName = (input.name ? input.name : inputName).toLowerCase();
 
-					let attr = elementRef.getAttribute(realInputName);
+					let attr = attributes[realInputName];
 
-					if (!attr) {
+					if (typeof attr === 'undefined') {
 						if (typeof el[realInputName] === 'undefined') {
 							if (input.required) {
 								throw new Error('Component\'s input ' + Functions.getName(definition.directive) + '::' + inputName + ' was not found in ' + Dom.getReadableName(<Element>el) + ' element.');
@@ -361,9 +359,13 @@ export class Compiler
 			}
 		})(instance, definition, hasOnChange, hasOnUpdate);
 
-		for (let i = 0; i < attributes.length; i++) {
-			if (attributes[i].property && !attributes[i].bound) {
-				throw new Error('Could not bind property ' + attributes[i].name + ' to element ' + Dom.getReadableName(el) + ' or to any of its directives.');
+		for (let attrName in attributes) {
+			if (attributes.hasOwnProperty(attrName)) {
+				let attr = attributes[attrName];
+
+				if (attr.property && !attr.bound) {
+					throw new Error('Could not bind property ' + attr.name + ' to element ' + Dom.getReadableName(el) + ' or to any of its directives.');
+				}
 			}
 		}
 

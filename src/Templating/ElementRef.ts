@@ -11,6 +11,12 @@ declare interface AttributeProperty
 }
 
 
+export declare interface AttributesList
+{
+	[name: string]: AttributeProperty;
+}
+
+
 export class ElementRef
 {
 
@@ -101,64 +107,38 @@ export class ElementRef
 	}
 
 
-	public moveToDOM(): void
+	public static getAttributes(el: Node): AttributesList
 	{
-		if (!this.nativeEl.parentElement && this.marker) {
-			this.marker.parentElement.insertBefore(this.nativeEl, this.marker.nextSibling);
-		}
-	}
+		let attributes: AttributesList = {};
 
+		for (let i = 0; i < el.attributes.length; i++) {
+			let attr = el.attributes[i];
 
-	public getAttributes(): Array<AttributeProperty>
-	{
-		if (this.attributes === null) {
-			let attributes = [];
+			let name = attr.name.toLowerCase();
 
-			for (let i = 0; i < this.nativeEl.attributes.length; i++) {
-				let attr = this.nativeEl.attributes[i];
+			let property = false;
+			let event = false;
 
-				let name = attr.name.toLowerCase();
-
-				let property = false;
-				let event = false;
-
-				if (name.match(/^\[.+?\]$/)) {
-					name = name.substring(1, name.length - 1);
-					property = true;
-				}
-
-				if (name.match(/^\(.+?\)$/)) {
-					name = name.substring(1, name.length - 1);
-					event = true;
-				}
-
-				attributes.push({
-					name: name,
-					expression: attr.value,
-					property: property,
-					event: event,
-					bound: false,
-				});
+			if (name.match(/^\[.+?\]$/)) {
+				name = name.substring(1, name.length - 1);
+				property = true;
 			}
 
-			this.attributes = attributes;
-		}
-
-		return this.attributes;
-	}
-
-
-	public getAttribute(name: string): AttributeProperty
-	{
-		let attributes = this.getAttributes();
-
-		for (let i = 0; i < attributes.length; i++) {
-			if (attributes[i].name === name) {
-				return attributes[i];
+			if (name.match(/^\(.+?\)$/)) {
+				name = name.substring(1, name.length - 1);
+				event = true;
 			}
+
+			attributes[name] = {
+				name: name,
+				expression: attr.value,
+				property: property,
+				event: event,
+				bound: false,
+			};
 		}
 
-		return null;
+		return attributes;
 	}
 
 }

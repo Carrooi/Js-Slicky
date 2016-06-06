@@ -43,7 +43,7 @@ export class ForDirective implements OnChange, OnDestroy
 		this.view = view;
 		this.templateRef = templateRef;
 
-		let attr = el.getAttribute('s:for');
+		let attr = ElementRef.getAttributes(el.nativeEl)['s:for'];
 
 		this.expr = ForParser.parse(attr.expression);
 		this.dependency = Code.interpolateObjectElement(this.view.parameters, this.expr.obj);
