@@ -316,6 +316,41 @@ describe('#Compiler/template', () => {
 			expect(el.innerText).to.be.equal('2');
 		});
 
+		it('should call filter registered in parent', () => {
+			@Filter({
+				name: 'plus',
+			})
+			class PlusFilter {
+				transform(num) {
+					return num + 1;
+				}
+			}
+
+			@Component({
+				selector: '[test]',
+				controllerAs: 'test',
+				template: '{{ test.num | plus }}',
+			})
+			class Test {
+				num = 1;
+			}
+
+			@Component({
+				selector: 'app',
+				template: '<div test></div>',
+				filters: [PlusFilter],
+				directives: [Test],
+			})
+			class App {}
+
+			let el = document.createElement('div');
+			el.innerHTML = '<app></app>';
+
+			compiler.compile(new View(new ElementRef(el)), App);
+
+			expect(el.innerText).to.be.equal('2');
+		});
+
 		it('should have access to all parents components', () => {
 			@Component({
 				selector: '[child]',
