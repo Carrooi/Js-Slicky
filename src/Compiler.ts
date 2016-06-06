@@ -104,8 +104,18 @@ export class Compiler
 
 	public compileElement(parentView: View, el: HTMLElement): void
 	{
-		let elementRef = ElementRef.getByNode(el);
-		let view = View.getByElement(elementRef, parentView);
+		let _view: View = null;
+		let getView = (needOwn: boolean = false): View => {
+			if (_view) {
+				return _view;
+			}
+
+			if (needOwn) {
+				return _view = View.getByElement(ElementRef.getByNode(el), parentView);
+			}
+
+			return parentView;
+		};
 
 		let attributes = ElementRef.getAttributes(el);
 
@@ -120,12 +130,12 @@ export class Compiler
 				let expr = ExpressionParser.precompile(attr.expression);
 
 				if (attr.property && Dom.propertyExists(el, attr.name)) {
-					view.attachBinding(new PropertyBinding(el, attr.name), expr);
+					getView(true).attachBinding(new PropertyBinding(el, attr.name), expr);
 					attr.bound = true;
 				}
 
 				if (attr.event) {
-					view.attachBinding(new EventBinding(view, el, attr.name, attr.expression), expr);
+					getView(true).attachBinding(new EventBinding(getView(true), el, attr.name, attr.expression), expr);
 					attr.bound = true;
 				}
 
@@ -134,7 +144,7 @@ export class Compiler
 
 					if (attrExpr !== "'" + attr.expression + "'") {
 						expr = ExpressionParser.precompile(attrExpr);
-						view.attachBinding(new AttributeBinding(el, attr.name), expr);
+						getView(true).attachBinding(new AttributeBinding(el, attr.name), expr);
 						attr.bound = true;
 					}
 				}
@@ -145,7 +155,7 @@ export class Compiler
 		let innerCompilationNeeded = false;
 		let directiveExists = false;
 
-		view.eachDirective((directive) => {
+		getView().eachDirective((directive) => {
 			let isComponent = false;
 			let metadata: DirectiveMetadataDefinition;
 			let definition: DirectiveDefinition;
@@ -166,11 +176,8 @@ export class Compiler
 					components.push(Functions.getName(directive));
 				}
 
-				let instance = this.createDirective(view, definition, el);
-
-				view.attachDirective(definition, instance);
-
-				let innerCompiled = this.processDirective(el, view, attributes, definition, instance);
+				let instance = this.createDirective(getView(true), definition, el);
+				let innerCompiled = this.processDirective(el, getView(true), attributes, definition, instance);
 
 				if (!innerCompiled && definition.metadata.compileInner) {
 					innerCompilationNeeded = true;
@@ -189,7 +196,7 @@ export class Compiler
 		Dom.removeCssClass(el, Compiler.CLOAK_CSS_CLASS);
 
 		if (Compiler.IGNORED_ELEMENTS.indexOf(el.nodeName.toUpperCase()) === -1 && innerCompilationNeeded) {
-			this.compileNodes(view, el.childNodes);
+			this.compileNodes(getView(), el.childNodes);
 		}
 	}
 
@@ -225,7 +232,7 @@ export class Compiler
 			view.updateWithController(this.container, <ControllerDefinition>definition);
 		}
 
-		return this.container.create(<any>definition.directive, [
+		let instance = this.container.create(<any>definition.directive, [
 			{
 				service: ElementRef,
 				options: {
@@ -245,6 +252,10 @@ export class Compiler
 				},
 			},
 		]);
+
+		view.attachDirective(definition, instance);
+
+		return instance;
 	}
 
 

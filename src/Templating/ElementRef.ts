@@ -30,8 +30,6 @@ export class ElementRef
 
 	public view: View;
 
-	public attributes: Array<AttributeProperty> = null;
-
 
 	constructor(nativeEl: Node)
 	{
