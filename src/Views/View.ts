@@ -13,11 +13,8 @@ import {Objects} from '../Util/Objects';
 import {Arrays} from '../Util/Arrays';
 import {Annotations} from '../Util/Annotations';
 import {Functions} from '../Util/Functions';
-import {SafeEval} from '../Util/SafeEval';
 import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
-import {TypeParser} from '../Parsers/TypeParser';
 import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
-import {ViewAware} from '../Templating/Filters/ViewAware';
 import {Container} from '../DI/Container';
 
 
@@ -73,7 +70,6 @@ export class View extends AbstractView
 
 		let view = new View(el, parameters, this);
 
-		view.filters = Objects.clone(this.filters);
 		view.translations = Objects.clone(this.translations);
 
 		return view;
@@ -84,7 +80,6 @@ export class View extends AbstractView
 	{
 		let view = new EmbeddedView(this, templateRef);
 
-		view.filters = Objects.clone(this.filters);
 		view.parameters = Objects.clone(this.parameters);
 		view.translations = Objects.clone(this.translations);
 
@@ -198,34 +193,6 @@ export class View extends AbstractView
 		if (this.el.nativeEl.parentElement) {
 			this.el.nativeEl.parentElement.removeChild(this.el.nativeEl);
 		}
-	}
-
-
-	public applyFilters(value: string, expr: Expression): any
-	{
-		for (let i = 0; i < expr.filters.length; i++) {
-			let filter = expr.filters[i];
-
-			if (typeof this.filters[filter.name] === 'undefined') {
-				throw new Error('Could not call filter "' + filter.name + '" in "' + expr.code + '" expression, filter is not registered.');
-			}
-
-			let args = [value];
-			let filterInstance = this.filters[filter.name];
-
-			for (let j = 0; j < filter.args.length; j++) {
-				let arg = filter.args[j];
-				args.push(arg.type === TypeParser.TYPE_PRIMITIVE ? arg.value : SafeEval.run('return ' + arg.value, this.parameters).result);
-			}
-
-			if (typeof filterInstance['onView'] === 'function') {
-				(<ViewAware>filterInstance).onView(this);
-			}
-
-			value = filterInstance.transform.apply(filterInstance, args);
-		}
-
-		return value;
 	}
 
 }

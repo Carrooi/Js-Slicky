@@ -85,11 +85,8 @@ export class EmbeddedView extends AbstractView
 		}
 
 		let parameters = Objects.clone(this.parameters);
-
 		let view = elementRef.view = new View(elementRef, parameters, this);
 
-		view.filters = Objects.clone(this.filters);
-		view.directives = Arrays.clone(this.directives);
 		view.translations = Objects.clone(this.translations);
 
 		return view;

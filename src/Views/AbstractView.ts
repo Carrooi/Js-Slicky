@@ -4,6 +4,9 @@ import {Functions} from '../Util/Functions';
 import {Expression} from '../Parsers/ExpressionParser';
 import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
 import {Container} from '../DI/Container';
+import {TypeParser} from '../Parsers/TypeParser';
+import {SafeEval} from '../Util/SafeEval';
+import {ViewAware} from '../Templating/Filters/ViewAware';
 
 
 export declare interface ParametersList
@@ -112,6 +115,48 @@ export abstract class AbstractView
 
 			parent = parent.parent;
 		}
+	}
+
+
+	public findFilter(name: string): any
+	{
+		if (typeof this.filters[name] !== 'undefined') {
+			return this.filters[name];
+		}
+
+		if (this.parent) {
+			return this.parent.findFilter(name);
+		}
+
+		return null;
+	}
+
+
+	public applyFilters(value: string, expr: Expression): any
+	{
+		for (let i = 0; i < expr.filters.length; i++) {
+			let filter = expr.filters[i];
+			let filterInstance = this.findFilter(filter.name);
+
+			if (!filterInstance) {
+				throw new Error('Could not call filter "' + filter.name + '" in "' + expr.code + '" expression, filter is not registered.');
+			}
+
+			let args = [value];
+
+			for (let j = 0; j < filter.args.length; j++) {
+				let arg = filter.args[j];
+				args.push(arg.type === TypeParser.TYPE_PRIMITIVE ? arg.value : SafeEval.run('return ' + arg.value, this.parameters).result);
+			}
+
+			if (typeof filterInstance['onView'] === 'function') {
+				(<ViewAware>filterInstance).onView(this);
+			}
+
+			value = filterInstance.transform.apply(filterInstance, args);
+		}
+
+		return value;
 	}
 
 }
