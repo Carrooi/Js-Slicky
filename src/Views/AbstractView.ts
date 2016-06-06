@@ -1,6 +1,9 @@
 import {Watcher, WatcherCallback} from '../Util/Watcher';
+import {Annotations} from '../Util/Annotations';
+import {Functions} from '../Util/Functions';
 import {Expression} from '../Parsers/ExpressionParser';
-import {DefaultFilters} from './../Templating/Filters/DefaultFilters';
+import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
+import {Container} from '../DI/Container';
 
 
 export declare interface ParametersList
@@ -23,7 +26,7 @@ export abstract class AbstractView
 
 	public parameters: ParametersList = {};
 
-	public filters: {[name: string]: any} = DefaultFilters;
+	public filters: {[name: string]: any} = {};
 
 	public translations: {[locale: string]: any} = {};
 
@@ -57,6 +60,18 @@ export abstract class AbstractView
 		}
 
 		this.parameters[name] = value;
+	}
+
+
+	public addFilter(container: Container, filter: any): void
+	{
+		let metadata: FilterMetadataDefinition = Annotations.getAnnotation(filter, FilterMetadataDefinition);
+
+		if (!metadata) {
+			throw new Error('Filter ' + Functions.getName(filter) + ' is not valid filter, please add @Filter annotation.');
+		}
+
+		this.filters[metadata.name] = container.create(filter);
 	}
 
 

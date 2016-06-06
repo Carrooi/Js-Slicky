@@ -21,6 +21,7 @@ import {ComponentMetadataDefinition} from './Entity/Metadata';
 import {DirectiveMetadataDefinition} from './Entity/Metadata';
 import {ExpressionParser, Expression} from './Parsers/ExpressionParser';
 import {EmbeddedView} from './Views/EmbeddedView';
+import {DefaultFilters} from './Templating/Filters/DefaultFilters';
 
 
 @Injectable()
@@ -53,6 +54,10 @@ export class Compiler
 
 		if (!el) {
 			return;
+		}
+
+		for (let i = 0; i < DefaultFilters.length; i++) {
+			view.addFilter(this.container, DefaultFilters[i]);
 		}
 
 		view.directives = [controller];

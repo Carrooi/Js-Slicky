@@ -36,9 +36,11 @@ export class Application
 
 	public run(controller: any): void
 	{
-		let view = new View(ElementRef.getByNode(document), {});
+		let elementRef = ElementRef.getByNode(document);
+		let view = View.getByElement(elementRef);
 
 		this.compiler.compile(view, controller);
+
 		view.watcher.run();
 	}
 

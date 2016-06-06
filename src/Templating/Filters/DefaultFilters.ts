@@ -1,5 +1,6 @@
 import {Strings} from '../../Util/Strings';
-import {Filter} from './Metadata';
+import {Annotations} from '../../Util/Annotations';
+import {Filter, } from './Metadata';
 
 
 @Filter({

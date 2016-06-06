@@ -270,6 +270,24 @@ describe('#Compiler/template', () => {
 			expect(parent.innerText).to.be.equal('hello');
 		});
 
+		it('should call build in template filter', () => {
+			@Component({
+				selector: '[test]',
+				controllerAs: 'test',
+				template: '{{ test.s | lower }}',
+			})
+			class Test {
+				s = 'LOREM';
+			}
+
+			let el = document.createElement('div');
+			el.innerHTML = '<div test></div>';
+
+			compiler.compile(new View(new ElementRef(el)), Test);
+
+			expect(el.innerText).to.be.equal('lorem');
+		});
+
 		it('should add custom filter to template', () => {
 			@Filter({
 				name: 'plus',

@@ -119,14 +119,7 @@ export class View extends AbstractView
 		}
 
 		for (let i = 0; i < filters.length; i++) {
-			let filter = filters[i];
-			let filterMetadata: FilterMetadataDefinition = Annotations.getAnnotation(filter, FilterMetadataDefinition);
-
-			if (!filterMetadata) {
-				throw new Error('Filter ' + Functions.getName(filter) + ' is not valid filter, please add @Filter annotation.');
-			}
-
-			this.filters[filterMetadata.name] = container.create(filter);
+			this.addFilter(container, filters[i]);
 		}
 		
 		for (let locale in translations) {
