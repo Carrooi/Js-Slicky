@@ -106,6 +106,32 @@ describe('#Directives/ForDirective', () => {
 			}, 100);
 		});
 
+		it('should update view when whole array is changed', (done) => {
+			let parent = document.createElement('ul');
+			parent.innerHTML = '<template [s:for]="#user in users"><li>- {{ user }} -</li></template>';
+
+			let elementRef = ElementRef.getByNode(parent);
+			let view = View.getByElement(elementRef);
+
+			view.directives.push(ForDirective);
+			view.parameters['users'] = ['David', 'John', 'Clare'];
+
+			compiler.compileElement(view, parent);
+			view.watcher.run();
+
+			let innerView = view.children[0];
+
+			setTimeout(() => {
+				expect(parent.outerText).to.be.equal('- David -- John -- Clare -');
+				innerView.parameters['users'] = ['David', 'John', 'Clare', 'Luke'];
+
+				setTimeout(() => {
+					expect(parent.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
+					done();
+				}, 100);
+			}, 100);
+		});
+
 		it('should update view when new item is added to array', (done) => {
 			let parent = document.createElement('ul');
 			parent.innerHTML = '<template [s:for]="#user in users"><li>- {{ user }} -</li></template>';

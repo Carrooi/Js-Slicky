@@ -1,9 +1,7 @@
 import {ParametersList} from '../Views/AbstractView';
 import {Expression} from '../Parsers/ExpressionParser';
-import {Code, InterpolatedObjectElement} from './Code';
+import {VariableToken} from '../Parsers/VariableParser';
 import {Helpers} from './Helpers';
-import {Objects} from './Objects';
-import {Arrays} from './Arrays';
 
 
 declare interface ChangedProperty
@@ -27,10 +25,9 @@ export declare interface WatcherCallback
 
 declare interface WatcherDependency
 {
-	dependency: InterpolatedObjectElement,
-	expr: string,
-	previous: any,
-	copy: any,
+	clones: {[key: string]: any},
+	obj: any,
+	dependency: VariableToken,
 }
 
 declare interface WatcherListener
@@ -109,28 +106,43 @@ export class Watcher
 	{
 		let dependencies = [];
 
-		for (let i = 0; i < expr.dependencies.length; i++) {
-			let dependency = Code.interpolateObjectElement(this.parameters, expr.dependencies[i]);
+		mainLoop: for (let i = 0; i < expr.dependencies.length; i++) {
+			let dependency = expr.dependencies[i];
+			let scope = this.parameters[dependency.name];
 
-			if (dependency.obj == null) {
+			if (scope == null) {
 				continue;
 			}
 
-			let current = dependency.obj[dependency.key];
-			let copy = null;
+			let clones = {};
+			let obj = null;
 
-			if (Helpers.isObject(current)) {
-				copy = Objects.clone(current);
+			clones[dependency.name] = scope;
 
-			} else if (Helpers.isArray(current)) {
-				copy = Arrays.clone(current);
+			if (!dependency.path.length) {
+				obj = Helpers.clone(scope);
+			} else {
+				for (let j = 0; j < dependency.path.length; j++) {
+					let key = dependency.path[j].value;
+					let isLast = j === (dependency.path.length - 1);
+
+					if (typeof scope[key] === 'undefined' && !isLast) {
+						continue mainLoop;
+					}
+
+					clones[key] = scope[key];
+					scope = scope[key];
+
+					if (isLast) {
+						obj = Helpers.clone(scope);
+					}
+				}
 			}
 
 			dependencies.push({
+				clones: clones,
+				obj: obj,
 				dependency: dependency,
-				expr: expr.dependencies[i].code,
-				previous: current,
-				copy: copy,
 			});
 		}
 
@@ -150,52 +162,59 @@ export class Watcher
 			for (let j = 0; j < listener.dependencies.length; j++) {
 				let notify = false;
 				let props = [];
-				let dependency = listener.dependencies[j];
-				let current = dependency.dependency.obj[dependency.dependency.key];
 
-				if (dependency.previous !== current) {
+				let data = listener.dependencies[j];
+
+				let dependency = data.dependency;
+				let _previous = data.clones[dependency.name];
+				let _current = this.parameters[dependency.name];
+
+				if (_current == null || _previous == null) {
+					continue;
+				}
+
+				if (_current !== _previous) {
 					notify = true;
+					data.obj = Helpers.clone(_current);
+					data.clones[dependency.name] = _current;
+				} else if (dependency.path.length) {
+					for (let k = 0; k < dependency.path.length; k++) {
+						let key = dependency.path[k].value;
+						let isLast = k === (dependency.path.length - 1);
 
-				} else if (Helpers.isObject(current)) {
-					if (dependency.copy == null) {
-						notify = true;
-					} else {
-						let currentProps = this.compareObjects(current, dependency.copy);
+						_previous = data.clones[key];
+						_current = _current[key];
 
-						if (currentProps.length) {
+						if (_previous !== _current) {
+							data.clones[key] = _current;
 							notify = true;
-							props = props.concat(currentProps);
+
+						} else if (isLast) {
+							let currentProps = this.compare(_current, data.obj);
+							if (currentProps.length) {
+								notify = true;
+								props = props.concat(currentProps);
+							}
+						}
+
+						if (notify && isLast) {
+							data.obj = Helpers.clone(_current);
 						}
 					}
-
-					if (notify) {
-						dependency.copy = Objects.clone(current);
-					}
-
-				} else if (Helpers.isArray(current)) {
-					if (dependency.copy == null) {
+				} else {
+					let currentProps = this.compare(_current, data.obj);
+					if (currentProps.length) {
 						notify = true;
-					} else {
-						let currentProps = this.compareArrays(current, dependency.copy);
-
-						if (currentProps.length) {
-							notify = true;
-							props = props.concat(currentProps);
-						}
-					}
-
-					if (notify) {
-						dependency.copy = Arrays.clone(current);
+						props = props.concat(currentProps);
+						data.obj = Helpers.clone(_current);
 					}
 				}
 
 				if (notify) {
 					changed.push({
-						expr: dependency.expr,
+						expr: dependency.code,
 						props: props.length ? props : null,
 					});
-
-					dependency.previous = current;
 				}
 			}
 
@@ -207,6 +226,19 @@ export class Watcher
 		for (let i = 0; i < this.children.length; i++) {
 			this.children[i].check();
 		}
+	}
+
+
+	private compare(a: any, b: any): Array<ChangedProperty>
+	{
+		if (Helpers.isObject(a)) {
+			return this.compareObjects(a, b == null ? {} : b);
+
+		} else if (Helpers.isArray(a)) {
+			return this.compareArrays(a, b == null ? [] : b);
+		}
+
+		return [];
 	}
 
 

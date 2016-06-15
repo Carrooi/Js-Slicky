@@ -55,15 +55,25 @@ export class ForDirective implements OnChange, OnDestroy
 		if (changed) {
 			for (let i = 0; i < changed.length; i++) {
 				if (changed[i].expr === this.expr.obj.code) {
-					for (let j = 0; j < changed[i].props.length; j++) {
-						let prop = changed[i].props[j];
+					if (changed[i].props) {
+						for (let j = 0; j < changed[i].props.length; j++) {
+							let prop = changed[i].props[j];
 
-						if (prop.action === 'add') {
-							this.addItem(prop.prop, prop.newValue);
+							if (prop.action === 'add') {
+								this.addItem(prop.prop, prop.newValue);
 
-						} else if (prop.action === 'remove') {
-							this.removeItem(prop.prop);
+							} else if (prop.action === 'remove') {
+								this.removeItem(prop.prop);
+							}
 						}
+					} else {
+						for (let name in this.iterated) {
+							if (this.iterated.hasOwnProperty(name)) {
+								this.removeItem(name);
+							}
+						}
+
+						this.update();
 					}
 
 					break;

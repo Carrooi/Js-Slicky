@@ -806,6 +806,66 @@ describe('#Compiler/template', () => {
 			}).to.throw(Error, 'Can not import variable item since its already in use.');
 		});
 
+		it('should update expression in nested object', (done) => {
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				template: '<span>{{ app.obj.a }}</span>',
+			})
+			class App {
+				obj = {
+					a: 'hello world',
+				};
+			}
+
+			let parent = document.createElement('div');
+			parent.innerHTML = '<app></app>';
+
+			let elementRef = ElementRef.getByNode(parent);
+			let view = View.getByElement(elementRef);
+
+			compiler.compile(view, App);
+			view.watcher.run();
+
+			let appView = view.children[0];
+
+			setTimeout(() => {
+				expect(parent.innerText).to.be.equal('hello world');
+				appView.parameters['app'].obj = {a: 'hi'};
+
+				setTimeout(() => {
+					expect(parent.innerText).to.be.equal('hi');
+					done();
+				}, 100);
+			}, 100);
+		});
+
+		it('should pass json into component input', () => {
+			@Component({
+				selector: 'app',
+			})
+			class App {
+				@Input()
+				data = null;
+			}
+
+			let parent = document.createElement('div');
+			parent.innerHTML = '<app [data]=\'{"a.b.c": "hello"}\'></app>';
+
+			let elementRef = ElementRef.getByNode(parent);
+			let view = View.getByElement(elementRef);
+
+			view.parameters = {a: 'test'};
+
+			compiler.compile(view, App);
+			//view.watcher.run();
+
+			let appView = view.children[0];
+			let app = <App>appView['entities'][0].instance;
+
+			expect(app.data).to.be.eql({'a.b.c': 'hello'});
+		});
+
 	});
 
 });

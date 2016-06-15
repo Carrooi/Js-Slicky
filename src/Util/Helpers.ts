@@ -1,3 +1,7 @@
+import {Arrays} from './Arrays';
+import {Objects} from './Objects';
+
+
 export class Helpers
 {
 
@@ -23,6 +27,18 @@ export class Helpers
 		}
 
 		return copy;
+	}
+
+
+	public static clone(obj: any): any
+	{
+		if (Helpers.isArray(obj)) {
+			return Arrays.clone(obj);
+		} else if (Helpers.isObject(obj)) {
+			return Objects.clone(obj);
+		} else {
+			return obj;
+		}
 	}
 
 }
