@@ -57,6 +57,10 @@ export class Code
 		result.obj = scope[token.name];
 
 		for (let i = 0; i < token.path.length - 1; i++) {
+			if (result.obj == null) {
+				break;
+			}
+
 			result.obj = result.obj[token.path[i].value];
 		}
 
