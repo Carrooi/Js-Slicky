@@ -127,8 +127,30 @@ export class ExpressionParser
 
 	public static split(expr: string, delimiter: string): Array<string>
 	{
-		let reg = ExpressionParser.delimiterRegExp(delimiter);
-		let result = expr.match(reg);
+		let result = [];
+		let inQuotes = false;
+		let inGroup = 0;
+
+		for (let i = 0, j = 0; i < expr.length; i++) {
+			let l = expr[i];
+
+			if (l === "'" || l === '"') {
+				inQuotes = !inQuotes;
+
+			} else if (l === '(' || l === '{' || l === '[') {
+				inGroup++;
+
+			} else if (l === ')' || l === '}' || l === ']') {
+				inGroup--;
+			}
+
+			if (l === delimiter && !inQuotes && !inGroup) {
+				j++;
+				continue;
+			}
+
+			result[j] = result[j] ? result[j] + l : l;
+		}
 
 		for (let i = 0; i < result.length; i++) {
 			result[i] = result[i].trim();
