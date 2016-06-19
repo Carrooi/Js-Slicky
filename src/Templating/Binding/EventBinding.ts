@@ -1,7 +1,7 @@
 import {IBinding} from './IBinding';
 import {Dom} from '../../Util/Dom';
 import {Code} from '../../Util/Code';
-import {Objects} from '../../Util/Objects';
+import {Helpers} from '../../Util/Helpers';
 import {VariableParser} from '../../Parsers/VariableParser';
 import {ExpressionParser} from '../../Parsers/ExpressionParser';
 import {View} from '../../Views/View';
@@ -34,7 +34,7 @@ export class EventBinding implements IBinding
 
 	public attach(): void
 	{
-		let scope = Objects.clone(this.view.parameters);
+		let scope = Helpers.clone(this.view.parameters);
 		let parts = this.call.match(/^(.+)?\((.+)?\)$/);
 
 		if (!parts) {
@@ -51,7 +51,7 @@ export class EventBinding implements IBinding
 				this.listeners.push({
 					event: event,
 					listener: Dom.addEventListener(this.el, event, this, (e: Event) => {
-						let innerScope = Objects.merge(scope, {
+						let innerScope = Helpers.merge(scope, {
 							'$event': e,
 							'$this': this.el,
 						});

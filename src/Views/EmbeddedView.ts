@@ -3,8 +3,7 @@ import {TemplateRef} from './../Templating/TemplateRef';
 import {ElementRef} from './../Templating/ElementRef';
 import {View} from './View';
 import {Dom} from './../Util/Dom';
-import {Objects} from './../Util/Objects';
-import {Arrays} from './../Util/Arrays';
+import {Helpers} from './../Util/Helpers';
 
 
 export class EmbeddedView extends AbstractView
@@ -84,10 +83,10 @@ export class EmbeddedView extends AbstractView
 			return elementRef.view;
 		}
 
-		let parameters = Objects.clone(this.parameters);
+		let parameters = Helpers.clone(this.parameters);
 		let view = elementRef.view = new View(elementRef, parameters, this);
 
-		view.translations = Objects.clone(this.translations);
+		view.translations = Helpers.clone(this.translations);
 
 		return view;
 	}

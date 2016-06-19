@@ -9,8 +9,7 @@ import {ControllerView} from '../Entity/ControllerView';
 import {DirectiveView} from '../Entity/DirectiveView';
 import {EmbeddedView} from './EmbeddedView';
 import {ComponentMetadataDefinition} from './../Entity/Metadata';
-import {Objects} from '../Util/Objects';
-import {Arrays} from '../Util/Arrays';
+import {Helpers} from '../Util/Helpers';
 import {Annotations} from '../Util/Annotations';
 import {Functions} from '../Util/Functions';
 import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
@@ -66,11 +65,11 @@ export class View extends AbstractView
 
 	public fork(el: ElementRef): View
 	{
-		let parameters = Objects.clone(this.parameters);
+		let parameters = Helpers.clone(this.parameters);
 
 		let view = new View(el, parameters, this);
 
-		view.translations = Objects.clone(this.translations);
+		view.translations = Helpers.clone(this.translations);
 
 		return view;
 	}
@@ -80,8 +79,8 @@ export class View extends AbstractView
 	{
 		let view = new EmbeddedView(this, templateRef);
 
-		view.parameters = Objects.clone(this.parameters);
-		view.translations = Objects.clone(this.translations);
+		view.parameters = Helpers.clone(this.parameters);
+		view.translations = Helpers.clone(this.translations);
 
 		view.attach(this.createMarker());
 
