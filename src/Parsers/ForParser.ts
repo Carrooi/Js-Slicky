@@ -1,4 +1,6 @@
 import {VariableParser, VariableToken} from './VariableParser';
+import {Parser} from '../Tokenizer/Parser';
+import {Lexer} from '../Tokenizer/Lexer';
 
 
 export declare interface ForToken

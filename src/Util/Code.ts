@@ -1,4 +1,6 @@
 import {VariableToken} from '../Parsers/VariableParser';
+import {Parser} from '../Tokenizer/Parser';
+import {Lexer} from '../Tokenizer/Lexer';
 
 
 export declare interface InterpolatedObjectElement
@@ -12,34 +14,60 @@ export class Code
 {
 
 
-	public static PATH_TYPE_OBJECT = 0;
-	public static PATH_TYPE_ARRAY = 1;
-
-
-	// of is for ForDirective
-	private static RESERVED_WORDS = [
-		'do', 'if', 'in', 'of', 'for', 'let', 'new', 'try', 'var', 'case', 'else', 'enum', 'eval', 'false', 'null', 'this', 'true', 'void', 'with', 'break', 'catch', 'class', 'const', 'super', 'throw', 'while', 'yield', 'delete', 'export', 'import', 'public', 'return', 'static', 'switch', 'typeof', 'default', 'extends', 'finally', 'package', 'private', 'continue', 'debugger', 'function', 'arguments', 'interface', 'protected', 'implements', 'instanceof'
-	];
-
-
 	public static exportVariablesUsages(code: string): Array<string>
 	{
-		let regex = /\#?[a-zA-Z_\$][a-zA-Z_\$0-9\.\[\]]*/g;
-		let variables = code.match(regex);
+		let parser = new Parser(code);
+		let token;
 
-		if (!variables) {
-			return [];
-		}
+		let variables = [];
+		let currentVariable = '';
 
-		return variables.filter((value: string, i: number) => {
-			let exported = variables.indexOf('#' + value);
-
-			if (exported > -1 && variables.indexOf('#' + value) !== i) {
-				return false;
+		let add = () => {
+			if (variables.indexOf(currentVariable) === -1 && variables.indexOf('#' + currentVariable)) {
+				variables.push(currentVariable);
 			}
 
-			return Code.RESERVED_WORDS.indexOf(value) === -1 && variables.indexOf(value) === i;
-		});
+			currentVariable = '';
+		};
+
+		while (token = parser.token) {
+			if (token.type === Lexer.T_NAME && !currentVariable.length) {
+				let previousToken = parser.tokens[parser.position - 1];
+				if (
+					!currentVariable.length &&
+					typeof previousToken !== 'undefined' &&
+					previousToken.type === Lexer.T_UNKNOWN &&
+					previousToken.value === '#'
+				) {
+					currentVariable += '#';
+				}
+
+				currentVariable += token.value;
+
+			} else if (
+				currentVariable.length &&
+				(
+					(token.type === Lexer.T_NAME) ||
+					(token.type === Lexer.T_NUMBER) ||
+					(token.type === Lexer.T_STRING) ||
+					(token.type === Lexer.T_SQUARE_BRACKET) ||
+					(token.type === Lexer.T_CHARACTER && token.value === '.')
+				)
+			) {
+				currentVariable += token.value;
+
+			} else if (currentVariable.length) {
+				add();
+			}
+
+			parser.nextToken();
+		}
+
+		if (currentVariable.length) {
+			add();
+		}
+
+		return variables;
 	}
 
 

@@ -5,8 +5,10 @@ import './tests/Util/Code';
 import './tests/Util/SafeEval';
 import './tests/Util/Watcher';
 
-import './tests/Templating/ElementRef';
+import './tests/Tokenizer/Tokenizer';
+import './tests/Tokenizer/Parser';
 
+import './tests/Templating/ElementRef';
 import './tests/Templating/Filters/Filters';
 
 import './tests/Parsers/TypeParser';
