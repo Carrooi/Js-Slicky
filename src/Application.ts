@@ -36,12 +36,14 @@ export class Application
 
 	public run(controller: any): void
 	{
-		let elementRef = ElementRef.getByNode(document);
-		let view = View.getByElement(elementRef);
+		setTimeout(() => {
+			let elementRef = ElementRef.getByNode(document);
+			let view = View.getByElement(elementRef);
 
-		this.compiler.compile(view, controller);
+			this.compiler.compile(view, controller);
 
-		view.watcher.run();
+			view.watcher.run();
+		}, 0);
 	}
 
 }
