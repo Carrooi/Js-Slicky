@@ -31,7 +31,7 @@ describe('#Directives/ForDirective', () => {
 			parent.innerHTML = '<template [s:for]="#user in users"><li>- {{ user }} -</li></template>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -49,7 +49,7 @@ describe('#Directives/ForDirective', () => {
 			parent.innerHTML = '<template [s:for]="#i, #user in users"><li>- {{ i + ": " + user }} -</li></template>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -67,7 +67,7 @@ describe('#Directives/ForDirective', () => {
 			parent.innerHTML = '<template [s:for]="#value of options"><li>- {{ value }} -</li></template>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -89,7 +89,7 @@ describe('#Directives/ForDirective', () => {
 			parent.innerHTML = '<template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -111,7 +111,7 @@ describe('#Directives/ForDirective', () => {
 			parent.innerHTML = '<template [s:for]="#user in users"><li>- {{ user }} -</li></template>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -137,7 +137,7 @@ describe('#Directives/ForDirective', () => {
 			parent.innerHTML = '<template [s:for]="#user in users"><li>- {{ user }} -</li></template>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -164,7 +164,7 @@ describe('#Directives/ForDirective', () => {
 			parent.innerHTML = '<template [s:for]="#user in users"><li>- {{ user }} -</li></template>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -191,7 +191,7 @@ describe('#Directives/ForDirective', () => {
 			parent.innerHTML = '<template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -222,7 +222,7 @@ describe('#Directives/ForDirective', () => {
 			parent.innerHTML = '<template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -272,7 +272,7 @@ describe('#Directives/ForDirective', () => {
 			parent.innerHTML = '<template [s:for]="a in b"><div test>- {{ t.s }} ({{ t.num }}) -</div></template>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(ForDirective);
 			view.directives.push(Test);

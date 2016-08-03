@@ -86,7 +86,7 @@ export class Compiler
 
 				let innerView = view;
 				let originalParameters = null;
-				
+
 				if (innerView instanceof EmbeddedView) {
 					innerView = (<EmbeddedView>innerView).getView();
 					originalParameters = innerView.parameters;
@@ -170,7 +170,7 @@ export class Compiler
 
 				if (isComponent) {
 					components.push(Functions.getName(directive));
-					directiveView = View.getByElement(ElementRef.getByNode(el), parentView);
+					directiveView = parentView.fork(ElementRef.getByNode(el));
 				}
 
 				let instance = this.createDirective(directiveView, definition, el);

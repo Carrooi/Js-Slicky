@@ -38,7 +38,7 @@ export class Application
 	{
 		setTimeout(() => {
 			let elementRef = ElementRef.getByNode(document);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			this.compiler.compile(view, controller);
 

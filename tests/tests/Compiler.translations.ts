@@ -53,7 +53,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 
@@ -79,7 +79,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 
@@ -111,7 +111,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 
@@ -137,7 +137,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 
@@ -163,7 +163,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 
@@ -189,7 +189,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 
@@ -215,7 +215,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 
@@ -251,7 +251,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 

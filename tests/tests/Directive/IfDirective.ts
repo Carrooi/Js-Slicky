@@ -29,7 +29,7 @@ describe('#Directives/IfDirective', () => {
 		parent.innerHTML = '<template [s:if]="!a">hello</template>';
 
 		let elementRef = ElementRef.getByNode(parent);
-		let view = View.getByElement(elementRef);
+		let view = new View(elementRef);
 
 		view.directives.push(IfDirective);
 		view.parameters['a'] = false;
@@ -47,7 +47,7 @@ describe('#Directives/IfDirective', () => {
 		parent.innerHTML = '<template [s:if]="!a">hello</template>';
 
 		let elementRef = ElementRef.getByNode(parent);
-		let view = View.getByElement(elementRef);
+		let view = new View(elementRef);
 
 		view.directives.push(IfDirective);
 		view.parameters['a'] = true;
@@ -65,7 +65,7 @@ describe('#Directives/IfDirective', () => {
 		parent.innerHTML = '<template [s:if]="!a">hello</template>';
 
 		let elementRef = ElementRef.getByNode(parent);
-		let view = View.getByElement(elementRef);
+		let view = new View(elementRef);
 
 		view.directives.push(IfDirective);
 		view.parameters['a'] = true;
@@ -105,7 +105,7 @@ describe('#Directives/IfDirective', () => {
 		parent.innerHTML = '<template [s:if]="!a"><div test>hello</div></template>';
 
 		let elementRef = ElementRef.getByNode(parent);
-		let view = View.getByElement(elementRef);
+		let view = new View(elementRef);
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);
@@ -136,7 +136,7 @@ describe('#Directives/IfDirective', () => {
 		parent.innerHTML = '<template [s:if]="!a"><div test>hello</div></template>';
 
 		let elementRef = ElementRef.getByNode(parent);
-		let view = View.getByElement(elementRef);
+		let view = new View(elementRef);
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);
@@ -173,7 +173,7 @@ describe('#Directives/IfDirective', () => {
 		parent.innerHTML = '<template [s:if]="a"><div test>{{ t.s }}</div></template>';
 
 		let elementRef = ElementRef.getByNode(parent);
-		let view = View.getByElement(elementRef);
+		let view = new View(elementRef);
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);

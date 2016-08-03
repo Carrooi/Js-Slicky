@@ -26,15 +26,7 @@ export class View extends AbstractView
 		super(parent, parameters);
 
 		this.el = el;
-	}
-
-
-	public static getByElement(el: ElementRef, parentView: View = null): View
-	{
-		return el.view ?
-			el.view :
-			el.view = parentView ? parentView.fork(el) : new View(el)
-		;
+		this.el.view = this;
 	}
 
 

@@ -71,7 +71,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<div test></div>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			let el = <HTMLDivElement>parent.children[0];
 
@@ -99,7 +99,7 @@ describe('#Compiler/template', () => {
 			let el = <HTMLDivElement>parent.children[0];
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.parameters['alertType'] = 'success';
 
@@ -518,7 +518,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 
@@ -553,7 +553,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 			view.watcher.run();
@@ -586,7 +586,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.parameters['a'] = 'hello';
 
@@ -621,7 +621,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.parameters['list'] = ['hello'];
 
@@ -674,7 +674,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 			view.watcher.run();
@@ -725,7 +725,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 			view.watcher.run();
@@ -758,7 +758,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.parameters['items'] = ['a', 'b'];
 
@@ -783,7 +783,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			compiler.compile(view, App);
 			view.watcher.run();
@@ -814,7 +814,7 @@ describe('#Compiler/template', () => {
 			parent.innerHTML = '<app [data]=\'{"a.b.c": "hello"}\'></app>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.parameters = {a: 'test'};
 

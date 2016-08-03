@@ -91,7 +91,7 @@ describe('#Compiler', () => {
 			parent.innerHTML = '<div test [input1]="\'hello\'"></div>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(Test);
 
@@ -117,7 +117,7 @@ describe('#Compiler', () => {
 			parent.innerHTML = '<div test="hello"></div>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(Test);
 
@@ -143,7 +143,7 @@ describe('#Compiler', () => {
 			parent.innerHTML = '<div test [data-input1]="\'hello\'"></div>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(Test);
 
@@ -169,7 +169,7 @@ describe('#Compiler', () => {
 			parent.innerHTML = '<div test></div>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(Test);
 
@@ -195,7 +195,7 @@ describe('#Compiler', () => {
 			parent.innerHTML = '<div test></div>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(Test);
 
@@ -222,7 +222,7 @@ describe('#Compiler', () => {
 			parent.innerHTML = '<div test [input]="\'hello\'"></div>';
 
 			let elementRef = ElementRef.getByNode(parent);
-			let view = View.getByElement(elementRef);
+			let view = new View(elementRef);
 
 			view.directives.push(Test);
 
