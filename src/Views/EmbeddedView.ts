@@ -3,7 +3,6 @@ import {TemplateRef} from './../Templating/TemplateRef';
 import {ElementRef} from './../Templating/ElementRef';
 import {View} from './View';
 import {Dom} from './../Util/Dom';
-import {Helpers} from './../Util/Helpers';
 
 
 export class EmbeddedView extends AbstractView
@@ -64,8 +63,9 @@ export class EmbeddedView extends AbstractView
 
 				if (elementRef.view) {
 					elementRef.view.detach();
-					elementRef.view.remove();
 				}
+
+				elementRef.remove();
 			} else if (node.parentElement) {
 				node.parentElement.removeChild(node);
 			}
@@ -75,20 +75,13 @@ export class EmbeddedView extends AbstractView
 	}
 
 
-	public createNodeView(node: Node): View
+	public getView(): View
 	{
-		let elementRef = ElementRef.getByNode(node);
-
-		if (elementRef.view) {
-			return elementRef.view;
+		if (!(this.parent instanceof View)) {
+			throw new Error('Unexpected error in EmbeddedView.');
 		}
 
-		let parameters = Helpers.clone(this.parameters);
-		let view = elementRef.view = new View(elementRef, parameters, this);
-
-		view.translations = Helpers.clone(this.translations);
-
-		return view;
+		return <View>this.parent;
 	}
 
 }

@@ -97,29 +97,27 @@ describe('#Views/View', () => {
 	describe('createEmbeddedView()', () => {
 
 		it('should create new embedded view', () => {
-			let parentHTML = '<div></div>';
 			let templateHTML = '<i>i</i><!-- comment -->text<b>b</b>';
+			let parentHTML = '<div><template>' + templateHTML + '</template></div>';
 
 			let parent = document.createElement('div');
 			parent.innerHTML = parentHTML;
 
 			let el = parent.children[0];
-
-			let template = document.createElement('template');
-			template.innerHTML = templateHTML;
+			let template = el.childNodes[0];
 
 			let elementRef = new ElementRef(el);
 
 			let templateElementRef = new ElementRef(template);
 			let templateRef = new TemplateRef(templateElementRef);
 
-			templateElementRef.moveToMemory();
-
 			let view = new View(elementRef);
 
 			view.createEmbeddedView(templateRef);
 
-			expect(parent.innerHTML).to.be.equal(templateHTML + '<!-- -slicky--data- -->' + parentHTML);
+			templateElementRef.remove();
+
+			expect(parent.innerHTML).to.be.equal('<div>' + templateHTML + '<!-- -slicky--data- --></div>');
 		});
 
 	});

@@ -106,7 +106,7 @@ describe('#Compiler/template', () => {
 			compiler.compile(view, Test);
 			view.watcher.run();
 
-			let innerView = view.children[0].children[0];
+			let innerView = view.children[0];
 
 			setTimeout(() => {
 				expect((<HTMLElement>el.children[0]).className).to.be.equal('success');
@@ -504,45 +504,6 @@ describe('#Compiler/template', () => {
 				expect(component.input).to.be.equal('bye');
 				done();
 			}, 100);
-		});
-
-		it('should not compile template', () => {
-			@Component({
-				selector: '[test]',
-			})
-			class Test {}
-
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test><template>hello</template></div>';
-
-			let view = new View(new ElementRef(parent));
-
-			compiler.compile(view, Test);
-
-			expect(parent.innerText).to.be.equal('');
-			expect(view.children).to.have.length(1);
-			expect(view.children[0].children).to.have.length(1);
-			expect((<View>view.children[0].children[0]).el).to.be.an.instanceof(ElementRef);
-			expect((<HTMLElement>(<View>view.children[0].children[0]).el.nativeEl).innerHTML).to.be.equal('hello');
-		});
-
-		it('should transform shortcut templates to full html templates', () => {
-			@Component({
-				selector: '[test]',
-			})
-			class Test {}
-
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test><span *first="1" *second="2" *third="3">hello</span></div>';
-
-			let view = new View(new ElementRef(parent));
-
-			compiler.compile(view, Test);
-
-			expect(parent.innerText).to.be.equal('');
-			expect(view.children).to.have.length(1);
-			expect(view.children[0].children).to.have.length(1);
-			expect((<HTMLElement>(<View>view.children[0].children[0]).el.nativeEl.childNodes[0].childNodes[0]).innerHTML).to.be.equal('<span>hello</span>');
 		});
 
 		it('should add inner text from template with if directive', (done) => {

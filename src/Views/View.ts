@@ -1,6 +1,5 @@
 import {AbstractView, ParametersList} from './AbstractView';
 import {ControllerDefinition} from '../Entity/ControllerParser';
-import {IBinding} from '../Templating/Binding/IBinding';
 import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {DirectiveDefinition} from '../Entity/DirectiveParser';
@@ -10,10 +9,6 @@ import {DirectiveView} from '../Entity/DirectiveView';
 import {EmbeddedView} from './EmbeddedView';
 import {ComponentMetadataDefinition} from './../Entity/Metadata';
 import {Helpers} from '../Util/Helpers';
-import {Annotations} from '../Util/Annotations';
-import {Functions} from '../Util/Functions';
-import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
-import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
 import {Container} from '../DI/Container';
 
 
@@ -22,10 +17,6 @@ export class View extends AbstractView
 
 
 	public el: ElementRef;
-
-	public marker: Comment;
-
-	public bindings: Array<IBinding> = [];
 
 	public entities: Array<AbstractEntityView> = [];
 
@@ -51,10 +42,6 @@ export class View extends AbstractView
 	{
 		super.detach();
 
-		for (let i = 0; i < this.bindings.length; i++) {
-			this.bindings[i].detach();
-		}
-
 		for (let i = 0; i < this.entities.length; i++) {
 			this.entities[i].detach();
 		}
@@ -66,10 +53,10 @@ export class View extends AbstractView
 	public fork(el: ElementRef): View
 	{
 		let parameters = Helpers.clone(this.parameters);
+		let translations = Helpers.clone(this.translations);
 
 		let view = new View(el, parameters, this);
-
-		view.translations = Helpers.clone(this.translations);
+		view.translations = translations;
 
 		return view;
 	}
@@ -82,7 +69,7 @@ export class View extends AbstractView
 		view.parameters = Helpers.clone(this.parameters);
 		view.translations = Helpers.clone(this.translations);
 
-		view.attach(this.createMarker());
+		view.attach(templateRef.el.createMarker());
 
 		return view;
 	}
@@ -132,33 +119,6 @@ export class View extends AbstractView
 	}
 
 
-	public attachBinding(binding: IBinding, expression: Expression): void
-	{
-		binding.attach();
-
-		let hasOnChange = typeof binding['onChange'] === 'function';
-		let hasOnUpdate = typeof binding['onUpdate'] === 'function';
-
-		if (hasOnChange || hasOnUpdate) {
-			if (hasOnUpdate) {
-				binding['onUpdate'](ExpressionParser.parse(expression, this.parameters));
-			}
-
-			this.watch(expression, (changed) => {
-				if (hasOnChange) {
-					binding['onChange'](changed);
-				}
-
-				if (hasOnUpdate) {
-					binding['onUpdate'](ExpressionParser.parse(expression, this.parameters));
-				}
-			});
-		}
-
-		this.bindings.push(binding);
-	}
-
-
 	public attachDirective(definition: DirectiveDefinition, instance: any): void
 	{
 		let entity = definition.metadata instanceof ComponentMetadataDefinition ?
@@ -169,29 +129,6 @@ export class View extends AbstractView
 		this.entities.push(entity);
 
 		(<AbstractEntityView>entity).attach();
-	}
-
-
-	public createMarker(): Comment
-	{
-		if (this.marker) {
-			return this.marker;
-		}
-
-		let el = this.el.nativeEl;
-		let marker = document.createComment(' -slicky--data- ');
-
-		el.parentNode.insertBefore(marker, el);
-
-		return this.marker = marker;
-	}
-
-
-	public remove(): void
-	{
-		if (this.el.nativeEl.parentElement) {
-			this.el.nativeEl.parentElement.removeChild(this.el.nativeEl);
-		}
 	}
 
 }

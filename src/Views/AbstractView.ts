@@ -7,6 +7,8 @@ import {Container} from '../DI/Container';
 import {TypeParser} from '../Parsers/TypeParser';
 import {SafeEval} from '../Util/SafeEval';
 import {ViewAware} from '../Templating/Filters/ViewAware';
+import {IBinding} from '../Templating/Binding/IBinding';
+import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
 
 
 export declare interface ParametersList
@@ -26,6 +28,8 @@ export abstract class AbstractView
 	public children: Array<AbstractView> = [];
 
 	public directives: Array<any> = [];
+
+	public bindings: Array<IBinding> = [];
 
 	public parameters: ParametersList = {};
 
@@ -50,6 +54,10 @@ export abstract class AbstractView
 	{
 		for (let i = 0; i < this.children.length; i++) {
 			this.children[i].detach();
+		}
+
+		for (let i = 0; i < this.bindings.length; i++) {
+			this.bindings[i].detach();
 		}
 
 		this.watcher.stop();
@@ -157,6 +165,33 @@ export abstract class AbstractView
 		}
 
 		return value;
+	}
+
+
+	public attachBinding(binding: IBinding, expression: Expression): void
+	{
+		binding.attach();
+
+		let hasOnChange = typeof binding['onChange'] === 'function';
+		let hasOnUpdate = typeof binding['onUpdate'] === 'function';
+
+		if (hasOnChange || hasOnUpdate) {
+			if (hasOnUpdate) {
+				binding['onUpdate'](ExpressionParser.parse(expression, this.parameters));
+			}
+
+			this.watch(expression, (changed) => {
+				if (hasOnChange) {
+					binding['onChange'](changed);
+				}
+
+				if (hasOnUpdate) {
+					binding['onUpdate'](ExpressionParser.parse(expression, this.parameters));
+				}
+			});
+		}
+
+		this.bindings.push(binding);
 	}
 
 }

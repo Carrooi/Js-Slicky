@@ -12,6 +12,7 @@ import {EventBinding} from './Templating/Binding/EventBinding';
 import {PropertyBinding} from './Templating/Binding/PropertyBinding';
 import {AttributeBinding} from './Templating/Binding/AttributeBinding';
 import {View} from './Views/View';
+import {AbstractView} from './Views/AbstractView';
 import {ElementRef, AttributesList} from './Templating/ElementRef';
 import {TemplateRef} from './Templating/TemplateRef';
 import {Annotations} from './Util/Annotations';
@@ -66,37 +67,44 @@ export class Compiler
 	}
 
 
-	public compileNodes(view: View|EmbeddedView, nodes: NodeList|Array<Node>): void
+	public compileNodes(view: AbstractView, nodes: NodeList|Array<Node>): void
 	{
 		if (nodes instanceof NodeList) {
 			nodes = Helpers.toArray(nodes);
 		}
 
-		let getView = (view: View|EmbeddedView, node: Node): View => {
-			return view instanceof View ? view : (<EmbeddedView>view).createNodeView(node);
-		};
-
 		for (let i = 0; i < nodes.length; i++) {
 			let child = nodes[i];
 
 			if (child.nodeType === Node.TEXT_NODE) {
-				this.compileText(getView(view, child), <Text>child);
+				this.compileText(view, <Text>child);
 
 			} else if (child.nodeType === Node.ELEMENT_NODE) {
 				if (child.nodeName.toUpperCase() !== 'TEMPLATE') {
 					child = this.tryTransformToTemplate(<Element>child);
 				}
 
-				let innerView = getView(view, child);
-
-				if (child.nodeName.toUpperCase() === 'TEMPLATE') {
-					innerView = View.getByElement(ElementRef.getByNode(child), innerView);
-
-					innerView.createMarker();
-					innerView.remove();
+				let innerView = view;
+				let originalParameters = null;
+				
+				if (innerView instanceof EmbeddedView) {
+					innerView = (<EmbeddedView>innerView).getView();
+					originalParameters = innerView.parameters;
+					innerView.parameters = view.parameters;
 				}
 
-				this.compileElement(innerView, <HTMLElement>child);
+				if (child.nodeName.toUpperCase() === 'TEMPLATE') {
+					let el = ElementRef.getByNode(child);
+
+					el.createMarker();
+					el.remove();
+				}
+
+				this.compileElement(<View>innerView, <HTMLElement>child);
+
+				if (originalParameters !== null) {
+					innerView.parameters = originalParameters;
+				}
 			}
 		}
 	}
@@ -104,19 +112,6 @@ export class Compiler
 
 	public compileElement(parentView: View, el: HTMLElement): void
 	{
-		let _view: View = null;
-		let getView = (needOwn: boolean = false): View => {
-			if (_view) {
-				return _view;
-			}
-
-			if (needOwn) {
-				return _view = View.getByElement(ElementRef.getByNode(el), parentView);
-			}
-
-			return parentView;
-		};
-
 		let attributes = ElementRef.getAttributes(el);
 
 		for (let attrName in attributes) {
@@ -130,12 +125,12 @@ export class Compiler
 				let expr = ExpressionParser.precompile(attr.expression);
 
 				if (attr.property && Dom.propertyExists(el, attr.name)) {
-					getView(true).attachBinding(new PropertyBinding(el, attr.name), expr);
+					parentView.attachBinding(new PropertyBinding(el, attr.name), expr);
 					attr.bound = true;
 				}
 
 				if (attr.event) {
-					getView(true).attachBinding(new EventBinding(getView(true), el, attr.name, attr.expression), expr);
+					parentView.attachBinding(new EventBinding(parentView, el, attr.name, attr.expression), expr);
 					attr.bound = true;
 				}
 
@@ -144,7 +139,7 @@ export class Compiler
 
 					if (attrExpr !== "'" + attr.expression + "'") {
 						expr = ExpressionParser.precompile(attrExpr);
-						getView(true).attachBinding(new AttributeBinding(el, attr.name), expr);
+						parentView.attachBinding(new AttributeBinding(el, attr.name), expr);
 						attr.bound = true;
 					}
 				}
@@ -155,7 +150,7 @@ export class Compiler
 		let innerCompilationNeeded = false;
 		let directiveExists = false;
 
-		getView().eachDirective((directive) => {
+		parentView.eachDirective((directive) => {
 			let isComponent = false;
 			let metadata: DirectiveMetadataDefinition;
 			let definition: DirectiveDefinition;
@@ -170,14 +165,16 @@ export class Compiler
 			}
 
 			if (Dom.matches(el, metadata.selector)) {
+				let directiveView = parentView;
 				directiveExists = true;
 
 				if (isComponent) {
 					components.push(Functions.getName(directive));
+					directiveView = View.getByElement(ElementRef.getByNode(el), parentView);
 				}
 
-				let instance = this.createDirective(getView(true), definition, el);
-				let innerCompiled = this.processDirective(el, getView(true), attributes, definition, instance);
+				let instance = this.createDirective(directiveView, definition, el);
+				let innerCompiled = this.processDirective(el, directiveView, attributes, definition, instance);
 
 				if (!innerCompiled && definition.metadata.compileInner) {
 					innerCompilationNeeded = true;
@@ -196,12 +193,12 @@ export class Compiler
 		Dom.removeCssClass(el, Compiler.CLOAK_CSS_CLASS);
 
 		if (Compiler.IGNORED_ELEMENTS.indexOf(el.nodeName.toUpperCase()) === -1 && innerCompilationNeeded) {
-			this.compileNodes(getView(), el.childNodes);
+			this.compileNodes(parentView, el.childNodes);
 		}
 	}
 
 
-	public compileText(view: View, text: Text): void
+	public compileText(view: AbstractView, text: Text): void
 	{
 		let tokens = TextParser.parse(text.nodeValue);
 

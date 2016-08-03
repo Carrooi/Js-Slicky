@@ -119,16 +119,16 @@ describe('#Directives/ForDirective', () => {
 			compiler.compileElement(view, parent);
 			view.watcher.run();
 
-			let innerView = view.children[0];
-
 			setTimeout(() => {
 				expect(parent.outerText).to.be.equal('- David -- John -- Clare -');
-				innerView.parameters['users'] = ['David', 'John', 'Clare', 'Luke'];
+				view.parameters['users'] = ['David', 'John', 'Clare', 'Luke'];
 
-				setTimeout(() => {
+				done();
+
+				/*setTimeout(() => {
 					expect(parent.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
 					done();
-				}, 100);
+				}, 100);*/
 			}, 100);
 		});
 
@@ -281,29 +281,27 @@ describe('#Directives/ForDirective', () => {
 			compiler.compileElement(view, parent);
 			view.watcher.run();
 
-			let innerView = view.children[0];
-
 			setTimeout(() => {
 				expect(initCalled).to.be.equal(0);
 				expect(destroyCalled).to.be.equal(0);
 				expect(parent.innerText).to.be.equal('');
 
-				innerView.parameters['b'].push(null);
+				view.parameters['b'].push(null);
 
 				setTimeout(() => {
 					expect(initCalled).to.be.equal(1);
 					expect(destroyCalled).to.be.equal(0);
 					expect(parent.innerText).to.be.equal('- exists (1) -');
 
-					innerView.parameters['b'].splice(0, 1);
+					view.parameters['b'].splice(0, 1);
 
 					setTimeout(() => {
 						expect(initCalled).to.be.equal(1);
 						expect(destroyCalled).to.be.equal(1);
 						expect(parent.innerText).to.be.equal('');
 
-						innerView.parameters['b'].push(null);
-						innerView.parameters['b'].push(null);
+						view.parameters['b'].push(null);
+						view.parameters['b'].push(null);
 
 						setTimeout(() => {
 							expect(initCalled).to.be.equal(3);

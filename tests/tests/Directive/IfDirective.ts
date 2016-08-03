@@ -73,15 +73,13 @@ describe('#Directives/IfDirective', () => {
 		compiler.compileElement(view, parent);
 		view.watcher.run();
 
-		let innerView = view.children[0];
-
 		setTimeout(() => {
 			expect(parent.innerText).to.be.equal('');
-			innerView.parameters['a'] = false;
+			view.parameters['a'] = false;
 
 			setTimeout(() => {
 				expect(parent.innerText).to.be.equal('hello');
-				innerView.parameters['a'] = true;
+				view.parameters['a'] = true;
 
 				setTimeout(() => {
 					expect(parent.innerText).to.be.equal('');
@@ -184,28 +182,26 @@ describe('#Directives/IfDirective', () => {
 		compiler.compileElement(view, parent);
 		view.watcher.run();
 
-		let innerView = view.children[0];
-
 		setTimeout(() => {
 			expect(initCalled).to.be.equal(0);
 			expect(destroyCalled).to.be.equal(0);
 			expect(parent.innerText).to.be.equal('');
 
-			innerView.parameters['a'] = true;
+			view.parameters['a'] = true;
 
 			setTimeout(() => {
 				expect(initCalled).to.be.equal(1);
 				expect(destroyCalled).to.be.equal(0);
 				expect(parent.innerText).to.be.equal('exists');
 
-				innerView.parameters['a'] = false;
+				view.parameters['a'] = false;
 
 				setTimeout(() => {
 					expect(initCalled).to.be.equal(1);
 					expect(destroyCalled).to.be.equal(1);
 					expect(parent.innerText).to.be.equal('');
 
-					innerView.parameters['a'] = true;
+					view.parameters['a'] = true;
 
 					setTimeout(() => {
 						expect(initCalled).to.be.equal(2);

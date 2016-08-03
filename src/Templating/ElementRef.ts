@@ -96,15 +96,6 @@ export class ElementRef
 	}
 
 
-	public moveToMemory(): void
-	{
-		if (this.nativeEl.parentElement) {
-			this.createMarker();
-			this.nativeEl.parentElement.removeChild(this.nativeEl);
-		}
-	}
-
-
 	public static getAttributes(el: Node): AttributesList
 	{
 		let attributes: AttributesList = {};
