@@ -1,9 +1,6 @@
-import {Compiler} from '../../src/Compiler';
+import {Application, Compiler, Component, ApplicationView} from '../../core';
 import {Container} from '../../di';
-import {Application, Component} from '../../core';
-import {Translator} from '../../src/Translations/Translator';
-import {TranslateFilter} from '../../src/Translations/TranslateFilter';
-import {ApplicationView} from '../../src/Views/ApplicationView';
+import {Translator, TranslateFilter} from '../../translations';
 
 
 import chai = require('chai');

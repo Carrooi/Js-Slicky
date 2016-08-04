@@ -1,6 +1,5 @@
 import {Container} from '../../di';
-import {Application, Component, Input, HostEvent, HostElement} from '../../core';
-import {InputMetadataDefinition, HostEventMetadataDefinition, HostElementMetadataDefinition} from '../../src/Entity/Metadata';
+import {Application} from '../../core';
 
 import chai = require('chai');
 

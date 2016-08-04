@@ -1,11 +1,6 @@
-import {View} from '../../../src/Views/View';
-import {OnInit, OnDestroy} from '../../../src/Interfaces';
-import {ForDirective} from '../../../src/Directives/ForDirective';
-import {Application} from '../../../src/Application';
-import {Compiler} from '../../../src/Compiler';
-import {Container} from '../../../src/DI/Container';
-import {ElementRef} from '../../../src/Templating/ElementRef';
-import {Component} from '../../../src/Entity/Metadata';
+import {Application, Compiler, View, ElementRef, Component, OnInit, OnDestroy} from '../../../core';
+import {ForDirective} from '../../../common';
+import {Container} from '../../../di';
 
 import chai = require('chai');
 

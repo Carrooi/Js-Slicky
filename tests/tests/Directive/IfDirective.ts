@@ -1,11 +1,6 @@
-import {View} from '../../../src/Views/View';
-import {OnInit, OnDestroy} from '../../../src/Interfaces';
-import {Application} from '../../../src/Application';
-import {Compiler} from '../../../src/Compiler';
-import {Container} from '../../../src/DI/Container';
-import {Component} from '../../../src/Entity/Metadata';
-import {ElementRef} from '../../../src/Templating/ElementRef';
-import {IfDirective} from '../../../src/Directives/IfDirective';
+import {Application, Compiler, View, Component, ElementRef, OnInit, OnDestroy} from '../../../core';
+import {IfDirective} from '../../../common';
+import {Container} from '../../../di';
 
 import chai = require('chai');
 

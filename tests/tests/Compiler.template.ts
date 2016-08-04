@@ -1,15 +1,7 @@
-import {Compiler} from '../../src/Compiler';
-import {OnInit} from '../../src/Interfaces';
+import {Application, Compiler, View, ApplicationView, Component, Directive, ElementRef, Filter, Input, OnInit} from '../../core';
+import {IfDirective, ForDirective} from '../../common';
 import {Container} from '../../di';
-import {Dom} from '../../src/Util/Dom';
-import {Application, Component, Input} from '../../core';
-import {View} from '../../src/Views/View';
-import {ApplicationView} from '../../src/Views/ApplicationView';
-import {IfDirective} from '../../src/Directives/IfDirective';
-import {ForDirective} from '../../src/Directives/ForDirective';
-import {ElementRef} from '../../src/Templating/ElementRef';
-import {Filter} from '../../src/Templating/Filters/Metadata';
-import {Directive} from '../../src/Entity/Metadata';
+import {Dom} from '../../utils';
 import {ControllerView} from '../../src/Entity/ControllerView';
 
 

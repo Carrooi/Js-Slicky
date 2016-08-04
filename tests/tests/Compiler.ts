@@ -1,11 +1,14 @@
-import {Compiler} from '../../src/Compiler';
-import {OnDestroy} from '../../src/Interfaces';
+import {
+	Application, Compiler,
+	View, ApplicationView,
+	ElementRef,
+	Component,
+	HostEvent, HostElement, 
+	OnDestroy,
+	Input, Required
+} from '../../core';
 import {Container} from '../../di';
-import {Dom} from '../../src/Util/Dom';
-import {Application, Component, Input, HostEvent, HostElement, Required} from '../../core';
-import {View} from '../../src/Views/View';
-import {ApplicationView} from '../../src/Views/ApplicationView';
-import {ElementRef} from '../../src/Templating/ElementRef';
+import {Dom} from '../../utils';
 import {ControllerView} from '../../src/Entity/ControllerView';
 
 

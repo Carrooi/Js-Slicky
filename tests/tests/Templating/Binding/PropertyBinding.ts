@@ -1,9 +1,6 @@
-import {View} from '../../../../src/Views/View';
+import {Application, Compiler, View, ElementRef} from '../../../../core';
+import {Container} from '../../../../di';
 import {PropertyBinding} from '../../../../src/Templating/Binding/PropertyBinding';
-import {Application} from '../../../../src/Application';
-import {Compiler} from '../../../../src/Compiler';
-import {Container} from '../../../../src/DI/Container';
-import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {ExpressionParser} from '../../../../src/Parsers/ExpressionParser';
 
 import chai = require('chai');

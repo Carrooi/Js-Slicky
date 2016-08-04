@@ -1,9 +1,6 @@
-import {AttrDirective} from '../../../src/Directives/AttrDirective';
-import {Compiler} from '../../../src/Compiler';
-import {View} from '../../../src/Views/View';
-import {Container} from '../../../src/DI/Container';
-import {Application} from '../../../src/Application';
-import {ElementRef} from '../../../src/Templating/ElementRef';
+import {AttrDirective} from '../../../common';
+import {Application, Compiler, View, ElementRef} from '../../../core';
+import {Container} from '../../../di';
 
 import chai = require('chai');
 

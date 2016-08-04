@@ -1,8 +1,13 @@
+import {Component, Input, HostEvent, HostElement} from '../../../core';
 import {ControllerParser} from '../../../src/Entity/ControllerParser';
-import {Component, Input, InputMetadataDefinition, HostEvent, HostEventMetadataDefinition, HostElement, HostElementMetadataDefinition} from '../../../src/Entity/Metadata';
+import {
+	InputMetadataDefinition,
+	HostEventMetadataDefinition,
+	HostElementMetadataDefinition,
+	ComponentMetadataDefinition
+} from '../../../src/Entity/Metadata';
 
 import chai = require('chai');
-import {ComponentMetadataDefinition} from "../../../src/Entity/Metadata";
 
 
 let expect = chai.expect;

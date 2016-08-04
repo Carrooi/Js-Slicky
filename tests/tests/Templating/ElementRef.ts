@@ -1,4 +1,4 @@
-import {ElementRef} from '../../../src/Templating/ElementRef';
+import {ElementRef} from '../../../core';
 
 import chai = require('chai');
 

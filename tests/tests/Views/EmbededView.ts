@@ -1,7 +1,4 @@
-import {EmbeddedView} from '../../../src/Views/EmbeddedView';
-import {View} from '../../../src/Views/View';
-import {ElementRef} from '../../../src/Templating/ElementRef';
-import {TemplateRef} from '../../../src/Templating/TemplateRef';
+import {View, EmbeddedView, ElementRef, TemplateRef} from '../../../core';
 
 import chai = require('chai');
 

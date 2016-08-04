@@ -1,12 +1,8 @@
-import {View} from '../../../src/Views/View';
-import {Component} from '../../../src/Entity/Metadata';
+import {View, Component, ElementRef, TemplateRef, Filter} from '../../../core';
+import {Container} from '../../../di';
 import {ControllerParser} from '../../../src/Entity/ControllerParser';
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
-import {ElementRef} from '../../../src/Templating/ElementRef';
-import {TemplateRef} from '../../../src/Templating/TemplateRef';
-import {Filter} from '../../../src/Templating/Filters/Metadata';
 import {ControllerView} from '../../../src/Entity/ControllerView';
-import {Container} from '../../../src/DI/Container';
 
 import chai = require('chai');
 

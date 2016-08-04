@@ -1,4 +1,4 @@
-import {Dom} from '../../../src/Util/Dom';
+import {Dom} from '../../../utils';
 
 import chai = require('chai');
 

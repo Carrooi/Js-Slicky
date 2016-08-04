@@ -1,9 +1,6 @@
-import {ApplicationView} from '../../../src/Views/ApplicationView';
-import {Application} from '../../../src/Application';
-import {Compiler} from '../../../src/Compiler';
-import {Container} from '../../../src/DI/Container';
-import {Component} from '../../../src/Entity/Metadata';
-import {NotParseDirective} from '../../../src/Directives/NotParseDirective';
+import {Application, Compiler, ApplicationView, Component} from '../../../core';
+import {NotParseDirective} from '../../../common';
+import {Container} from '../../../di';
 
 import chai = require('chai');
 

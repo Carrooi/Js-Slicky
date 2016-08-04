@@ -1,5 +1,6 @@
+import {Directive, HostEvent} from '../../../core';
 import {DirectiveParser} from '../../../src/Entity/DirectiveParser';
-import {Directive, DirectiveMetadataDefinition, HostEvent, HostEventMetadataDefinition} from '../../../src/Entity/Metadata';
+import {DirectiveMetadataDefinition, HostEventMetadataDefinition} from '../../../src/Entity/Metadata';
 
 import chai = require('chai');
 
