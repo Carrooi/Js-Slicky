@@ -44,6 +44,10 @@ export class View extends AbstractView
 
 	public fork(el: ElementRef): View
 	{
+		if (el.view) {
+			return el.view;
+		}
+
 		let parameters = Helpers.clone(this.parameters);
 		let translations = Helpers.clone(this.translations);
 

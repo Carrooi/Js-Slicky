@@ -12,6 +12,7 @@ import {EventBinding} from './Templating/Binding/EventBinding';
 import {PropertyBinding} from './Templating/Binding/PropertyBinding';
 import {AttributeBinding} from './Templating/Binding/AttributeBinding';
 import {View} from './Views/View';
+import {ApplicationView} from './Views/ApplicationView';
 import {AbstractView} from './Views/AbstractView';
 import {ElementRef, AttributesList} from './Templating/ElementRef';
 import {TemplateRef} from './Templating/TemplateRef';
@@ -47,21 +48,22 @@ export class Compiler
 	}
 
 
-	public compile(view: View, controller: any): void
+	public compile(appView: ApplicationView): void
 	{
+		let controller = appView.controller;
 		let metadata = ControllerParser.getControllerMetadata(controller);
 		let definition = ControllerParser.parse(controller, metadata);
-		let el = Dom.querySelector(definition.metadata.selector, <Element>view.el.nativeEl);
+		let el = Dom.querySelector(definition.metadata.selector, appView.el);
 
 		if (!el) {
 			return;
 		}
 
 		for (let i = 0; i < DefaultFilters.length; i++) {
-			view.addFilter(this.container, DefaultFilters[i]);
+			appView.addFilter(this.container, DefaultFilters[i]);
 		}
 
-		view.directives = [controller];
+		let view = appView.createApplicationComponentView(el);
 
 		this.compileElement(view, <HTMLElement>el);
 	}

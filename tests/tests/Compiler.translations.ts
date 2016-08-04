@@ -1,17 +1,9 @@
 import {Compiler} from '../../src/Compiler';
-import {OnInit} from '../../src/Interfaces';
 import {Container} from '../../di';
-import {Dom} from '../../src/Util/Dom';
-import {Application, Component, Input} from '../../core';
+import {Application, Component} from '../../core';
 import {Translator} from '../../src/Translations/Translator';
 import {TranslateFilter} from '../../src/Translations/TranslateFilter';
-import {View} from '../../src/Views/View';
-import {IfDirective} from '../../src/Directives/IfDirective';
-import {ForDirective} from '../../src/Directives/ForDirective';
-import {ElementRef} from '../../src/Templating/ElementRef';
-import {Filter} from '../../src/Templating/Filters/Metadata';
-import {Directive} from '../../src/Entity/Metadata';
-import {ControllerView} from '../../src/Entity/ControllerView';
+import {ApplicationView} from '../../src/Views/ApplicationView';
 
 
 import chai = require('chai');
@@ -52,10 +44,9 @@ describe('#Compiler/template', () => {
 			let parent = document.createElement('div');
 			parent.innerHTML = '<app></app>';
 
-			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ApplicationView(parent, App);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(parent.innerText).to.be.equal('message');
 		});
@@ -78,10 +69,9 @@ describe('#Compiler/template', () => {
 			let parent = document.createElement('div');
 			parent.innerHTML = '<app></app>';
 
-			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ApplicationView(parent, App);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(parent.innerText).to.be.equal('hello world');
 		});
@@ -110,10 +100,9 @@ describe('#Compiler/template', () => {
 			let parent = document.createElement('div');
 			parent.innerHTML = '<app></app>';
 
-			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ApplicationView(parent, App);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(parent.innerText).to.be.equal('hello world');
 		});
@@ -136,10 +125,9 @@ describe('#Compiler/template', () => {
 			let parent = document.createElement('div');
 			parent.innerHTML = '<app></app>';
 
-			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ApplicationView(parent, App);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(parent.innerText).to.be.equal('hello world');
 		});
@@ -162,10 +150,9 @@ describe('#Compiler/template', () => {
 			let parent = document.createElement('div');
 			parent.innerHTML = '<app></app>';
 
-			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ApplicationView(parent, App);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(parent.innerText).to.be.equal('hello world, hello worlds');
 		});
@@ -188,10 +175,9 @@ describe('#Compiler/template', () => {
 			let parent = document.createElement('div');
 			parent.innerHTML = '<app></app>';
 
-			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ApplicationView(parent, App);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(parent.innerText).to.be.equal('1 apple, 3 apples');
 		});
@@ -214,10 +200,9 @@ describe('#Compiler/template', () => {
 			let parent = document.createElement('div');
 			parent.innerHTML = '<app></app>';
 
-			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ApplicationView(parent, App);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(parent.innerText).to.be.equal('1 red car, 9 blue cars');
 		});
@@ -250,10 +235,9 @@ describe('#Compiler/template', () => {
 			let parent = document.createElement('div');
 			parent.innerHTML = '<app></app>';
 
-			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ApplicationView(parent, App);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(parent.innerText).to.be.equal('APPLE, CAR');
 		});

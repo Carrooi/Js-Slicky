@@ -1,9 +1,8 @@
-import {View} from '../../../src/Views/View';
+import {ApplicationView} from '../../../src/Views/ApplicationView';
 import {Application} from '../../../src/Application';
 import {Compiler} from '../../../src/Compiler';
 import {Container} from '../../../src/DI/Container';
 import {Component} from '../../../src/Entity/Metadata';
-import {ElementRef} from '../../../src/Templating/ElementRef';
 import {NotParseDirective} from '../../../src/Directives/NotParseDirective';
 
 import chai = require('chai');
@@ -34,11 +33,11 @@ describe('#Directives/NotParseDirective', () => {
 
 		parent.innerHTML = '<div test>{{ a }}, <span>{{ a }}</span>, <span [s:not-parse]>{{ a }}</span></div>';
 
-		let view = new View(new ElementRef(parent), {
+		let view = new ApplicationView(parent, Test, {
 			a: 42,
 		});
 
-		compiler.compile(view, Test);
+		compiler.compile(view);
 
 		expect(parent.innerText).to.be.equal('42, 42, {{ a }}');
 	});

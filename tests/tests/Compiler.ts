@@ -4,6 +4,7 @@ import {Container} from '../../di';
 import {Dom} from '../../src/Util/Dom';
 import {Application, Component, Input, HostEvent, HostElement, Required} from '../../core';
 import {View} from '../../src/Views/View';
+import {ApplicationView} from '../../src/Views/ApplicationView';
 import {ElementRef} from '../../src/Templating/ElementRef';
 import {ControllerView} from '../../src/Entity/ControllerView';
 
@@ -36,7 +37,7 @@ describe('#Compiler', () => {
 
 			let el = parent.children[0];
 
-			compiler.compile(new View(new ElementRef(parent)), Test);
+			compiler.compile(new ApplicationView(parent, Test));
 
 			let view: View = ElementRef.getByNode(el).view;
 
@@ -57,9 +58,9 @@ describe('#Compiler', () => {
 			let parent = document.createElement('div');
 			parent.innerHTML = '<div test></div>';
 
-			let view = new View(new ElementRef(parent));
+			let view = new ApplicationView(parent, Test);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			view.detach();
 
@@ -75,7 +76,7 @@ describe('#Compiler', () => {
 
 			let el = <HTMLDivElement>parent.children[0];
 
-			compiler.compile(new View(new ElementRef(parent)), Test);
+			compiler.compile(new ApplicationView(parent, Test));
 
 			expect(el.innerHTML).to.be.equal('lorem ipsum');
 		});
@@ -249,7 +250,7 @@ describe('#Compiler', () => {
 			parent.innerHTML = '<div test></div>';
 
 			expect(() => {
-				compiler.compile(new View(new ElementRef(parent)), Test);
+				compiler.compile(new ApplicationView(parent, Test));
 			}).to.throw(Error, "Component's input Test::input was not found in div element.");
 		});
 
@@ -265,7 +266,7 @@ describe('#Compiler', () => {
 
 			let el = parent.children[0];
 
-			compiler.compile(new View(new ElementRef(parent)), Test);
+			compiler.compile(new ApplicationView(parent, Test));
 
 			let view: View = ElementRef.getByNode(el).view;
 
@@ -288,7 +289,7 @@ describe('#Compiler', () => {
 
 			let el = parent.children[0];
 
-			compiler.compile(new View(new ElementRef(parent)), Test);
+			compiler.compile(new ApplicationView(parent, Test));
 
 			let view: View = ElementRef.getByNode(el).view;
 
@@ -316,7 +317,7 @@ describe('#Compiler', () => {
 
 			let el = parent.children[0];
 
-			compiler.compile(new View(new ElementRef(parent)), Test);
+			compiler.compile(new ApplicationView(parent, Test));
 
 			el.dispatchEvent(Dom.createMouseEvent('click'));
 
@@ -342,7 +343,7 @@ describe('#Compiler', () => {
 
 			let link = parent.querySelector('a');
 
-			compiler.compile(new View(new ElementRef(parent)), Test);
+			compiler.compile(new ApplicationView(parent, Test));
 
 			link.dispatchEvent(Dom.createMouseEvent('click'));
 
@@ -371,7 +372,7 @@ describe('#Compiler', () => {
 
 			let link = parent.querySelector('a');
 
-			compiler.compile(new View(new ElementRef(parent)), Test);
+			compiler.compile(new ApplicationView(parent, Test));
 
 			link.dispatchEvent(Dom.createMouseEvent('click'));
 
@@ -398,7 +399,7 @@ describe('#Compiler', () => {
 			let parent = document.createElement('div');
 			parent.innerHTML = '<div test></div>';
 
-			compiler.compile(new View(new ElementRef(parent)), Test);
+			compiler.compile(new ApplicationView(parent, Test));
 
 			expect(currentView).to.be.an.instanceof(View);
 			expect(currentElementRef).to.be.an.instanceof(ElementRef);
@@ -441,7 +442,7 @@ describe('#Compiler', () => {
 			let parent = document.createElement('div');
 			parent.innerHTML = '<div app><div outer><div inner></div></div></div>';
 
-			compiler.compile(new View(new ElementRef(parent)), App);
+			compiler.compile(new ApplicationView(parent, App));
 
 			expect(calledApp).to.be.equal(1);
 			expect(calledOuter).to.be.equal(1);
@@ -469,7 +470,7 @@ describe('#Compiler', () => {
 			parent.innerHTML = '<div app><div one two></div></div>';
 
 			expect(() => {
-				compiler.compile(new View(new ElementRef(parent)), App);
+				compiler.compile(new ApplicationView(parent, App));
 			}).to.throw(Error, 'Can not attach more than 1 components (One, Two) to div element.');
 		});
 

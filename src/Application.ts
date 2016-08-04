@@ -2,6 +2,7 @@ import {Container} from './DI/Container';
 import {Injectable} from './DI/Metadata';
 import {Compiler} from './Compiler';
 import {View} from './Views/View';
+import {ApplicationView} from './Views/ApplicationView';
 import {ElementRef} from './Templating/ElementRef';
 
 
@@ -37,11 +38,8 @@ export class Application
 	public run(controller: any): void
 	{
 		setTimeout(() => {
-			let elementRef = ElementRef.getByNode(document);
-			let view = new View(elementRef);
-
-			this.compiler.compile(view, controller);
-
+			let view = new ApplicationView(<any>document, controller);
+			this.compiler.compile(view);
 			view.watcher.run();
 		}, 0);
 	}
