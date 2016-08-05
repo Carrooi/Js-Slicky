@@ -1,4 +1,4 @@
-import {View} from '../Views/View';
+import {ComponentView} from '../Views/ComponentView';
 
 
 declare interface AttributeProperty
@@ -28,7 +28,7 @@ export class ElementRef
 
 	public nativeEl: Node;
 
-	public view: View;
+	public view: ComponentView;
 
 
 	constructor(nativeEl: Node)

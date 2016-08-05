@@ -1,5 +1,5 @@
 import {AbstractView, ParametersList} from './AbstractView';
-import {View} from './View';
+import {ComponentView} from './ComponentView';
 import {ElementRef} from '../Templating/ElementRef';
 import {Helpers} from '../Util/Helpers';
 
@@ -22,10 +22,10 @@ export class ApplicationView extends AbstractView
 	}
 
 
-	public createApplicationComponentView(el: Element): View
+	public createApplicationComponentView(el: Element): ComponentView
 	{
 		let parameters = Helpers.clone(this.parameters);
-		let view = new View(ElementRef.getByNode(el), parameters, this);
+		let view = new ComponentView(ElementRef.getByNode(el), parameters, this);
 
 		view.directives = [this.controller];
 

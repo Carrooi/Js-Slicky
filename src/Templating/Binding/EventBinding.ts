@@ -4,14 +4,14 @@ import {Code} from '../../Util/Code';
 import {Helpers} from '../../Util/Helpers';
 import {VariableParser} from '../../Parsers/VariableParser';
 import {ExpressionParser} from '../../Parsers/ExpressionParser';
-import {View} from '../../Views/View';
+import {ComponentView} from '../../Views/ComponentView';
 
 
 export class EventBinding implements IBinding
 {
 
 
-	private view: View;
+	private view: ComponentView;
 
 	private el: Element;
 
@@ -22,7 +22,7 @@ export class EventBinding implements IBinding
 	private listeners: Array<{event: string, listener: Function}> = [];
 
 
-	constructor(view: View, el: Element, attr: string, call: string)
+	constructor(view: ComponentView, el: Element, attr: string, call: string)
 	{
 		this.view = view;
 		this.el = el;

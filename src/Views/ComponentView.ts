@@ -2,23 +2,21 @@ import {AbstractView, ParametersList} from './AbstractView';
 import {ControllerDefinition} from '../Entity/ControllerParser';
 import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
-import {DirectiveDefinition} from '../Entity/DirectiveParser';
-import {AbstractEntityView} from '../Entity/AbstractEntityView';
-import {ControllerView} from '../Entity/ControllerView';
-import {DirectiveView} from '../Entity/DirectiveView';
 import {EmbeddedView} from './EmbeddedView';
-import {ComponentMetadataDefinition} from './../Entity/Metadata';
 import {Helpers} from '../Util/Helpers';
 import {Container} from '../DI/Container';
+import {OnDestroy} from '../Interfaces';
 
 
-export class View extends AbstractView
+export class ComponentView extends AbstractView
 {
 
 
 	public el: ElementRef;
 
-	public entities: Array<AbstractEntityView> = [];
+	public component: any = null;
+
+	public attachedDirectives: Array<any> = [];
 
 
 	constructor(el: ElementRef, parameters: ParametersList = {}, parent?: AbstractView)
@@ -34,15 +32,24 @@ export class View extends AbstractView
 	{
 		super.detach();
 
-		for (let i = 0; i < this.entities.length; i++) {
-			this.entities[i].detach();
+		for (let i = 0; i < this.attachedDirectives.length; i++) {
+			if (typeof this.attachedDirectives[i]['onDestroy'] === 'function') {
+				(<OnDestroy>this.attachedDirectives[i]).onDestroy();
+			}
+
+			this.attachedDirectives[i].detach();
 		}
 
-		this.entities = [];
+		if (this.component && typeof this.component['onDestroy'] === 'function') {
+			(<OnDestroy>this.component).onDestroy();
+			this.component = null;
+		}
+
+		this.attachedDirectives = [];
 	}
 
 
-	public fork(el: ElementRef): View
+	public fork(el: ElementRef): ComponentView
 	{
 		if (el.view) {
 			return el.view;
@@ -51,7 +58,7 @@ export class View extends AbstractView
 		let parameters = Helpers.clone(this.parameters);
 		let translations = Helpers.clone(this.translations);
 
-		let view = new View(el, parameters, this);
+		let view = new ComponentView(el, parameters, this);
 		view.translations = translations;
 
 		return view;
@@ -85,11 +92,17 @@ export class View extends AbstractView
 	}
 
 
-	public updateWithController(container: Container, definition: ControllerDefinition): void
+	public setComponent(container: Container, definition: ControllerDefinition, component: any): void
 	{
+		this.component = component;
+
 		let directives = definition.metadata.directives;
 		let filters = definition.metadata.filters;
 		let translations = definition.metadata.translations;
+
+		if (definition.metadata.controllerAs) {
+			this.addParameter(definition.metadata.controllerAs, component);
+		}
 
 		for (let i = 0; i < directives.length; i++) {
 			this.directives.push(directives[i]);
@@ -115,16 +128,9 @@ export class View extends AbstractView
 	}
 
 
-	public attachDirective(definition: DirectiveDefinition, instance: any): void
+	public attachDirective(instance: any): void
 	{
-		let entity = definition.metadata instanceof ComponentMetadataDefinition ?
-			new ControllerView(this, this.el, <ControllerDefinition>definition, instance) :
-			new DirectiveView(this, this.el, definition, instance)
-		;
-
-		this.entities.push(entity);
-
-		(<AbstractEntityView>entity).attach();
+		this.attachedDirectives.push(instance);
 	}
 
 }

@@ -1,9 +1,7 @@
 import {Container} from './DI/Container';
 import {Injectable} from './DI/Metadata';
 import {Compiler} from './Compiler';
-import {View} from './Views/View';
 import {ApplicationView} from './Views/ApplicationView';
-import {ElementRef} from './Templating/ElementRef';
 
 
 @Injectable()

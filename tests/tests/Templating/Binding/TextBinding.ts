@@ -1,4 +1,4 @@
-import {Application, Compiler, View, ElementRef} from '../../../../core';
+import {Application, Compiler, ComponentView, ElementRef} from '../../../../core';
 import {Container} from '../../../../di';
 import {Dom} from '../../../../utils';
 import {TextBinding} from '../../../../src/Templating/Binding/TextBinding';
@@ -25,7 +25,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 		it('should evaluate expression in html', () => {
 			let el = Dom.el('<div> </div>');
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,
@@ -41,7 +41,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 		it('should change property when it is changed', (done) => {
 			let el = Dom.el('<div>a + b + c - 2</div>');
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,
@@ -70,7 +70,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 		it('should change property and stop watching for changes', (done) => {
 			let el = Dom.el('<div>a + b + c - 2</div>');
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,

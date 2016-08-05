@@ -11,7 +11,7 @@ import {TextBinding} from './Templating/Binding/TextBinding';
 import {EventBinding} from './Templating/Binding/EventBinding';
 import {PropertyBinding} from './Templating/Binding/PropertyBinding';
 import {AttributeBinding} from './Templating/Binding/AttributeBinding';
-import {View} from './Views/View';
+import {ComponentView} from './Views/ComponentView';
 import {ApplicationView} from './Views/ApplicationView';
 import {AbstractView} from './Views/AbstractView';
 import {ElementRef, AttributesList} from './Templating/ElementRef';
@@ -102,7 +102,7 @@ export class Compiler
 					el.remove();
 				}
 
-				this.compileElement(<View>innerView, <HTMLElement>child);
+				this.compileElement(<ComponentView>innerView, <HTMLElement>child);
 
 				if (originalParameters !== null) {
 					innerView.parameters = originalParameters;
@@ -112,7 +112,7 @@ export class Compiler
 	}
 
 
-	public compileElement(parentView: View, el: HTMLElement): void
+	public compileElement(parentView: ComponentView, el: HTMLElement): void
 	{
 		let attributes = ElementRef.getAttributes(el);
 
@@ -222,14 +222,10 @@ export class Compiler
 	}
 
 
-	private createDirective(view: View, definition: DirectiveDefinition, el: Element): any
+	private createDirective(view: ComponentView, definition: DirectiveDefinition, el: Element): any
 	{
 		let elementRef = ElementRef.getByNode(el);
 		let templateRef = new TemplateRef(elementRef);
-
-		if (definition.metadata instanceof ComponentMetadataDefinition) {
-			view.updateWithController(this.container, <ControllerDefinition>definition);
-		}
 
 		let instance = this.container.create(<any>definition.directive, [
 			{
@@ -245,14 +241,18 @@ export class Compiler
 				},
 			},
 			{
-				service: View,
+				service: ComponentView,
 				options: {
 					useFactory: () => view,
 				},
 			},
 		]);
 
-		view.attachDirective(definition, instance);
+		if (definition.metadata instanceof ComponentMetadataDefinition) {
+			view.setComponent(this.container, <ControllerDefinition>definition, instance);
+		} else {
+			view.attachDirective(instance);
+		}
 
 		return instance;
 	}
@@ -304,7 +304,7 @@ export class Compiler
 	}
 
 
-	private processDirective(el: HTMLElement, view: View, attributes: AttributesList, definition: DirectiveDefinition, instance: any): boolean
+	private processDirective(el: HTMLElement, view: ComponentView, attributes: AttributesList, definition: DirectiveDefinition, instance: any): boolean
 	{
 		let innerCompiled = false;
 

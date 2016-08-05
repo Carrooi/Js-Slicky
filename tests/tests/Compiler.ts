@@ -1,6 +1,6 @@
 import {
 	Application, Compiler,
-	View, ApplicationView,
+	ComponentView, ApplicationView,
 	ElementRef,
 	Component,
 	HostEvent, HostElement,
@@ -9,7 +9,6 @@ import {
 } from '../../core';
 import {Container} from '../../di';
 import {Dom} from '../../utils';
-import {ControllerView} from '../../src/Entity/ControllerView';
 
 
 import chai = require('chai');
@@ -40,10 +39,9 @@ describe('#Compiler', () => {
 
 			compiler.compile(new ApplicationView(parent, Test));
 
-			let view: View = ElementRef.getByNode(el).view;
+			let view: ComponentView = ElementRef.getByNode(el).view;
 
-			expect(view.entities).to.have.length(1);
-			expect((<ControllerView>view.entities[0]).instance).to.be.an.instanceOf(Test);
+			expect(view.component).to.be.an.instanceOf(Test);
 		});
 
 		it('should call onUnbind method on controller', () => {
@@ -87,17 +85,14 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test [input1]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ComponentView(elementRef);
 
 			view.directives.push(Test);
 
 			compiler.compileElement(view, parent);
 
-			let innerView = <View>view.children[0];
-
-			expect(innerView.entities).to.have.length(1);
-
-			let test = <Test>(<ControllerView>innerView.entities[0]).instance;
+			let innerView = <ComponentView>view.children[0];
+			let test = <Test>innerView.component;
 
 			expect(test.input1).to.be.equal('hello');
 		});
@@ -111,17 +106,14 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test="hello"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ComponentView(elementRef);
 
 			view.directives.push(Test);
 
 			compiler.compileElement(view, parent);
 
-			let innerView = <View>view.children[0];
-
-			expect(innerView.entities).to.have.length(1);
-
-			let test = <Test>(<ControllerView>innerView.entities[0]).instance;
+			let innerView = <ComponentView>view.children[0];
+			let test = <Test>innerView.component;
 
 			expect(test.test).to.be.equal('hello');
 		});
@@ -135,17 +127,14 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test [data-input1]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ComponentView(elementRef);
 
 			view.directives.push(Test);
 
 			compiler.compileElement(view, parent);
 
-			let innerView = <View>view.children[0];
-
-			expect(innerView.entities).to.have.length(1);
-
-			let test = <Test>(<ControllerView>innerView.entities[0]).instance;
+			let innerView = <ComponentView>view.children[0];
+			let test = <Test>innerView.component;
 
 			expect(test.input1).to.be.equal('hello');
 		});
@@ -159,17 +148,14 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ComponentView(elementRef);
 
 			view.directives.push(Test);
 
 			compiler.compileElement(view, parent);
 
-			let innerView = <View>view.children[0];
-
-			expect(innerView.entities).to.have.length(1);
-
-			let test = <Test>(<ControllerView>innerView.entities[0]).instance;
+			let innerView = <ComponentView>view.children[0];
+			let test = <Test>innerView.component;
 
 			expect(test.input1).to.be.equal(undefined);
 		});
@@ -183,17 +169,14 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ComponentView(elementRef);
 
 			view.directives.push(Test);
 
 			compiler.compileElement(view, parent);
 
-			let innerView = <View>view.children[0];
-
-			expect(innerView.entities).to.have.length(1);
-
-			let test = <Test>(<ControllerView>innerView.entities[0]).instance;
+			let innerView = <ComponentView>view.children[0];
+			let test = <Test>innerView.component;
 
 			expect(test.input1).to.be.equal('bye');
 		});
@@ -208,17 +191,14 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test [input]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new View(elementRef);
+			let view = new ComponentView(elementRef);
 
 			view.directives.push(Test);
 
 			compiler.compileElement(view, parent);
 
-			let innerView = <View>view.children[0];
-
-			expect(innerView.entities).to.have.length(1);
-
-			let test = <Test>(<ControllerView>innerView.entities[0]).instance;
+			let innerView = <ComponentView>view.children[0];
+			let test = <Test>innerView.component;
 
 			expect(test.input).to.be.equal('hello');
 		});
@@ -250,11 +230,8 @@ describe('#Compiler', () => {
 
 			compiler.compile(new ApplicationView(parent, Test));
 
-			let view: View = ElementRef.getByNode(el).view;
-
-			expect(view.entities).to.have.length(1);
-
-			let test = <Test>(<ControllerView>view.entities[0]).instance;
+			let view: ComponentView = ElementRef.getByNode(el).view;
+			let test = <Test>view.component;
 
 			expect(test.el).to.be.equal(el);
 		});
@@ -271,11 +248,8 @@ describe('#Compiler', () => {
 
 			compiler.compile(new ApplicationView(parent, Test));
 
-			let view: View = ElementRef.getByNode(el).view;
-
-			expect(view.entities).to.have.length(1);
-
-			let test = <Test>(<ControllerView>view.entities[0]).instance;
+			let view: ComponentView = ElementRef.getByNode(el).view;
+			let test = <Test>view.component;
 
 			expect(test.child.nodeName.toLowerCase()).to.be.equal('span');
 			expect(test.child.innerHTML).to.be.equal('hello');
@@ -357,14 +331,14 @@ describe('#Compiler', () => {
 		});
 
 		it('should pass View and ElementRef to controller', () => {
-			let currentView: View = null;
+			let currentView: ComponentView = null;
 			let currentElementRef: ElementRef = null;
 
 			@Component({
 				selector: '[test]',
 			})
 			class Test {
-				constructor(view: View, el: ElementRef) {
+				constructor(view: ComponentView, el: ElementRef) {
 					currentView = view;
 					currentElementRef = el;
 				}
@@ -374,7 +348,7 @@ describe('#Compiler', () => {
 
 			compiler.compile(new ApplicationView(parent, Test));
 
-			expect(currentView).to.be.an.instanceof(View);
+			expect(currentView).to.be.an.instanceof(ComponentView);
 			expect(currentElementRef).to.be.an.instanceof(ElementRef);
 			expect(currentElementRef.nativeEl).to.be.equal(parent.children[0]);
 		});

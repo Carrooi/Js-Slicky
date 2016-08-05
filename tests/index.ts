@@ -32,7 +32,7 @@ import './tests/Directive/NotParseDirective';
 import './tests/Directive/ClassDirective';
 import './tests/Directive/AttrDirective';
 
-import './tests/Views/View';
+import './tests/Views/ComponentView';
 import './tests/Views/EmbededView';
 import './tests/DI/Container';
 import './tests/Application';

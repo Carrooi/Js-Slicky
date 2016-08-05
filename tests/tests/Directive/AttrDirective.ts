@@ -1,5 +1,5 @@
 import {AttrDirective} from '../../../common';
-import {Application, Compiler, View, ElementRef} from '../../../core';
+import {Application, Compiler, ComponentView, ElementRef} from '../../../core';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 
@@ -24,7 +24,7 @@ describe('#Directives/AttrDirective', () => {
 		let el = Dom.el('<span [s:attr]="{test: true}"></span>');
 		let elementRef = new ElementRef(el);
 
-		let view = new View(elementRef);
+		let view = new ComponentView(elementRef);
 		view.directives.push(AttrDirective);
 
 		expect(el['test']).to.be.equal(undefined);

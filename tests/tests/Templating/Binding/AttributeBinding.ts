@@ -1,4 +1,4 @@
-import {Application, Compiler, View, ElementRef} from '../../../../core';
+import {Application, Compiler, ComponentView, ElementRef} from '../../../../core';
 import {Container} from '../../../../di';
 import {Dom} from '../../../../utils';
 import {AttributeBinding} from '../../../../src/Templating/Binding/AttributeBinding';
@@ -28,7 +28,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				hello: 'good day',
 			});
 
@@ -44,7 +44,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,

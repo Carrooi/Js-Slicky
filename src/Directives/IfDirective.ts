@@ -2,7 +2,7 @@ import {Directive, Input, Required} from '../Entity/Metadata';
 import {OnUpdate, OnDestroy} from '../Interfaces';
 import {Compiler} from '../Compiler';
 import {TemplateRef} from '../Templating/TemplateRef';
-import {View} from '../Views/View';
+import {ComponentView} from '../Views/ComponentView';
 import {EmbeddedView} from '../Views/EmbeddedView';
 
 
@@ -16,7 +16,7 @@ export class IfDirective implements OnUpdate, OnDestroy
 
 	private compiler: Compiler;
 
-	private view: View;
+	private view: ComponentView;
 
 	private templateRef: TemplateRef;
 
@@ -28,7 +28,7 @@ export class IfDirective implements OnUpdate, OnDestroy
 	public condition: string;
 
 
-	constructor(compiler: Compiler, view: View, templateRef: TemplateRef)
+	constructor(compiler: Compiler, view: ComponentView, templateRef: TemplateRef)
 	{
 		this.compiler = compiler;
 		this.view = view;

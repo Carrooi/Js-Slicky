@@ -1,7 +1,7 @@
 import {AbstractView} from './AbstractView';
 import {TemplateRef} from './../Templating/TemplateRef';
 import {ElementRef} from './../Templating/ElementRef';
-import {View} from './View';
+import {ComponentView} from './ComponentView';
 import {Dom} from './../Util/Dom';
 
 
@@ -16,7 +16,7 @@ export class EmbeddedView extends AbstractView
 	private attached: boolean = false;
 
 
-	constructor(view: View, templateRef: TemplateRef)
+	constructor(view: ComponentView, templateRef: TemplateRef)
 	{
 		super(view);
 
@@ -75,13 +75,13 @@ export class EmbeddedView extends AbstractView
 	}
 
 
-	public getView(): View
+	public getView(): ComponentView
 	{
-		if (!(this.parent instanceof View)) {
+		if (!(this.parent instanceof ComponentView)) {
 			throw new Error('Unexpected error in EmbeddedView.');
 		}
 
-		return <View>this.parent;
+		return <ComponentView>this.parent;
 	}
 
 }

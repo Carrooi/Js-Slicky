@@ -1,8 +1,7 @@
-import {Application, Compiler, View, ApplicationView, Component, Directive, ElementRef, Filter, Input, OnInit} from '../../core';
+import {Application, Compiler, ComponentView, ApplicationView, Component, Directive, ElementRef, Filter, Input, OnInit} from '../../core';
 import {IfDirective, ForDirective} from '../../common';
 import {Container} from '../../di';
 import {Dom} from '../../utils';
-import {ControllerView} from '../../src/Entity/ControllerView';
 
 
 import chai = require('chai');
@@ -154,9 +153,9 @@ describe('#Compiler/template', () => {
 			let parentEl = <HTMLDivElement>parent.children[0];
 			let childEl = parentEl.children[0];
 
-			let view: View = ElementRef.getByNode(childEl).view;
+			let view: ComponentView = ElementRef.getByNode(childEl).view;
 
-			expect((<ControllerView>view.entities[0]).instance.parent).to.be.an.instanceof(Parent);
+			expect(view.component.parent).to.be.an.instanceof(Parent);
 		});
 
 		it('should throw an error when trying to add unknown property', () => {
@@ -425,8 +424,8 @@ describe('#Compiler/template', () => {
 			compiler.compile(view);
 			view.watcher.run();
 
-			let innerView = <View>view.children[0].children[0];
-			let component: Test = (<any>innerView.entities[0]).instance;
+			let innerView = <ComponentView>view.children[0].children[0];
+			let component: Test = innerView.component;
 
 			expect(component.upperCasedInput).to.be.equal('hello');
 
@@ -458,8 +457,8 @@ describe('#Compiler/template', () => {
 			compiler.compile(view);
 			view.watcher.run();
 
-			let innerView = <View>view.children[0].children[0];
-			let component: Test = (<any>innerView.entities[0]).instance;
+			let innerView = <ComponentView>view.children[0].children[0];
+			let component: Test = innerView.component;
 
 			expect(component.input).to.be.equal('hello');
 
@@ -758,8 +757,8 @@ describe('#Compiler/template', () => {
 
 			compiler.compile(view);
 
-			let appView = view.children[0];
-			let app = <App>appView['entities'][0].instance;
+			let appView = <ComponentView>view.children[0];
+			let app = <App>appView.component;
 
 			expect(app.data).to.be.eql({'a.b.c': 'hello'});
 		});

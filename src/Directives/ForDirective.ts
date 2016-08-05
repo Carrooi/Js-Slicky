@@ -3,7 +3,7 @@ import {Compiler} from '../Compiler';
 import {OnChange, OnDestroy} from '../Interfaces';
 import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
-import {View} from '../Views/View';
+import {ComponentView} from '../Views/ComponentView';
 import {EmbeddedView} from '../Views/EmbeddedView';
 import {ForParser, ForToken} from'../Parsers/ForParser';
 import {Code} from '../Util/Code';
@@ -21,7 +21,7 @@ export class ForDirective implements OnChange, OnDestroy
 
 	private compiler: Compiler;
 
-	private view: View;
+	private view: ComponentView;
 
 	private templateRef: TemplateRef;
 
@@ -37,7 +37,7 @@ export class ForDirective implements OnChange, OnDestroy
 	public loop: any;
 
 
-	constructor(compiler: Compiler, el: ElementRef, view: View, templateRef: TemplateRef)
+	constructor(compiler: Compiler, el: ElementRef, view: ComponentView, templateRef: TemplateRef)
 	{
 		this.compiler = compiler;
 		this.view = view;

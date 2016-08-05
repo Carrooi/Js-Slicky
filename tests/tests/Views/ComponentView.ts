@@ -1,9 +1,8 @@
-import {View, Component, ElementRef, TemplateRef, Filter} from '../../../core';
+import {ComponentView, Component, Directive, ElementRef, TemplateRef, Filter} from '../../../core';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 import {ControllerParser} from '../../../src/Entity/ControllerParser';
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
-import {ControllerView} from '../../../src/Entity/ControllerView';
 
 import chai = require('chai');
 
@@ -11,12 +10,12 @@ import chai = require('chai');
 let expect = chai.expect;
 
 
-describe('#Views/View', () => {
+describe('#Views/ComponentView', () => {
 
 	describe('fork()', () => {
 
 		it('should return forked view', () => {
-			let view = new View(new ElementRef(document.createElement('div')), {a: 1});
+			let view = new ComponentView(new ElementRef(document.createElement('div')), {a: 1});
 
 			view.directives = [{}, {}];
 			view.filters = {a: () => {}, b: () => {}};
@@ -51,42 +50,42 @@ describe('#Views/View', () => {
 			})
 			class Controller {}
 
+			let component = new Controller;
 			let container = new Container;
-			let view = new View(new ElementRef(document.createElement('div')), {a: 1});
+			let view = new ComponentView(new ElementRef(document.createElement('div')), {a: 1});
 			let metadata = ControllerParser.getControllerMetadata(Controller);
 			let definition = ControllerParser.parse(Controller, metadata);
 
-			view.updateWithController(container, definition);
+			view.setComponent(container, definition, component);
 
 			expect(view.parameters).to.be.eql({
-				a: 1
+				a: 1,
+				test: component,
 			});
 
 			expect(view.directives).to.be.eql(directives);
 			expect(view.filters).to.contain.keys(['a']);
 			expect(view.filters['a']).to.be.an.instanceof(TestFilter);
-			expect(view.entities).to.be.eql([]);
+			expect(view.attachedDirectives).to.be.eql([]);
+			expect(view.component).to.be.an.instanceof(Controller);
 		});
 
 	});
 
 	describe('useDirective()', () => {
 
-		it('should update values with data from controller', () => {
-			@Component({
+		it('should attach new directive', () => {
+			@Directive({
 				selector: '[test]',
-				controllerAs: 'test',
 			})
-			class Controller {}
+			class Test {}
 
-			let view = new View(new ElementRef(document.createElement('div')), {a: 1});
-			let controller = new Controller;
-			let metadata = ControllerParser.getControllerMetadata(Controller);
-			let definition = ControllerParser.parse(Controller, metadata);
+			let view = new ComponentView(new ElementRef(document.createElement('div')), {a: 1});
+			let test = new Test;
 
-			view.attachDirective(definition, controller);
+			view.attachDirective(test);
 
-			expect((<ControllerView>view.entities[0]).instance).to.be.eql(controller);
+			expect(view.attachedDirectives[0]).to.be.eql(test);
 		});
 
 	});
@@ -101,7 +100,7 @@ describe('#Views/View', () => {
 			let elementRef = new ElementRef(el);
 			let templateElementRef = new ElementRef(template);
 			let templateRef = new TemplateRef(templateElementRef);
-			let view = new View(elementRef);
+			let view = new ComponentView(elementRef);
 
 			view.createEmbeddedView(templateRef);
 			templateElementRef.remove();
@@ -115,7 +114,7 @@ describe('#Views/View', () => {
 
 		it('should notify about changes in parameter', (done) => {
 			let el = ElementRef.getByNode(document.createElement('div'));
-			let view = new View(el, {
+			let view = new ComponentView(el, {
 				a: 'hello',
 			});
 

@@ -1,6 +1,6 @@
 import {PluralForms} from './PluralForms';
 import {Injectable} from '../DI/Metadata';
-import {View} from '../Views/View';
+import {ComponentView} from '../Views/ComponentView';
 import {Code} from '../Util/Code';
 import {Helpers} from '../Util/Helpers';
 import {VariableParser} from '../Parsers/VariableParser';
@@ -22,7 +22,7 @@ export class Translator
 	private pluralForms = PluralForms;
 
 
-	public translate(view: View, msg: string, count: number = null, params: ParamsList = {}): string
+	public translate(view: ComponentView, msg: string, count: number = null, params: ParamsList = {}): string
 	{
 		if (typeof msg !== 'string') {
 			return msg;

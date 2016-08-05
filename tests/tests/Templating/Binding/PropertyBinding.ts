@@ -1,4 +1,4 @@
-import {Application, Compiler, View, ElementRef} from '../../../../core';
+import {Application, Compiler, ComponentView, ElementRef} from '../../../../core';
 import {Container} from '../../../../di';
 import {Dom} from '../../../../utils';
 import {PropertyBinding} from '../../../../src/Templating/Binding/PropertyBinding';
@@ -28,7 +28,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				hello: 'good day',
 			});
 
@@ -43,7 +43,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				obj: {
 					greetings: ['good day'],
 				},
@@ -60,7 +60,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,
@@ -75,7 +75,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 		it("should bind value to element's inner html", () => {
 			let el = Dom.el('<div [innerHTML]="hello"></div>');
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				hello: 'good day',
 			});
 
@@ -90,7 +90,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el.style.border).to.be.equal('');
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				border: '1px solid red',
 			});
 
@@ -105,7 +105,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el.style.border).to.be.equal('1px solid red');
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				border: false,
 			});
 
@@ -120,7 +120,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el.classList.contains('alert')).to.be.equal(false);
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				hasAlert: true,
 			});
 
@@ -135,7 +135,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el.classList.contains('alert')).to.be.equal(true);
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				hasAlert: false,
 			});
 
@@ -150,7 +150,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				hello: 'good day',
 			});
 
@@ -174,7 +174,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				a: [
 					{
 						b: 'good day',
@@ -206,7 +206,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new View(new ElementRef(el), {
+			let view = new ComponentView(new ElementRef(el), {
 				hello: 'good day',
 			});
 
@@ -223,7 +223,6 @@ describe('#Templating/Binding/PropertyBinding', () => {
 				expect(el['test']).to.be.equal('nope');
 
 				view.detach();
-
 				view.parameters['hello'] = 'yes';
 
 				setTimeout(() => {
