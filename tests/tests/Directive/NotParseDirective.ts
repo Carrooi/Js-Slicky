@@ -1,6 +1,7 @@
 import {Application, Compiler, ApplicationView, Component} from '../../../core';
 import {NotParseDirective} from '../../../common';
 import {Container} from '../../../di';
+import {Dom} from '../../../utils';
 
 import chai = require('chai');
 
@@ -26,17 +27,14 @@ describe('#Directives/NotParseDirective', () => {
 		})
 		class Test {}
 
-		let parent = document.createElement('div');
-
-		parent.innerHTML = '<div test>{{ a }}, <span>{{ a }}</span>, <span [s:not-parse]>{{ a }}</span></div>';
-
-		let view = new ApplicationView(parent, Test, {
+		let el = Dom.el('<div><div test>{{ a }}, <span>{{ a }}</span>, <span [s:not-parse]>{{ a }}</span></div></div>');
+		let view = new ApplicationView(el, Test, {
 			a: 42,
 		});
 
 		compiler.compile(view);
 
-		expect(parent.innerText).to.be.equal('42, 42, {{ a }}');
+		expect(el.innerText).to.be.equal('42, 42, {{ a }}');
 	});
 
 });

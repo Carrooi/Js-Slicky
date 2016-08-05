@@ -34,9 +34,7 @@ describe('#Compiler/template', () => {
 				public days: number = 2;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
-
+			let parent = Dom.el('<div><div test></div></div>');
 			let el = <HTMLDivElement>parent.children[0];
 
 			compiler.compile(new ApplicationView(parent, Test));
@@ -60,9 +58,7 @@ describe('#Compiler/template', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
-
+			let parent = Dom.el('<div><div test></div></div>');
 			let view = new ApplicationView(parent, Test);
 			let el = <HTMLDivElement>parent.children[0];
 
@@ -84,9 +80,7 @@ describe('#Compiler/template', () => {
 			})
 			class Test {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
-
+			let parent = Dom.el('<div><div test></div></div>');
 			let el = <HTMLDivElement>parent.children[0];
 			let view = new ApplicationView(parent, Test);
 
@@ -129,8 +123,7 @@ describe('#Compiler/template', () => {
 				public type = 'outer';
 			}
 
-			let el = document.createElement('div');
-			el.innerHTML = '<div parent></div>';
+			let el = Dom.el('<div><div parent></div></div>');
 
 			compiler.compile(new ApplicationView(el, Parent));
 
@@ -154,8 +147,7 @@ describe('#Compiler/template', () => {
 			})
 			class Parent {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div parent></div>';
+			let parent = Dom.el('<div><div parent></div></div>');
 
 			compiler.compile(new ApplicationView(parent, Parent));
 
@@ -173,8 +165,7 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div app [unknown-prop]="a"></div>';
+			let parent = Dom.el('<div><div app [unknown-prop]="a"></div></div>');
 
 			expect(() => {
 				compiler.compile(new ApplicationView(parent, App));
@@ -198,8 +189,7 @@ describe('#Compiler/template', () => {
 				}
 			}
 
-			let el = document.createElement('div');
-			el.innerHTML = '<div test></div>';
+			let el = Dom.el('<div><div test></div></div>');
 
 			compiler.compile(new ApplicationView(el, Test));
 
@@ -225,8 +215,7 @@ describe('#Compiler/template', () => {
 				number = 1;
 			}
 
-			let el = document.createElement('div');
-			el.innerHTML = '<div test></div>';
+			let el = Dom.el('<div><div test></div></div>');
 
 			compiler.compile(new ApplicationView(el, Test));
 
@@ -251,8 +240,7 @@ describe('#Compiler/template', () => {
 			})
 			class TestComponent {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
+			let parent = Dom.el('<div><div test></div></div>');
 
 			compiler.compile(new ApplicationView(parent, TestComponent));
 
@@ -269,8 +257,7 @@ describe('#Compiler/template', () => {
 				s = 'LOREM';
 			}
 
-			let el = document.createElement('div');
-			el.innerHTML = '<div test></div>';
+			let el = Dom.el('<div><div test></div></div>');
 
 			compiler.compile(new ApplicationView(el, Test));
 
@@ -297,8 +284,7 @@ describe('#Compiler/template', () => {
 				num = 1;
 			}
 
-			let el = document.createElement('div');
-			el.innerHTML = '<div test></div>';
+			let el = Dom.el('<div><div test></div></div>');
 
 			compiler.compile(new ApplicationView(el, Test));
 
@@ -332,8 +318,7 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let el = document.createElement('div');
-			el.innerHTML = '<app></app>';
+			let el = Dom.el('<div><app></app></div>');
 
 			compiler.compile(new ApplicationView(el, App));
 
@@ -360,8 +345,7 @@ describe('#Compiler/template', () => {
 			})
 			class Root {}
 
-			let el = document.createElement('div');
-			el.innerHTML = '<div root></div>';
+			let el = Dom.el('<div><div root></div></div>');
 
 			compiler.compile(new ApplicationView(el, Root));
 
@@ -387,9 +371,7 @@ describe('#Compiler/template', () => {
 				public num = 20;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div app>num: {{ app.num }} / <div test></div></div>';
-
+			let parent = Dom.el('<div><div app>num: {{ app.num }} / <div test></div></div></div>');
 			let el = <HTMLDivElement>parent.children[0];
 
 			compiler.compile(new ApplicationView(parent, Main));
@@ -415,9 +397,7 @@ describe('#Compiler/template', () => {
 				public num = 20;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div app>num: {{ app.num }} / <div test>num: {{ app.num / test.num }}</div></div>';
-
+			let parent = Dom.el('<div><div app>num: {{ app.num }} / <div test>num: {{ app.num / test.num }}</div></div></div>');
 			let el = <HTMLDivElement>parent.children[0];
 
 			compiler.compile(new ApplicationView(parent, Main));
@@ -439,9 +419,7 @@ describe('#Compiler/template', () => {
 			})
 			class Main {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div app><div test [upperCasedInput]="a"></div></div>';
-
+			let parent = Dom.el('<div><div app><div test [upperCasedInput]="a"></div></div></div>');
 			var view = new ApplicationView(parent, Main, {a: 'hello'});
 
 			compiler.compile(view);
@@ -474,9 +452,7 @@ describe('#Compiler/template', () => {
 			})
 			class Main {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div app><div test [input]="a"></div></div>';
-
+			let parent = Dom.el('<div><div app><div test [input]="a"></div></div></div>');
 			var view = new ApplicationView(parent, Main, {a: 'hello'});
 
 			compiler.compile(view);
@@ -503,9 +479,7 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -537,9 +511,7 @@ describe('#Compiler/template', () => {
 				items = ['a', 'b', 'c'];
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -569,9 +541,7 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			view.parameters['a'] = 'hello';
@@ -603,9 +573,7 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			view.parameters['list'] = ['hello'];
@@ -655,9 +623,7 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -705,9 +671,7 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -737,9 +701,7 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			view.parameters['items'] = ['a', 'b'];
@@ -761,9 +723,7 @@ describe('#Compiler/template', () => {
 				};
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -791,9 +751,7 @@ describe('#Compiler/template', () => {
 				data = null;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app [data]=\'{"a.b.c": "hello"}\'></app>';
-
+			let parent = Dom.el('<div><app [data]=\'{"a.b.c": "hello"}\'></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			view.parameters = {a: 'test'};

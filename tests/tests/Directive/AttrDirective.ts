@@ -1,6 +1,7 @@
 import {AttrDirective} from '../../../common';
 import {Application, Compiler, View, ElementRef} from '../../../core';
 import {Container} from '../../../di';
+import {Dom} from '../../../utils';
 
 import chai = require('chai');
 
@@ -20,14 +21,10 @@ describe('#Directives/AttrDirective', () => {
 	});
 
 	it('should add attribute', () => {
-		let parent = document.createElement('div');
-		parent.innerHTML = '<span [s:attr]="{test: true}"></span>';
-
-		let el = <HTMLElement>parent.children[0];
+		let el = Dom.el('<span [s:attr]="{test: true}"></span>');
 		let elementRef = new ElementRef(el);
 
 		let view = new View(elementRef);
-
 		view.directives.push(AttrDirective);
 
 		expect(el['test']).to.be.equal(undefined);

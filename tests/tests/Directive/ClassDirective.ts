@@ -1,6 +1,7 @@
 import {ClassDirective} from '../../../common';
 import {Application, Compiler, View, ElementRef} from '../../../core';
 import {Container} from '../../../di';
+import {Dom} from '../../../utils';
 
 import chai = require('chai');
 
@@ -20,14 +21,10 @@ describe('#Directives/ClassDirective', () => {
 	});
 
 	it('should add new css class', () => {
-		let parent = document.createElement('div');
-		parent.innerHTML = '<span [s:class]="{icon: true}"></span>';
-
-		let el = <HTMLElement>parent.children[0];
+		let el = Dom.el('<span [s:class]="{icon: true}"></span>');
 		let elementRef = new ElementRef(el);
 
 		let view = new View(elementRef);
-
 		view.directives.push(ClassDirective);
 
 		expect(el.classList.contains('icon')).to.be.equal(false);
@@ -38,14 +35,10 @@ describe('#Directives/ClassDirective', () => {
 	});
 
 	it('should remove existing css class', () => {
-		let parent = document.createElement('div');
-		parent.innerHTML = '<span [s:class]="{icon: false}" class="icon"></span>';
-
-		let el = <HTMLElement>parent.children[0];
+		let el = Dom.el('<span [s:class]="{icon: false}" class="icon"></span>');
 		let elementRef = new ElementRef(el);
 
 		let view = new View(elementRef);
-
 		view.directives.push(ClassDirective);
 
 		expect(el.classList.contains('icon')).to.be.equal(true);

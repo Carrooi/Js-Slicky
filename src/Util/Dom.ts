@@ -2,6 +2,18 @@ export class Dom
 {
 
 
+	public static el(html: string): HTMLElement
+	{
+		let parent = document.createElement('div');
+		parent.innerHTML = html;
+
+		let el = parent.children[0];
+		parent.removeChild(el);
+
+		return <HTMLElement>el;
+	}
+
+
 	public static querySelector(selector: string, parent?: Element): Element
 	{
 		if (parent) {

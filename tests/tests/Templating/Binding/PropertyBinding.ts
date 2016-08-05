@@ -1,5 +1,6 @@
 import {Application, Compiler, View, ElementRef} from '../../../../core';
 import {Container} from '../../../../di';
+import {Dom} from '../../../../utils';
 import {PropertyBinding} from '../../../../src/Templating/Binding/PropertyBinding';
 import {ExpressionParser} from '../../../../src/Parsers/ExpressionParser';
 
@@ -23,10 +24,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 	describe('bind()', () => {
 
 		it("should bind simple value to element's property", () => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div [test]="hello"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div [test]="hello"></div>');
 
 			expect(el['test']).to.be.equal(undefined);
 
@@ -35,17 +33,13 @@ describe('#Templating/Binding/PropertyBinding', () => {
 			});
 
 			let binding = new PropertyBinding(el, 'test');
-
 			view.attachBinding(binding, ExpressionParser.precompile('hello'));
 
 			expect(el['test']).to.be.equal('good day');
 		});
 
 		it("should bind nested value to element's property", () => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div [test]="obj.greetings[0]"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div [test]="obj.greetings[0]"></div>');
 
 			expect(el['test']).to.be.equal(undefined);
 
@@ -56,17 +50,13 @@ describe('#Templating/Binding/PropertyBinding', () => {
 			});
 
 			let binding = new PropertyBinding(el, 'test');
-
 			view.attachBinding(binding, ExpressionParser.precompile('obj.greetings[0]'));
 
 			expect(el['test']).to.be.equal('good day');
 		});
 
 		it("should bind result of expression to element's property", () => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div [test]="a + b + c"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div [test]="a + b + c"></div>');
 
 			expect(el['test']).to.be.equal(undefined);
 
@@ -77,34 +67,26 @@ describe('#Templating/Binding/PropertyBinding', () => {
 			});
 
 			let binding = new PropertyBinding(el, 'test');
-
 			view.attachBinding(binding, ExpressionParser.precompile('a + b + c'));
 
 			expect(el['test']).to.be.equal(6);
 		});
 
 		it("should bind value to element's inner html", () => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div [innerHTML]="hello"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div [innerHTML]="hello"></div>');
 
 			let view = new View(new ElementRef(el), {
 				hello: 'good day',
 			});
 
 			let binding = new PropertyBinding(el, 'innerHTML');
-
 			view.attachBinding(binding, ExpressionParser.precompile('hello'));
 
 			expect(el.innerHTML).to.be.equal('good day');
 		});
 
 		it('should bind style to element', () => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div [style.border]="border"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div [style.border]="border"></div>');
 
 			expect(el.style.border).to.be.equal('');
 
@@ -113,17 +95,13 @@ describe('#Templating/Binding/PropertyBinding', () => {
 			});
 
 			let binding = new PropertyBinding(el, 'style.border');
-
 			view.attachBinding(binding, ExpressionParser.precompile('border'));
 
 			expect(el.style.border).to.be.equal('1px solid red');
 		});
 
 		it('should remove style from element', () => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div [style.border]="border" style="border: 1px solid red;"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div [style.border]="border" style="border: 1px solid red;"></div>');
 
 			expect(el.style.border).to.be.equal('1px solid red');
 
@@ -132,17 +110,13 @@ describe('#Templating/Binding/PropertyBinding', () => {
 			});
 
 			let binding = new PropertyBinding(el, 'style.border');
-
 			view.attachBinding(binding, ExpressionParser.precompile('border'));
 
 			expect(el.style.border).to.be.equal('');
 		});
 
 		it('should bind css class to element', () => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div [class.alert]="hasAlert"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div [class.alert]="hasAlert"></div>');
 
 			expect(el.classList.contains('alert')).to.be.equal(false);
 
@@ -151,17 +125,13 @@ describe('#Templating/Binding/PropertyBinding', () => {
 			});
 
 			let binding = new PropertyBinding(el, 'class.alert');
-
 			view.attachBinding(binding, ExpressionParser.precompile('hasAlert'));
 
 			expect(el.classList.contains('alert')).to.be.equal(true);
 		});
 
 		it('should remove css class from element', () => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div [class.alert]="hasAlert" class="alert"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div [class.alert]="hasAlert" class="alert"></div>');
 
 			expect(el.classList.contains('alert')).to.be.equal(true);
 
@@ -170,17 +140,13 @@ describe('#Templating/Binding/PropertyBinding', () => {
 			});
 
 			let binding = new PropertyBinding(el, 'class.alert');
-
 			view.attachBinding(binding, ExpressionParser.precompile('hasAlert'));
 
 			expect(el.classList.contains('alert')).to.be.equal(false);
 		});
 
 		it("should bind and update simple value in element's property", (done) => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div [test]="hello"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div [test]="hello"></div>');
 
 			expect(el['test']).to.be.equal(undefined);
 
@@ -191,7 +157,6 @@ describe('#Templating/Binding/PropertyBinding', () => {
 			view.watcher.run();
 
 			let binding = new PropertyBinding(el, 'test');
-
 			view.attachBinding(binding, ExpressionParser.precompile('hello'));
 
 			expect(el['test']).to.be.equal('good day');
@@ -205,10 +170,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 		});
 
 		it("should bind and update nested value in element's property", (done) => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div [test]="a[0].b"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div [test]="a[0].b"></div>');
 
 			expect(el['test']).to.be.equal(undefined);
 
@@ -223,7 +185,6 @@ describe('#Templating/Binding/PropertyBinding', () => {
 			view.watcher.run();
 
 			let binding = new PropertyBinding(el, 'test');
-
 			view.attachBinding(binding, ExpressionParser.precompile('a[0].b'));
 
 			expect(el['test']).to.be.equal('good day');
@@ -241,10 +202,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 	describe('unbind()', () => {
 
 		it("should stop watching for changes", (done) => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div [test]="hello"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div [test]="hello"></div>');
 
 			expect(el['test']).to.be.equal(undefined);
 
@@ -255,7 +213,6 @@ describe('#Templating/Binding/PropertyBinding', () => {
 			view.watcher.run();
 
 			let binding = new PropertyBinding(el, 'test');
-
 			view.attachBinding(binding, ExpressionParser.precompile('hello'));
 
 			expect(el['test']).to.be.equal('good day');

@@ -1,5 +1,6 @@
 import {Application, Compiler, View, ElementRef} from '../../../../core';
 import {Container} from '../../../../di';
+import {Dom} from '../../../../utils';
 import {AttributeBinding} from '../../../../src/Templating/Binding/AttributeBinding';
 import {ExpressionParser} from '../../../../src/Parsers/ExpressionParser';
 
@@ -23,10 +24,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 	describe('bind()', () => {
 
 		it("should bind simple value to element's property", () => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test="{{ hello }}"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div test="{{ hello }}"></div>');
 
 			expect(el['test']).to.be.equal(undefined);
 
@@ -42,10 +40,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 		});
 
 		it("should bind result of expression to element's property", () => {
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test="{{ a + b + c }}"></div>';
-
-			let el = <HTMLElement>parent.childNodes[0];
+			let el = Dom.el('<div test="{{ a + b + c }}"></div>');
 
 			expect(el['test']).to.be.equal(undefined);
 

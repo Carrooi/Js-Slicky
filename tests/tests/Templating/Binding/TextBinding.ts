@@ -1,5 +1,6 @@
 import {Application, Compiler, View, ElementRef} from '../../../../core';
 import {Container} from '../../../../di';
+import {Dom} from '../../../../utils';
 import {TextBinding} from '../../../../src/Templating/Binding/TextBinding';
 import {ExpressionParser} from '../../../../src/Parsers/ExpressionParser';
 
@@ -23,11 +24,7 @@ describe('#Templating/Binding/TextBinding', () => {
 	describe('bind()', () => {
 
 		it('should evaluate expression in html', () => {
-			let text = document.createTextNode('');
-			let el = document.createElement('div');
-
-			el.appendChild(text);
-
+			let el = Dom.el('<div> </div>');
 			let view = new View(new ElementRef(el), {
 				a: 1,
 				b: 2,
@@ -35,7 +32,7 @@ describe('#Templating/Binding/TextBinding', () => {
 			});
 
 			let expr = ExpressionParser.precompile('a + b + c - 2');
-			let binding = new TextBinding(text, expr, view);
+			let binding = new TextBinding(<Text>el.childNodes[0], expr, view);
 
 			view.attachBinding(binding, expr);
 
@@ -43,12 +40,7 @@ describe('#Templating/Binding/TextBinding', () => {
 		});
 
 		it('should change property when it is changed', (done) => {
-			var code = 'a + b + c - 2';
-			let text = document.createTextNode(code);
-			let el = document.createElement('div');
-
-			el.appendChild(text);
-
+			let el = Dom.el('<div>a + b + c - 2</div>');
 			let view = new View(new ElementRef(el), {
 				a: 1,
 				b: 2,
@@ -57,8 +49,8 @@ describe('#Templating/Binding/TextBinding', () => {
 
 			view.watcher.run();
 
-			var expr = ExpressionParser.precompile(code);
-			let binding = new TextBinding(text, expr, view);
+			var expr = ExpressionParser.precompile('a + b + c - 2');
+			let binding = new TextBinding(<Text>el.childNodes[0], expr, view);
 
 			view.attachBinding(binding, expr);
 
@@ -77,12 +69,7 @@ describe('#Templating/Binding/TextBinding', () => {
 	describe('unbind()', () => {
 
 		it('should change property and stop watching for changes', (done) => {
-			let code = 'a + b + c - 2';
-			let text = document.createTextNode(code);
-			let el = document.createElement('div');
-
-			el.appendChild(text);
-
+			let el = Dom.el('<div>a + b + c - 2</div>');
 			let view = new View(new ElementRef(el), {
 				a: 1,
 				b: 2,
@@ -91,8 +78,8 @@ describe('#Templating/Binding/TextBinding', () => {
 
 			view.watcher.run();
 
-			let expr = ExpressionParser.precompile(code);
-			let binding = new TextBinding(text, expr, view);
+			let expr = ExpressionParser.precompile('a + b + c - 2');
+			let binding = new TextBinding(<Text>el.childNodes[0], expr, view);
 
 			view.attachBinding(binding, expr);
 
@@ -108,7 +95,7 @@ describe('#Templating/Binding/TextBinding', () => {
 				view.parameters['c']--;
 
 				setTimeout(() => {
-					expect(el.innerHTML).to.be.equal('{{ ' + code + ' }}');
+					expect(el.innerHTML).to.be.equal('{{ a + b + c - 2 }}');
 					done();
 				}, 100);
 			}, 100);

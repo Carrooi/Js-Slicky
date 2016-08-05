@@ -1,4 +1,5 @@
 import {View, EmbeddedView, ElementRef, TemplateRef} from '../../../core';
+import {Dom} from '../../../utils';
 
 import chai = require('chai');
 
@@ -14,19 +15,14 @@ describe('#Views/EmbeddedView', () => {
 			let markerHTML = '<!-- marker -->';
 			let templateHTML = '<i>i</i><!-- comment -->text<b>b</b>';
 
-			let el = document.createElement('div');
-			el.innerHTML = markerHTML;
-
+			let el = Dom.el('<div>' + markerHTML + '</div>');
+			let template = Dom.el('<template>' + templateHTML + '</template>');
 			let marker = <Comment>el.childNodes[0];
-
-			let template = document.createElement('template');
-			template.innerHTML = templateHTML;
 
 			let elementRef = new ElementRef(template);
 			let templateRef = new TemplateRef(elementRef);
 
 			let view = new View(elementRef);
-
 			let embeddedView = new EmbeddedView(view, templateRef);
 
 			embeddedView.attach(marker);
@@ -39,13 +35,9 @@ describe('#Views/EmbeddedView', () => {
 			let markerHTML = '<!-- marker -->';
 			let templateHTML = '<i>i</i><!-- comment -->text<b>b</b>';
 
-			let el = document.createElement('div');
-			el.innerHTML = markerHTML;
-
+			let el = Dom.el('<div>' + markerHTML + '</div>');
+			let template = Dom.el('<template>' + templateHTML + '</template>');
 			let marker = <Comment>el.childNodes[0];
-
-			let template = document.createElement('template');
-			template.innerHTML = templateHTML;
 
 			let elementRef = new ElementRef(template);
 			let templateRef = new TemplateRef(elementRef);

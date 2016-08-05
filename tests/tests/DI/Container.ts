@@ -119,7 +119,7 @@ describe('#DI/Container', () => {
 				useFactory: () => {
 					return new Test1;
 				}
-			})
+			});
 
 			expect(container.get(Test1)).to.be.an.instanceOf(Test1);
 		});

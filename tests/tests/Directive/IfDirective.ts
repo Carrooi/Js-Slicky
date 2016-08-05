@@ -1,6 +1,7 @@
 import {Application, Compiler, View, Component, ElementRef, OnInit, OnDestroy} from '../../../core';
 import {IfDirective} from '../../../common';
 import {Container} from '../../../di';
+import {Dom} from '../../../utils';
 
 import chai = require('chai');
 
@@ -20,64 +21,55 @@ describe('#Directives/IfDirective', () => {
 	});
 
 	it('should bind new element', (done) => {
-		let parent = document.createElement('div');
-		parent.innerHTML = '<template [s:if]="!a">hello</template>';
-
-		let elementRef = ElementRef.getByNode(parent);
-		let view = new View(elementRef);
+		let el = Dom.el('<div><template [s:if]="!a">hello</template></div>');
+		let view = new View(ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.parameters['a'] = false;
 
-		compiler.compileElement(view, parent);
+		compiler.compileElement(view, el);
 
 		setTimeout(() => {
-			expect(parent.innerText).to.be.equal('hello');
+			expect(el.innerText).to.be.equal('hello');
 			done();
 		}, 100);
 	});
 
 	it('should not bind new element', (done) => {
-		let parent = document.createElement('div');
-		parent.innerHTML = '<template [s:if]="!a">hello</template>';
-
-		let elementRef = ElementRef.getByNode(parent);
-		let view = new View(elementRef);
+		let el = Dom.el('<div><template [s:if]="!a">hello</template></div>');
+		let view = new View(ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.parameters['a'] = true;
 
-		compiler.compileElement(view, parent);
+		compiler.compileElement(view, el);
 
 		setTimeout(() => {
-			expect(parent.innerText).to.be.equal('');
+			expect(el.innerText).to.be.equal('');
 			done();
 		}, 100);
 	});
 
 	it('should bind new element after a while and unbind it again', (done) => {
-		let parent = document.createElement('div');
-		parent.innerHTML = '<template [s:if]="!a">hello</template>';
-
-		let elementRef = ElementRef.getByNode(parent);
-		let view = new View(elementRef);
+		let el = Dom.el('<div><template [s:if]="!a">hello</template></div>');
+		let view = new View(ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.parameters['a'] = true;
 
-		compiler.compileElement(view, parent);
+		compiler.compileElement(view, el);
 		view.watcher.run();
 
 		setTimeout(() => {
-			expect(parent.innerText).to.be.equal('');
+			expect(el.innerText).to.be.equal('');
 			view.parameters['a'] = false;
 
 			setTimeout(() => {
-				expect(parent.innerText).to.be.equal('hello');
+				expect(el.innerText).to.be.equal('hello');
 				view.parameters['a'] = true;
 
 				setTimeout(() => {
-					expect(parent.innerText).to.be.equal('');
+					expect(el.innerText).to.be.equal('');
 					done();
 				}, 100);
 			}, 100);
@@ -96,21 +88,18 @@ describe('#Directives/IfDirective', () => {
 			}
 		}
 
-		let parent = document.createElement('div');
-		parent.innerHTML = '<template [s:if]="!a"><div test>hello</div></template>';
-
-		let elementRef = ElementRef.getByNode(parent);
-		let view = new View(elementRef);
+		let el = Dom.el('<div><template [s:if]="!a"><div test>hello</div></template></div>');
+		let view = new View(ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);
 		view.parameters['a'] = true;
 
-		compiler.compileElement(view, parent);
+		compiler.compileElement(view, el);
 
 		setTimeout(() => {
 			expect(called).to.be.equal(0);
-			expect(parent.innerText).to.be.equal('');
+			expect(el.innerText).to.be.equal('');
 			done();
 		}, 100);
 	});
@@ -127,21 +116,18 @@ describe('#Directives/IfDirective', () => {
 			}
 		}
 
-		let parent = document.createElement('div');
-		parent.innerHTML = '<template [s:if]="!a"><div test>hello</div></template>';
-
-		let elementRef = ElementRef.getByNode(parent);
-		let view = new View(elementRef);
+		let el = Dom.el('<div><template [s:if]="!a"><div test>hello</div></template></div>');
+		let view = new View(ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);
 		view.parameters['a'] = false;
 
-		compiler.compileElement(view, parent);
+		compiler.compileElement(view, el);
 
 		setTimeout(() => {
 			expect(called).to.be.equal(1);
-			expect(parent.innerText).to.be.equal('hello');
+			expect(el.innerText).to.be.equal('hello');
 			done();
 		}, 100);
 	});
@@ -164,44 +150,41 @@ describe('#Directives/IfDirective', () => {
 			}
 		}
 
-		let parent = document.createElement('div');
-		parent.innerHTML = '<template [s:if]="a"><div test>{{ t.s }}</div></template>';
-
-		let elementRef = ElementRef.getByNode(parent);
-		let view = new View(elementRef);
+		let el = Dom.el('<div><template [s:if]="a"><div test>{{ t.s }}</div></template></div>');
+		let view = new View(ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);
 		view.parameters['a'] = false;
 
-		compiler.compileElement(view, parent);
+		compiler.compileElement(view, el);
 		view.watcher.run();
 
 		setTimeout(() => {
 			expect(initCalled).to.be.equal(0);
 			expect(destroyCalled).to.be.equal(0);
-			expect(parent.innerText).to.be.equal('');
+			expect(el.innerText).to.be.equal('');
 
 			view.parameters['a'] = true;
 
 			setTimeout(() => {
 				expect(initCalled).to.be.equal(1);
 				expect(destroyCalled).to.be.equal(0);
-				expect(parent.innerText).to.be.equal('exists');
+				expect(el.innerText).to.be.equal('exists');
 
 				view.parameters['a'] = false;
 
 				setTimeout(() => {
 					expect(initCalled).to.be.equal(1);
 					expect(destroyCalled).to.be.equal(1);
-					expect(parent.innerText).to.be.equal('');
+					expect(el.innerText).to.be.equal('');
 
 					view.parameters['a'] = true;
 
 					setTimeout(() => {
 						expect(initCalled).to.be.equal(2);
 						expect(destroyCalled).to.be.equal(1);
-						expect(parent.innerText).to.be.equal('exists');
+						expect(el.innerText).to.be.equal('exists');
 
 						done();
 					}, 100);

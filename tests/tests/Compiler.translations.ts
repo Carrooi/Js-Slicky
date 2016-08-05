@@ -1,5 +1,6 @@
 import {Application, Compiler, Component, ApplicationView} from '../../core';
 import {Container} from '../../di';
+import {Dom} from '../../utils';
 import {Translator, TranslateFilter} from '../../translations';
 
 
@@ -38,9 +39,7 @@ describe('#Compiler/template', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -63,9 +62,7 @@ describe('#Compiler/template', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -94,9 +91,7 @@ describe('#Compiler/template', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -119,9 +114,7 @@ describe('#Compiler/template', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -144,9 +137,7 @@ describe('#Compiler/template', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -169,9 +160,7 @@ describe('#Compiler/template', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -194,9 +183,7 @@ describe('#Compiler/template', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);
@@ -229,9 +216,7 @@ describe('#Compiler/template', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<app></app>';
-
+			let parent = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(parent, App);
 
 			compiler.compile(view);

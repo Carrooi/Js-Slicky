@@ -3,7 +3,7 @@ import {
 	View, ApplicationView,
 	ElementRef,
 	Component,
-	HostEvent, HostElement, 
+	HostEvent, HostElement,
 	OnDestroy,
 	Input, Required
 } from '../../core';
@@ -35,9 +35,7 @@ describe('#Compiler', () => {
 			@Component({selector: '[test]'})
 			class Test {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
-
+			let parent = Dom.el('<div><div test></div></div>');
 			let el = parent.children[0];
 
 			compiler.compile(new ApplicationView(parent, Test));
@@ -58,9 +56,7 @@ describe('#Compiler', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
-
+			let parent = Dom.el('<div><div test></div></div>');
 			let view = new ApplicationView(parent, Test);
 
 			compiler.compile(view);
@@ -74,9 +70,7 @@ describe('#Compiler', () => {
 			@Component({selector: '[test]', template: 'lorem ipsum'})
 			class Test {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
-
+			let parent = Dom.el('<div><div test></div></div>');
 			let el = <HTMLDivElement>parent.children[0];
 
 			compiler.compile(new ApplicationView(parent, Test));
@@ -91,9 +85,7 @@ describe('#Compiler', () => {
 				public input1: string;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test [input1]="\'hello\'"></div>';
-
+			let parent = Dom.el('<div><div test [input1]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
 			let view = new View(elementRef);
 
@@ -117,9 +109,7 @@ describe('#Compiler', () => {
 				public test: string;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test="hello"></div>';
-
+			let parent = Dom.el('<div><div test="hello"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
 			let view = new View(elementRef);
 
@@ -143,9 +133,7 @@ describe('#Compiler', () => {
 				public input1: string;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test [data-input1]="\'hello\'"></div>';
-
+			let parent = Dom.el('<div><div test [data-input1]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
 			let view = new View(elementRef);
 
@@ -169,9 +157,7 @@ describe('#Compiler', () => {
 				public input1: string;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
-
+			let parent = Dom.el('<div><div test></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
 			let view = new View(elementRef);
 
@@ -195,9 +181,7 @@ describe('#Compiler', () => {
 				public input1: string = 'bye';
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
-
+			let parent = Dom.el('<div><div test></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
 			let view = new View(elementRef);
 
@@ -222,9 +206,7 @@ describe('#Compiler', () => {
 				public input;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test [input]="\'hello\'"></div>';
-
+			let parent = Dom.el('<div><div test [input]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
 			let view = new View(elementRef);
 
@@ -249,8 +231,7 @@ describe('#Compiler', () => {
 				public input;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
+			let parent = Dom.el('<div><div test></div></div>');
 
 			expect(() => {
 				compiler.compile(new ApplicationView(parent, Test));
@@ -264,9 +245,7 @@ describe('#Compiler', () => {
 				public el;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
-
+			let parent = Dom.el('<div><div test></div></div>');
 			let el = parent.children[0];
 
 			compiler.compile(new ApplicationView(parent, Test));
@@ -287,9 +266,7 @@ describe('#Compiler', () => {
 				public child;
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test><span>hello</span></div>';
-
+			let parent = Dom.el('<div><div test><span>hello</span></div></div>');
 			let el = parent.children[0];
 
 			compiler.compile(new ApplicationView(parent, Test));
@@ -315,9 +292,7 @@ describe('#Compiler', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
-
+			let parent = Dom.el('<div><div test></div></div>');
 			let el = parent.children[0];
 
 			compiler.compile(new ApplicationView(parent, Test));
@@ -341,9 +316,7 @@ describe('#Compiler', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test><a href="#"></a></div>';
-
+			let parent = Dom.el('<div><div test><a href="#"></a></div></div>');
 			let link = parent.querySelector('a');
 
 			compiler.compile(new ApplicationView(parent, Test));
@@ -370,9 +343,7 @@ describe('#Compiler', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test><a href="#"></a></div>';
-
+			let parent = Dom.el('<div><div test><a href="#"></a></div></div>');
 			let link = parent.querySelector('a');
 
 			compiler.compile(new ApplicationView(parent, Test));
@@ -399,8 +370,7 @@ describe('#Compiler', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div test></div>';
+			let parent = Dom.el('<div><div test></div></div>');
 
 			compiler.compile(new ApplicationView(parent, Test));
 
@@ -442,8 +412,7 @@ describe('#Compiler', () => {
 				}
 			}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div app><div outer><div inner></div></div></div>';
+			let parent = Dom.el('<div><div app><div outer><div inner></div></div></div></div>');
 
 			compiler.compile(new ApplicationView(parent, App));
 
@@ -469,8 +438,7 @@ describe('#Compiler', () => {
 			})
 			class App {}
 
-			let parent = document.createElement('div');
-			parent.innerHTML = '<div app><div one two></div></div>';
+			let parent = Dom.el('<div><div app><div one two></div></div></div>');
 
 			expect(() => {
 				compiler.compile(new ApplicationView(parent, App));

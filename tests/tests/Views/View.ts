@@ -1,5 +1,6 @@
 import {View, Component, ElementRef, TemplateRef, Filter} from '../../../core';
 import {Container} from '../../../di';
+import {Dom} from '../../../utils';
 import {ControllerParser} from '../../../src/Entity/ControllerParser';
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
 import {ControllerView} from '../../../src/Entity/ControllerView';
@@ -94,26 +95,18 @@ describe('#Views/View', () => {
 
 		it('should create new embedded view', () => {
 			let templateHTML = '<i>i</i><!-- comment -->text<b>b</b>';
-			let parentHTML = '<div><template>' + templateHTML + '</template></div>';
-
-			let parent = document.createElement('div');
-			parent.innerHTML = parentHTML;
-
-			let el = parent.children[0];
+			let el = Dom.el('<div><template>' + templateHTML + '</template></div>');
 			let template = el.childNodes[0];
 
 			let elementRef = new ElementRef(el);
-
 			let templateElementRef = new ElementRef(template);
 			let templateRef = new TemplateRef(templateElementRef);
-
 			let view = new View(elementRef);
 
 			view.createEmbeddedView(templateRef);
-
 			templateElementRef.remove();
 
-			expect(parent.innerHTML).to.be.equal('<div>' + templateHTML + '<!-- -slicky--data- --></div>');
+			expect(el.innerHTML).to.be.equal(templateHTML + '<!-- -slicky--data- -->');
 		});
 
 	});

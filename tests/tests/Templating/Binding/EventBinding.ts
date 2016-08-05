@@ -22,11 +22,7 @@ describe('#Templating/Binding/EventBinding', () => {
 	});
 
 	it("should bind simple value to element's property", (done) => {
-		let code = 'onClick($event)';
-		let parent = document.createElement('div');
-		parent.innerHTML = '<a href="#" (click)="' + code + '"></a>';
-
-		let el = <HTMLElement>parent.childNodes[0];
+		let el = Dom.el('<a href="#" (click)="onClick($event)"></a>');
 
 		expect(el['test']).to.be.equal(undefined);
 
@@ -37,19 +33,14 @@ describe('#Templating/Binding/EventBinding', () => {
 			},
 		});
 
-		let binding = new EventBinding(view, el, 'click', code);
+		let binding = new EventBinding(view, el, 'click', 'onClick($event)');
 
 		view.attachBinding(binding, ExpressionParser.precompile('onClick($event)'));
-
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
 
 	it('should call event listener on objects function', (done) => {
-		let code = 'obj.onClick($event)';
-		let parent = document.createElement('div');
-		parent.innerHTML = '<a href="#" (click)="' + code + '"></a>';
-
-		let el = <HTMLElement>parent.childNodes[0];
+		let el = Dom.el('<a href="#" (click)="obj.onClick($event)"></a>');
 
 		expect(el['test']).to.be.equal(undefined);
 
@@ -63,19 +54,15 @@ describe('#Templating/Binding/EventBinding', () => {
 			},
 		});
 
-		let binding = new EventBinding(view, el, 'click', code);
+		let binding = new EventBinding(view, el, 'click', 'obj.onClick($event)');
 
 		view.attachBinding(binding, ExpressionParser.precompile('obj.onClick($event)'));
-
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
 
 	it('should pass different parameters to event function', (done) => {
 		let code = 'onClick(1, \'a\', $event, onClick, 5 + \'b\')';
-		let parent = document.createElement('div');
-		parent.innerHTML = '<a href="#" (click)="' + code + '"></a>';
-
-		let el = <HTMLElement>parent.childNodes[0];
+		let el = Dom.el('<a href="#" (click)="' + code + '"></a>');
 
 		expect(el['test']).to.be.equal(undefined);
 
@@ -93,24 +80,19 @@ describe('#Templating/Binding/EventBinding', () => {
 		let binding = new EventBinding(view, el, 'click', code);
 
 		view.attachBinding(binding, ExpressionParser.precompile(code));
-
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
 
 	it('should pass calling element to listener', (done) => {
 		let code = 'onClick($event, $this)';
-
-		let parent = document.createElement('div');
-		parent.innerHTML = '<a href="#" (click)="' + code + '"></a>';
-
-		let el = <HTMLElement>parent.childNodes[0];
+		let el = Dom.el('<a href="#" (click)="' + code + '"></a>');
 
 		expect(el['test']).to.be.equal(undefined);
 
 		let view = new View(new ElementRef(el), {
-			onClick: function(e: Event, el: HTMLLinkElement) {
+			onClick: function(e: Event, targetEl: HTMLLinkElement) {
 				expect(e).to.be.an.instanceOf(Event);
-				expect(el).to.be.equal(parent.children[0]);
+				expect(targetEl).to.be.equal(el);
 				done();
 			},
 		});
@@ -118,17 +100,11 @@ describe('#Templating/Binding/EventBinding', () => {
 		let binding = new EventBinding(view, el, 'click', code);
 
 		view.attachBinding(binding, ExpressionParser.precompile(code));
-
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
 
 	it('should call event without any attributes', (done) => {
-		let code = 'onClick()';
-
-		let parent = document.createElement('div');
-		parent.innerHTML = '<a href="#" (click)="' + code + '"></a>';
-
-		let el = <HTMLElement>parent.childNodes[0];
+		let el = Dom.el('<a href="#" (click)="onClick()"></a>');
 
 		expect(el['test']).to.be.equal(undefined);
 
@@ -138,10 +114,9 @@ describe('#Templating/Binding/EventBinding', () => {
 			},
 		});
 
-		let binding = new EventBinding(view, el, 'click', code);
+		let binding = new EventBinding(view, el, 'click', 'onClick()');
 
-		view.attachBinding(binding, ExpressionParser.precompile(code));
-
+		view.attachBinding(binding, ExpressionParser.precompile('onClick()'));
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
 
@@ -149,11 +124,7 @@ describe('#Templating/Binding/EventBinding', () => {
 		let code = 'obj.onChange($event)';
 		let called = 0;
 
-		let parent = document.createElement('div');
-		parent.innerHTML = '<a href="#" (click|mousedown)="' + code + '"></a>';
-
-		let el = <HTMLElement>parent.childNodes[0];
-
+		let el = Dom.el('<a href="#" (click|mousedown)="' + code + '"></a>');
 		let view = new View(new ElementRef(el), {
 			obj: {
 				onChange: function(e: Event) {
@@ -168,7 +139,6 @@ describe('#Templating/Binding/EventBinding', () => {
 		let binding = new EventBinding(view, el, 'click|mousedown', code);
 
 		view.attachBinding(binding, ExpressionParser.precompile(code));
-
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 		el.dispatchEvent(Dom.createMouseEvent('mousedown'));
 
