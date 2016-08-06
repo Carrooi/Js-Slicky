@@ -4,7 +4,6 @@ import {Container} from './DI/Container';
 import {Injectable} from './DI/Metadata';
 import {ControllerParser, ControllerDefinition} from './Entity/ControllerParser';
 import {DirectiveParser, DirectiveDefinition} from './Entity/DirectiveParser';
-import {Functions} from './Util/Functions';
 import {TextParser} from './Parsers/TextParser';
 import {AttributeParser} from './Parsers/AttributeParser';
 import {TextBinding} from './Templating/Binding/TextBinding';
@@ -148,7 +147,6 @@ export class Compiler
 			}
 		}
 
-		let components: Array<string> = [];
 		let innerCompilationNeeded = false;
 		let directiveExists = false;
 
@@ -171,7 +169,6 @@ export class Compiler
 				directiveExists = true;
 
 				if (isComponent) {
-					components.push(Functions.getName(directive));
 					directiveView = parentView.fork(ElementRef.getByNode(el));
 				}
 
@@ -183,10 +180,6 @@ export class Compiler
 				}
 			}
 		});
-
-		if (components.length > 1) {
-			throw new Error('Can not attach more than 1 components (' + components.join(', ') + ') to ' + Dom.getReadableName(el) + ' element.');
-		}
 
 		if (!directiveExists) {
 			innerCompilationNeeded = true;
@@ -335,7 +328,7 @@ export class Compiler
 					if (typeof attr === 'undefined') {
 						if (typeof el[realInputName] === 'undefined') {
 							if (input.required) {
-								throw new Error('Component\'s input ' + Functions.getName(definition.directive) + '::' + inputName + ' was not found in ' + Dom.getReadableName(<Element>el) + ' element.');
+								throw new Error('Component\'s input ' + definition.name + '::' + inputName + ' was not found in ' + Dom.getReadableName(<Element>el) + ' element.');
 							} else if (typeof instance[inputName] !== 'undefined') {
 								continue;
 							}
@@ -419,7 +412,7 @@ export class Compiler
 					if (typeof event.el === 'string' && (<string>event.el).substr(0, 1) === '@') {
 						let childName = (<string>event.el).substr(1);
 						if (typeof instance[childName] === 'undefined') {
-							throw new Error('Can not add event listener for @' + childName + ' at ' + Functions.getName(instance));
+							throw new Error('Can not add event listener for @' + childName + ' at ' + definition.name);
 						}
 
 						Dom.addEventListener(instance[childName], event.name, instance, instance[eventName]);

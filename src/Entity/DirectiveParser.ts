@@ -21,7 +21,8 @@ export declare interface DirectiveDefinition
 	directive: Function,
 	metadata: DirectiveMetadataDefinition,
 	events: EventsList,
-	inputs: InputsList;
+	inputs: InputsList,
+	name: string,
 }
 
 
@@ -85,6 +86,7 @@ export class DirectiveParser
 			metadata: metadata,
 			events: events,
 			inputs: inputs,
+			name: Functions.getName(directive),
 		};
 	}
 

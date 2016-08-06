@@ -4,6 +4,8 @@ import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {EmbeddedView} from './EmbeddedView';
 import {Helpers} from '../Util/Helpers';
+import {Dom} from '../Util/Dom';
+import {Functions} from '../Util/Functions';
 import {Container} from '../DI/Container';
 import {OnDestroy} from '../Interfaces';
 
@@ -14,7 +16,7 @@ export class ComponentView extends AbstractView
 
 	public el: ElementRef;
 
-	public component: any = null;
+	public component: {definition: ControllerDefinition, instance: any} = null;
 
 	public attachedDirectives: Array<any> = [];
 
@@ -40,8 +42,8 @@ export class ComponentView extends AbstractView
 			this.attachedDirectives[i].detach();
 		}
 
-		if (this.component && typeof this.component['onDestroy'] === 'function') {
-			(<OnDestroy>this.component).onDestroy();
+		if (this.component && typeof this.component.instance['onDestroy'] === 'function') {
+			(<OnDestroy>this.component.instance).onDestroy();
 			this.component = null;
 		}
 
@@ -94,7 +96,14 @@ export class ComponentView extends AbstractView
 
 	public setComponent(container: Container, definition: ControllerDefinition, component: any): void
 	{
-		this.component = component;
+		if (this.component) {
+			throw new Error('Can\'t attach component "' + definition.name + '" to element "' + Dom.getReadableName(<Element>this.el.nativeEl) + '" since it\'s already attached to component "' + this.component.definition.name + '".');
+		}
+
+		this.component = {
+			definition: definition,
+			instance: component,
+		};
 
 		let directives = definition.metadata.directives;
 		let filters = definition.metadata.filters;

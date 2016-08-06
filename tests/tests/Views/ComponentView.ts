@@ -67,7 +67,7 @@ describe('#Views/ComponentView', () => {
 			expect(view.filters).to.contain.keys(['a']);
 			expect(view.filters['a']).to.be.an.instanceof(TestFilter);
 			expect(view.attachedDirectives).to.be.eql([]);
-			expect(view.component).to.be.an.instanceof(Controller);
+			expect(view.component.instance).to.be.an.instanceof(Controller);
 		});
 
 	});

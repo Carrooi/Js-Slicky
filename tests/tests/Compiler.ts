@@ -41,7 +41,7 @@ describe('#Compiler', () => {
 
 			let view: ComponentView = ElementRef.getByNode(el).view;
 
-			expect(view.component).to.be.an.instanceOf(Test);
+			expect(view.component.instance).to.be.an.instanceOf(Test);
 		});
 
 		it('should call onUnbind method on controller', () => {
@@ -92,7 +92,7 @@ describe('#Compiler', () => {
 			compiler.compileElement(view, parent);
 
 			let innerView = <ComponentView>view.children[0];
-			let test = <Test>innerView.component;
+			let test = <Test>innerView.component.instance;
 
 			expect(test.input1).to.be.equal('hello');
 		});
@@ -113,7 +113,7 @@ describe('#Compiler', () => {
 			compiler.compileElement(view, parent);
 
 			let innerView = <ComponentView>view.children[0];
-			let test = <Test>innerView.component;
+			let test = <Test>innerView.component.instance;
 
 			expect(test.test).to.be.equal('hello');
 		});
@@ -134,7 +134,7 @@ describe('#Compiler', () => {
 			compiler.compileElement(view, parent);
 
 			let innerView = <ComponentView>view.children[0];
-			let test = <Test>innerView.component;
+			let test = <Test>innerView.component.instance;
 
 			expect(test.input1).to.be.equal('hello');
 		});
@@ -155,7 +155,7 @@ describe('#Compiler', () => {
 			compiler.compileElement(view, parent);
 
 			let innerView = <ComponentView>view.children[0];
-			let test = <Test>innerView.component;
+			let test = <Test>innerView.component.instance;
 
 			expect(test.input1).to.be.equal(undefined);
 		});
@@ -176,7 +176,7 @@ describe('#Compiler', () => {
 			compiler.compileElement(view, parent);
 
 			let innerView = <ComponentView>view.children[0];
-			let test = <Test>innerView.component;
+			let test = <Test>innerView.component.instance;
 
 			expect(test.input1).to.be.equal('bye');
 		});
@@ -198,7 +198,7 @@ describe('#Compiler', () => {
 			compiler.compileElement(view, parent);
 
 			let innerView = <ComponentView>view.children[0];
-			let test = <Test>innerView.component;
+			let test = <Test>innerView.component.instance;
 
 			expect(test.input).to.be.equal('hello');
 		});
@@ -231,7 +231,7 @@ describe('#Compiler', () => {
 			compiler.compile(new ApplicationView(parent, Test));
 
 			let view: ComponentView = ElementRef.getByNode(el).view;
-			let test = <Test>view.component;
+			let test = <Test>view.component.instance;
 
 			expect(test.el).to.be.equal(el);
 		});
@@ -249,7 +249,7 @@ describe('#Compiler', () => {
 			compiler.compile(new ApplicationView(parent, Test));
 
 			let view: ComponentView = ElementRef.getByNode(el).view;
-			let test = <Test>view.component;
+			let test = <Test>view.component.instance;
 
 			expect(test.child.nodeName.toLowerCase()).to.be.equal('span');
 			expect(test.child.innerHTML).to.be.equal('hello');
@@ -416,7 +416,7 @@ describe('#Compiler', () => {
 
 			expect(() => {
 				compiler.compile(new ApplicationView(parent, App));
-			}).to.throw(Error, 'Can not attach more than 1 components (One, Two) to div element.');
+			}).to.throw(Error, 'Can\'t attach component "Two" to element "div" since it\'s already attached to component "One".');
 		});
 
 	});

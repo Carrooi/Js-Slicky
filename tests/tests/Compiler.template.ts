@@ -155,7 +155,7 @@ describe('#Compiler/template', () => {
 
 			let view: ComponentView = ElementRef.getByNode(childEl).view;
 
-			expect(view.component.parent).to.be.an.instanceof(Parent);
+			expect(view.component.instance.parent).to.be.an.instanceof(Parent);
 		});
 
 		it('should throw an error when trying to add unknown property', () => {
@@ -425,7 +425,7 @@ describe('#Compiler/template', () => {
 			view.watcher.run();
 
 			let innerView = <ComponentView>view.children[0].children[0];
-			let component: Test = innerView.component;
+			let component: Test = innerView.component.instance;
 
 			expect(component.upperCasedInput).to.be.equal('hello');
 
@@ -458,7 +458,7 @@ describe('#Compiler/template', () => {
 			view.watcher.run();
 
 			let innerView = <ComponentView>view.children[0].children[0];
-			let component: Test = innerView.component;
+			let component: Test = innerView.component.instance;
 
 			expect(component.input).to.be.equal('hello');
 
@@ -758,7 +758,7 @@ describe('#Compiler/template', () => {
 			compiler.compile(view);
 
 			let appView = <ComponentView>view.children[0];
-			let app = <App>appView.component;
+			let app = <App>appView.component.instance;
 
 			expect(app.data).to.be.eql({'a.b.c': 'hello'});
 		});
