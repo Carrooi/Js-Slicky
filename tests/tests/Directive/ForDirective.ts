@@ -104,12 +104,10 @@ describe('#Directives/ForDirective', () => {
 				expect(el.outerText).to.be.equal('- David -- John -- Clare -');
 				view.parameters['users'] = ['David', 'John', 'Clare', 'Luke'];
 
-				done();
-
-				/*setTimeout(() => {
+				setTimeout(() => {
 					expect(el.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
 					done();
-				}, 100);*/
+				}, 100);
 			}, 100);
 		});
 
