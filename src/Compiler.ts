@@ -267,12 +267,7 @@ export class Compiler
 		for (let i = 0; i < el.attributes.length; i++) {
 			let attribute = el.attributes[i];
 			if (attribute.name.match(/^\*/)) {
-				let templateParent = document.createElement('div');
-				templateParent.innerHTML = '<template [' + attribute.name.substr(1) + ']="' + attribute.value + '"></template>';
-
-				let template = <HTMLElement>templateParent.children[0];
-
-				templateParent.removeChild(template);
+				let template = Dom.el('<template [' + attribute.name.substr(1) + ']="' + attribute.value + '"></template>');
 
 				if (templateEl) {
 					templateEl.appendChild(template);
