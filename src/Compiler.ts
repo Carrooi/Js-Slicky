@@ -1,9 +1,10 @@
-import {OnInit, OnUpdate, OnChange} from './Interfaces';
 import {Dom} from './Util/Dom';
 import {Container} from './DI/Container';
 import {Injectable} from './DI/Metadata';
 import {ControllerParser, ControllerDefinition} from './Entity/ControllerParser';
 import {DirectiveParser, DirectiveDefinition} from './Entity/DirectiveParser';
+import {DirectiveInstance} from './Entity/DirectiveInstance';
+import {ComponentInstance} from './Entity/ComponentInstance';
 import {TextParser} from './Parsers/TextParser';
 import {AttributeParser} from './Parsers/AttributeParser';
 import {TextBinding} from './Templating/Binding/TextBinding';
@@ -17,10 +18,9 @@ import {ElementRef, AttributesList} from './Templating/ElementRef';
 import {TemplateRef} from './Templating/TemplateRef';
 import {Annotations} from './Util/Annotations';
 import {Helpers} from './Util/Helpers';
-import {ChangedObject} from './Util/Watcher';
 import {ComponentMetadataDefinition} from './Entity/Metadata';
 import {DirectiveMetadataDefinition} from './Entity/Metadata';
-import {ExpressionParser, Expression} from './Parsers/ExpressionParser';
+import {ExpressionParser} from './Parsers/ExpressionParser';
 import {EmbeddedView} from './Views/EmbeddedView';
 import {DefaultFilters} from './Templating/Filters/DefaultFilters';
 
@@ -172,8 +172,7 @@ export class Compiler
 					directiveView = parentView.fork(ElementRef.getByNode(el));
 				}
 
-				let instance = this.createDirective(directiveView, definition, el);
-				let innerCompiled = this.processDirective(el, directiveView, attributes, definition, instance);
+				let innerCompiled = this.useDirective(directiveView, definition, el, attributes);
 
 				if (!innerCompiled && definition.metadata.compileInner) {
 					innerCompilationNeeded = true;
@@ -212,42 +211,6 @@ export class Compiler
 
 			text.parentNode.removeChild(text);
 		}
-	}
-
-
-	private createDirective(view: ComponentView, definition: DirectiveDefinition, el: Element): any
-	{
-		let elementRef = ElementRef.getByNode(el);
-		let templateRef = new TemplateRef(elementRef);
-
-		let instance = this.container.create(<any>definition.directive, [
-			{
-				service: ElementRef,
-				options: {
-					useFactory: () => elementRef,
-				},
-			},
-			{
-				service: TemplateRef,
-				options: {
-					useFactory: () => templateRef,
-				},
-			},
-			{
-				service: ComponentView,
-				options: {
-					useFactory: () => view,
-				},
-			},
-		]);
-
-		if (definition.metadata instanceof ComponentMetadataDefinition) {
-			view.setComponent(this.container, <ControllerDefinition>definition, instance);
-		} else {
-			view.attachDirective(instance);
-		}
-
-		return instance;
 	}
 
 
@@ -292,148 +255,30 @@ export class Compiler
 	}
 
 
-	private processDirective(el: HTMLElement, view: ComponentView, attributes: AttributesList, definition: DirectiveDefinition, instance: any): boolean
+	private useDirective(view: ComponentView, definition: DirectiveDefinition, el: Element, attributes: AttributesList): boolean
 	{
+		let elementRef = ElementRef.getByNode(el);
+		let templateRef = new TemplateRef(elementRef);
+
+		let instance = view.createDirectiveInstance(this.container, definition, elementRef, templateRef);
+		let directiveInstance: DirectiveInstance = null;
 		let innerCompiled = false;
 
-		let hasOnChange = typeof instance['onChange'] === 'function';
-		let hasOnUpdate = typeof instance['onUpdate'] === 'function';
-
-		((instance, definition, hasOnChange, hasOnUpdate) => {
-			let processInput = (inputName: string, required: boolean, expr: Expression, changed: Array<ChangedObject> = null) => {
-				let stop = false;
-
-				if (hasOnChange) {
-					stop = (<OnChange>instance).onChange(inputName, changed) === false;
-				}
-
-				if (!stop) {
-					let value = ExpressionParser.parse(expr, view.parameters);
-
-					instance[inputName] = value;
-
-					if (hasOnUpdate) {
-						(<OnUpdate>instance).onUpdate(inputName, value);
-					}
-				}
-			};
-
-			for (let inputName in definition.inputs) {
-				if (definition.inputs.hasOwnProperty(inputName)) {
-					let input = definition.inputs[inputName];
-					let realInputName = (input.name ? input.name : inputName).toLowerCase();
-
-					let attr = attributes[realInputName];
-
-					if (typeof attr === 'undefined') {
-						if (typeof el[realInputName] === 'undefined') {
-							if (input.required) {
-								throw new Error('Component\'s input ' + definition.name + '::' + inputName + ' was not found in ' + Dom.getReadableName(<Element>el) + ' element.');
-							} else if (typeof instance[inputName] !== 'undefined') {
-								continue;
-							}
-						}
-
-						instance[inputName] = el[realInputName];
-
-					} else {
-						if (attr.property) {
-							let expr = ExpressionParser.precompile(attr.expression);
-
-							processInput(inputName, input.required, expr);
-
-							((inputName, required, expr) => {
-								view.watch(expr, (changed) => {
-									processInput(inputName, required, expr, changed);
-								});
-							})(inputName, input.required, expr);
-						} else {
-							instance[inputName] = attr.expression;
-						}
-
-						attr.bound = true;
-					}
-				}
-			}
-		})(instance, definition, hasOnChange, hasOnUpdate);
-
-		for (let attrName in attributes) {
-			if (attributes.hasOwnProperty(attrName)) {
-				let attr = attributes[attrName];
-
-				if (attr.property && !attr.bound) {
-					throw new Error('Could not bind property ' + attr.name + ' to element ' + Dom.getReadableName(el) + ' or to any of its directives.');
-				}
-			}
-		}
-
-		if (definition.metadata instanceof ComponentMetadataDefinition && (<ComponentMetadataDefinition>definition.metadata).template) {
-			el.innerHTML = (<ComponentMetadataDefinition>definition.metadata).template;
-		}
-
-		if (el.innerHTML !== '' && definition.metadata.compileInner) {
-			this.compileNodes(view, el.childNodes);
-			innerCompiled = true;
-		}
-
 		if (definition.metadata instanceof ComponentMetadataDefinition) {
-			let elements = (<ControllerDefinition>definition).elements;
-			for (let elementName in elements) {
-				if (elements.hasOwnProperty(elementName)) {
-					let element = elements[elementName];
-
-					if (element.selector) {
-						let subElements = Dom.querySelectorAll(element.selector, el);
-
-						if (subElements.length === 0) {
-							instance[elementName] = null;
-
-						} else if (subElements.length === 1) {
-							instance[elementName] = subElements[0];
-
-						} else {
-							instance[elementName] = subElements;
-						}
-					} else {
-						instance[elementName] = el;
-					}
-				}
-			}
+			directiveInstance = view.setComponent(this.container, <ControllerDefinition>definition, instance);
+		} else {
+			directiveInstance = view.attachDirective(definition, instance, el);
 		}
 
-		for (let eventName in definition.events) {
-			if (definition.events.hasOwnProperty(eventName)) {
-				let event = definition.events[eventName];
+		directiveInstance.bindInputs(attributes);
 
-				if (event.el === '@') {
-					Dom.addEventListener(el, event.name, instance, instance[eventName]);
-
-				} else {
-					if (typeof event.el === 'string' && (<string>event.el).substr(0, 1) === '@') {
-						let childName = (<string>event.el).substr(1);
-						if (typeof instance[childName] === 'undefined') {
-							throw new Error('Can not add event listener for @' + childName + ' at ' + definition.name);
-						}
-
-						Dom.addEventListener(instance[childName], event.name, instance, instance[eventName]);
-
-					} else if (typeof event.el === 'string') {
-						let eventEls = Dom.querySelectorAll(<string>event.el, el);
-						for (let j = 0; j < eventEls.length; j++) {
-							Dom.addEventListener(eventEls[j], event.name, instance, instance[eventName]);
-						}
-
-					} else if (event.el instanceof Window || event.el instanceof Node) {
-						Dom.addEventListener(<Node>event.el, event.name, instance, instance[eventName]);
-
-					}
-				}
-			}
+		if (directiveInstance instanceof ComponentInstance) {
+			innerCompiled = directiveInstance.processInnerHTML(this);
+			directiveInstance.processHostElements();
 		}
 
-		if (typeof instance['onInit'] === 'function') {
-			(<OnInit>instance).onInit();
-		}
+		directiveInstance.processHostEvents();
+		directiveInstance.attach();
 
 		return innerCompiled;
 	}

@@ -2,6 +2,7 @@ import {ComponentView, Component, Directive, ElementRef, TemplateRef, Filter} fr
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 import {ControllerParser} from '../../../src/Entity/ControllerParser';
+import {DirectiveParser} from '../../../src/Entity/DirectiveParser';
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
 
 import chai = require('chai');
@@ -80,12 +81,14 @@ describe('#Views/ComponentView', () => {
 			})
 			class Test {}
 
-			let view = new ComponentView(new ElementRef(document.createElement('div')), {a: 1});
+			var el = document.createElement('div');
+			let view = new ComponentView(new ElementRef(el), {a: 1});
+			let definition = DirectiveParser.parse(Test, DirectiveParser.getDirectiveMetadata(Test));
 			let test = new Test;
 
-			view.attachDirective(test);
+			view.attachDirective(definition, test, el);
 
-			expect(view.attachedDirectives[0]).to.be.eql(test);
+			expect(view.attachedDirectives[0].instance).to.be.eql(test);
 		});
 
 	});

@@ -1,13 +1,14 @@
 import {AbstractView, ParametersList} from './AbstractView';
 import {ControllerDefinition} from '../Entity/ControllerParser';
+import {DirectiveDefinition} from '../Entity/DirectiveParser';
+import {ComponentInstance} from '../Entity/ComponentInstance';
+import {DirectiveInstance} from '../Entity/DirectiveInstance';
 import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {EmbeddedView} from './EmbeddedView';
 import {Helpers} from '../Util/Helpers';
 import {Dom} from '../Util/Dom';
-import {Functions} from '../Util/Functions';
 import {Container} from '../DI/Container';
-import {OnDestroy} from '../Interfaces';
 
 
 export class ComponentView extends AbstractView
@@ -16,9 +17,9 @@ export class ComponentView extends AbstractView
 
 	public el: ElementRef;
 
-	public component: {definition: ControllerDefinition, instance: any} = null;
+	public component: ComponentInstance = null;
 
-	public attachedDirectives: Array<any> = [];
+	public attachedDirectives: Array<DirectiveInstance> = [];
 
 
 	constructor(el: ElementRef, parameters: ParametersList = {}, parent?: AbstractView)
@@ -35,15 +36,11 @@ export class ComponentView extends AbstractView
 		super.detach();
 
 		for (let i = 0; i < this.attachedDirectives.length; i++) {
-			if (typeof this.attachedDirectives[i]['onDestroy'] === 'function') {
-				(<OnDestroy>this.attachedDirectives[i]).onDestroy();
-			}
-
 			this.attachedDirectives[i].detach();
 		}
 
-		if (this.component && typeof this.component.instance['onDestroy'] === 'function') {
-			(<OnDestroy>this.component.instance).onDestroy();
+		if (this.component) {
+			this.component.detach();
 			this.component = null;
 		}
 
@@ -94,16 +91,38 @@ export class ComponentView extends AbstractView
 	}
 
 
-	public setComponent(container: Container, definition: ControllerDefinition, component: any): void
+	public createDirectiveInstance(container: Container, definition: DirectiveDefinition, elementRef: ElementRef, templateRef: TemplateRef): any
+	{
+		return container.create(<any>definition.directive, [
+			{
+				service: ElementRef,
+				options: {
+					useFactory: () => elementRef,
+				},
+			},
+			{
+				service: TemplateRef,
+				options: {
+					useFactory: () => templateRef,
+				},
+			},
+			{
+				service: ComponentView,
+				options: {
+					useFactory: () => this,
+				},
+			},
+		]);
+	}
+
+
+	public setComponent(container: Container, definition: ControllerDefinition, component: any): ComponentInstance
 	{
 		if (this.component) {
 			throw new Error('Can\'t attach component "' + definition.name + '" to element "' + Dom.getReadableName(<Element>this.el.nativeEl) + '" since it\'s already attached to component "' + this.component.definition.name + '".');
 		}
 
-		this.component = {
-			definition: definition,
-			instance: component,
-		};
+		this.component = new ComponentInstance(this, definition, component);
 
 		let directives = definition.metadata.directives;
 		let filters = definition.metadata.filters;
@@ -134,12 +153,17 @@ export class ComponentView extends AbstractView
 				}
 			}
 		}
+
+		return this.component;
 	}
 
 
-	public attachDirective(instance: any): void
+	public attachDirective(definition: DirectiveDefinition, instance: any, el: Element): DirectiveInstance
 	{
-		this.attachedDirectives.push(instance);
+		let result = new DirectiveInstance(this, definition, instance, el);
+		this.attachedDirectives.push(result);
+
+		return result;
 	}
 
 }
