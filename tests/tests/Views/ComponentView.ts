@@ -4,6 +4,7 @@ import {Dom} from '../../../utils';
 import {ControllerParser} from '../../../src/Entity/ControllerParser';
 import {DirectiveParser} from '../../../src/Entity/DirectiveParser';
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
+import {MockView} from '../../mocks/MockView';
 
 import chai = require('chai');
 
@@ -16,7 +17,7 @@ describe('#Views/ComponentView', () => {
 	describe('fork()', () => {
 
 		it('should return forked view', () => {
-			let view = new ComponentView(new ElementRef(document.createElement('div')), {a: 1});
+			let view = new ComponentView(new MockView, new ElementRef(document.createElement('div')), {a: 1});
 
 			view.directives = [{}, {}];
 			view.filters = {a: () => {}, b: () => {}};
@@ -53,7 +54,7 @@ describe('#Views/ComponentView', () => {
 
 			let component = new Controller;
 			let container = new Container;
-			let view = new ComponentView(new ElementRef(document.createElement('div')), {a: 1});
+			let view = new ComponentView(new MockView, new ElementRef(document.createElement('div')), {a: 1});
 			let metadata = ControllerParser.getControllerMetadata(Controller);
 			let definition = ControllerParser.parse(Controller, metadata);
 
@@ -82,7 +83,7 @@ describe('#Views/ComponentView', () => {
 			class Test {}
 
 			var el = document.createElement('div');
-			let view = new ComponentView(new ElementRef(el), {a: 1});
+			let view = new ComponentView(new MockView, new ElementRef(el), {a: 1});
 			let definition = DirectiveParser.parse(Test, DirectiveParser.getDirectiveMetadata(Test));
 			let test = new Test;
 
@@ -103,7 +104,7 @@ describe('#Views/ComponentView', () => {
 			let elementRef = new ElementRef(el);
 			let templateElementRef = new ElementRef(template);
 			let templateRef = new TemplateRef(templateElementRef);
-			let view = new ComponentView(elementRef);
+			let view = new ComponentView(new MockView, elementRef);
 
 			view.createEmbeddedView(templateRef);
 			templateElementRef.remove();
@@ -117,7 +118,7 @@ describe('#Views/ComponentView', () => {
 
 		it('should notify about changes in parameter', (done) => {
 			let el = ElementRef.getByNode(document.createElement('div'));
-			let view = new ComponentView(el, {
+			let view = new ComponentView(new MockView, el, {
 				a: 'hello',
 			});
 

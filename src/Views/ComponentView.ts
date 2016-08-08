@@ -22,7 +22,7 @@ export class ComponentView extends AbstractView
 	public attachedDirectives: Array<DirectiveInstance> = [];
 
 
-	constructor(el: ElementRef, parameters: ParametersList = {}, parent?: AbstractView)
+	constructor(parent: AbstractView, el: ElementRef, parameters: ParametersList = {})
 	{
 		super(parent, parameters);
 
@@ -57,7 +57,7 @@ export class ComponentView extends AbstractView
 		let parameters = Helpers.clone(this.parameters);
 		let translations = Helpers.clone(this.translations);
 
-		let view = new ComponentView(el, parameters, this);
+		let view = new ComponentView(this, el, parameters);
 		view.translations = translations;
 
 		return view;

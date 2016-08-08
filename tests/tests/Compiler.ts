@@ -9,6 +9,7 @@ import {
 } from '../../core';
 import {Container} from '../../di';
 import {Dom} from '../../utils';
+import {MockView} from '../mocks/MockView';
 
 
 import chai = require('chai');
@@ -85,7 +86,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test [input1]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(elementRef);
+			let view = new ComponentView(new MockView, elementRef);
 
 			view.directives.push(Test);
 
@@ -106,7 +107,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test="hello"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(elementRef);
+			let view = new ComponentView(new MockView, elementRef);
 
 			view.directives.push(Test);
 
@@ -127,7 +128,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test [data-input1]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(elementRef);
+			let view = new ComponentView(new MockView, elementRef);
 
 			view.directives.push(Test);
 
@@ -148,7 +149,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(elementRef);
+			let view = new ComponentView(new MockView, elementRef);
 
 			view.directives.push(Test);
 
@@ -169,7 +170,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(elementRef);
+			let view = new ComponentView(new MockView, elementRef);
 
 			view.directives.push(Test);
 
@@ -191,7 +192,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test [input]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(elementRef);
+			let view = new ComponentView(new MockView, elementRef);
 
 			view.directives.push(Test);
 

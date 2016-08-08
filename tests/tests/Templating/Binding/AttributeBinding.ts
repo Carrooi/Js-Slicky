@@ -3,6 +3,7 @@ import {Container} from '../../../../di';
 import {Dom} from '../../../../utils';
 import {AttributeBinding} from '../../../../src/Templating/Binding/AttributeBinding';
 import {ExpressionParser} from '../../../../src/Parsers/ExpressionParser';
+import {MockView} from '../../../mocks/MockView';
 
 import chai = require('chai');
 
@@ -28,7 +29,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new ComponentView(new ElementRef(el), {
+			let view = new ComponentView(new MockView, new ElementRef(el), {
 				hello: 'good day',
 			});
 
@@ -44,7 +45,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new ComponentView(new ElementRef(el), {
+			let view = new ComponentView(new MockView, new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,

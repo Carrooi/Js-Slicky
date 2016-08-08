@@ -25,7 +25,7 @@ export class ApplicationView extends AbstractView
 	public createApplicationComponentView(el: Element): ComponentView
 	{
 		let parameters = Helpers.clone(this.parameters);
-		let view = new ComponentView(ElementRef.getByNode(el), parameters, this);
+		let view = new ComponentView(this, ElementRef.getByNode(el), parameters);
 
 		view.directives = [this.controller];
 
