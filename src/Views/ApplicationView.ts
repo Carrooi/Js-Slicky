@@ -1,33 +1,56 @@
-import {AbstractView, ParametersList} from './AbstractView';
+import {AbstractView} from './AbstractView';
 import {ComponentView} from './ComponentView';
 import {ElementRef} from '../Templating/ElementRef';
-import {Helpers} from '../Util/Helpers';
+import {Watcher} from '../Util/Watcher';
+import {Container} from '../DI/Container';
+import {DefaultFilters} from '../Templating/Filters/DefaultFilters';
+import {ParametersList} from '../Interfaces';
 
 
 export class ApplicationView extends AbstractView
 {
 
 
+	public container: Container;
+
 	public el: Element;
+
+	public watcher: Watcher;
 
 	public controller: any;
 
+	public parameters: ParametersList;
 
-	constructor(el: Element, controller: any, parameters: ParametersList = {})
+
+	constructor(container: Container, el: Element, controller: any, parameters: ParametersList = {})
 	{
-		super(null, parameters);
+		super();
 
+		this.container = container;
 		this.el = el;
 		this.controller = controller;
+		this.parameters = parameters;
+		this.watcher = new Watcher(parameters);
+	}
+
+
+	public detach(): void
+	{
+		super.detach();
+
+		this.watcher.stop();
 	}
 
 
 	public createApplicationComponentView(el: Element): ComponentView
 	{
-		let parameters = Helpers.clone(this.parameters);
-		let view = new ComponentView(this, ElementRef.getByNode(el), parameters);
+		let view = new ComponentView(this, ElementRef.getByNode(el), this.parameters);
 
 		view.directives = [this.controller];
+
+		for (let i = 0; i < DefaultFilters.length; i++) {
+			view.addFilter(this.container, DefaultFilters[i]);
+		}
 
 		return view;
 	}

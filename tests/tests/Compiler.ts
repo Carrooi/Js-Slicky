@@ -9,7 +9,7 @@ import {
 } from '../../core';
 import {Container} from '../../di';
 import {Dom} from '../../utils';
-import {MockView} from '../mocks/MockView';
+import {MockApplicationView} from '../mocks/MockApplicationView';
 
 
 import chai = require('chai');
@@ -17,6 +17,7 @@ import chai = require('chai');
 
 let expect = chai.expect;
 
+let container: Container = null;
 let application: Application = null;
 let compiler: Compiler = null;
 
@@ -24,7 +25,7 @@ let compiler: Compiler = null;
 describe('#Compiler', () => {
 
 	beforeEach(() => {
-		let container = new Container;
+		container = new Container;
 		application = new Application(container);
 		compiler = container.get(<any>Compiler);
 	});
@@ -38,7 +39,7 @@ describe('#Compiler', () => {
 			let parent = Dom.el('<div><div test></div></div>');
 			let el = parent.children[0];
 
-			compiler.compile(new ApplicationView(parent, Test));
+			compiler.compile(new ApplicationView(container, parent, Test));
 
 			let view: ComponentView = ElementRef.getByNode(el).view;
 
@@ -56,7 +57,7 @@ describe('#Compiler', () => {
 			}
 
 			let parent = Dom.el('<div><div test></div></div>');
-			let view = new ApplicationView(parent, Test);
+			let view = new ApplicationView(container, parent, Test);
 
 			compiler.compile(view);
 
@@ -72,7 +73,7 @@ describe('#Compiler', () => {
 			let parent = Dom.el('<div><div test></div></div>');
 			let el = <HTMLDivElement>parent.children[0];
 
-			compiler.compile(new ApplicationView(parent, Test));
+			compiler.compile(new ApplicationView(container, parent, Test));
 
 			expect(el.innerHTML).to.be.equal('lorem ipsum');
 		});
@@ -86,7 +87,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test [input1]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(new MockView, elementRef);
+			let view = new ComponentView(new MockApplicationView(container), elementRef);
 
 			view.directives.push(Test);
 
@@ -107,7 +108,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test="hello"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(new MockView, elementRef);
+			let view = new ComponentView(new MockApplicationView(container), elementRef);
 
 			view.directives.push(Test);
 
@@ -128,7 +129,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test [data-input1]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(new MockView, elementRef);
+			let view = new ComponentView(new MockApplicationView(container), elementRef);
 
 			view.directives.push(Test);
 
@@ -149,7 +150,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(new MockView, elementRef);
+			let view = new ComponentView(new MockApplicationView(container), elementRef);
 
 			view.directives.push(Test);
 
@@ -170,7 +171,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(new MockView, elementRef);
+			let view = new ComponentView(new MockApplicationView(container), elementRef);
 
 			view.directives.push(Test);
 
@@ -192,7 +193,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test [input]="\'hello\'"></div></div>');
 			let elementRef = ElementRef.getByNode(parent);
-			let view = new ComponentView(new MockView, elementRef);
+			let view = new ComponentView(new MockApplicationView(container), elementRef);
 
 			view.directives.push(Test);
 
@@ -215,7 +216,7 @@ describe('#Compiler', () => {
 			let parent = Dom.el('<div><div test></div></div>');
 
 			expect(() => {
-				compiler.compile(new ApplicationView(parent, Test));
+				compiler.compile(new ApplicationView(container, parent, Test));
 			}).to.throw(Error, "Component's input Test::input was not found in div element.");
 		});
 
@@ -229,7 +230,7 @@ describe('#Compiler', () => {
 			let parent = Dom.el('<div><div test></div></div>');
 			let el = parent.children[0];
 
-			compiler.compile(new ApplicationView(parent, Test));
+			compiler.compile(new ApplicationView(container, parent, Test));
 
 			let view: ComponentView = ElementRef.getByNode(el).view;
 			let test = <Test>view.component.instance;
@@ -247,7 +248,7 @@ describe('#Compiler', () => {
 			let parent = Dom.el('<div><div test><span>hello</span></div></div>');
 			let el = parent.children[0];
 
-			compiler.compile(new ApplicationView(parent, Test));
+			compiler.compile(new ApplicationView(container, parent, Test));
 
 			let view: ComponentView = ElementRef.getByNode(el).view;
 			let test = <Test>view.component.instance;
@@ -270,7 +271,7 @@ describe('#Compiler', () => {
 			let parent = Dom.el('<div><div test></div></div>');
 			let el = parent.children[0];
 
-			compiler.compile(new ApplicationView(parent, Test));
+			compiler.compile(new ApplicationView(container, parent, Test));
 
 			el.dispatchEvent(Dom.createMouseEvent('click'));
 
@@ -294,7 +295,7 @@ describe('#Compiler', () => {
 			let parent = Dom.el('<div><div test><a href="#"></a></div></div>');
 			let link = parent.querySelector('a');
 
-			compiler.compile(new ApplicationView(parent, Test));
+			compiler.compile(new ApplicationView(container, parent, Test));
 
 			link.dispatchEvent(Dom.createMouseEvent('click'));
 
@@ -321,7 +322,7 @@ describe('#Compiler', () => {
 			let parent = Dom.el('<div><div test><a href="#"></a></div></div>');
 			let link = parent.querySelector('a');
 
-			compiler.compile(new ApplicationView(parent, Test));
+			compiler.compile(new ApplicationView(container, parent, Test));
 
 			link.dispatchEvent(Dom.createMouseEvent('click'));
 
@@ -347,7 +348,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div test></div></div>');
 
-			compiler.compile(new ApplicationView(parent, Test));
+			compiler.compile(new ApplicationView(container, parent, Test));
 
 			expect(currentView).to.be.an.instanceof(ComponentView);
 			expect(currentElementRef).to.be.an.instanceof(ElementRef);
@@ -389,7 +390,7 @@ describe('#Compiler', () => {
 
 			let parent = Dom.el('<div><div app><div outer><div inner></div></div></div></div>');
 
-			compiler.compile(new ApplicationView(parent, App));
+			compiler.compile(new ApplicationView(container, parent, App));
 
 			expect(calledApp).to.be.equal(1);
 			expect(calledOuter).to.be.equal(1);
@@ -416,7 +417,7 @@ describe('#Compiler', () => {
 			let parent = Dom.el('<div><div app><div one two></div></div></div>');
 
 			expect(() => {
-				compiler.compile(new ApplicationView(parent, App));
+				compiler.compile(new ApplicationView(container, parent, App));
 			}).to.throw(Error, 'Can\'t attach component "Two" to element "div" since it\'s already attached to component "One".');
 		});
 

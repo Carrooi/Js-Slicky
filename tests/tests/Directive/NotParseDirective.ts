@@ -8,6 +8,7 @@ import chai = require('chai');
 
 let expect = chai.expect;
 
+let container: Container = null;
 let application: Application = null;
 let compiler: Compiler = null;
 
@@ -15,7 +16,7 @@ let compiler: Compiler = null;
 describe('#Directives/NotParseDirective', () => {
 
 	beforeEach(() => {
-		let container = new Container;
+		container = new Container;
 		application = new Application(container);
 		compiler = container.get(<any>Compiler);
 	});
@@ -28,7 +29,7 @@ describe('#Directives/NotParseDirective', () => {
 		class Test {}
 
 		let el = Dom.el('<div><div test>{{ a }}, <span>{{ a }}</span>, <span [s:not-parse]>{{ a }}</span></div></div>');
-		let view = new ApplicationView(el, Test, {
+		let view = new ApplicationView(container, el, Test, {
 			a: 42,
 		});
 

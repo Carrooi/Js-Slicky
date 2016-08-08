@@ -3,13 +3,14 @@ import {Container} from '../../../../di';
 import {Dom} from '../../../../utils';
 import {TextBinding} from '../../../../src/Templating/Binding/TextBinding';
 import {ExpressionParser} from '../../../../src/Parsers/ExpressionParser';
-import {MockView} from '../../../mocks/MockView';
+import {MockApplicationView} from '../../../mocks/MockApplicationView';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 
+let container: Container = null;
 let application: Application = null;
 let compiler: Compiler = null;
 
@@ -17,7 +18,7 @@ let compiler: Compiler = null;
 describe('#Templating/Binding/TextBinding', () => {
 
 	beforeEach(() => {
-		let container = new Container;
+		container = new Container;
 		application = new Application(container);
 		compiler = container.get(<any>Compiler);
 	});
@@ -26,7 +27,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 		it('should evaluate expression in html', () => {
 			let el = Dom.el('<div> </div>');
-			let view = new ComponentView(new MockView, new ElementRef(el), {
+			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,
@@ -42,7 +43,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 		it('should change property when it is changed', (done) => {
 			let el = Dom.el('<div>a + b + c - 2</div>');
-			let view = new ComponentView(new MockView, new ElementRef(el), {
+			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,
@@ -71,7 +72,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 		it('should change property and stop watching for changes', (done) => {
 			let el = Dom.el('<div>a + b + c - 2</div>');
-			let view = new ComponentView(new MockView, new ElementRef(el), {
+			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,

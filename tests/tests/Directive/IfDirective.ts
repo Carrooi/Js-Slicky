@@ -2,13 +2,14 @@ import {Application, Compiler, ComponentView, Component, ElementRef, OnInit, OnD
 import {IfDirective} from '../../../common';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
-import {MockView} from '../../mocks/MockView';
+import {MockApplicationView} from '../../mocks/MockApplicationView';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 
+let container: Container = null;
 let application: Application = null;
 let compiler: Compiler = null;
 
@@ -16,14 +17,14 @@ let compiler: Compiler = null;
 describe('#Directives/IfDirective', () => {
 
 	beforeEach(() => {
-		let container = new Container;
+		container = new Container;
 		application = new Application(container);
 		compiler = container.get(<any>Compiler);
 	});
 
 	it('should bind new element', (done) => {
 		let el = Dom.el('<div><template [s:if]="!a">hello</template></div>');
-		let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+		let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.parameters['a'] = false;
@@ -38,7 +39,7 @@ describe('#Directives/IfDirective', () => {
 
 	it('should not bind new element', (done) => {
 		let el = Dom.el('<div><template [s:if]="!a">hello</template></div>');
-		let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+		let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.parameters['a'] = true;
@@ -53,7 +54,7 @@ describe('#Directives/IfDirective', () => {
 
 	it('should bind new element after a while and unbind it again', (done) => {
 		let el = Dom.el('<div><template [s:if]="!a">hello</template></div>');
-		let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+		let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.parameters['a'] = true;
@@ -90,7 +91,7 @@ describe('#Directives/IfDirective', () => {
 		}
 
 		let el = Dom.el('<div><template [s:if]="!a"><div test>hello</div></template></div>');
-		let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+		let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);
@@ -118,7 +119,7 @@ describe('#Directives/IfDirective', () => {
 		}
 
 		let el = Dom.el('<div><template [s:if]="!a"><div test>hello</div></template></div>');
-		let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+		let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);
@@ -152,7 +153,7 @@ describe('#Directives/IfDirective', () => {
 		}
 
 		let el = Dom.el('<div><template [s:if]="a"><div test>{{ t.s }}</div></template></div>');
-		let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+		let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);

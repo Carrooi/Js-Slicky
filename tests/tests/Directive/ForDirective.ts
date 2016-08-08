@@ -2,13 +2,14 @@ import {Application, Compiler, ComponentView, ElementRef, Component, OnInit, OnD
 import {ForDirective} from '../../../common';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
-import {MockView} from '../../mocks/MockView';
+import {MockApplicationView} from '../../mocks/MockApplicationView';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 
+let container: Container = null;
 let application: Application = null;
 let compiler: Compiler = null;
 
@@ -16,7 +17,7 @@ let compiler: Compiler = null;
 describe('#Directives/ForDirective', () => {
 
 	beforeEach(() => {
-		let container = new Container;
+		container = new Container;
 		application = new Application(container);
 		compiler = container.get(<any>Compiler);
 	});
@@ -25,7 +26,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should iterate through simple array list', (done) => {
 			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -40,7 +41,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should iterate through simple array list with key', (done) => {
 			let el = Dom.el('<ul><template [s:for]="#i, #user in users"><li>- {{ i + ": " + user }} -</li></template></ul>');
-			let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -55,7 +56,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should iterate through simple object', (done) => {
 			let el = Dom.el('<ul><template [s:for]="#value of options"><li>- {{ value }} -</li></template></ul>');
-			let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -74,7 +75,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should iterate through simple object with keys', (done) => {
 			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
-			let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -93,7 +94,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should update view when whole array is changed', (done) => {
 			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -114,7 +115,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should update view when new item is added to array', (done) => {
 			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -122,12 +123,10 @@ describe('#Directives/ForDirective', () => {
 			compiler.compileElement(view, el);
 			view.watcher.run();
 
-			let innerView = view.children[0];
-
 			setTimeout(() => {
 				expect(el.outerText).to.be.equal('- David -- John -- Clare -');
 
-				innerView.parameters['users'].push('Luke');
+				view.parameters['users'].push('Luke');
 
 				setTimeout(() => {
 					expect(el.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
@@ -138,7 +137,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should update view when item is remove from an array', (done) => {
 			let parent = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(new MockView, ElementRef.getByNode(parent));
+			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(parent));
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -146,12 +145,10 @@ describe('#Directives/ForDirective', () => {
 			compiler.compileElement(view, parent);
 			view.watcher.run();
 
-			let innerView = view.children[0];
-
 			setTimeout(() => {
 				expect(parent.outerText).to.be.equal('- David -- John -- Clare -');
 
-				innerView.parameters['users'].splice(-1, 1);
+				view.parameters['users'].splice(-1, 1);
 
 				setTimeout(() => {
 					expect(parent.outerText).to.be.equal('- David -- John -');
@@ -162,7 +159,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should update view when new item is added to an object', (done) => {
 			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
-			let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -174,12 +171,10 @@ describe('#Directives/ForDirective', () => {
 			compiler.compileElement(view, el);
 			view.watcher.run();
 
-			let innerView = view.children[0];
-
 			setTimeout(() => {
 				expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -');
 
-				innerView.parameters['options'].d = 4;
+				view.parameters['options'].d = 4;
 
 				setTimeout(() => {
 					expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -- d: 4 -');
@@ -190,7 +185,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should update view when item is removed from an object', (done) => {
 			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
-			let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -202,12 +197,10 @@ describe('#Directives/ForDirective', () => {
 			compiler.compileElement(view, el);
 			view.watcher.run();
 
-			let innerView = view.children[0];
-
 			setTimeout(() => {
 				expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -');
 
-				delete innerView.parameters['options'].c;
+				delete view.parameters['options'].c;
 
 				setTimeout(() => {
 					expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -');
@@ -237,7 +230,7 @@ describe('#Directives/ForDirective', () => {
 			}
 
 			let el = Dom.el('<div><template [s:for]="a in b"><div test>- {{ t.s }} ({{ t.num }}) -</div></template></div>');
-			let view = new ComponentView(new MockView, ElementRef.getByNode(el));
+			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.directives.push(Test);

@@ -1,8 +1,9 @@
 import {AbstractView} from './AbstractView';
-import {TemplateRef} from './../Templating/TemplateRef';
-import {ElementRef} from './../Templating/ElementRef';
+import {TemplateRef} from '../Templating/TemplateRef';
+import {ElementRef} from '../Templating/ElementRef';
 import {ComponentView} from './ComponentView';
-import {Dom} from './../Util/Dom';
+import {Dom} from '../Util/Dom';
+import {ParametersList} from '../Interfaces';
 
 
 export class EmbeddedView extends AbstractView
@@ -12,6 +13,8 @@ export class EmbeddedView extends AbstractView
 	private templateRef: TemplateRef;
 
 	public nodes: Array<Node> = [];
+	
+	public parameters: ParametersList = {};
 
 	private attached: boolean = false;
 
@@ -21,6 +24,16 @@ export class EmbeddedView extends AbstractView
 		super(view);
 
 		this.templateRef = templateRef;
+	}
+
+
+	public addParameter(name: string, value: any): void
+	{
+		if (typeof this.parameters[name] !== 'undefined') {
+			throw new Error('Can not import variable ' + name + ' since its already in use.');
+		}
+
+		this.parameters[name] = value;
 	}
 
 

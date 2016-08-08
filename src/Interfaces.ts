@@ -1,6 +1,12 @@
 import {ChangedObject} from './Util/Watcher';
 
 
+export declare interface ParametersList
+{
+	[name: string]: any;
+}
+
+
 export interface OnInit
 {
 

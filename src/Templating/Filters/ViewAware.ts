@@ -1,10 +1,10 @@
-import {AbstractView} from '../../Views/AbstractView';
+import {ComponentView} from '../../Views/ComponentView';
 
 
 export interface ViewAware
 {
 
 
-	onView(view: AbstractView): void;
+	onView(view: ComponentView): void;
 
 }

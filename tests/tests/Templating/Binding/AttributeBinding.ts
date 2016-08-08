@@ -3,13 +3,14 @@ import {Container} from '../../../../di';
 import {Dom} from '../../../../utils';
 import {AttributeBinding} from '../../../../src/Templating/Binding/AttributeBinding';
 import {ExpressionParser} from '../../../../src/Parsers/ExpressionParser';
-import {MockView} from '../../../mocks/MockView';
+import {MockApplicationView} from '../../../mocks/MockApplicationView';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 
+let container: Container = null;
 let application: Application = null;
 let compiler: Compiler = null;
 
@@ -17,7 +18,7 @@ let compiler: Compiler = null;
 describe('#Templating/Binding/AttributeBinding', () => {
 
 	beforeEach(() => {
-		let container = new Container;
+		container = new Container;
 		application = new Application(container);
 		compiler = container.get(<any>Compiler);
 	});
@@ -29,7 +30,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new ComponentView(new MockView, new ElementRef(el), {
+			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 				hello: 'good day',
 			});
 
@@ -45,7 +46,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new ComponentView(new MockView, new ElementRef(el), {
+			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,

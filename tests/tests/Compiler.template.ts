@@ -9,6 +9,7 @@ import chai = require('chai');
 
 let expect = chai.expect;
 
+let container: Container = null;
 let application: Application = null;
 let compiler: Compiler = null;
 
@@ -16,7 +17,7 @@ let compiler: Compiler = null;
 describe('#Compiler/template', () => {
 
 	beforeEach(() => {
-		let container = new Container;
+		container = new Container;
 		application = new Application(container);
 		compiler = container.get(<any>Compiler);
 	});
@@ -36,7 +37,7 @@ describe('#Compiler/template', () => {
 			let parent = Dom.el('<div><div test></div></div>');
 			let el = <HTMLDivElement>parent.children[0];
 
-			compiler.compile(new ApplicationView(parent, Test));
+			compiler.compile(new ApplicationView(container, parent, Test));
 
 			expect(el.innerHTML).to.be.equal('days: 2');
 		});
@@ -58,7 +59,7 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><div test></div></div>');
-			let view = new ApplicationView(parent, Test);
+			let view = new ApplicationView(container, parent, Test);
 			let el = <HTMLDivElement>parent.children[0];
 
 			compiler.compile(view);
@@ -81,14 +82,14 @@ describe('#Compiler/template', () => {
 
 			let parent = Dom.el('<div><div test></div></div>');
 			let el = <HTMLDivElement>parent.children[0];
-			let view = new ApplicationView(parent, Test);
+			let view = new ApplicationView(container, parent, Test);
 
 			view.parameters['alertType'] = 'success';
 
 			compiler.compile(view);
 			view.watcher.run();
 
-			let innerView = view.children[0];
+			let innerView = <ComponentView>view.children[0];
 
 			setTimeout(() => {
 				expect((<HTMLElement>el.children[0]).className).to.be.equal('success');
@@ -124,7 +125,7 @@ describe('#Compiler/template', () => {
 
 			let el = Dom.el('<div><div parent></div></div>');
 
-			compiler.compile(new ApplicationView(el, Parent));
+			compiler.compile(new ApplicationView(container, el, Parent));
 
 			expect(el.innerText).to.be.equal("I'm outer / I'm inner and my parent is outer");
 		});
@@ -148,7 +149,7 @@ describe('#Compiler/template', () => {
 
 			let parent = Dom.el('<div><div parent></div></div>');
 
-			compiler.compile(new ApplicationView(parent, Parent));
+			compiler.compile(new ApplicationView(container, parent, Parent));
 
 			let parentEl = <HTMLDivElement>parent.children[0];
 			let childEl = parentEl.children[0];
@@ -167,7 +168,7 @@ describe('#Compiler/template', () => {
 			let parent = Dom.el('<div><div app [unknown-prop]="a"></div></div>');
 
 			expect(() => {
-				compiler.compile(new ApplicationView(parent, App));
+				compiler.compile(new ApplicationView(container, parent, App));
 			}).to.throw(Error, 'Could not bind property unknown-prop to element div or to any of its directives.');
 		});
 
@@ -190,7 +191,7 @@ describe('#Compiler/template', () => {
 
 			let el = Dom.el('<div><div test></div></div>');
 
-			compiler.compile(new ApplicationView(el, Test));
+			compiler.compile(new ApplicationView(container, el, Test));
 
 			let link = el.querySelector('a');
 
@@ -216,7 +217,7 @@ describe('#Compiler/template', () => {
 
 			let el = Dom.el('<div><div test></div></div>');
 
-			compiler.compile(new ApplicationView(el, Test));
+			compiler.compile(new ApplicationView(container, el, Test));
 
 			expect(el.innerText).to.be.equal('1');
 		});
@@ -241,7 +242,7 @@ describe('#Compiler/template', () => {
 
 			let parent = Dom.el('<div><div test></div></div>');
 
-			compiler.compile(new ApplicationView(parent, TestComponent));
+			compiler.compile(new ApplicationView(container, parent, TestComponent));
 
 			expect(parent.innerText).to.be.equal('hello');
 		});
@@ -258,7 +259,7 @@ describe('#Compiler/template', () => {
 
 			let el = Dom.el('<div><div test></div></div>');
 
-			compiler.compile(new ApplicationView(el, Test));
+			compiler.compile(new ApplicationView(container, el, Test));
 
 			expect(el.innerText).to.be.equal('lorem');
 		});
@@ -285,7 +286,7 @@ describe('#Compiler/template', () => {
 
 			let el = Dom.el('<div><div test></div></div>');
 
-			compiler.compile(new ApplicationView(el, Test));
+			compiler.compile(new ApplicationView(container, el, Test));
 
 			expect(el.innerText).to.be.equal('2');
 		});
@@ -319,7 +320,7 @@ describe('#Compiler/template', () => {
 
 			let el = Dom.el('<div><app></app></div>');
 
-			compiler.compile(new ApplicationView(el, App));
+			compiler.compile(new ApplicationView(container, el, App));
 
 			expect(el.innerText).to.be.equal('2');
 		});
@@ -346,7 +347,7 @@ describe('#Compiler/template', () => {
 
 			let el = Dom.el('<div><div root></div></div>');
 
-			compiler.compile(new ApplicationView(el, Root));
+			compiler.compile(new ApplicationView(container, el, Root));
 
 			expect(el.innerText).to.be.equal('inner component');
 		});
@@ -373,7 +374,7 @@ describe('#Compiler/template', () => {
 			let parent = Dom.el('<div><div app>num: {{ app.num }} / <div test></div></div></div>');
 			let el = <HTMLDivElement>parent.children[0];
 
-			compiler.compile(new ApplicationView(parent, Main));
+			compiler.compile(new ApplicationView(container, parent, Main));
 
 			expect(el.innerText).to.be.equal('num: 20 / num: 4');
 		});
@@ -399,7 +400,7 @@ describe('#Compiler/template', () => {
 			let parent = Dom.el('<div><div app>num: {{ app.num }} / <div test>num: {{ app.num / test.num }}</div></div></div>');
 			let el = <HTMLDivElement>parent.children[0];
 
-			compiler.compile(new ApplicationView(parent, Main));
+			compiler.compile(new ApplicationView(container, parent, Main));
 
 			expect(el.innerText).to.be.equal('num: 20 / num: 4');
 		});
@@ -419,7 +420,7 @@ describe('#Compiler/template', () => {
 			class Main {}
 
 			let parent = Dom.el('<div><div app><div test [upperCasedInput]="a"></div></div></div>');
-			var view = new ApplicationView(parent, Main, {a: 'hello'});
+			var view = new ApplicationView(container, parent, Main, {a: 'hello'});
 
 			compiler.compile(view);
 			view.watcher.run();
@@ -452,7 +453,7 @@ describe('#Compiler/template', () => {
 			class Main {}
 
 			let parent = Dom.el('<div><div app><div test [input]="a"></div></div></div>');
-			var view = new ApplicationView(parent, Main, {a: 'hello'});
+			var view = new ApplicationView(container, parent, Main, {a: 'hello'});
 
 			compiler.compile(view);
 			view.watcher.run();
@@ -479,7 +480,7 @@ describe('#Compiler/template', () => {
 			class App {}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 
@@ -511,7 +512,7 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 			view.watcher.run();
@@ -541,7 +542,7 @@ describe('#Compiler/template', () => {
 			class App {}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			view.parameters['a'] = 'hello';
 
@@ -573,7 +574,7 @@ describe('#Compiler/template', () => {
 			class App {}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			view.parameters['list'] = ['hello'];
 
@@ -623,7 +624,7 @@ describe('#Compiler/template', () => {
 			class App {}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 			view.watcher.run();
@@ -671,7 +672,7 @@ describe('#Compiler/template', () => {
 			class App {}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 			view.watcher.run();
@@ -701,7 +702,7 @@ describe('#Compiler/template', () => {
 			class App {}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			view.parameters['items'] = ['a', 'b'];
 
@@ -723,12 +724,12 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 			view.watcher.run();
 
-			let appView = view.children[0];
+			let appView = <ComponentView>view.children[0];
 
 			setTimeout(() => {
 				expect(parent.innerText).to.be.equal('hello world');
@@ -751,7 +752,7 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><app [data]=\'{"a.b.c": "hello"}\'></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			view.parameters = {a: 'test'};
 

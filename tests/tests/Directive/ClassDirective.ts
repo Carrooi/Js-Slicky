@@ -2,13 +2,14 @@ import {ClassDirective} from '../../../common';
 import {Application, Compiler, ComponentView, ElementRef} from '../../../core';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
-import {MockView} from '../../mocks/MockView';
+import {MockApplicationView} from '../../mocks/MockApplicationView';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 
+let container: Container = null;
 let application: Application = null;
 let compiler: Compiler = null;
 
@@ -16,7 +17,7 @@ let compiler: Compiler = null;
 describe('#Directives/ClassDirective', () => {
 
 	beforeEach(() => {
-		let container = new Container;
+		container = new Container;
 		application = new Application(container);
 		compiler = container.get(<any>Compiler);
 	});
@@ -25,7 +26,7 @@ describe('#Directives/ClassDirective', () => {
 		let el = Dom.el('<span [s:class]="{icon: true}"></span>');
 		let elementRef = new ElementRef(el);
 
-		let view = new ComponentView(new MockView, elementRef);
+		let view = new ComponentView(new MockApplicationView(container), elementRef);
 		view.directives.push(ClassDirective);
 
 		expect(el.classList.contains('icon')).to.be.equal(false);
@@ -39,7 +40,7 @@ describe('#Directives/ClassDirective', () => {
 		let el = Dom.el('<span [s:class]="{icon: false}" class="icon"></span>');
 		let elementRef = new ElementRef(el);
 
-		let view = new ComponentView(new MockView, elementRef);
+		let view = new ComponentView(new MockApplicationView(container), elementRef);
 		view.directives.push(ClassDirective);
 
 		expect(el.classList.contains('icon')).to.be.equal(true);

@@ -9,6 +9,7 @@ import chai = require('chai');
 
 let expect = chai.expect;
 
+let container: Container = null;
 let application: Application = null;
 let compiler: Compiler = null;
 
@@ -16,7 +17,7 @@ let compiler: Compiler = null;
 describe('#Compiler/template', () => {
 
 	beforeEach(() => {
-		let container = new Container;
+		container = new Container;
 		container.provide(Translator);
 		application = new Application(container);
 		compiler = container.get(<any>Compiler);
@@ -40,7 +41,7 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 
@@ -63,7 +64,7 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 
@@ -92,7 +93,7 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 
@@ -115,7 +116,7 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 
@@ -138,7 +139,7 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 
@@ -161,7 +162,7 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 
@@ -184,7 +185,7 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 
@@ -217,7 +218,7 @@ describe('#Compiler/template', () => {
 			}
 
 			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(parent, App);
+			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
 

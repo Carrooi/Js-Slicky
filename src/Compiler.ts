@@ -13,7 +13,6 @@ import {PropertyBinding} from './Templating/Binding/PropertyBinding';
 import {AttributeBinding} from './Templating/Binding/AttributeBinding';
 import {ComponentView} from './Views/ComponentView';
 import {ApplicationView} from './Views/ApplicationView';
-import {AbstractView} from './Views/AbstractView';
 import {ElementRef, AttributesList} from './Templating/ElementRef';
 import {TemplateRef} from './Templating/TemplateRef';
 import {Annotations} from './Util/Annotations';
@@ -22,7 +21,6 @@ import {ComponentMetadataDefinition} from './Entity/Metadata';
 import {DirectiveMetadataDefinition} from './Entity/Metadata';
 import {ExpressionParser} from './Parsers/ExpressionParser';
 import {EmbeddedView} from './Views/EmbeddedView';
-import {DefaultFilters} from './Templating/Filters/DefaultFilters';
 
 
 @Injectable()
@@ -58,17 +56,13 @@ export class Compiler
 			return;
 		}
 
-		for (let i = 0; i < DefaultFilters.length; i++) {
-			appView.addFilter(this.container, DefaultFilters[i]);
-		}
-
 		let view = appView.createApplicationComponentView(el);
 
 		this.compileElement(view, <HTMLElement>el);
 	}
 
 
-	public compileNodes(view: AbstractView, nodes: NodeList|Array<Node>): void
+	public compileNodes(view: ComponentView|EmbeddedView, nodes: NodeList|Array<Node>): void
 	{
 		if (nodes instanceof NodeList) {
 			nodes = Helpers.toArray(nodes);
@@ -80,7 +74,13 @@ export class Compiler
 		if (currentView instanceof EmbeddedView) {
 			currentView = (<EmbeddedView>currentView).getView();
 			originalParameters = currentView.parameters;
-			currentView.parameters = view.parameters;
+			currentView.parameters = Helpers.clone(currentView.parameters);
+			
+			for (let name in view.parameters) {
+				if (view.parameters.hasOwnProperty(name)) {
+					currentView.addParameter(name, view.parameters[name]);
+				}
+			}
 		}
 
 		for (let i = 0; i < nodes.length; i++) {

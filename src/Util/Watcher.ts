@@ -1,7 +1,7 @@
-import {ParametersList} from '../Views/AbstractView';
 import {Expression} from '../Parsers/ExpressionParser';
 import {VariableToken} from '../Parsers/VariableParser';
 import {Helpers} from './Helpers';
+import {ParametersList} from '../Interfaces';
 
 
 declare interface ChangedProperty

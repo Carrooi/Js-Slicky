@@ -3,13 +3,14 @@ import {Container} from '../../../../di';
 import {Dom} from '../../../../utils';
 import {EventBinding} from '../../../../src/Templating/Binding/EventBinding';
 import {ExpressionParser} from '../../../../src/Parsers/ExpressionParser';
-import {MockView} from '../../../mocks/MockView';
+import {MockApplicationView} from '../../../mocks/MockApplicationView';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 
+let container: Container = null;
 let application: Application = null;
 let compiler: Compiler = null;
 
@@ -17,7 +18,7 @@ let compiler: Compiler = null;
 describe('#Templating/Binding/EventBinding', () => {
 
 	beforeEach(() => {
-		let container = new Container;
+		container = new Container;
 		application = new Application(container);
 		compiler = container.get(<any>Compiler);
 	});
@@ -27,7 +28,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		expect(el['test']).to.be.equal(undefined);
 
-		let view = new ComponentView(new MockView, new ElementRef(el), {
+		let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 			onClick: function(e: Event) {
 				expect(e).to.be.an.instanceOf(Event);
 				done();
@@ -45,7 +46,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		expect(el['test']).to.be.equal(undefined);
 
-		let view = new ComponentView(new MockView, new ElementRef(el), {
+		let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 			obj: {
 				onClick: function(e: Event) {
 					expect(e).to.be.an.instanceOf(Event);
@@ -67,7 +68,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		expect(el['test']).to.be.equal(undefined);
 
-		let view = new ComponentView(new MockView, new ElementRef(el), {
+		let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 			onClick: function(num: number, letter: string, e: Event, fn: Function, mixed: string) {
 				expect(num).to.be.equal(1);
 				expect(letter).to.be.equal('a');
@@ -90,7 +91,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		expect(el['test']).to.be.equal(undefined);
 
-		let view = new ComponentView(new MockView, new ElementRef(el), {
+		let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 			onClick: function(e: Event, targetEl: HTMLLinkElement) {
 				expect(e).to.be.an.instanceOf(Event);
 				expect(targetEl).to.be.equal(el);
@@ -109,7 +110,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		expect(el['test']).to.be.equal(undefined);
 
-		let view = new ComponentView(new MockView, new ElementRef(el), {
+		let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 			onClick: function() {
 				done();
 			},
@@ -126,7 +127,7 @@ describe('#Templating/Binding/EventBinding', () => {
 		let called = 0;
 
 		let el = Dom.el('<a href="#" (click|mousedown)="' + code + '"></a>');
-		let view = new ComponentView(new MockView, new ElementRef(el), {
+		let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 			obj: {
 				onChange: function(e: Event) {
 					expect(e).to.be.an.instanceOf(Event);
