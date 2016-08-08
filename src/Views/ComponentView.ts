@@ -170,7 +170,7 @@ export class ComponentView extends AbstractView
 	}
 
 
-	public createDirectiveInstance(container: Container, definition: DirectiveDefinition, elementRef: ElementRef, templateRef: TemplateRef): any
+	public createDirectiveInstance(container: Container, definition: DirectiveDefinition, elementRef: ElementRef, templateRef?: TemplateRef): any
 	{
 		return container.create(<any>definition.directive, [
 			{
@@ -180,15 +180,21 @@ export class ComponentView extends AbstractView
 				},
 			},
 			{
-				service: TemplateRef,
-				options: {
-					useFactory: () => templateRef,
-				},
-			},
-			{
 				service: ComponentView,
 				options: {
 					useFactory: () => this,
+				},
+			},
+			{
+				service: TemplateRef,
+				options: {
+					useFactory: () => {
+						if (!templateRef) {
+							throw new Error('Can not import service "TemplateRef" into directive "' + definition.name + '". Element "' + Dom.getReadableName(<Element>elementRef.nativeEl) + '" is not inside of any <template> element.');
+						}
+
+						return templateRef;
+					},
 				},
 			},
 		]);

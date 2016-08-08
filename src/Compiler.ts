@@ -90,18 +90,21 @@ export class Compiler
 				this.compileText(<ComponentView>currentView, <Text>child);
 
 			} else if (child.nodeType === Node.ELEMENT_NODE) {
+				let templateRef = null;
+
 				if (child.nodeName.toUpperCase() !== 'TEMPLATE') {
 					child = this.tryTransformToTemplate(<Element>child);
 				}
 
 				if (child.nodeName.toUpperCase() === 'TEMPLATE') {
 					let el = ElementRef.getByNode(child);
+					templateRef = new TemplateRef(el);
 
 					el.createMarker();
 					el.remove();
 				}
 
-				this.compileElement(<ComponentView>currentView, <HTMLElement>child);
+				this.compileElement(<ComponentView>currentView, <HTMLElement>child, templateRef);
 			}
 		}
 
@@ -111,7 +114,7 @@ export class Compiler
 	}
 
 
-	public compileElement(parentView: ComponentView, el: HTMLElement): void
+	public compileElement(parentView: ComponentView, el: HTMLElement, templateRef?: TemplateRef): void
 	{
 		let attributes = ElementRef.getAttributes(el);
 
@@ -172,7 +175,7 @@ export class Compiler
 					directiveView = parentView.fork(ElementRef.getByNode(el));
 				}
 
-				let innerCompiled = this.useDirective(directiveView, definition, el, attributes);
+				let innerCompiled = this.useDirective(directiveView, definition, el, attributes, templateRef);
 
 				if (!innerCompiled && definition.metadata.compileInner) {
 					innerCompilationNeeded = true;
@@ -255,11 +258,9 @@ export class Compiler
 	}
 
 
-	private useDirective(view: ComponentView, definition: DirectiveDefinition, el: Element, attributes: AttributesList): boolean
+	private useDirective(view: ComponentView, definition: DirectiveDefinition, el: Element, attributes: AttributesList, templateRef?: TemplateRef): boolean
 	{
 		let elementRef = ElementRef.getByNode(el);
-		let templateRef = new TemplateRef(elementRef);
-
 		let instance = view.createDirectiveInstance(this.container, definition, elementRef, templateRef);
 		let directiveInstance: DirectiveInstance = null;
 		let innerCompiled = false;

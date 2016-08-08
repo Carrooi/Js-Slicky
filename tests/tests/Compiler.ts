@@ -1,7 +1,7 @@
 import {
 	Application, Compiler,
 	ComponentView, ApplicationView,
-	ElementRef,
+	ElementRef, TemplateRef,
 	Component,
 	HostEvent, HostElement,
 	OnDestroy,
@@ -419,6 +419,22 @@ describe('#Compiler', () => {
 			expect(() => {
 				compiler.compile(new ApplicationView(container, parent, App));
 			}).to.throw(Error, 'Can\'t attach component "Two" to element "div" since it\'s already attached to component "One".');
+		});
+
+		it('should throw an error when trying to inject TemplateRef in non template element', () => {
+			@Component({
+				selector: 'app',
+			})
+			class App {
+				constructor(templateRef: TemplateRef) {}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let appView = new ApplicationView(container, el, App);
+
+			expect(() => {
+				compiler.compile(appView);
+			}).to.throw(Error, 'Can not import service "TemplateRef" into directive "App". Element "app" is not inside of any <template> element.');
 		});
 
 	});
