@@ -74,24 +74,24 @@ export class Compiler
 			nodes = Helpers.toArray(nodes);
 		}
 
+		let currentView = view;
+		let originalParameters = null;
+
+		if (currentView instanceof EmbeddedView) {
+			currentView = (<EmbeddedView>currentView).getView();
+			originalParameters = currentView.parameters;
+			currentView.parameters = view.parameters;
+		}
+
 		for (let i = 0; i < nodes.length; i++) {
 			let child = nodes[i];
 
 			if (child.nodeType === Node.TEXT_NODE) {
-				this.compileText(view, <Text>child);
+				this.compileText(<ComponentView>currentView, <Text>child);
 
 			} else if (child.nodeType === Node.ELEMENT_NODE) {
 				if (child.nodeName.toUpperCase() !== 'TEMPLATE') {
 					child = this.tryTransformToTemplate(<Element>child);
-				}
-
-				let innerView = view;
-				let originalParameters = null;
-
-				if (innerView instanceof EmbeddedView) {
-					innerView = (<EmbeddedView>innerView).getView();
-					originalParameters = innerView.parameters;
-					innerView.parameters = view.parameters;
 				}
 
 				if (child.nodeName.toUpperCase() === 'TEMPLATE') {
@@ -101,12 +101,12 @@ export class Compiler
 					el.remove();
 				}
 
-				this.compileElement(<ComponentView>innerView, <HTMLElement>child);
-
-				if (originalParameters !== null) {
-					innerView.parameters = originalParameters;
-				}
+				this.compileElement(<ComponentView>currentView, <HTMLElement>child);
 			}
+		}
+
+		if (originalParameters !== null) {
+			currentView.parameters = originalParameters;
 		}
 	}
 
@@ -192,7 +192,7 @@ export class Compiler
 	}
 
 
-	public compileText(view: AbstractView, text: Text): void
+	public compileText(view: ComponentView, text: Text): void
 	{
 		let tokens = TextParser.parse(text.nodeValue);
 
