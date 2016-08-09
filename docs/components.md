@@ -25,6 +25,34 @@ actually have to assign it with `controllerAs` option.
 
 Then you can use it eg. in template (see above) with `t.hello`. 
 
+## Overwriting component name
+
+Sometimes you may actually want to stack one component into itself. Unfortunately 
+in such a case you will face a problem with how to access parent or child component 
+from one template.
+
+Luckily you can overwrite exported name of component in place of usage with `#`.
+
+```ts
+@Component({
+	selector: 'stackable',
+	controllerAs: 's',
+})
+class Stackable { ... }
+```
+
+```html
+<stackable>
+	{{ s.id }}
+	<stackable #s2>
+		{{ s2.id }}
+		<stackable #s3>
+			{{ s3.id }}
+		</stackable>
+	</stackable>
+</stackable>
+```
+
 ## Accessibility of components and directives
 
 Now you won't be able to automatically use all of your 

@@ -117,10 +117,17 @@ export class Compiler
 	public compileElement(parentView: ComponentView, el: HTMLElement, templateRef?: TemplateRef): void
 	{
 		let attributes = ElementRef.getAttributes(el);
+		let controllerName: string = null;
 
 		for (let attrName in attributes) {
 			if (attributes.hasOwnProperty(attrName)) {
 				let attr = attributes[attrName];
+
+				if (attr.controllerName) {
+					controllerName = attr.name;
+					attr.bound = true;
+					continue;
+				}
 
 				if (attr.expression === '') {
 					continue;
@@ -175,7 +182,7 @@ export class Compiler
 					directiveView = parentView.fork(ElementRef.getByNode(el));
 				}
 
-				let innerCompiled = this.useDirective(directiveView, definition, el, attributes, templateRef);
+				let innerCompiled = this.useDirective(directiveView, definition, el, attributes, templateRef, controllerName);
 
 				if (!innerCompiled && definition.metadata.compileInner) {
 					innerCompilationNeeded = true;
@@ -258,7 +265,7 @@ export class Compiler
 	}
 
 
-	private useDirective(view: ComponentView, definition: DirectiveDefinition, el: Element, attributes: AttributesList, templateRef?: TemplateRef): boolean
+	private useDirective(view: ComponentView, definition: DirectiveDefinition, el: Element, attributes: AttributesList, templateRef?: TemplateRef, controllerName?: string): boolean
 	{
 		let elementRef = ElementRef.getByNode(el);
 		let instance = view.createDirectiveInstance(this.container, definition, elementRef, templateRef);
@@ -266,7 +273,7 @@ export class Compiler
 		let innerCompiled = false;
 
 		if (definition.metadata instanceof ComponentMetadataDefinition) {
-			directiveInstance = view.setComponent(this.container, <ControllerDefinition>definition, instance);
+			directiveInstance = view.setComponent(this.container, <ControllerDefinition>definition, instance, controllerName);
 		} else {
 			directiveInstance = view.attachDirective(definition, instance, el);
 		}

@@ -239,7 +239,7 @@ export class ComponentView extends AbstractView
 	}
 
 
-	public setComponent(container: Container, definition: ControllerDefinition, component: any): ComponentInstance
+	public setComponent(container: Container, definition: ControllerDefinition, component: any, controllerName?: string): ComponentInstance
 	{
 		if (this.component) {
 			throw new Error('Can\'t attach component "' + definition.name + '" to element "' + Dom.getReadableName(<Element>this.el.nativeEl) + '" since it\'s already attached to component "' + this.component.definition.name + '".');
@@ -253,8 +253,8 @@ export class ComponentView extends AbstractView
 		let filters = definition.metadata.filters;
 		let translations = definition.metadata.translations;
 
-		if (definition.metadata.controllerAs) {
-			this.addParameter(definition.metadata.controllerAs, component);
+		if (controllerName || definition.metadata.controllerAs) {
+			this.addParameter(controllerName ? controllerName : definition.metadata.controllerAs, component);
 		}
 
 		for (let i = 0; i < directives.length; i++) {

@@ -5,6 +5,7 @@ declare interface AttributeProperty
 {
 	name: string;
 	expression: string;
+	controllerName: boolean;
 	property: boolean;
 	event: boolean;
 	bound: boolean;
@@ -105,8 +106,14 @@ export class ElementRef
 
 			let name = attr.name.toLowerCase();
 
+			let controllerName = false;
 			let property = false;
 			let event = false;
+
+			if (name.match(/^#/)) {
+				name = name.substring(1);
+				controllerName = true;
+			}
 
 			if (name.match(/^\[.+?\]$/)) {
 				name = name.substring(1, name.length - 1);
@@ -121,6 +128,7 @@ export class ElementRef
 			attributes[name] = {
 				name: name,
 				expression: attr.value,
+				controllerName: controllerName,
 				property: property,
 				event: event,
 				bound: false,

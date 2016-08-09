@@ -692,6 +692,25 @@ describe('#Compiler/template', () => {
 			expect(el.innerText).to.be.equal('hi');
 		});
 
+		it('should change local template name of component', () => {
+			let id = 0;
+
+			@Component({
+				selector: 'test',
+				controllerAs: 't',
+			})
+			class Test {
+				id = id++;
+			}
+
+			let el = Dom.el('<div><test>{{ t.id }}, <test #a>{{ a.id }}, <test #b>{{ b.id }}</test></test></test></div>');
+			let view = new ApplicationView(container, el, Test);
+
+			compiler.compile(view);
+
+			expect(el.innerText).to.be.equal('0, 1, 2');
+		});
+
 	});
 
 });
