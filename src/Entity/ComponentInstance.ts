@@ -21,10 +21,10 @@ export class ComponentInstance extends DirectiveInstance
 	public processInnerHTML(compiler: Compiler): boolean
 	{
 		if (this.definition.metadata.template) {
-			this.el.innerHTML = this.definition.metadata.template;
+			(<HTMLElement>this.el).innerHTML = this.definition.metadata.template;
 		}
 
-		if (this.el.innerHTML !== '' && this.definition.metadata.compileInner) {
+		if ((<HTMLElement>this.el).innerHTML !== '' && this.definition.metadata.compileInner) {
 			compiler.compileNodes(this.view, this.el.childNodes);
 			return true;
 		}

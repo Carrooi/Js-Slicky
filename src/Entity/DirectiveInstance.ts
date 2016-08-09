@@ -123,31 +123,33 @@ export class DirectiveInstance
 	{
 		for (let eventName in this.definition.events) {
 			if (this.definition.events.hasOwnProperty(eventName)) {
-				let event = this.definition.events[eventName];
+				((eventName, event) => {
+					if (event.el === '@') {
+						this.view.run(() => Dom.addEventListener(this.el, event.name, this.instance, this.instance[eventName]));
 
-				if (event.el === '@') {
-					this.view.run(() => Dom.addEventListener(this.el, event.name, this.instance, this.instance[eventName]));
+					} else {
+						if (typeof event.el === 'string' && (<string>event.el).substr(0, 1) === '@') {
+							let childName = (<string>event.el).substr(1);
+							if (typeof this.instance[childName] === 'undefined') {
+								throw new Error('Can not add event listener for @' + childName + ' at ' + this.definition.name);
+							}
 
-				} else {
-					if (typeof event.el === 'string' && (<string>event.el).substr(0, 1) === '@') {
-						let childName = (<string>event.el).substr(1);
-						if (typeof this.instance[childName] === 'undefined') {
-							throw new Error('Can not add event listener for @' + childName + ' at ' + this.definition.name);
+							this.view.run(() => Dom.addEventListener(this.instance[childName], event.name, this.instance, this.instance[eventName]));
+
+						} else if (typeof event.el === 'string') {
+							let eventEls = Dom.querySelectorAll(<string>event.el, this.el);
+							for (let j = 0; j < eventEls.length; j++) {
+								((j) => {
+									this.view.run(() => Dom.addEventListener(eventEls[j], event.name, this.instance, this.instance[eventName]));
+								})(j);
+							}
+
+						} else if (event.el instanceof Window || event.el instanceof Node) {
+							this.view.run(() => Dom.addEventListener(<Node>event.el, event.name, this.instance, this.instance[eventName]));
+
 						}
-
-						this.view.run(() => Dom.addEventListener(this.instance[childName], event.name, this.instance, this.instance[eventName]));
-
-					} else if (typeof event.el === 'string') {
-						let eventEls = Dom.querySelectorAll(<string>event.el, this.el);
-						for (let j = 0; j < eventEls.length; j++) {
-							this.view.run(() => Dom.addEventListener(eventEls[j], event.name, this.instance, this.instance[eventName]));
-						}
-
-					} else if (event.el instanceof Window || event.el instanceof Node) {
-						this.view.run(() => Dom.addEventListener(<Node>event.el, event.name, this.instance, this.instance[eventName]));
-
 					}
-				}
+				})(eventName, this.definition.events[eventName]);
 			}
 		}
 	}
