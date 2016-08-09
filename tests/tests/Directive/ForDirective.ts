@@ -92,7 +92,7 @@ describe('#Directives/ForDirective', () => {
 			}, 100);
 		});
 
-		it('should update view when whole array is changed', (done) => {
+		it('should update view when whole array is changed', () => {
 			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
@@ -100,20 +100,16 @@ describe('#Directives/ForDirective', () => {
 			view.parameters['users'] = ['David', 'John', 'Clare'];
 
 			compiler.compileElement(view, el);
-			view.watcher.run();
 
-			setTimeout(() => {
-				expect(el.outerText).to.be.equal('- David -- John -- Clare -');
-				view.parameters['users'] = ['David', 'John', 'Clare', 'Luke'];
+			expect(el.outerText).to.be.equal('- David -- John -- Clare -');
 
-				setTimeout(() => {
-					expect(el.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
-					done();
-				}, 100);
-			}, 100);
+			view.parameters['users'] = ['David', 'John', 'Clare', 'Luke'];
+			view.changeDetectorRef.refresh();
+
+			expect(el.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
 		});
 
-		it('should update view when new item is added to array', (done) => {
+		it('should update view when new item is added to array', () => {
 			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
@@ -121,21 +117,16 @@ describe('#Directives/ForDirective', () => {
 			view.parameters['users'] = ['David', 'John', 'Clare'];
 
 			compiler.compileElement(view, el);
-			view.watcher.run();
 
-			setTimeout(() => {
-				expect(el.outerText).to.be.equal('- David -- John -- Clare -');
+			expect(el.outerText).to.be.equal('- David -- John -- Clare -');
 
-				view.parameters['users'].push('Luke');
+			view.parameters['users'].push('Luke');
+			view.changeDetectorRef.refresh();
 
-				setTimeout(() => {
-					expect(el.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
-					done();
-				}, 100);
-			}, 100);
+			expect(el.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
 		});
 
-		it('should update view when item is remove from an array', (done) => {
+		it('should update view when item is remove from an array', () => {
 			let parent = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(parent));
 
@@ -143,21 +134,16 @@ describe('#Directives/ForDirective', () => {
 			view.parameters['users'] = ['David', 'John', 'Clare'];
 
 			compiler.compileElement(view, parent);
-			view.watcher.run();
 
-			setTimeout(() => {
-				expect(parent.outerText).to.be.equal('- David -- John -- Clare -');
+			expect(parent.outerText).to.be.equal('- David -- John -- Clare -');
 
-				view.parameters['users'].splice(-1, 1);
+			view.parameters['users'].splice(-1, 1);
+			view.changeDetectorRef.refresh();
 
-				setTimeout(() => {
-					expect(parent.outerText).to.be.equal('- David -- John -');
-					done();
-				}, 100);
-			}, 100);
+			expect(parent.outerText).to.be.equal('- David -- John -');
 		});
 
-		it('should update view when new item is added to an object', (done) => {
+		it('should update view when new item is added to an object', () => {
 			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
 			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
@@ -169,21 +155,16 @@ describe('#Directives/ForDirective', () => {
 			};
 
 			compiler.compileElement(view, el);
-			view.watcher.run();
 
-			setTimeout(() => {
-				expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -');
+			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -');
 
-				view.parameters['options'].d = 4;
+			view.parameters['options'].d = 4;
+			view.changeDetectorRef.refresh();
 
-				setTimeout(() => {
-					expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -- d: 4 -');
-					done();
-				}, 100);
-			}, 100);
+			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -- d: 4 -');
 		});
 
-		it('should update view when item is removed from an object', (done) => {
+		it('should update view when item is removed from an object', () => {
 			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
 			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
@@ -195,21 +176,16 @@ describe('#Directives/ForDirective', () => {
 			};
 
 			compiler.compileElement(view, el);
-			view.watcher.run();
 
-			setTimeout(() => {
-				expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -');
+			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -');
 
-				delete view.parameters['options'].c;
+			delete view.parameters['options'].c;
+			view.changeDetectorRef.refresh();
 
-				setTimeout(() => {
-					expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -');
-					done();
-				}, 100);
-			}, 100);
+			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -');
 		});
 
-		it('should create new component, destroy it and create again', (done) => {
+		it('should create new component, destroy it and create again', () => {
 			let initCalled = 0;
 			let destroyCalled = 0;
 
@@ -237,40 +213,32 @@ describe('#Directives/ForDirective', () => {
 			view.parameters['b'] = [];
 
 			compiler.compileElement(view, el);
-			view.watcher.run();
 
-			setTimeout(() => {
-				expect(initCalled).to.be.equal(0);
-				expect(destroyCalled).to.be.equal(0);
-				expect(el.innerText).to.be.equal('');
+			expect(initCalled).to.be.equal(0);
+			expect(destroyCalled).to.be.equal(0);
+			expect(el.innerText).to.be.equal('');
 
-				view.parameters['b'].push(null);
+			view.parameters['b'].push(null);
+			view.changeDetectorRef.refresh();
 
-				setTimeout(() => {
-					expect(initCalled).to.be.equal(1);
-					expect(destroyCalled).to.be.equal(0);
-					expect(el.innerText).to.be.equal('- exists (1) -');
+			expect(initCalled).to.be.equal(1);
+			expect(destroyCalled).to.be.equal(0);
+			expect(el.innerText).to.be.equal('- exists (1) -');
 
-					view.parameters['b'].splice(0, 1);
+			view.parameters['b'].splice(0, 1);
+			view.changeDetectorRef.refresh();
 
-					setTimeout(() => {
-						expect(initCalled).to.be.equal(1);
-						expect(destroyCalled).to.be.equal(1);
-						expect(el.innerText).to.be.equal('');
+			expect(initCalled).to.be.equal(1);
+			expect(destroyCalled).to.be.equal(1);
+			expect(el.innerText).to.be.equal('');
 
-						view.parameters['b'].push(null);
-						view.parameters['b'].push(null);
+			view.parameters['b'].push(null);
+			view.parameters['b'].push(null);
+			view.changeDetectorRef.refresh();
 
-						setTimeout(() => {
-							expect(initCalled).to.be.equal(3);
-							expect(destroyCalled).to.be.equal(1);
-							expect(el.innerText).to.be.equal('- exists (2) -- exists (3) -');
-
-							done();
-						}, 150);
-					}, 150);
-				}, 150);
-			}, 150);
+			expect(initCalled).to.be.equal(3);
+			expect(destroyCalled).to.be.equal(1);
+			expect(el.innerText).to.be.equal('- exists (2) -- exists (3) -');
 		});
 
 	});

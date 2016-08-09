@@ -38,7 +38,6 @@ export class Application
 		setTimeout(() => {
 			let view = new ApplicationView(this.container, <any>document, controller);
 			this.compiler.compile(view);
-			view.watcher.run();
 		}, 0);
 	}
 

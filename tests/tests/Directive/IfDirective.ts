@@ -52,7 +52,7 @@ describe('#Directives/IfDirective', () => {
 		}, 100);
 	});
 
-	it('should bind new element after a while and unbind it again', (done) => {
+	it('should bind new element after a while and unbind it again', () => {
 		let el = Dom.el('<div><template [s:if]="!a">hello</template></div>');
 		let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
@@ -60,22 +60,18 @@ describe('#Directives/IfDirective', () => {
 		view.parameters['a'] = true;
 
 		compiler.compileElement(view, el);
-		view.watcher.run();
 
-		setTimeout(() => {
-			expect(el.innerText).to.be.equal('');
-			view.parameters['a'] = false;
+		expect(el.innerText).to.be.equal('');
 
-			setTimeout(() => {
-				expect(el.innerText).to.be.equal('hello');
-				view.parameters['a'] = true;
+		view.parameters['a'] = false;
+		view.changeDetectorRef.refresh();
 
-				setTimeout(() => {
-					expect(el.innerText).to.be.equal('');
-					done();
-				}, 100);
-			}, 100);
-		}, 100);
+		expect(el.innerText).to.be.equal('hello');
+
+		view.parameters['a'] = true;
+		view.changeDetectorRef.refresh();
+
+		expect(el.innerText).to.be.equal('');
 	});
 
 	it('should not create instance of controller if not truthy', (done) => {
@@ -134,7 +130,7 @@ describe('#Directives/IfDirective', () => {
 		}, 100);
 	});
 
-	it('should create instance of controller, destroy it and create again', (done) => {
+	it('should create instance of controller, destroy it and create again', () => {
 		let initCalled = 0;
 		let destroyCalled = 0;
 
@@ -160,39 +156,31 @@ describe('#Directives/IfDirective', () => {
 		view.parameters['a'] = false;
 
 		compiler.compileElement(view, el);
-		view.watcher.run();
 
-		setTimeout(() => {
-			expect(initCalled).to.be.equal(0);
-			expect(destroyCalled).to.be.equal(0);
-			expect(el.innerText).to.be.equal('');
+		expect(initCalled).to.be.equal(0);
+		expect(destroyCalled).to.be.equal(0);
+		expect(el.innerText).to.be.equal('');
 
-			view.parameters['a'] = true;
+		view.parameters['a'] = true;
+		view.changeDetectorRef.refresh();
 
-			setTimeout(() => {
-				expect(initCalled).to.be.equal(1);
-				expect(destroyCalled).to.be.equal(0);
-				expect(el.innerText).to.be.equal('exists');
+		expect(initCalled).to.be.equal(1);
+		expect(destroyCalled).to.be.equal(0);
+		expect(el.innerText).to.be.equal('exists');
 
-				view.parameters['a'] = false;
+		view.parameters['a'] = false;
+		view.changeDetectorRef.refresh();
 
-				setTimeout(() => {
-					expect(initCalled).to.be.equal(1);
-					expect(destroyCalled).to.be.equal(1);
-					expect(el.innerText).to.be.equal('');
+		expect(initCalled).to.be.equal(1);
+		expect(destroyCalled).to.be.equal(1);
+		expect(el.innerText).to.be.equal('');
 
-					view.parameters['a'] = true;
+		view.parameters['a'] = true;
+		view.changeDetectorRef.refresh();
 
-					setTimeout(() => {
-						expect(initCalled).to.be.equal(2);
-						expect(destroyCalled).to.be.equal(1);
-						expect(el.innerText).to.be.equal('exists');
-
-						done();
-					}, 100);
-				}, 100);
-			}, 100);
-		}, 100);
+		expect(initCalled).to.be.equal(2);
+		expect(destroyCalled).to.be.equal(1);
+		expect(el.innerText).to.be.equal('exists');
 	});
 
 });

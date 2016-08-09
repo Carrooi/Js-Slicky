@@ -1,5 +1,4 @@
 import {IBinding} from './IBinding';
-import {Dom} from '../../Util/Dom';
 
 
 export class AttributeBinding implements IBinding

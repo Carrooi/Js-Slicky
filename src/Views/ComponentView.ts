@@ -5,7 +5,8 @@ import {ComponentInstance} from '../Entity/ComponentInstance';
 import {DirectiveInstance} from '../Entity/DirectiveInstance';
 import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
-import {Watcher, WatcherCallback} from '../Util/Watcher';
+import {ChangeDetector} from '../ChangeDetection/ChangeDetector';
+import {ChangeDetectorRef} from '../ChangeDetection/ChangeDetectorRef';
 import {ApplicationView} from './ApplicationView';
 import {EmbeddedView} from './EmbeddedView';
 import {Helpers} from '../Util/Helpers';
@@ -19,7 +20,8 @@ import {SafeEval} from '../Util/SafeEval';
 import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
 import {Annotations} from '../Util/Annotations';
 import {Functions} from '../Util/Functions';
-import {ParametersList} from '../Interfaces';
+import {Realm} from '../Util/Realm';
+import {ParametersList, WatcherCallback} from '../Interfaces';
 
 
 export class ComponentView extends AbstractView
@@ -30,7 +32,11 @@ export class ComponentView extends AbstractView
 
 	public el: ElementRef;
 
-	public watcher: Watcher;
+	public realm: Realm;
+
+	public changeDetector: ChangeDetector;
+
+	public changeDetectorRef: ChangeDetectorRef;
 
 	public directives: Array<any> = [];
 
@@ -54,7 +60,19 @@ export class ComponentView extends AbstractView
 		this.el = el;
 		this.el.view = this;
 		this.parameters = parameters;
-		this.watcher = new Watcher(this.parameters, this.parent.watcher);
+
+		this.changeDetector = new ChangeDetector(
+			this.parameters,
+			this.parent.changeDetector
+		);
+
+		this.changeDetectorRef = new ChangeDetectorRef(() => {
+			this.changeDetector.check();
+		});
+
+		this.realm = new Realm(this.parent.realm, null, () => {
+			this.changeDetectorRef.refresh();
+		});
 	}
 
 
@@ -62,22 +80,24 @@ export class ComponentView extends AbstractView
 	{
 		super.detach();
 
-		this.watcher.stop();
+		this.changeDetector.disable();
 
-		for (let i = 0; i < this.attachedDirectives.length; i++) {
-			this.attachedDirectives[i].detach();
-		}
+		this.run(() => {
+			for (let i = 0; i < this.attachedDirectives.length; i++) {
+				this.attachedDirectives[i].detach();
+			}
 
-		if (this.component) {
-			this.component.detach();
-			this.component = null;
-		}
+			if (this.component) {
+				this.component.detach();
+				this.component = null;
+			}
 
-		for (let i = 0; i < this.bindings.length; i++) {
-			this.bindings[i].detach();
-		}
+			for (let i = 0; i < this.bindings.length; i++) {
+				this.bindings[i].detach();
+			}
 
-		this.attachedDirectives = [];
+			this.attachedDirectives = [];
+		});
 	}
 
 
@@ -109,7 +129,13 @@ export class ComponentView extends AbstractView
 
 	public watch(expr: Expression, cb: WatcherCallback): void
 	{
-		this.watcher.watch(expr, cb);
+		this.changeDetector.watch(expr, cb);
+	}
+
+
+	public run(fn: () => void): any
+	{
+		return this.realm.run(fn);
 	}
 
 
@@ -186,6 +212,12 @@ export class ComponentView extends AbstractView
 				},
 			},
 			{
+				service: ChangeDetectorRef,
+				options: {
+					useFactory: () => this.changeDetectorRef,
+				},
+			},
+			{
 				service: TemplateRef,
 				options: {
 					useFactory: () => {
@@ -254,23 +286,24 @@ export class ComponentView extends AbstractView
 
 	public attachBinding(binding: IBinding, expression: Expression): void
 	{
-		binding.attach();
+		this.run(() => binding.attach());
 
 		let hasOnChange = typeof binding['onChange'] === 'function';
 		let hasOnUpdate = typeof binding['onUpdate'] === 'function';
 
 		if (hasOnChange || hasOnUpdate) {
 			if (hasOnUpdate) {
-				binding['onUpdate'](ExpressionParser.parse(expression, this.parameters));
+				this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)));
 			}
 
 			this.watch(expression, (changed) => {
 				if (hasOnChange) {
-					binding['onChange'](changed);
+					this.run(() => binding['onChange'](changed));
+
 				}
 
 				if (hasOnUpdate) {
-					binding['onUpdate'](ExpressionParser.parse(expression, this.parameters));
+					this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)));
 				}
 			});
 		}

@@ -147,7 +147,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 			expect(el.classList.contains('alert')).to.be.equal(false);
 		});
 
-		it("should bind and update simple value in element's property", (done) => {
+		it("should bind and update simple value in element's property", () => {
 			let el = Dom.el('<div [test]="hello"></div>');
 
 			expect(el['test']).to.be.equal(undefined);
@@ -156,22 +156,18 @@ describe('#Templating/Binding/PropertyBinding', () => {
 				hello: 'good day',
 			});
 
-			view.watcher.run();
-
 			let binding = new PropertyBinding(el, 'test');
 			view.attachBinding(binding, ExpressionParser.precompile('hello'));
 
 			expect(el['test']).to.be.equal('good day');
 
 			view.parameters['hello'] = 'nope';
+			view.changeDetectorRef.refresh();
 
-			setTimeout(() => {
-				expect(el['test']).to.be.equal('nope');
-				done();
-			}, 100);
+			expect(el['test']).to.be.equal('nope');
 		});
 
-		it("should bind and update nested value in element's property", (done) => {
+		it("should bind and update nested value in element's property", () => {
 			let el = Dom.el('<div [test]="a[0].b"></div>');
 
 			expect(el['test']).to.be.equal(undefined);
@@ -184,26 +180,22 @@ describe('#Templating/Binding/PropertyBinding', () => {
 				],
 			});
 
-			view.watcher.run();
-
 			let binding = new PropertyBinding(el, 'test');
 			view.attachBinding(binding, ExpressionParser.precompile('a[0].b'));
 
 			expect(el['test']).to.be.equal('good day');
 
 			view.parameters['a'][0]['b'] = 'nope';
+			view.changeDetectorRef.refresh();
 
-			setTimeout(() => {
-				expect(el['test']).to.be.equal('nope');
-				done();
-			}, 100);
+			expect(el['test']).to.be.equal('nope');
 		});
 
 	});
 
 	describe('unbind()', () => {
 
-		it("should stop watching for changes", (done) => {
+		it("should stop watching for changes", () => {
 			let el = Dom.el('<div [test]="hello"></div>');
 
 			expect(el['test']).to.be.equal(undefined);
@@ -212,26 +204,21 @@ describe('#Templating/Binding/PropertyBinding', () => {
 				hello: 'good day',
 			});
 
-			view.watcher.run();
-
 			let binding = new PropertyBinding(el, 'test');
 			view.attachBinding(binding, ExpressionParser.precompile('hello'));
 
 			expect(el['test']).to.be.equal('good day');
 
 			view.parameters['hello'] = 'nope';
+			view.changeDetectorRef.refresh();
 
-			setTimeout(() => {
-				expect(el['test']).to.be.equal('nope');
+			expect(el['test']).to.be.equal('nope');
 
-				view.detach();
-				view.parameters['hello'] = 'yes';
+			view.detach();
+			view.parameters['hello'] = 'yes';
+			view.changeDetectorRef.refresh();
 
-				setTimeout(() => {
-					expect(el['test']).to.be.equal('nope');
-					done();
-				}, 100);
-			}, 100);
+			expect(el['test']).to.be.equal('nope');
 		});
 
 	});

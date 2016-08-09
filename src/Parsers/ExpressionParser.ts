@@ -1,8 +1,9 @@
 import {SafeEval} from '../Util/SafeEval';
 import {Compiler} from '../Compiler';
 import {TypeParser, TypeToken} from './TypeParser';
-import {VariableParser, VariableToken} from './VariableParser';
+import {VariableParser} from './VariableParser';
 import {Code} from '../Util/Code';
+import {VariableToken} from '../Interfaces';
 
 
 export declare interface Expression

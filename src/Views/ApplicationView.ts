@@ -1,7 +1,8 @@
 import {AbstractView} from './AbstractView';
 import {ComponentView} from './ComponentView';
 import {ElementRef} from '../Templating/ElementRef';
-import {Watcher} from '../Util/Watcher';
+import {ChangeDetector} from '../ChangeDetection/ChangeDetector';
+import {Realm} from '../Util/Realm';
 import {Container} from '../DI/Container';
 import {DefaultFilters} from '../Templating/Filters/DefaultFilters';
 import {ParametersList} from '../Interfaces';
@@ -15,7 +16,9 @@ export class ApplicationView extends AbstractView
 
 	public el: Element;
 
-	public watcher: Watcher;
+	public realm: Realm;
+
+	public changeDetector: ChangeDetector;
 
 	public controller: any;
 
@@ -30,15 +33,8 @@ export class ApplicationView extends AbstractView
 		this.el = el;
 		this.controller = controller;
 		this.parameters = parameters;
-		this.watcher = new Watcher(parameters);
-	}
-
-
-	public detach(): void
-	{
-		super.detach();
-
-		this.watcher.stop();
+		this.realm = new Realm;
+		this.changeDetector = new ChangeDetector(this.parameters);
 	}
 
 

@@ -1,4 +1,4 @@
-import {Application, Compiler, ComponentView, ApplicationView, Component, Directive, ElementRef, Filter, Input, OnInit} from '../../core';
+import {Application, Compiler, ComponentView, ApplicationView, Component, Directive, HostEvent, ElementRef, Filter, Input, OnInit} from '../../core';
 import {IfDirective, ForDirective} from '../../common';
 import {Container} from '../../di';
 import {Dom} from '../../utils';
@@ -63,7 +63,6 @@ describe('#Compiler/template', () => {
 			let el = <HTMLDivElement>parent.children[0];
 
 			compiler.compile(view);
-			view.watcher.run();
 
 			expect(el.innerHTML).to.be.equal('days: 2');
 
@@ -73,7 +72,7 @@ describe('#Compiler/template', () => {
 			}, 200);
 		});
 
-		it('should update property in attribute', (done) => {
+		it('should update property in attribute', () => {
 			@Component({
 				selector: '[test]',
 				template: '<span class="{{ alertType }}"></span>',
@@ -87,20 +86,15 @@ describe('#Compiler/template', () => {
 			view.parameters['alertType'] = 'success';
 
 			compiler.compile(view);
-			view.watcher.run();
 
 			let innerView = <ComponentView>view.children[0];
 
-			setTimeout(() => {
-				expect((<HTMLElement>el.children[0]).className).to.be.equal('success');
+			expect((<HTMLElement>el.children[0]).className).to.be.equal('success');
 
-				innerView.parameters['alertType'] = 'danger';
+			innerView.parameters['alertType'] = 'danger';
+			innerView.changeDetectorRef.refresh();
 
-				setTimeout(() => {
-					expect((<HTMLElement>el.children[0]).className).to.be.equal('danger');
-					done();
-				}, 200);
-			}, 200);
+			expect((<HTMLElement>el.children[0]).className).to.be.equal('danger');
 		});
 
 		it('should have access to parent component', () => {
@@ -405,7 +399,7 @@ describe('#Compiler/template', () => {
 			expect(el.innerText).to.be.equal('num: 20 / num: 4');
 		});
 
-		it('should set component input with upper cased name', (done) => {
+		it('should set component input with upper cased name', () => {
 			@Component({
 				selector: '[test]',
 			})
@@ -423,7 +417,6 @@ describe('#Compiler/template', () => {
 			var view = new ApplicationView(container, parent, Main, {a: 'hello'});
 
 			compiler.compile(view);
-			view.watcher.run();
 
 			let innerView = <ComponentView>view.children[0].children[0];
 			let component: Test = innerView.component.instance;
@@ -431,14 +424,12 @@ describe('#Compiler/template', () => {
 			expect(component.upperCasedInput).to.be.equal('hello');
 
 			innerView.parameters['a'] = 'bye';
+			innerView.changeDetectorRef.refresh();
 
-			setTimeout(() => {
-				expect(component.upperCasedInput).to.be.equal('bye');
-				done();
-			}, 100);
+			expect(component.upperCasedInput).to.be.equal('bye');
 		});
 
-		it('should update component\'s input', (done) => {
+		it('should update component\'s input', () => {
 			@Component({
 				selector: '[test]',
 			})
@@ -456,7 +447,6 @@ describe('#Compiler/template', () => {
 			var view = new ApplicationView(container, parent, Main, {a: 'hello'});
 
 			compiler.compile(view);
-			view.watcher.run();
 
 			let innerView = <ComponentView>view.children[0].children[0];
 			let component: Test = innerView.component.instance;
@@ -464,11 +454,9 @@ describe('#Compiler/template', () => {
 			expect(component.input).to.be.equal('hello');
 
 			innerView.parameters['a'] = 'bye';
+			innerView.changeDetectorRef.refresh();
 
-			setTimeout(() => {
-				expect(component.input).to.be.equal('bye');
-				done();
-			}, 100);
+			expect(component.input).to.be.equal('bye');
 		});
 
 		it('should add inner text from template with if directive', (done) => {
@@ -488,6 +476,91 @@ describe('#Compiler/template', () => {
 				expect(parent.innerText).to.be.equal('hello');
 				done();
 			}, 100);
+		});
+
+		it('should refresh template after event is called', (done) => {
+			@Component({
+				selector: '[button]',
+				controllerAs: 'btn',
+				template: '<button (click)="btn.click()">{{ btn.title }}</button>',
+			})
+			class Button {
+				title = 'Click';
+				click() {
+					this.title = 'Please, click';
+				}
+			}
+
+			let el = Dom.el('<div><div button></div></div>');
+			let view = new ApplicationView(container, el, Button);
+
+			compiler.compile(view);
+
+			expect(el.innerText).to.be.equal('Click');
+
+			el.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('Please, click');
+				done();
+			}, 50);
+		});
+
+		it('should refresh template after host event is called', (done) => {
+			@Component({
+				selector: '[button]',
+				controllerAs: 'btn',
+				template: '<button (click)="btn.click()">{{ btn.title }}</button>',
+			})
+			class Button {
+				title = 'Click';
+				@HostEvent('button', 'click')
+				click() {
+					this.title = 'Please, click';
+				}
+			}
+
+			let el = Dom.el('<div><div button></div></div>');
+			let view = new ApplicationView(container, el, Button);
+
+			compiler.compile(view);
+
+			expect(el.innerText).to.be.equal('Click');
+
+			el.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('Please, click');
+				done();
+			}, 50);
+		});
+
+		it('should refresh template from change in onInit event', (done) => {
+			@Component({
+				selector: '[button]',
+				controllerAs: 'btn',
+				template: '<button>{{ btn.title }}</button>',
+			})
+			class Button implements OnInit {
+				title = 'Click';
+				onInit() {
+					setTimeout(() => {
+						this.title = 'Please, click';
+					}, 10);
+				}
+			}
+
+			let el = Dom.el('<div><div button></div></div>');
+			let view = new ApplicationView(container, el, Button);
+
+			compiler.compile(view);
+
+			expect(el.innerText).to.be.equal('Click');
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('Please, click');
+				done();
+			}, 50);
 		});
 
 		it('should compile component with for directive', (done) => {
@@ -515,7 +588,6 @@ describe('#Compiler/template', () => {
 			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
-			view.watcher.run();
 
 			setTimeout(() => {
 				expect(parent.innerText).to.be.equal('a, b, c, ');
@@ -547,7 +619,6 @@ describe('#Compiler/template', () => {
 			view.parameters['a'] = 'hello';
 
 			compiler.compile(view);
-			view.watcher.run();
 
 			setTimeout(() => {
 				expect(parent.innerText).to.be.equal('hello world');
@@ -579,7 +650,6 @@ describe('#Compiler/template', () => {
 			view.parameters['list'] = ['hello'];
 
 			compiler.compile(view);
-			view.watcher.run();
 
 			setTimeout(() => {
 				expect(parent.innerText).to.be.equal('hello world');
@@ -627,7 +697,6 @@ describe('#Compiler/template', () => {
 			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
-			view.watcher.run();
 
 			setTimeout(() => {
 				expect(parent.innerText).to.be.equal('abc');
@@ -675,7 +744,6 @@ describe('#Compiler/template', () => {
 			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
-			view.watcher.run();
 
 			setTimeout(() => {
 				expect(parent.innerText).to.be.equal('abc');
@@ -711,7 +779,7 @@ describe('#Compiler/template', () => {
 			}).to.throw(Error, 'Can not import variable item since its already in use.');
 		});
 
-		it('should update expression in nested object', (done) => {
+		it('should update expression in nested object', () => {
 			@Component({
 				selector: 'app',
 				controllerAs: 'app',
@@ -727,19 +795,15 @@ describe('#Compiler/template', () => {
 			let view = new ApplicationView(container, parent, App);
 
 			compiler.compile(view);
-			view.watcher.run();
 
 			let appView = <ComponentView>view.children[0];
 
-			setTimeout(() => {
-				expect(parent.innerText).to.be.equal('hello world');
-				appView.parameters['app'].obj = {a: 'hi'};
+			expect(parent.innerText).to.be.equal('hello world');
 
-				setTimeout(() => {
-					expect(parent.innerText).to.be.equal('hi');
-					done();
-				}, 100);
-			}, 100);
+			appView.parameters['app'].obj = {a: 'hi'};
+			appView.changeDetectorRef.refresh();
+
+			expect(parent.innerText).to.be.equal('hi');
 		});
 
 		it('should pass json into component input', () => {

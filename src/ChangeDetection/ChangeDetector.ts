@@ -1,104 +1,34 @@
+import {Helpers} from '../Util/Helpers';
 import {Expression} from '../Parsers/ExpressionParser';
-import {VariableToken} from '../Parsers/VariableParser';
-import {Helpers} from './Helpers';
-import {ParametersList} from '../Interfaces';
+import {ParametersList, WatcherListener, WatcherCallback, ChangedProperty} from '../Interfaces';
 
 
-declare interface ChangedProperty
-{
-	prop: string,
-	action: string,
-	newValue: any,
-	oldValue: any,
-}
-
-export declare interface ChangedObject
-{
-	expr: string,
-	props?: Array<ChangedProperty>,
-}
-
-export declare interface WatcherCallback
-{
-	(changed: Array<ChangedObject>): void,
-}
-
-declare interface WatcherDependency
-{
-	clones: {[key: string]: any},
-	obj: any,
-	dependency: VariableToken,
-}
-
-declare interface WatcherListener
-{
-	dependencies: Array<WatcherDependency>,
-	cb: WatcherCallback,
-}
-
-
-export class Watcher
+export class ChangeDetector
 {
 
 
-	private static INTERVAL = 50;
-
-
-	private parent: Watcher;
-
-	private children: Array<Watcher> = [];
+	private children: Array<ChangeDetector> = [];
 
 	private parameters: ParametersList;
 
 	private listeners: Array<WatcherListener> = [];
 
-	private running: boolean = false;
+	private disabled: boolean = false;
 
 
-	constructor(parameters: ParametersList, parent?: Watcher)
+	constructor(parameters: ParametersList, parent?: ChangeDetector)
 	{
 		if (parent) {
-			this.parent = parent;
-			this.parent.children.push(this);
+			parent.children.push(this);
 		}
 
 		this.parameters = parameters;
 	}
 
 
-	public run(): void
+	public disable(): void
 	{
-		if (this.running) {
-			return;
-		}
-
-		this.running = true;
-
-		this.autoCheck();
-	}
-
-
-	public stop(): void
-	{
-		if (!this.running) {
-			return;
-		}
-
-		this.running = false;
-	}
-
-
-	private autoCheck(): void
-	{
-		if (!this.running) {
-			return;
-		}
-
-		this.check();
-
-		setTimeout(() => {
-			this.autoCheck();
-		}, Watcher.INTERVAL);
+		this.disabled = true;
 	}
 
 
@@ -155,6 +85,10 @@ export class Watcher
 
 	public check(): void
 	{
+		if (this.disabled) {
+			return;
+		}
+
 		for (let i = 0; i < this.listeners.length; i++) {
 			let listener = this.listeners[i];
 			let changed = [];

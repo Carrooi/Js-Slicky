@@ -1,13 +1,6 @@
-import {VariableToken} from '../Parsers/VariableParser';
+import {VariableToken, InterpolatedObjectElement} from '../Interfaces';
 import {Parser} from '../Tokenizer/Parser';
 import {Lexer} from '../Tokenizer/Lexer';
-
-
-export declare interface InterpolatedObjectElement
-{
-	obj: any,
-	key: string|number,
-}
 
 
 export class Code

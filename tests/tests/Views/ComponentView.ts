@@ -122,8 +122,6 @@ describe('#Views/ComponentView', () => {
 				a: 'hello',
 			});
 
-			view.watcher.run();
-
 			let expr = ExpressionParser.precompile('a');
 
 			view.watch(expr, (changed) => {
@@ -136,6 +134,7 @@ describe('#Views/ComponentView', () => {
 			});
 
 			view.parameters['a'] = 'hello world';
+			view.changeDetectorRef.refresh();
 		});
 
 	});

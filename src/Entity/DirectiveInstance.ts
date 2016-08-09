@@ -1,7 +1,6 @@
 import {DirectiveDefinition} from './DirectiveParser';
 import {ComponentView} from '../Views/ComponentView';
-import {OnDestroy, OnInit, OnChange, OnUpdate} from '../Interfaces';
-import {ChangedObject} from '../Util/Watcher';
+import {OnDestroy, OnInit, OnChange, OnUpdate, ChangedObject} from '../Interfaces';
 import {Dom} from '../Util/Dom';
 import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
 import {AttributesList} from '../Templating/ElementRef';
@@ -32,7 +31,7 @@ export class DirectiveInstance
 	public attach(): void
 	{
 		if (typeof this.instance['onInit'] === 'function') {
-			(<OnInit>this.instance).onInit();
+			this.view.run(() => (<OnInit>this.instance).onInit());
 		}
 	}
 
@@ -40,7 +39,7 @@ export class DirectiveInstance
 	public detach(): void
 	{
 		if (typeof this.instance['onDestroy'] === 'function') {
-			(<OnDestroy>this.instance).onDestroy();
+			this.view.run(() => (<OnDestroy>this.instance).onDestroy());
 		}
 	}
 
@@ -55,7 +54,7 @@ export class DirectiveInstance
 				let stop = false;
 
 				if (hasOnChange) {
-					stop = (<OnChange>instance).onChange(inputName, changed) === false;
+					stop = this.view.run(() => (<OnChange>instance).onChange(inputName, changed) === false);
 				}
 
 				if (!stop) {
@@ -64,7 +63,7 @@ export class DirectiveInstance
 					instance[inputName] = value;
 
 					if (hasOnUpdate) {
-						(<OnUpdate>instance).onUpdate(inputName, value);
+						this.view.run(() => (<OnUpdate>instance).onUpdate(inputName, value));
 					}
 				}
 			};
@@ -127,7 +126,7 @@ export class DirectiveInstance
 				let event = this.definition.events[eventName];
 
 				if (event.el === '@') {
-					Dom.addEventListener(this.el, event.name, this.instance, this.instance[eventName]);
+					this.view.run(() => Dom.addEventListener(this.el, event.name, this.instance, this.instance[eventName]));
 
 				} else {
 					if (typeof event.el === 'string' && (<string>event.el).substr(0, 1) === '@') {
@@ -136,16 +135,16 @@ export class DirectiveInstance
 							throw new Error('Can not add event listener for @' + childName + ' at ' + this.definition.name);
 						}
 
-						Dom.addEventListener(this.instance[childName], event.name, this.instance, this.instance[eventName]);
+						this.view.run(() => Dom.addEventListener(this.instance[childName], event.name, this.instance, this.instance[eventName]));
 
 					} else if (typeof event.el === 'string') {
 						let eventEls = Dom.querySelectorAll(<string>event.el, this.el);
 						for (let j = 0; j < eventEls.length; j++) {
-							Dom.addEventListener(eventEls[j], event.name, this.instance, this.instance[eventName]);
+							this.view.run(() => Dom.addEventListener(eventEls[j], event.name, this.instance, this.instance[eventName]));
 						}
 
 					} else if (event.el instanceof Window || event.el instanceof Node) {
-						Dom.addEventListener(<Node>event.el, event.name, this.instance, this.instance[eventName]);
+						this.view.run(() => Dom.addEventListener(<Node>event.el, event.name, this.instance, this.instance[eventName]));
 
 					}
 				}

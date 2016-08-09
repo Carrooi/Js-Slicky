@@ -8,4 +8,5 @@ export {ComponentView} from './src/Views/ComponentView';
 export {Translator} from './src/Translations/Translator';
 export {ElementRef} from './src/Templating/ElementRef';
 export {TemplateRef} from './src/Templating/TemplateRef';
+export {ChangeDetectorRef} from './src/ChangeDetection/ChangeDetectorRef';
 export {OnInit, OnDestroy, OnUpdate, OnChange} from './src/Interfaces';

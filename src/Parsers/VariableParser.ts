@@ -1,10 +1,4 @@
-export declare interface VariableToken
-{
-	code: string,
-	name: string,
-	exportable: boolean,
-	path: Array<{value: any, type: number}>,
-}
+import {VariableToken} from '../Interfaces';
 
 
 export class VariableParser

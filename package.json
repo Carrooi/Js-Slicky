@@ -11,6 +11,10 @@
 		"name": "David Kudera",
 		"email": "kudera.d@gmail.com"
 	},
+	"dependencies": {
+		"zone.js": "~0.6.12",
+		"core-js": "~2.4.1"
+	},
 	"devDependencies": {
 		"gulp": "~3.9.1",
 		"gulp-util": "~3.0.7",

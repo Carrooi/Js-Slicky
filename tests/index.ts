@@ -1,9 +1,11 @@
 import 'es7-reflect-metadata/dist/browser';
 
+import './tests/Util/Realm';
 import './tests/Util/Dom';
 import './tests/Util/Code';
 import './tests/Util/SafeEval';
-import './tests/Util/Watcher';
+
+import './tests/ChangeDetection/ChangeDetector';
 
 import './tests/Tokenizer/Tokenizer';
 import './tests/Tokenizer/Parser';

@@ -1,14 +1,13 @@
 import {Directive, Input, Required} from '../Entity/Metadata';
 import {Compiler} from '../Compiler';
-import {OnChange, OnDestroy} from '../Interfaces';
+import {OnChange, OnDestroy, ChangedObject, ForToken} from '../Interfaces';
 import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {ComponentView} from '../Views/ComponentView';
 import {EmbeddedView} from '../Views/EmbeddedView';
-import {ForParser, ForToken} from'../Parsers/ForParser';
+import {ForParser} from'../Parsers/ForParser';
 import {Code} from '../Util/Code';
 import {SafeEval} from '../Util/SafeEval';
-import {ChangedObject} from '../Util/Watcher';
 
 
 @Directive({

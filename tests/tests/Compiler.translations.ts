@@ -14,7 +14,7 @@ let application: Application = null;
 let compiler: Compiler = null;
 
 
-describe('#Compiler/template', () => {
+describe('#Compiler/translations', () => {
 
 	beforeEach(() => {
 		container = new Container;

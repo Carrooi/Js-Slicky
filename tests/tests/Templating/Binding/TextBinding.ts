@@ -41,15 +41,13 @@ describe('#Templating/Binding/TextBinding', () => {
 			expect(el.innerText).to.be.equal('4');
 		});
 
-		it('should change property when it is changed', (done) => {
+		it('should change property when it is changed', () => {
 			let el = Dom.el('<div>a + b + c - 2</div>');
 			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,
 			});
-
-			view.watcher.run();
 
 			var expr = ExpressionParser.precompile('a + b + c - 2');
 			let binding = new TextBinding(<Text>el.childNodes[0], expr, view);
@@ -59,26 +57,22 @@ describe('#Templating/Binding/TextBinding', () => {
 			expect(el.innerHTML).to.be.equal('4');
 
 			view.parameters['c']--;
+			view.changeDetectorRef.refresh();
 
-			setTimeout(() => {
-				expect(el.innerHTML).to.be.equal('3');
-				done();
-			}, 100);
+			expect(el.innerHTML).to.be.equal('3');
 		});
 
 	});
 
 	describe('unbind()', () => {
 
-		it('should change property and stop watching for changes', (done) => {
+		it('should change property and stop watching for changes', () => {
 			let el = Dom.el('<div>a + b + c - 2</div>');
 			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,
 			});
-
-			view.watcher.run();
 
 			let expr = ExpressionParser.precompile('a + b + c - 2');
 			let binding = new TextBinding(<Text>el.childNodes[0], expr, view);
@@ -88,19 +82,15 @@ describe('#Templating/Binding/TextBinding', () => {
 			expect(el.innerHTML).to.be.equal('4');
 
 			view.parameters['c']--;
+			view.changeDetectorRef.refresh();
 
-			setTimeout(() => {
-				expect(el.innerHTML).to.be.equal('3');
+			expect(el.innerHTML).to.be.equal('3');
 
-				view.detach();
+			view.detach();
+			view.parameters['c']--;
+			view.changeDetectorRef.refresh();
 
-				view.parameters['c']--;
-
-				setTimeout(() => {
-					expect(el.innerHTML).to.be.equal('{{ a + b + c - 2 }}');
-					done();
-				}, 100);
-			}, 100);
+			expect(el.innerHTML).to.be.equal('{{ a + b + c - 2 }}');
 		});
 
 	});
