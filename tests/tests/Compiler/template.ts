@@ -1,4 +1,7 @@
-import {Application, Compiler, ComponentView, ApplicationView, Component, Directive, ElementRef, Filter, Input, OnInit} from '../../../core';
+import {
+	Application, Compiler, ComponentView, ApplicationView, Component, Directive, ElementRef, Filter, Input, OnInit,
+	ChangeDetectorRef, ChangeDetectionStrategy
+} from '../../../core';
 import {IfDirective, ForDirective} from '../../../common';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
@@ -69,6 +72,47 @@ describe('#Compiler/template', () => {
 				expect(el.innerText).to.be.equal('days: 1');
 				done();
 			}, 100);
+		});
+
+		it('should update property in template with OnPush strategy', (done) => {
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				changeDetection: ChangeDetectionStrategy.OnPush,
+				template: 'number: {{ app.number }}',
+			})
+			class App implements OnInit {
+				number = 0;
+				constructor(private changeDetectionRef: ChangeDetectorRef) {}
+				onInit() {
+					this.number++;
+
+					setTimeout(() => {
+						this.number++;
+					}, 5);
+
+					setTimeout(() => {
+						this.number++;
+						this.changeDetectionRef.refresh();
+					}, 40);
+				}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
+
+			compiler.compile(view);
+
+			expect(el.innerText).to.be.equal('number: 0');
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('number: 0');
+			}, 20);
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('number: 3');
+				done();
+			}, 50);
 		});
 
 		it('should update property in attribute', () => {

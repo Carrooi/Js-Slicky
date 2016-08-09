@@ -7,6 +7,7 @@ import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {ChangeDetector} from '../ChangeDetection/ChangeDetector';
 import {ChangeDetectorRef} from '../ChangeDetection/ChangeDetectorRef';
+import {ChangeDetectionStrategy} from '../ChangeDetection/ChangeDetectionStrategy';
 import {ApplicationView} from './ApplicationView';
 import {EmbeddedView} from './EmbeddedView';
 import {Helpers} from '../Util/Helpers';
@@ -37,6 +38,8 @@ export class ComponentView extends AbstractView
 	public changeDetector: ChangeDetector;
 
 	public changeDetectorRef: ChangeDetectorRef;
+
+	public changeDetectionStrategy: ChangeDetectionStrategy = ChangeDetectionStrategy.Default;
 
 	public directives: Array<any> = [];
 
@@ -71,7 +74,9 @@ export class ComponentView extends AbstractView
 		});
 
 		this.realm = new Realm(this.parent.realm, null, () => {
-			this.changeDetectorRef.refresh();
+			if (this.changeDetectionStrategy === ChangeDetectionStrategy.Default) {
+				this.changeDetectorRef.refresh();
+			}
 		});
 	}
 
@@ -112,6 +117,7 @@ export class ComponentView extends AbstractView
 
 		let view = new ComponentView(this, el, parameters);
 		view.translations = translations;
+		view.changeDetectionStrategy = this.changeDetectionStrategy;
 
 		return view;
 	}
@@ -240,6 +246,8 @@ export class ComponentView extends AbstractView
 		}
 
 		this.component = new ComponentInstance(this, definition, component);
+
+		this.changeDetectionStrategy = definition.metadata.changeDetection;
 
 		let directives = definition.metadata.directives;
 		let filters = definition.metadata.filters;

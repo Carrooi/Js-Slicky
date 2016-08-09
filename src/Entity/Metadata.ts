@@ -1,5 +1,6 @@
 import {CONST} from '../Facade/Lang';
 import {makeDecorator, makePropDecorator} from '../Util/Decorators';
+import {ChangeDetectionStrategy} from '../ChangeDetection/ChangeDetectionStrategy';
 
 
 declare interface DirectiveOptions
@@ -12,6 +13,7 @@ declare interface DirectiveOptions
 declare interface ComponentOptions extends DirectiveOptions
 {
 	controllerAs?: string,
+	changeDetection?: ChangeDetectionStrategy,
 	template?: string,
 	components?: Array<any>,
 	directives?: Array<any>,
@@ -46,6 +48,8 @@ export class ComponentMetadataDefinition extends DirectiveMetadataDefinition
 
 	public controllerAs: string;
 
+	public changeDetection: ChangeDetectionStrategy;
+
 	public template: string;
 
 	public directives: Array<any>;
@@ -62,6 +66,7 @@ export class ComponentMetadataDefinition extends DirectiveMetadataDefinition
 		super(options);
 
 		this.controllerAs = typeof options.controllerAs !== 'undefined' ? options.controllerAs : null;
+		this.changeDetection = typeof options.changeDetection !== 'undefined' ? options.changeDetection : ChangeDetectionStrategy.Default;
 		this.template = typeof options.template !== 'undefined' ? options.template : null;
 		this.directives = typeof options.directives !== 'undefined' ? options.directives : [];
 		this.filters = typeof options.filters !== 'undefined' ? options.filters : [];
