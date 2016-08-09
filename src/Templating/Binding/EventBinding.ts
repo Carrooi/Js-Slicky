@@ -1,9 +1,7 @@
 import {IBinding} from './IBinding';
 import {Dom} from '../../Util/Dom';
-import {Code} from '../../Util/Code';
 import {Helpers} from '../../Util/Helpers';
-import {VariableParser} from '../../Parsers/VariableParser';
-import {ExpressionParser} from '../../Parsers/ExpressionParser';
+import {SafeEval} from '../../Util/SafeEval';
 import {ComponentView} from '../../Views/ComponentView';
 
 
@@ -35,16 +33,6 @@ export class EventBinding implements IBinding
 	public attach(): void
 	{
 		let scope = Helpers.clone(this.view.parameters);
-		let parts = this.call.match(/^(.+)?\((.+)?\)$/);
-
-		if (!parts) {
-			throw new Error('EventBinding: can not parse "' + this.call + '".');
-		}
-
-		let variable = VariableParser.parse(parts[1]);
-		let obj = Code.interpolateObjectElement(scope, variable);
-
-		let expr = ExpressionParser.precompile('[' + parts[2] + ']');
 
 		for (let i = 0; i < this.events.length; i++) {
 			((event) => {
@@ -56,9 +44,7 @@ export class EventBinding implements IBinding
 							'$this': this.el,
 						});
 
-						let args = ExpressionParser.parse(expr, innerScope);
-
-						obj.obj[obj.key].apply(obj.obj, args);
+						SafeEval.run(this.call, innerScope);
 					}),
 				});
 			})(this.events[i]);

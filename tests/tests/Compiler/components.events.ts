@@ -165,6 +165,35 @@ describe('#Compiler/components/events', () => {
 			}, 50);
 		});
 
+		it('should directly update template\'s variable', () => {
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				template: '<button (click)="app.counter++">click</button> <span>counter: {{ app.counter }}</span>',
+			})
+			class App {
+				counter = 0;
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
+
+			compiler.compile(view);
+
+			let button = el.querySelector('button');
+			let counter = <HTMLSpanElement>el.querySelector('span');
+
+			expect(counter.innerText).to.be.equal('counter: 0');
+
+			button.dispatchEvent(Dom.createMouseEvent('click'));
+
+			expect(counter.innerText).to.be.equal('counter: 1');
+
+			button.dispatchEvent(Dom.createMouseEvent('click'));
+
+			expect(counter.innerText).to.be.equal('counter: 2');
+		});
+
 	});
 
 });
