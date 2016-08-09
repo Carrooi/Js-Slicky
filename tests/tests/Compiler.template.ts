@@ -69,7 +69,7 @@ describe('#Compiler/template', () => {
 			setTimeout(() => {
 				expect(el.innerHTML).to.be.equal('days: 1');
 				done();
-			}, 200);
+			}, 100);
 		});
 
 		it('should update property in attribute', () => {
@@ -195,7 +195,7 @@ describe('#Compiler/template', () => {
 				expect(called).to.be.equal(1);
 				expect(calledScope).to.be.an.instanceof(Test);
 				done();
-			}, 100);
+			}, 50);
 		});
 
 		it('should have access to if directive', () => {
@@ -459,7 +459,7 @@ describe('#Compiler/template', () => {
 			expect(component.input).to.be.equal('bye');
 		});
 
-		it('should add inner text from template with if directive', (done) => {
+		it('should add inner text from template with if directive', () => {
 			@Component({
 				selector: 'app',
 				directives: [IfDirective],
@@ -472,10 +472,7 @@ describe('#Compiler/template', () => {
 
 			compiler.compile(view);
 
-			setTimeout(() => {
-				expect(parent.innerText).to.be.equal('hello');
-				done();
-			}, 100);
+			expect(parent.innerText).to.be.equal('hello');
 		});
 
 		it('should refresh template after event is called', (done) => {
@@ -563,7 +560,7 @@ describe('#Compiler/template', () => {
 			}, 50);
 		});
 
-		it('should compile component with for directive', (done) => {
+		it('should compile component with for directive', () => {
 			@Component({
 				selector: 'inner-item',
 				controllerAs: 'inner',
@@ -589,13 +586,10 @@ describe('#Compiler/template', () => {
 
 			compiler.compile(view);
 
-			setTimeout(() => {
-				expect(parent.innerText).to.be.equal('a, b, c, ');
-				done();
-			}, 100);
+			expect(parent.innerText).to.be.equal('a, b, c, ');
 		});
 
-		it('should attach variable to inner component', (done) => {
+		it('should attach variable to inner component', () => {
 			@Component({
 				selector: 'item',
 				controllerAs: 'item',
@@ -620,13 +614,10 @@ describe('#Compiler/template', () => {
 
 			compiler.compile(view);
 
-			setTimeout(() => {
-				expect(parent.innerText).to.be.equal('hello world');
-				done();
-			}, 200);
+			expect(parent.innerText).to.be.equal('hello world');
 		});
 
-		it('should attach new variable to inner component', (done) => {
+		it('should attach new variable to inner component', () => {
 			@Component({
 				selector: 'item',
 				controllerAs: 'item',
@@ -651,10 +642,7 @@ describe('#Compiler/template', () => {
 
 			compiler.compile(view);
 
-			setTimeout(() => {
-				expect(parent.innerText).to.be.equal('hello world');
-				done();
-			}, 200);
+			expect(parent.innerText).to.be.equal('hello world');
 		});
 
 		it('should compile complex component with template', (done) => {

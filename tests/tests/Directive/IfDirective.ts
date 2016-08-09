@@ -22,7 +22,7 @@ describe('#Directives/IfDirective', () => {
 		compiler = container.get(<any>Compiler);
 	});
 
-	it('should bind new element', (done) => {
+	it('should bind new element', () => {
 		let el = Dom.el('<div><template [s:if]="!a">hello</template></div>');
 		let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
@@ -31,13 +31,10 @@ describe('#Directives/IfDirective', () => {
 
 		compiler.compileElement(view, el);
 
-		setTimeout(() => {
-			expect(el.innerText).to.be.equal('hello');
-			done();
-		}, 100);
+		expect(el.innerText).to.be.equal('hello');
 	});
 
-	it('should not bind new element', (done) => {
+	it('should not bind new element', () => {
 		let el = Dom.el('<div><template [s:if]="!a">hello</template></div>');
 		let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
@@ -46,10 +43,7 @@ describe('#Directives/IfDirective', () => {
 
 		compiler.compileElement(view, el);
 
-		setTimeout(() => {
-			expect(el.innerText).to.be.equal('');
-			done();
-		}, 100);
+		expect(el.innerText).to.be.equal('');
 	});
 
 	it('should bind new element after a while and unbind it again', () => {
@@ -74,7 +68,7 @@ describe('#Directives/IfDirective', () => {
 		expect(el.innerText).to.be.equal('');
 	});
 
-	it('should not create instance of controller if not truthy', (done) => {
+	it('should not create instance of controller if not truthy', () => {
 		let called = 0;
 
 		@Component({
@@ -95,14 +89,11 @@ describe('#Directives/IfDirective', () => {
 
 		compiler.compileElement(view, el);
 
-		setTimeout(() => {
-			expect(called).to.be.equal(0);
-			expect(el.innerText).to.be.equal('');
-			done();
-		}, 100);
+		expect(called).to.be.equal(0);
+		expect(el.innerText).to.be.equal('');
 	});
 
-	it('should create instance of controller if truthy', (done) => {
+	it('should create instance of controller if truthy', () => {
 		let called = 0;
 
 		@Component({
@@ -123,11 +114,8 @@ describe('#Directives/IfDirective', () => {
 
 		compiler.compileElement(view, el);
 
-		setTimeout(() => {
-			expect(called).to.be.equal(1);
-			expect(el.innerText).to.be.equal('hello');
-			done();
-		}, 100);
+		expect(called).to.be.equal(1);
+		expect(el.innerText).to.be.equal('hello');
 	});
 
 	it('should create instance of controller, destroy it and create again', () => {

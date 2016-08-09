@@ -24,7 +24,7 @@ describe('#Directives/ForDirective', () => {
 
 	describe('bind()', () => {
 
-		it('should iterate through simple array list', (done) => {
+		it('should iterate through simple array list', () => {
 			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
@@ -33,13 +33,10 @@ describe('#Directives/ForDirective', () => {
 
 			compiler.compileElement(view, el);
 
-			setTimeout(() => {
-				expect(el.outerText).to.be.equal('- David -- John -- Clare -');
-				done();
-			}, 100);
+			expect(el.outerText).to.be.equal('- David -- John -- Clare -');
 		});
 
-		it('should iterate through simple array list with key', (done) => {
+		it('should iterate through simple array list with key', () => {
 			let el = Dom.el('<ul><template [s:for]="#i, #user in users"><li>- {{ i + ": " + user }} -</li></template></ul>');
 			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
@@ -48,13 +45,10 @@ describe('#Directives/ForDirective', () => {
 
 			compiler.compileElement(view, el);
 
-			setTimeout(() => {
-				expect(el.outerText).to.be.equal('- 0: David -- 1: John -- 2: Clare -');
-				done();
-			}, 100);
+			expect(el.outerText).to.be.equal('- 0: David -- 1: John -- 2: Clare -');
 		});
 
-		it('should iterate through simple object', (done) => {
+		it('should iterate through simple object', () => {
 			let el = Dom.el('<ul><template [s:for]="#value of options"><li>- {{ value }} -</li></template></ul>');
 			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
@@ -67,13 +61,10 @@ describe('#Directives/ForDirective', () => {
 
 			compiler.compileElement(view, el);
 
-			setTimeout(() => {
-				expect(el.outerText).to.be.equal('- foo -- bar -- baz -');
-				done();
-			}, 100);
+			expect(el.outerText).to.be.equal('- foo -- bar -- baz -');
 		});
 
-		it('should iterate through simple object with keys', (done) => {
+		it('should iterate through simple object with keys', () => {
 			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
 			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
 
@@ -86,10 +77,7 @@ describe('#Directives/ForDirective', () => {
 
 			compiler.compileElement(view, el);
 
-			setTimeout(() => {
-				expect(el.outerText).to.be.equal('- one: foo -- two: bar -- three: baz -');
-				done();
-			}, 100);
+			expect(el.outerText).to.be.equal('- one: foo -- two: bar -- three: baz -');
 		});
 
 		it('should update view when whole array is changed', () => {
