@@ -1,7 +1,7 @@
-import {Application, Compiler, ComponentView, ApplicationView, Component, Directive, HostEvent, ElementRef, Filter, Input, OnInit} from '../../core';
-import {IfDirective, ForDirective} from '../../common';
-import {Container} from '../../di';
-import {Dom} from '../../utils';
+import {Application, Compiler, ComponentView, ApplicationView, Component, Directive, ElementRef, Filter, Input, OnInit} from '../../../core';
+import {IfDirective, ForDirective} from '../../../common';
+import {Container} from '../../../di';
+import {Dom} from '../../../utils';
 
 
 import chai = require('chai');
@@ -24,22 +24,22 @@ describe('#Compiler/template', () => {
 
 	describe('compile()', () => {
 
-		it('should set template', () => {
+		it('should compile component\'s template', () => {
 			@Component({
 				selector: '[test]',
 				controllerAs: 'test',
-				template: 'days: {{ test.days }}',
+				template: 'days: {{ test.days }}'
 			})
 			class Test {
 				public days: number = 2;
 			}
 
-			let parent = Dom.el('<div><div test></div></div>');
-			let el = <HTMLDivElement>parent.children[0];
+			let el = Dom.el('<div><div test></div></div>');
+			let view = new ApplicationView(container, el, Test);
 
-			compiler.compile(new ApplicationView(container, parent, Test));
+			compiler.compile(view);
 
-			expect(el.innerHTML).to.be.equal('days: 2');
+			expect(el.innerText).to.be.equal('days: 2');
 		});
 
 		it('should update property in template', (done) => {
@@ -49,7 +49,7 @@ describe('#Compiler/template', () => {
 				template: 'days: {{ test.days }}',
 			})
 			class Test implements OnInit {
-				public days: number = 2;
+				days: number = 2;
 				onInit(): void
 				{
 					setTimeout(() => {
@@ -58,16 +58,15 @@ describe('#Compiler/template', () => {
 				}
 			}
 
-			let parent = Dom.el('<div><div test></div></div>');
-			let view = new ApplicationView(container, parent, Test);
-			let el = <HTMLDivElement>parent.children[0];
+			let el = Dom.el('<div><div test></div></div>');
+			let view = new ApplicationView(container, el, Test);
 
 			compiler.compile(view);
 
-			expect(el.innerHTML).to.be.equal('days: 2');
+			expect(el.innerText).to.be.equal('days: 2');
 
 			setTimeout(() => {
-				expect(el.innerHTML).to.be.equal('days: 1');
+				expect(el.innerText).to.be.equal('days: 1');
 				done();
 			}, 100);
 		});
@@ -79,9 +78,8 @@ describe('#Compiler/template', () => {
 			})
 			class Test {}
 
-			let parent = Dom.el('<div><div test></div></div>');
-			let el = <HTMLDivElement>parent.children[0];
-			let view = new ApplicationView(container, parent, Test);
+			let el = Dom.el('<div><div test></div></div>');
+			let view = new ApplicationView(container, el, Test);
 
 			view.parameters['alertType'] = 'success';
 
@@ -89,12 +87,12 @@ describe('#Compiler/template', () => {
 
 			let innerView = <ComponentView>view.children[0];
 
-			expect((<HTMLElement>el.children[0]).className).to.be.equal('success');
+			expect(el.querySelector('span').className).to.be.equal('success');
 
 			innerView.parameters['alertType'] = 'danger';
 			innerView.changeDetectorRef.refresh();
 
-			expect((<HTMLElement>el.children[0]).className).to.be.equal('danger');
+			expect(el.querySelector('span').className).to.be.equal('danger');
 		});
 
 		it('should have access to parent component', () => {
@@ -104,7 +102,7 @@ describe('#Compiler/template', () => {
 				template: "I'm {{ inner.type }} and my parent is {{ outer.type }}",
 			})
 			class Child {
-				public type = 'inner';
+				type = 'inner';
 			}
 
 			@Component({
@@ -114,23 +112,29 @@ describe('#Compiler/template', () => {
 				directives: [Child],
 			})
 			class Parent {
-				public type = 'outer';
+				type = 'outer';
 			}
 
 			let el = Dom.el('<div><div parent></div></div>');
+			var view = new ApplicationView(container, el, Parent);
 
-			compiler.compile(new ApplicationView(container, el, Parent));
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal("I'm outer / I'm inner and my parent is outer");
 		});
 
-		it('should use parent component as input', () => {
+		it('should use parent component as input', (done) => {
 			@Component({
 				selector: '[child]',
 			})
-			class Child {
+			class Child implements OnInit {
 				@Input('parent')
-				public parent: Parent;
+				parent: Parent;
+
+				onInit() {
+					expect(this.parent).to.be.an.instanceof(Parent);
+					done();
+				}
 			}
 
 			@Component({
@@ -141,16 +145,10 @@ describe('#Compiler/template', () => {
 			})
 			class Parent {}
 
-			let parent = Dom.el('<div><div parent></div></div>');
+			let el = Dom.el('<div><div parent></div></div>');
+			var view = new ApplicationView(container, el, Parent);
 
-			compiler.compile(new ApplicationView(container, parent, Parent));
-
-			let parentEl = <HTMLDivElement>parent.children[0];
-			let childEl = parentEl.children[0];
-
-			let view: ComponentView = ElementRef.getByNode(childEl).view;
-
-			expect(view.component.instance.parent).to.be.an.instanceof(Parent);
+			compiler.compile(view);
 		});
 
 		it('should throw an error when trying to add unknown property', () => {
@@ -159,46 +157,15 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = Dom.el('<div><div app [unknown-prop]="a"></div></div>');
+			let el = Dom.el('<div><div app [unknown-prop]="a"></div></div>');
+			var view = new ApplicationView(container, el, App);
 
 			expect(() => {
-				compiler.compile(new ApplicationView(container, parent, App));
+				compiler.compile(view);
 			}).to.throw(Error, 'Could not bind property unknown-prop to element div or to any of its directives.');
 		});
 
-		it('should call component event', (done) => {
-			let called = 0;
-			let calledScope = null;
-
-			@Component({
-				selector: '[test]',
-				controllerAs: 'test',
-				template: '<a href="#" (click)="test.onClick($event)"></a>',
-			})
-			class Test {
-				public onClick(e: Event) {
-					e.preventDefault();
-					called++;
-					calledScope = this;
-				}
-			}
-
-			let el = Dom.el('<div><div test></div></div>');
-
-			compiler.compile(new ApplicationView(container, el, Test));
-
-			let link = el.querySelector('a');
-
-			link.dispatchEvent(Dom.createMouseEvent('click'));
-
-			setTimeout(() => {
-				expect(called).to.be.equal(1);
-				expect(calledScope).to.be.an.instanceof(Test);
-				done();
-			}, 50);
-		});
-
-		it('should have access to if directive', () => {
+		it('should use if directive', () => {
 			@Component({
 				selector: '[test]',
 				controllerAs: 'test',
@@ -210,13 +177,14 @@ describe('#Compiler/template', () => {
 			}
 
 			let el = Dom.el('<div><div test></div></div>');
+			var view = new ApplicationView(container, el, Test);
 
-			compiler.compile(new ApplicationView(container, el, Test));
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('1');
 		});
 
-		it('should have access to custom directive', () => {
+		it('should use custom directive', () => {
 			@Directive({
 				selector: '[c\\:directive]',
 			})
@@ -234,11 +202,12 @@ describe('#Compiler/template', () => {
 			})
 			class TestComponent {}
 
-			let parent = Dom.el('<div><div test></div></div>');
+			let el = Dom.el('<div><div test></div></div>');
+			var view = new ApplicationView(container, el, TestComponent);
 
-			compiler.compile(new ApplicationView(container, parent, TestComponent));
+			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('hello');
+			expect(el.innerText).to.be.equal('hello');
 		});
 
 		it('should call build in template filter', () => {
@@ -252,8 +221,9 @@ describe('#Compiler/template', () => {
 			}
 
 			let el = Dom.el('<div><div test></div></div>');
+			var view = new ApplicationView(container, el, Test);
 
-			compiler.compile(new ApplicationView(container, el, Test));
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('lorem');
 		});
@@ -279,8 +249,9 @@ describe('#Compiler/template', () => {
 			}
 
 			let el = Dom.el('<div><div test></div></div>');
+			var view = new ApplicationView(container, el, Test);
 
-			compiler.compile(new ApplicationView(container, el, Test));
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('2');
 		});
@@ -313,8 +284,9 @@ describe('#Compiler/template', () => {
 			class App {}
 
 			let el = Dom.el('<div><app></app></div>');
+			var view = new ApplicationView(container, el, App);
 
-			compiler.compile(new ApplicationView(container, el, App));
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('2');
 		});
@@ -340,8 +312,9 @@ describe('#Compiler/template', () => {
 			class Root {}
 
 			let el = Dom.el('<div><div root></div></div>');
+			var view = new ApplicationView(container, el, Root);
 
-			compiler.compile(new ApplicationView(container, el, Root));
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('inner component');
 		});
@@ -365,12 +338,12 @@ describe('#Compiler/template', () => {
 				public num = 20;
 			}
 
-			let parent = Dom.el('<div><div app>num: {{ app.num }} / <div test></div></div></div>');
-			let el = <HTMLDivElement>parent.children[0];
+			let el = Dom.el('<div><div app>num: {{ app.num }} / <div test></div></div></div>');
+			var view = new ApplicationView(container, el, Main);
 
-			compiler.compile(new ApplicationView(container, parent, Main));
+			compiler.compile(view);
 
-			expect(el.innerText).to.be.equal('num: 20 / num: 4');
+			expect((<HTMLElement>el.querySelector('div')).innerText).to.be.equal('num: 20 / num: 4');
 		});
 
 		it('should compile components inside of main components without custom template', () => {
@@ -391,72 +364,12 @@ describe('#Compiler/template', () => {
 				public num = 20;
 			}
 
-			let parent = Dom.el('<div><div app>num: {{ app.num }} / <div test>num: {{ app.num / test.num }}</div></div></div>');
-			let el = <HTMLDivElement>parent.children[0];
-
-			compiler.compile(new ApplicationView(container, parent, Main));
-
-			expect(el.innerText).to.be.equal('num: 20 / num: 4');
-		});
-
-		it('should set component input with upper cased name', () => {
-			@Component({
-				selector: '[test]',
-			})
-			class Test {
-				@Input() upperCasedInput;
-			}
-
-			@Component({
-				selector: '[app]',
-				directives: [Test],
-			})
-			class Main {}
-
-			let parent = Dom.el('<div><div app><div test [upperCasedInput]="a"></div></div></div>');
-			var view = new ApplicationView(container, parent, Main, {a: 'hello'});
+			let el = Dom.el('<div><div app>num: {{ app.num }} / <div test>num: {{ app.num / test.num }}</div></div></div>');
+			var view = new ApplicationView(container, el, Main);
 
 			compiler.compile(view);
 
-			let innerView = <ComponentView>view.children[0].children[0];
-			let component: Test = innerView.component.instance;
-
-			expect(component.upperCasedInput).to.be.equal('hello');
-
-			innerView.parameters['a'] = 'bye';
-			innerView.changeDetectorRef.refresh();
-
-			expect(component.upperCasedInput).to.be.equal('bye');
-		});
-
-		it('should update component\'s input', () => {
-			@Component({
-				selector: '[test]',
-			})
-			class Test {
-				@Input() input;
-			}
-
-			@Component({
-				selector: '[app]',
-				directives: [Test],
-			})
-			class Main {}
-
-			let parent = Dom.el('<div><div app><div test [input]="a"></div></div></div>');
-			var view = new ApplicationView(container, parent, Main, {a: 'hello'});
-
-			compiler.compile(view);
-
-			let innerView = <ComponentView>view.children[0].children[0];
-			let component: Test = innerView.component.instance;
-
-			expect(component.input).to.be.equal('hello');
-
-			innerView.parameters['a'] = 'bye';
-			innerView.changeDetectorRef.refresh();
-
-			expect(component.input).to.be.equal('bye');
+			expect((<HTMLElement>el.querySelector('div')).innerText).to.be.equal('num: 20 / num: 4');
 		});
 
 		it('should add inner text from template with if directive', () => {
@@ -467,69 +380,12 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('hello');
-		});
-
-		it('should refresh template after event is called', (done) => {
-			@Component({
-				selector: '[button]',
-				controllerAs: 'btn',
-				template: '<button (click)="btn.click()">{{ btn.title }}</button>',
-			})
-			class Button {
-				title = 'Click';
-				click() {
-					this.title = 'Please, click';
-				}
-			}
-
-			let el = Dom.el('<div><div button></div></div>');
-			let view = new ApplicationView(container, el, Button);
-
-			compiler.compile(view);
-
-			expect(el.innerText).to.be.equal('Click');
-
-			el.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
-
-			setTimeout(() => {
-				expect(el.innerText).to.be.equal('Please, click');
-				done();
-			}, 50);
-		});
-
-		it('should refresh template after host event is called', (done) => {
-			@Component({
-				selector: '[button]',
-				controllerAs: 'btn',
-				template: '<button (click)="btn.click()">{{ btn.title }}</button>',
-			})
-			class Button {
-				title = 'Click';
-				@HostEvent('button', 'click')
-				click() {
-					this.title = 'Please, click';
-				}
-			}
-
-			let el = Dom.el('<div><div button></div></div>');
-			let view = new ApplicationView(container, el, Button);
-
-			compiler.compile(view);
-
-			expect(el.innerText).to.be.equal('Click');
-
-			el.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
-
-			setTimeout(() => {
-				expect(el.innerText).to.be.equal('Please, click');
-				done();
-			}, 50);
+			expect(el.innerText).to.be.equal('hello');
 		});
 
 		it('should refresh template from change in onInit event', (done) => {
@@ -581,12 +437,12 @@ describe('#Compiler/template', () => {
 				items = ['a', 'b', 'c'];
 			}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('a, b, c, ');
+			expect(el.innerText).to.be.equal('a, b, c, ');
 		});
 
 		it('should attach variable to inner component', () => {
@@ -607,14 +463,14 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			view.parameters['a'] = 'hello';
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('hello world');
+			expect(el.innerText).to.be.equal('hello world');
 		});
 
 		it('should attach new variable to inner component', () => {
@@ -635,14 +491,14 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			view.parameters['list'] = ['hello'];
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('hello world');
+			expect(el.innerText).to.be.equal('hello world');
 		});
 
 		it('should compile complex component with template', (done) => {
@@ -681,13 +537,13 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
 			setTimeout(() => {
-				expect(parent.innerText).to.be.equal('abc');
+				expect(el.innerText).to.be.equal('abc');
 				done();
 			}, 200);
 		});
@@ -728,13 +584,13 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
 			setTimeout(() => {
-				expect(parent.innerText).to.be.equal('abc');
+				expect(el.innerText).to.be.equal('abc');
 				done();
 			}, 200);
 		});
@@ -757,10 +613,10 @@ describe('#Compiler/template', () => {
 			})
 			class App {}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
-
-			view.parameters['items'] = ['a', 'b'];
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App, {
+				items: ['a', 'b']
+			});
 
 			expect(() => {
 				compiler.compile(view);
@@ -779,41 +635,17 @@ describe('#Compiler/template', () => {
 				};
 			}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
-			let appView = <ComponentView>view.children[0];
+			expect(el.innerText).to.be.equal('hello world');
 
-			expect(parent.innerText).to.be.equal('hello world');
+			view.parameters['app'].obj = {a: 'hi'};
+			view.changeDetectorRef.refresh();
 
-			appView.parameters['app'].obj = {a: 'hi'};
-			appView.changeDetectorRef.refresh();
-
-			expect(parent.innerText).to.be.equal('hi');
-		});
-
-		it('should pass json into component input', () => {
-			@Component({
-				selector: 'app',
-			})
-			class App {
-				@Input()
-				data = null;
-			}
-
-			let parent = Dom.el('<div><app [data]=\'{"a.b.c": "hello"}\'></app></div>');
-			let view = new ApplicationView(container, parent, App);
-
-			view.parameters = {a: 'test'};
-
-			compiler.compile(view);
-
-			let appView = <ComponentView>view.children[0];
-			let app = <App>appView.component.instance;
-
-			expect(app.data).to.be.eql({'a.b.c': 'hello'});
+			expect(el.innerText).to.be.equal('hi');
 		});
 
 	});

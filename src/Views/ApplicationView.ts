@@ -2,6 +2,7 @@ import {AbstractView} from './AbstractView';
 import {ComponentView} from './ComponentView';
 import {ElementRef} from '../Templating/ElementRef';
 import {ChangeDetector} from '../ChangeDetection/ChangeDetector';
+import {ChangeDetectorRef} from '../ChangeDetection/ChangeDetectorRef';
 import {Realm} from '../Util/Realm';
 import {Container} from '../DI/Container';
 import {DefaultFilters} from '../Templating/Filters/DefaultFilters';
@@ -20,6 +21,8 @@ export class ApplicationView extends AbstractView
 
 	public changeDetector: ChangeDetector;
 
+	public changeDetectorRef: ChangeDetectorRef;
+
 	public controller: any;
 
 	public parameters: ParametersList;
@@ -35,6 +38,9 @@ export class ApplicationView extends AbstractView
 		this.parameters = parameters;
 		this.realm = new Realm;
 		this.changeDetector = new ChangeDetector(this.parameters);
+		this.changeDetectorRef = new ChangeDetectorRef(() => {
+			this.changeDetector.check();
+		});
 	}
 
 

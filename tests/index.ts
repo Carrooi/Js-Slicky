@@ -38,6 +38,10 @@ import './tests/Views/ComponentView';
 import './tests/Views/EmbededView';
 import './tests/DI/Container';
 import './tests/Application';
-import './tests/Compiler';
-import './tests/Compiler.template';
-import './tests/Compiler.translations';
+
+import './tests/Compiler/components';
+import './tests/Compiler/components.inputs';
+import './tests/Compiler/components.elements';
+import './tests/Compiler/components.events';
+import './tests/Compiler/template';
+import './tests/Compiler/translations';

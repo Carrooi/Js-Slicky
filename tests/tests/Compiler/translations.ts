@@ -1,7 +1,7 @@
-import {Application, Compiler, Component, ApplicationView} from '../../core';
-import {Container} from '../../di';
-import {Dom} from '../../utils';
-import {Translator, TranslateFilter} from '../../translations';
+import {Application, Compiler, Component, ApplicationView} from '../../../core';
+import {Container} from '../../../di';
+import {Dom} from '../../../utils';
+import {Translator, TranslateFilter} from '../../../translations';
 
 
 import chai = require('chai');
@@ -40,12 +40,12 @@ describe('#Compiler/translations', () => {
 				}
 			}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('message');
+			expect(el.innerText).to.be.equal('message');
 		});
 
 		it('should translate simple message', () => {
@@ -63,12 +63,12 @@ describe('#Compiler/translations', () => {
 				}
 			}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('hello world');
+			expect(el.innerText).to.be.equal('hello world');
 		});
 
 		it('should translate nested message', () => {
@@ -92,12 +92,12 @@ describe('#Compiler/translations', () => {
 				}
 			}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('hello world');
+			expect(el.innerText).to.be.equal('hello world');
 		});
 
 		it('should translate message in plural form without count', () => {
@@ -115,12 +115,12 @@ describe('#Compiler/translations', () => {
 				}
 			}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('hello world');
+			expect(el.innerText).to.be.equal('hello world');
 		});
 
 		it('should translate message in plural form', () => {
@@ -138,12 +138,12 @@ describe('#Compiler/translations', () => {
 				}
 			}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('hello world, hello worlds');
+			expect(el.innerText).to.be.equal('hello world, hello worlds');
 		});
 
 		it('should include count in translation', () => {
@@ -161,12 +161,12 @@ describe('#Compiler/translations', () => {
 				}
 			}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('1 apple, 3 apples');
+			expect(el.innerText).to.be.equal('1 apple, 3 apples');
 		});
 
 		it('should include custom parameters in translation', () => {
@@ -184,12 +184,12 @@ describe('#Compiler/translations', () => {
 				}
 			}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('1 red car, 9 blue cars');
+			expect(el.innerText).to.be.equal('1 red car, 9 blue cars');
 		});
 
 		it('child component should have access to parents translations', () => {
@@ -217,12 +217,12 @@ describe('#Compiler/translations', () => {
 				}
 			}
 
-			let parent = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, parent, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
 
 			compiler.compile(view);
 
-			expect(parent.innerText).to.be.equal('APPLE, CAR');
+			expect(el.innerText).to.be.equal('APPLE, CAR');
 		});
 
 	});
