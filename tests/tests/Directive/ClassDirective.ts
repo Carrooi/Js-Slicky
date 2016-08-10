@@ -26,7 +26,7 @@ describe('#Directives/ClassDirective', () => {
 		let el = Dom.el('<span [s:class]="{icon: true}"></span>');
 		let elementRef = new ElementRef(el);
 
-		let view = new ComponentView(new MockApplicationView(container), elementRef);
+		let view = new ComponentView(container, new MockApplicationView(container), elementRef);
 		view.directives.push(ClassDirective);
 
 		expect(el.classList.contains('icon')).to.be.equal(false);
@@ -40,7 +40,7 @@ describe('#Directives/ClassDirective', () => {
 		let el = Dom.el('<span [s:class]="{icon: false}" class="icon"></span>');
 		let elementRef = new ElementRef(el);
 
-		let view = new ComponentView(new MockApplicationView(container), elementRef);
+		let view = new ComponentView(container, new MockApplicationView(container), elementRef);
 		view.directives.push(ClassDirective);
 
 		expect(el.classList.contains('icon')).to.be.equal(true);

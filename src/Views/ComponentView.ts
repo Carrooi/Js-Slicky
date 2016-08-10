@@ -1,6 +1,4 @@
 import {AbstractView} from './AbstractView';
-import {ControllerDefinition} from '../Entity/ControllerParser';
-import {DirectiveDefinition} from '../Entity/DirectiveParser';
 import {ComponentInstance} from '../Entity/ComponentInstance';
 import {DirectiveInstance} from '../Entity/DirectiveInstance';
 import {ElementRef} from '../Templating/ElementRef';
@@ -29,6 +27,8 @@ export class ComponentView extends AbstractView
 {
 
 
+	public container: Container;
+
 	public parent: ComponentView|ApplicationView;
 
 	public el: ElementRef;
@@ -56,10 +56,11 @@ export class ComponentView extends AbstractView
 	public templates: {[id: string]: TemplateRef} = {};
 
 
-	constructor(parent: ComponentView|ApplicationView, el: ElementRef, parameters: ParametersList = {})
+	constructor(container: Container, parent: ComponentView|ApplicationView, el: ElementRef, parameters: ParametersList = {})
 	{
 		super(parent);
 
+		this.container = container;
 		this.el = el;
 		this.el.view = this;
 		this.parameters = parameters;
@@ -117,7 +118,7 @@ export class ComponentView extends AbstractView
 		let parameters = Helpers.clone(this.parameters);
 		let translations = Helpers.clone(this.translations);
 
-		let view = new ComponentView(this, el, parameters);
+		let view = new ComponentView(this.container, this, el, parameters);
 		view.translations = translations;
 
 		return view;
@@ -213,59 +214,21 @@ export class ComponentView extends AbstractView
 	}
 
 
-	public createDirectiveInstance(container: Container, definition: DirectiveDefinition, elementRef: ElementRef, templateRef?: TemplateRef): any
-	{
-		return container.create(<any>definition.directive, [
-			{
-				service: ElementRef,
-				options: {
-					useFactory: () => elementRef,
-				},
-			},
-			{
-				service: ComponentView,
-				options: {
-					useFactory: () => this,
-				},
-			},
-			{
-				service: ChangeDetectorRef,
-				options: {
-					useFactory: () => this.changeDetectorRef,
-				},
-			},
-			{
-				service: TemplateRef,
-				options: {
-					useFactory: () => {
-						if (!templateRef) {
-							throw new Error('Can not import service "TemplateRef" into directive "' + definition.name + '". Element "' + Dom.getReadableName(<Element>elementRef.nativeEl) + '" is not inside of any <template> element.');
-						}
-
-						return templateRef;
-					},
-				},
-			},
-		]);
-	}
-
-
-	public setComponent(container: Container, definition: ControllerDefinition, component: any, controllerName?: string): ComponentInstance
+	public setComponent(instance: ComponentInstance, controllerName?: string): ComponentInstance
 	{
 		if (this.component) {
-			throw new Error('Can\'t attach component "' + definition.name + '" to element "' + Dom.getReadableName(<Element>this.el.nativeEl) + '" since it\'s already attached to component "' + this.component.definition.name + '".');
+			throw new Error('Can\'t attach component "' + instance.definition.name + '" to element "' + Dom.getReadableName(<Element>this.el.nativeEl) + '" since it\'s already attached to component "' + this.component.definition.name + '".');
 		}
 
-		this.component = new ComponentInstance(this, definition, component);
+		this.component = instance;
+		this.changeDetector.strategy = instance.definition.metadata.changeDetection;
 
-		this.changeDetector.strategy = definition.metadata.changeDetection;
+		let directives = instance.definition.metadata.directives;
+		let filters = instance.definition.metadata.filters;
+		let translations = instance.definition.metadata.translations;
 
-		let directives = definition.metadata.directives;
-		let filters = definition.metadata.filters;
-		let translations = definition.metadata.translations;
-
-		if (controllerName || definition.metadata.controllerAs) {
-			this.addParameter(controllerName ? controllerName : definition.metadata.controllerAs, component);
+		if (controllerName || instance.definition.metadata.controllerAs) {
+			this.addParameter(controllerName ? controllerName : instance.definition.metadata.controllerAs, instance.instance);
 		}
 
 		for (let i = 0; i < directives.length; i++) {
@@ -273,7 +236,7 @@ export class ComponentView extends AbstractView
 		}
 
 		for (let i = 0; i < filters.length; i++) {
-			this.addFilter(container, filters[i]);
+			this.addFilter(filters[i]);
 		}
 		
 		for (let locale in translations) {
@@ -294,12 +257,9 @@ export class ComponentView extends AbstractView
 	}
 
 
-	public attachDirective(definition: DirectiveDefinition, instance: any, el: Element): DirectiveInstance
+	public attachDirective(instance: DirectiveInstance): void
 	{
-		let result = new DirectiveInstance(this, definition, instance, el);
-		this.attachedDirectives.push(result);
-
-		return result;
+		this.attachedDirectives.push(instance);
 	}
 
 
@@ -331,7 +291,7 @@ export class ComponentView extends AbstractView
 	}
 
 
-	public addFilter(container: Container, filter: any): void
+	public addFilter(filter: any): void
 	{
 		let metadata: FilterMetadataDefinition = Annotations.getAnnotation(filter, FilterMetadataDefinition);
 
@@ -339,7 +299,7 @@ export class ComponentView extends AbstractView
 			throw new Error('Filter ' + Functions.getName(filter) + ' is not valid filter, please add @Filter annotation.');
 		}
 
-		this.filters[metadata.name] = container.create(filter);
+		this.filters[metadata.name] = this.container.create(filter);
 	}
 
 

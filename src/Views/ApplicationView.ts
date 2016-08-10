@@ -46,12 +46,12 @@ export class ApplicationView extends AbstractView
 
 	public createApplicationComponentView(el: Element): ComponentView
 	{
-		let view = new ComponentView(this, ElementRef.getByNode(el), this.parameters);
+		let view = new ComponentView(this.container, this, ElementRef.getByNode(el), this.parameters);
 
 		view.directives = [this.controller];
 
 		for (let i = 0; i < DefaultFilters.length; i++) {
-			view.addFilter(this.container, DefaultFilters[i]);
+			view.addFilter(DefaultFilters[i]);
 		}
 
 		return view;

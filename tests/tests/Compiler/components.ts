@@ -162,6 +162,41 @@ describe('#Compiler', () => {
 			}).to.throw(Error, 'Can not import service "TemplateRef" into directive "App". Element "app" is not inside of any <template> element.');
 		});
 
+		it('should append component dynamically', (done) => {
+			@Component({
+				selector: 'appendable',
+				controllerAs: 'a',
+				template: '{{ a.title }}',
+			})
+			class Appendable {
+				title = 'Hello';
+			}
+
+			@Component({
+				selector: 'app',
+				directives: [Appendable],
+			})
+			class App implements OnInit {
+				constructor(public compiler: Compiler, public view: ComponentView, public el: ElementRef) {}
+				onInit() {
+					setTimeout(() => {
+						let el = this.compiler.createComponent(this.view, '<appendable></appendable>');
+						this.el.nativeEl.appendChild(el);
+					}, 50);
+				}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
+
+			compiler.compile(view);
+
+			setTimeout(() => {
+				expect(el.innerHTML).to.be.equal('<app><appendable>Hello</appendable></app>');
+				done();
+			}, 75);
+		});
+
 	});
 
 });

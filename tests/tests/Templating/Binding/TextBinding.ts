@@ -27,7 +27,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 		it('should evaluate expression in html', () => {
 			let el = Dom.el('<div> </div>');
-			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
+			let view = new ComponentView(container, new MockApplicationView(container), new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,
@@ -43,7 +43,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 		it('should change property when it is changed', () => {
 			let el = Dom.el('<div>a + b + c - 2</div>');
-			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
+			let view = new ComponentView(container, new MockApplicationView(container), new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,
@@ -68,7 +68,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 		it('should change property and stop watching for changes', () => {
 			let el = Dom.el('<div>a + b + c - 2</div>');
-			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
+			let view = new ComponentView(container, new MockApplicationView(container), new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,

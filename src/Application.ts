@@ -20,15 +20,11 @@ export class Application
 		this.compiler = new Compiler(container);
 
 		this.container.provide(Compiler, {
-			useFactory: () => {
-				return this.compiler;
-			}
+			useFactory: () => this.compiler,
 		});
 
 		this.container.provide(Application, {
-			useFactory: () => {
-				return this;
-			}
+			useFactory: () => this,
 		});
 	}
 

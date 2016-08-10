@@ -26,7 +26,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should iterate through simple array list', () => {
 			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
+			let view = new ComponentView(container, new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -38,7 +38,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should iterate through simple array list with key', () => {
 			let el = Dom.el('<ul><template [s:for]="#i, #user in users"><li>- {{ i + ": " + user }} -</li></template></ul>');
-			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
+			let view = new ComponentView(container, new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -50,7 +50,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should iterate through simple object', () => {
 			let el = Dom.el('<ul><template [s:for]="#value of options"><li>- {{ value }} -</li></template></ul>');
-			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
+			let view = new ComponentView(container, new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -66,7 +66,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should iterate through simple object with keys', () => {
 			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
-			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
+			let view = new ComponentView(container, new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -82,7 +82,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should update view when whole array is changed', () => {
 			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
+			let view = new ComponentView(container, new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -99,7 +99,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should update view when new item is added to array', () => {
 			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
+			let view = new ComponentView(container, new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -116,7 +116,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should update view when item is remove from an array', () => {
 			let parent = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(parent));
+			let view = new ComponentView(container, new MockApplicationView(container), ElementRef.getByNode(parent));
 
 			view.directives.push(ForDirective);
 			view.parameters['users'] = ['David', 'John', 'Clare'];
@@ -133,7 +133,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should update view when new item is added to an object', () => {
 			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
-			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
+			let view = new ComponentView(container, new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -154,7 +154,7 @@ describe('#Directives/ForDirective', () => {
 
 		it('should update view when item is removed from an object', () => {
 			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
-			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
+			let view = new ComponentView(container, new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.parameters['options'] = {
@@ -194,7 +194,7 @@ describe('#Directives/ForDirective', () => {
 			}
 
 			let el = Dom.el('<div><template [s:for]="a in b"><div test>- {{ t.s }} ({{ t.num }}) -</div></template></div>');
-			let view = new ComponentView(new MockApplicationView(container), ElementRef.getByNode(el));
+			let view = new ComponentView(container, new MockApplicationView(container), ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.directives.push(Test);

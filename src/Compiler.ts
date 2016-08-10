@@ -23,6 +23,7 @@ import {DirectiveMetadataDefinition} from './Entity/Metadata';
 import {ExpressionParser} from './Parsers/ExpressionParser';
 import {EmbeddedView} from './Views/EmbeddedView';
 import {ParametersList} from './Interfaces';
+import {DirectiveFactory} from './DirectiveFactory';
 
 
 @Injectable()
@@ -40,10 +41,13 @@ export class Compiler
 
 	private container: Container;
 
+	private directiveFactory: DirectiveFactory;
+
 
 	constructor(container: Container)
 	{
 		this.container = container;
+		this.directiveFactory = new DirectiveFactory(container);
 	}
 
 
@@ -61,6 +65,15 @@ export class Compiler
 		let view = appView.createApplicationComponentView(el);
 
 		this.compileElement(view, <HTMLElement>el);
+	}
+
+
+	public createComponent(parentView: ComponentView, template: string): HTMLElement
+	{
+		let el = Dom.el(template);
+		this.compileElement(parentView, el);
+
+		return el;
 	}
 
 
@@ -196,12 +209,10 @@ export class Compiler
 		let directiveExists = false;
 
 		parentView.eachDirective((directive) => {
-			let isComponent = false;
 			let metadata: DirectiveMetadataDefinition;
 			let definition: DirectiveDefinition;
 
 			if (Annotations.hasAnnotation(directive, ComponentMetadataDefinition)) {
-				isComponent = true;
 				metadata = ControllerParser.getControllerMetadata(directive);
 				definition = ControllerParser.parse(directive, <ComponentMetadataDefinition>metadata);
 			} else {
@@ -210,14 +221,10 @@ export class Compiler
 			}
 
 			if (Dom.matches(el, metadata.selector)) {
-				let directiveView = parentView;
 				directiveExists = true;
 
-				if (isComponent) {
-					directiveView = parentView.fork(ElementRef.getByNode(el));
-				}
-
-				let innerCompiled = this.useDirective(directiveView, definition, el, attributes, templateRef, controllerName);
+				let instance = this.directiveFactory.create(parentView, definition, ElementRef.getByNode(el), templateRef);
+				let innerCompiled = this.useDirective(instance, attributes, controllerName);
 
 				if (!innerCompiled && definition.metadata.compileInner) {
 					innerCompilationNeeded = true;
@@ -332,28 +339,25 @@ export class Compiler
 	}
 
 
-	private useDirective(view: ComponentView, definition: DirectiveDefinition, el: Element, attributes: AttributesList, templateRef?: TemplateRef, controllerName?: string): boolean
+	private useDirective(instance: DirectiveInstance, attributes: AttributesList, controllerName?: string): boolean
 	{
-		let elementRef = ElementRef.getByNode(el);
-		let instance = view.createDirectiveInstance(this.container, definition, elementRef, templateRef);
-		let directiveInstance: DirectiveInstance = null;
 		let innerCompiled = false;
 
-		if (definition.metadata instanceof ComponentMetadataDefinition) {
-			directiveInstance = view.setComponent(this.container, <ControllerDefinition>definition, instance, controllerName);
+		if (instance instanceof ComponentInstance) {
+			instance.view.setComponent(instance, controllerName);
 		} else {
-			directiveInstance = view.attachDirective(definition, instance, el);
+			instance.view.attachDirective(instance);
 		}
 
-		directiveInstance.bindInputs(attributes);
+		instance.bindInputs(attributes);
 
-		if (directiveInstance instanceof ComponentInstance) {
-			innerCompiled = directiveInstance.processInnerHTML(this);
-			directiveInstance.processHostElements();
+		if (instance instanceof ComponentInstance) {
+			innerCompiled = instance.processInnerHTML(this);
+			instance.processHostElements();
 		}
 
-		directiveInstance.processHostEvents();
-		directiveInstance.attach();
+		instance.processHostEvents();
+		instance.attach();
 
 		return innerCompiled;
 	}

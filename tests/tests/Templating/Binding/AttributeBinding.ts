@@ -30,7 +30,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
+			let view = new ComponentView(container, new MockApplicationView(container), new ElementRef(el), {
 				hello: 'good day',
 			});
 
@@ -46,7 +46,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			expect(el['test']).to.be.equal(undefined);
 
-			let view = new ComponentView(new MockApplicationView(container), new ElementRef(el), {
+			let view = new ComponentView(container, new MockApplicationView(container), new ElementRef(el), {
 				a: 1,
 				b: 2,
 				c: 3,

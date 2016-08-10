@@ -26,7 +26,7 @@ describe('#Directives/AttrDirective', () => {
 		let el = Dom.el('<span [s:attr]="{test: true}"></span>');
 		let elementRef = new ElementRef(el);
 
-		let view = new ComponentView(new MockApplicationView(container), elementRef);
+		let view = new ComponentView(container, new MockApplicationView(container), elementRef);
 		view.directives.push(AttrDirective);
 
 		expect(el['test']).to.be.equal(undefined);
