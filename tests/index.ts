@@ -40,6 +40,7 @@ import './tests/DI/Container';
 import './tests/Application';
 
 import './tests/Compiler/components';
+import './tests/Compiler/components.changeDetection';
 import './tests/Compiler/components.inputs';
 import './tests/Compiler/components.elements';
 import './tests/Compiler/components.events';

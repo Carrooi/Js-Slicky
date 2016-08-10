@@ -13,7 +13,7 @@ let application: Application = null;
 let compiler: Compiler = null;
 
 
-describe('#Compiler', () => {
+describe('#Compiler/components', () => {
 
 	beforeEach(() => {
 		container = new Container;

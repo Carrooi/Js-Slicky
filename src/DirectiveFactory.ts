@@ -9,6 +9,7 @@ import {TemplateRef} from './Templating/TemplateRef';
 import {ChangeDetectorRef} from './ChangeDetection/ChangeDetectorRef'
 import {ComponentView} from './Views/ComponentView';
 import {Dom} from './Util/Dom';
+import {ChangeDetectionStrategy} from "./ChangeDetection/ChangeDetectionStrategy";
 
 
 export class DirectiveFactory
@@ -27,7 +28,11 @@ export class DirectiveFactory
 	public create(view: ComponentView, definition: DirectiveDefinition, elementRef: ElementRef, templateRef?: TemplateRef): DirectiveInstance
 	{
 		if (definition.metadata instanceof ComponentMetadataDefinition) {
+			let parentChangeDetection = view.changeDetector.strategy;
+			let changeDetection = (<ControllerDefinition>definition).metadata.changeDetection;
+			
 			view = view.fork(elementRef);
+			view.changeDetector.strategy = changeDetection === null ? parentChangeDetection : changeDetection;
 		}
 
 		let instance = this.createInstance(view, definition, elementRef, templateRef);

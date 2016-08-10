@@ -31,7 +31,7 @@ export class DirectiveInstance
 	public attach(): void
 	{
 		if (typeof this.instance['onInit'] === 'function') {
-			this.view.run(() => (<OnInit>this.instance).onInit());
+			this.view.run(() => (<OnInit>this.instance).onInit(), true);
 		}
 	}
 
@@ -39,7 +39,7 @@ export class DirectiveInstance
 	public detach(): void
 	{
 		if (typeof this.instance['onDestroy'] === 'function') {
-			this.view.run(() => (<OnDestroy>this.instance).onDestroy());
+			this.view.run(() => (<OnDestroy>this.instance).onDestroy(), true);
 		}
 	}
 
@@ -54,7 +54,7 @@ export class DirectiveInstance
 				let stop = false;
 
 				if (hasOnChange) {
-					stop = this.view.run(() => (<OnChange>instance).onChange(inputName, changed) === false);
+					stop = this.view.run(() => (<OnChange>instance).onChange(inputName, changed) === false, true);
 				}
 
 				if (!stop) {
@@ -63,7 +63,7 @@ export class DirectiveInstance
 					instance[inputName] = value;
 
 					if (hasOnUpdate) {
-						this.view.run(() => (<OnUpdate>instance).onUpdate(inputName, value));
+						this.view.run(() => (<OnUpdate>instance).onUpdate(inputName, value), true);
 					}
 				}
 			};

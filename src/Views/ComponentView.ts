@@ -70,8 +70,6 @@ export class ComponentView extends AbstractView
 			this.parent.changeDetector
 		);
 
-		this.changeDetector.strategy = this.parent.changeDetector.strategy;
-
 		this.changeDetectorRef = new ChangeDetectorRef(() => {
 			this.changeDetector.check();
 		});
@@ -105,7 +103,7 @@ export class ComponentView extends AbstractView
 			}
 
 			this.attachedDirectives = [];
-		});
+		}, true);
 	}
 
 
@@ -151,9 +149,15 @@ export class ComponentView extends AbstractView
 	}
 
 
-	public run(fn: () => void): any
+	public run(fn: () => void, checkForChanges: boolean = false): any
 	{
-		return this.realm.run(fn);
+		let result = this.realm.run(fn);
+
+		if (checkForChanges && this.changeDetector.strategy === ChangeDetectionStrategy.Default) {
+			this.changeDetectorRef.refresh();
+		}
+
+		return result;
 	}
 
 
@@ -221,7 +225,6 @@ export class ComponentView extends AbstractView
 		}
 
 		this.component = instance;
-		this.changeDetector.strategy = instance.definition.metadata.changeDetection;
 
 		let directives = instance.definition.metadata.directives;
 		let filters = instance.definition.metadata.filters;
@@ -265,24 +268,24 @@ export class ComponentView extends AbstractView
 
 	public attachBinding(binding: IBinding, expression: Expression): void
 	{
-		this.run(() => binding.attach());
+		this.run(() => binding.attach(), true);
 
 		let hasOnChange = typeof binding['onChange'] === 'function';
 		let hasOnUpdate = typeof binding['onUpdate'] === 'function';
 
 		if (hasOnChange || hasOnUpdate) {
 			if (hasOnUpdate) {
-				this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)));
+				this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)), true);
 			}
 
 			this.watch(expression, (changed) => {
 				if (hasOnChange) {
-					this.run(() => binding['onChange'](changed));
+					this.run(() => binding['onChange'](changed), true);
 
 				}
 
 				if (hasOnUpdate) {
-					this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)));
+					this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)), true);
 				}
 			});
 		}

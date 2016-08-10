@@ -66,7 +66,7 @@ export class ComponentMetadataDefinition extends DirectiveMetadataDefinition
 		super(options);
 
 		this.controllerAs = typeof options.controllerAs !== 'undefined' ? options.controllerAs : null;
-		this.changeDetection = typeof options.changeDetection !== 'undefined' ? options.changeDetection : ChangeDetectionStrategy.Default;
+		this.changeDetection = typeof options.changeDetection !== 'undefined' ? options.changeDetection : null;
 		this.template = typeof options.template !== 'undefined' ? options.template : null;
 		this.directives = typeof options.directives !== 'undefined' ? options.directives : [];
 		this.filters = typeof options.filters !== 'undefined' ? options.filters : [];
