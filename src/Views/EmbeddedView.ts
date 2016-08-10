@@ -37,27 +37,13 @@ export class EmbeddedView extends AbstractView
 	}
 
 
-	public attach(marker: Comment): void
+	public attach(marker?: Comment): void
 	{
 		if (this.attached) {
 			return;
 		}
 
-		let el = this.templateRef.el.nativeEl;
-		if (this.templateRef.el.isElement('TEMPLATE') && el['content']) {
-			el = document.importNode(el, true)['content'];
-		}
-
-		let childNodes = el.childNodes;
-
-		for (let i = 0; i < childNodes.length; i++) {
-			let clone = childNodes[i].cloneNode(true);
-
-			Dom.insertBefore(clone, marker);
-
-			this.nodes.push(clone);
-		}
-
+		this.nodes = this.templateRef.insert(marker);
 		this.attached = true;
 	}
 

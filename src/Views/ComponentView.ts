@@ -55,6 +55,8 @@ export class ComponentView extends AbstractView
 
 	public bindings: Array<IBinding> = [];
 
+	public templates: {[id: string]: TemplateRef} = {};
+
 
 	constructor(parent: ComponentView|ApplicationView, el: ElementRef, parameters: ParametersList = {})
 	{
@@ -133,6 +135,16 @@ export class ComponentView extends AbstractView
 	}
 
 
+	public addParameters(parameters: ParametersList): void
+	{
+		for (let name in parameters) {
+			if (parameters.hasOwnProperty(name)) {
+				this.addParameter(name, parameters[name]);
+			}
+		}
+	}
+
+
 	public watch(expr: Expression, cb: WatcherCallback): void
 	{
 		this.changeDetector.watch(expr, cb);
@@ -182,7 +194,7 @@ export class ComponentView extends AbstractView
 	public createEmbeddedView(templateRef: TemplateRef): EmbeddedView
 	{
 		let view = new EmbeddedView(this, templateRef);
-		view.attach(templateRef.el.createMarker());
+		view.attach();
 
 		return view;
 	}
@@ -371,6 +383,22 @@ export class ComponentView extends AbstractView
 		}
 
 		return value;
+	}
+
+
+	public storeTemplate(template: TemplateRef): void
+	{
+		this.templates[template.getId()] = template;
+	}
+
+
+	public findTemplate(id: string): TemplateRef
+	{
+		if (typeof this.templates[id] === 'undefined') {
+			return null;
+		}
+
+		return this.templates[id];
 	}
 
 }

@@ -711,6 +711,81 @@ describe('#Compiler/template', () => {
 			expect(el.innerText).to.be.equal('0, 1, 2');
 		});
 
+		it('should throw an error when trying to use template with non ID selector', () => {
+			@Component({
+				selector: 'app',
+				template: '<content select=".tmpl"></content>'
+			})
+			class App {}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
+
+			expect(() => {
+				compiler.compile(view);
+			}).to.throw(Error, 'Can not include template by selector ".tmpl". The only supported selector in <content> is ID attribute.');
+		});
+
+		it('should throw an error when trying to use not registered template', () => {
+			@Component({
+				selector: 'app',
+				template: '<content select="#find-me"></content>'
+			})
+			class App {}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
+
+			expect(() => {
+				compiler.compile(view);
+			}).to.throw(Error, 'Can not find template with ID "find-me".');
+		});
+
+		it('should use template with content tag', () => {
+			@Component({
+				selector: 'app',
+				template:
+					'<template id="tmpl">' +
+						'text<!-- comment --><span>element</span>' +
+					'</template>' +
+					'<content select="#tmpl"></content>' +
+					'<content select="#tmpl"></content>'
+			})
+			class App {}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
+
+			compiler.compile(view);
+
+			expect(el.innerHTML).to.be.equal('<app><!-- -slicky--data- -->text<!-- comment --><span>element</span>text<!-- comment --><span>element</span></app>');
+		});
+
+		it('should use template and pass some additional parameters', () => {
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				template:
+					'<template id="tmpl">' +
+						'Item: {{ id + "/" + title + app.postfix + (!last ? ", ": "") }}' +
+					'</template>' +
+					'<content select="#tmpl" import="id: 1, title: app.prefix + \'first\'"></content>' +
+					'<content select="#tmpl" import="id: 2, title: app.prefix + \'second\'"></content>' +
+					'<content select="#tmpl" import="id: 3, title: app.prefix + \'third\', last: true"></content>'
+			})
+			class App {
+				prefix = 'a-';
+				postfix = '-a';
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
+
+			compiler.compile(view);
+
+			expect(el.innerHTML).to.be.equal('<app><!-- -slicky--data- -->Item: 1/a-first-a, Item: 2/a-second-a, Item: 3/a-third-a</app>');
+		});
+
 	});
 
 });

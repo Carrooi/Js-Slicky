@@ -170,13 +170,21 @@ export class Dom
 	{
 		let main = prop.split('.')[0];
 
-		if (typeof el[main] !== 'undefined') {
+		if (typeof el[main] !== 'undefined' && el[main] !== '') {
 			return true;
 		}
 
 		let other = ['disabled', 'class'];
 
 		return other.indexOf(main) > -1;
+	}
+
+
+	public static remove(el: Node): void
+	{
+		if (el.parentElement) {
+			el.parentElement.removeChild(el);
+		}
 	}
 
 }

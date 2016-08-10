@@ -1,4 +1,5 @@
 import {ComponentView} from '../Views/ComponentView';
+import {Dom} from '../Util/Dom';
 
 
 declare interface AttributeProperty
@@ -24,8 +25,6 @@ export class ElementRef
 
 	public static NODE_PROPERTY_STORAGE_NAME = '__slicky_node_ref__';
 
-
-	private marker: Comment;
 
 	public nativeEl: Node;
 
@@ -76,24 +75,7 @@ export class ElementRef
 
 	public remove(): void
 	{
-		if (this.nativeEl.parentElement) {
-			this.nativeEl.parentElement.removeChild(this.nativeEl);
-		}
-	}
-
-
-	public createMarker(): Comment
-	{
-		if (this.marker) {
-			return this.marker;
-		}
-
-		let el = this.nativeEl;
-		let marker = document.createComment(' -slicky--data- ');
-
-		el.parentNode.insertBefore(marker, el);
-
-		return this.marker = marker;
+		Dom.remove(this.nativeEl);
 	}
 
 

@@ -62,13 +62,48 @@ There is also shortcut for creating templates:
 <span *s:if="true">hello</span>
 ```
 
-will actually create:
+That will actually create:
 
 ```html
 <template [s:if]="true">
 	<span>hello</span>
 </template>
 ```
+
+## Importing template blocks
+
+You can also reuse `<template>` blocks later in your template. You just need to 
+add some `id` attribute.
+
+```html
+<template id="tmpl">
+	Hello
+</template>
+
+<content select="#tmpl"></content>
+<content select="#tmpl"></content>
+```
+
+And result will be: `Hello Hello`.
+
+This alone is actually not so useful so let's pass some additional parameters
+into the template block.
+
+```
+<template id="tmpl">
+	Hello {{ name + last ? ', ' : '' }}
+</template>
+
+<content select="#tmpl" import="name: 'Clare'"></content>
+<content select="#tmpl" import="name: 'David', last: true"></content>
+```
+
+Result: `Hello Clare, Hello David`.
+
+The `import` attribute is actually parsed as javascript object with access to 
+current template parameters. That means that you have access to eg. parent 
+component and that the code needs to be valid javascript when you add `{` to 
+the beginning and `}` to the end of your `import` code.
 
 ## Default directives
 

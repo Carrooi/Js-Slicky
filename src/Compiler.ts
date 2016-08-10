@@ -17,10 +17,12 @@ import {ElementRef, AttributesList} from './Templating/ElementRef';
 import {TemplateRef} from './Templating/TemplateRef';
 import {Annotations} from './Util/Annotations';
 import {Helpers} from './Util/Helpers';
+import {SafeEval} from './Util/SafeEval';
 import {ComponentMetadataDefinition} from './Entity/Metadata';
 import {DirectiveMetadataDefinition} from './Entity/Metadata';
 import {ExpressionParser} from './Parsers/ExpressionParser';
 import {EmbeddedView} from './Views/EmbeddedView';
+import {ParametersList} from './Interfaces';
 
 
 @Injectable()
@@ -68,47 +70,80 @@ export class Compiler
 			nodes = Helpers.toArray(nodes);
 		}
 
-		let currentView = view;
-		let originalParameters = null;
+		let currentView: ComponentView = <ComponentView>view;
+		let originalParameters = currentView.parameters;
 
 		if (currentView instanceof EmbeddedView) {
-			currentView = (<EmbeddedView>currentView).getView();
+			currentView = (<any>currentView).getView();
 			originalParameters = currentView.parameters;
-			currentView.parameters = Helpers.clone(currentView.parameters);
-			
-			for (let name in view.parameters) {
-				if (view.parameters.hasOwnProperty(name)) {
-					currentView.addParameter(name, view.parameters[name]);
-				}
-			}
+
+			currentView.parameters = {};
+			currentView.addParameters(originalParameters);
+			currentView.addParameters(view.parameters);
 		}
 
-		for (let i = 0; i < nodes.length; i++) {
+		let currentParameters = currentView.parameters;
+
+		let i = 0;
+		let restoreParametersAfter: number = null;
+		let includedNode = 0;
+
+		while (i < nodes.length) {
 			let child = nodes[i];
 
 			if (child.nodeType === Node.TEXT_NODE) {
-				this.compileText(<ComponentView>currentView, <Text>child);
+				this.compileText(currentView, <Text>child);
 
 			} else if (child.nodeType === Node.ELEMENT_NODE) {
-				let templateRef = null;
+				let templateRef: TemplateRef = null;
+				let nodeName = child.nodeName.toUpperCase();
 
-				if (child.nodeName.toUpperCase() !== 'TEMPLATE') {
+				if (nodeName !== 'TEMPLATE') {
 					child = this.tryTransformToTemplate(<Element>child);
+					nodeName = child.nodeName.toUpperCase();
 				}
 
-				if (child.nodeName.toUpperCase() === 'TEMPLATE') {
+				if (nodeName === 'TEMPLATE') {
 					let el = ElementRef.getByNode(child);
-					templateRef = new TemplateRef(el);
 
-					el.createMarker();
-					el.remove();
+					templateRef = new TemplateRef(el);
+					templateRef.storeElement();
+
+					currentView.storeTemplate(templateRef);
+
+				} else if (nodeName === 'CONTENT') {
+					let include = this.tryIncludeTemplate(currentView, <Element>child);
+					let append = include.nodes;
+
+					currentView.parameters = {};
+					currentView.addParameters(currentParameters);
+					currentView.addParameters(include.vars);
+
+					restoreParametersAfter = append.length;
+
+					append.splice(0, 0, <any>i, <any>1);
+					Array.prototype.splice.apply(nodes, append);
+					
+					continue;
 				}
 
-				this.compileElement(<ComponentView>currentView, <HTMLElement>child, templateRef);
+				this.compileElement(currentView, <HTMLElement>child, templateRef);
 			}
+
+			if (restoreParametersAfter !== null) {
+				includedNode++;
+
+				if (restoreParametersAfter === includedNode) {
+					currentView.parameters = currentParameters;
+					includedNode = 0;
+					restoreParametersAfter = null;
+				}
+			}
+
+			i++;
 		}
 
-		if (originalParameters !== null) {
+		if (view !== currentView) {
 			currentView.parameters = originalParameters;
 		}
 	}
@@ -262,6 +297,38 @@ export class Compiler
 		}
 
 		return parent
+	}
+
+
+	private tryIncludeTemplate(view: ComponentView, el: Element): {nodes: Array<Node>, vars: ParametersList}
+	{
+		let id = el.getAttribute('select');
+		if (!id.match(/^#[A-Za-z]+[\w\-:\.]*$/)) {
+			throw new Error('Can not include template by selector "' + id + '". The only supported selector in <content> is ID attribute.');
+		}
+
+		id = id.substring(1);
+
+		let template = view.findTemplate(id);
+		if (!template) {
+			throw new Error('Can not find template with ID "' + id + '".');
+		}
+
+		let importVars = el.getAttribute('import');
+		let importVarsList = {};
+		if (importVars && importVars !== '') {
+			importVars = 'return {' + importVars + '}';
+			importVarsList = SafeEval.run(importVars, view.parameters).result;
+		}
+		
+		let nodes = template.insert(el);
+
+		Dom.remove(el);
+
+		return {
+			nodes: nodes,
+			vars: importVarsList,
+		};
 	}
 
 
