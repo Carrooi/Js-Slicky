@@ -1,3 +1,4 @@
+import {ChangeDetectionStrategy} from './ChangeDetectionStrategy';
 import {Helpers} from '../Util/Helpers';
 import {Expression} from '../Parsers/ExpressionParser';
 import {ParametersList, WatcherListener, WatcherCallback, ChangedProperty} from '../Interfaces';
@@ -14,6 +15,8 @@ export class ChangeDetector
 	private listeners: Array<WatcherListener> = [];
 
 	private disabled: boolean = false;
+
+	public strategy: ChangeDetectionStrategy = ChangeDetectionStrategy.Default;
 
 
 	constructor(parameters: ParametersList, parent?: ChangeDetector)
@@ -158,7 +161,9 @@ export class ChangeDetector
 		}
 
 		for (let i = 0; i < this.children.length; i++) {
-			this.children[i].check();
+			if (this.children[i].strategy === ChangeDetectionStrategy.Default) {
+				this.children[i].check();
+			}
 		}
 	}
 
