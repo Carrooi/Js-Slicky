@@ -592,6 +592,76 @@ describe('#Compiler/template', () => {
 			}, 200);
 		});
 
+		it('should display data in for loop with timeout', (done) => {
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				directives: [ForDirective],
+				template: '<span *s:for="#letter in app.letters">{{ letter }}</span>',
+			})
+			class App implements OnInit {
+				letters = [];
+				onInit() {
+					setTimeout(() => {
+						this.letters = ['a', 'b', 'c'];
+					}, 20);
+				}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
+
+			compiler.compile(view);
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('abc');
+				done();
+			}, 50);
+		});
+
+		it('should create new inner component from for loop with additional data', (done) => {
+			let letters = [];
+
+			@Component({
+				selector: '[letter]',
+				controllerAs: 'l',
+			})
+			class Letter implements OnInit {
+				@Input()
+				name;
+				onInit() {
+					letters.push(this.name);
+				}
+			}
+
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				directives: [ForDirective, Letter],
+				template: '<span *s:for="#letter in app.letters" letter [name]="letter"></span>',
+			})
+			class App implements OnInit {
+				letters = [];
+				onInit() {
+					setTimeout(() => {
+						this.letters.push('a');
+						this.letters.push('b');
+						this.letters.push('c');
+					}, 20);
+				}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
+
+			compiler.compile(view);
+
+			setTimeout(() => {
+				expect(letters).to.be.eql(['a', 'b', 'c']);
+				done();
+			}, 50);
+		});
+
 		it('should compile complex component', (done) => {
 			@Component({
 				selector: '[item]',

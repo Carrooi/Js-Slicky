@@ -5,7 +5,7 @@ import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {ChangeDetector} from '../ChangeDetection/ChangeDetector';
 import {ChangeDetectorRef} from '../ChangeDetection/ChangeDetectorRef';
-import {ChangeDetectionStrategy} from '../ChangeDetection/ChangeDetectionStrategy';
+import {ChangeDetectionStrategy} from '../ChangeDetection/constants';
 import {ApplicationView} from './ApplicationView';
 import {EmbeddedView} from './EmbeddedView';
 import {Helpers} from '../Util/Helpers';
@@ -20,7 +20,7 @@ import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
 import {Annotations} from '../Util/Annotations';
 import {Functions} from '../Util/Functions';
 import {Realm} from '../Util/Realm';
-import {ParametersList, WatcherCallback} from '../Interfaces';
+import {ParametersList, ChangedItem} from '../Interfaces';
 
 
 export class ComponentView extends AbstractView
@@ -143,9 +143,9 @@ export class ComponentView extends AbstractView
 	}
 
 
-	public watch(expr: Expression, cb: WatcherCallback): void
+	public watch(expr: Expression, listener: (changed: ChangedItem) => void): void
 	{
-		this.changeDetector.watch(expr, cb);
+		this.changeDetector.watch(expr, listener);
 	}
 
 
@@ -278,10 +278,9 @@ export class ComponentView extends AbstractView
 				this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)), true);
 			}
 
-			this.watch(expression, (changed) => {
+			this.watch(expression, (changed: ChangedItem) => {
 				if (hasOnChange) {
 					this.run(() => binding['onChange'](changed), true);
-
 				}
 
 				if (hasOnUpdate) {

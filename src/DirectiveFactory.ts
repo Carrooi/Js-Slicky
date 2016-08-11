@@ -9,7 +9,7 @@ import {TemplateRef} from './Templating/TemplateRef';
 import {ChangeDetectorRef} from './ChangeDetection/ChangeDetectorRef'
 import {ComponentView} from './Views/ComponentView';
 import {Dom} from './Util/Dom';
-import {ChangeDetectionStrategy} from "./ChangeDetection/ChangeDetectionStrategy";
+import {ChangeDetectionStrategy} from "./ChangeDetection/constants";
 
 
 export class DirectiveFactory

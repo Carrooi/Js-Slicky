@@ -1,6 +1,6 @@
 import {CONST} from '../Facade/Lang';
 import {makeDecorator, makePropDecorator} from '../Util/Decorators';
-import {ChangeDetectionStrategy} from '../ChangeDetection/ChangeDetectionStrategy';
+import {ChangeDetectionStrategy} from '../ChangeDetection/constants';
 
 
 declare interface DirectiveOptions

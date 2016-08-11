@@ -1,22 +1,36 @@
-import {ChangeDetectionStrategy} from './ChangeDetectionStrategy';
+import {ChangeDetectionStrategy, ChangeDetectionAction} from './constants';
 import {Helpers} from '../Util/Helpers';
+import {Code} from '../Util/Code';
 import {Expression} from '../Parsers/ExpressionParser';
-import {ParametersList, WatcherListener, WatcherCallback, ChangedProperty} from '../Interfaces';
+import {ParametersList, VariableToken, ChangedItem, ChangedDependency, ChangedDependencyProperty} from '../Interfaces';
+
+
+declare interface WatcherItemDependency {
+	expr: VariableToken,
+	previous: any,
+	clone: any,
+}
+
+declare interface WatcherItem {
+	expr: Expression,
+	listener: (ChangedItem) => void,
+	dependencies: Array<WatcherItemDependency>,
+}
 
 
 export class ChangeDetector
 {
 
 
+	public strategy: ChangeDetectionStrategy = ChangeDetectionStrategy.Default;
+
 	private children: Array<ChangeDetector> = [];
 
 	private parameters: ParametersList;
 
-	private listeners: Array<WatcherListener> = [];
+	private watchers: Array<WatcherItem> = [];
 
 	private disabled: boolean = false;
-
-	public strategy: ChangeDetectionStrategy = ChangeDetectionStrategy.Default;
 
 
 	constructor(parameters: ParametersList, parent?: ChangeDetector)
@@ -35,53 +49,25 @@ export class ChangeDetector
 	}
 
 
-	public watch(expr: Expression, cb: WatcherCallback): void
+	public watch(expr: Expression, listener: (changed: ChangedItem) => void): void
 	{
 		let dependencies = [];
 
-		mainLoop: for (let i = 0; i < expr.dependencies.length; i++) {
-			let dependency = expr.dependencies[i];
-			let scope = this.parameters[dependency.name];
-
-			if (scope == null) {
-				continue;
-			}
-
-			let clones = {};
-			let obj = null;
-
-			clones[dependency.name] = scope;
-
-			if (!dependency.path.length) {
-				obj = Helpers.clone(scope);
-			} else {
-				for (let j = 0; j < dependency.path.length; j++) {
-					let key = dependency.path[j].value;
-					let isLast = j === (dependency.path.length - 1);
-
-					if (typeof scope[key] === 'undefined' && !isLast) {
-						continue mainLoop;
-					}
-
-					clones[key] = scope[key];
-					scope = scope[key];
-
-					if (isLast) {
-						obj = Helpers.clone(scope);
-					}
-				}
-			}
+		for (let i = 0; i < expr.dependencies.length; i++) {
+			let previous = this.interpolate(expr.dependencies[i]);
+			let clone = Helpers.clone(previous);
 
 			dependencies.push({
-				clones: clones,
-				obj: obj,
-				dependency: dependency,
+				expr: expr.dependencies[i],
+				previous: previous,
+				clone: clone,
 			});
 		}
 
-		this.listeners.push({
+		this.watchers.push({
+			expr: expr,
+			listener: listener,
 			dependencies: dependencies,
-			cb: cb,
 		});
 	}
 
@@ -92,71 +78,12 @@ export class ChangeDetector
 			return;
 		}
 
-		for (let i = 0; i < this.listeners.length; i++) {
-			let listener = this.listeners[i];
-			let changed = [];
+		for (let i = 0; i < this.watchers.length; i++) {
+			let watcher = this.watchers[i];
+			let changed = this.checkWatcher(watcher);
 
-			for (let j = 0; j < listener.dependencies.length; j++) {
-				let notify = false;
-				let props = [];
-
-				let data = listener.dependencies[j];
-
-				let dependency = data.dependency;
-				let _previous = data.clones[dependency.name];
-				let _current = this.parameters[dependency.name];
-
-				if (_current == null || _previous == null) {
-					continue;
-				}
-
-				if (_current !== _previous) {
-					notify = true;
-					data.obj = Helpers.clone(_current);
-					data.clones[dependency.name] = _current;
-				} else if (dependency.path.length) {
-					for (let k = 0; k < dependency.path.length; k++) {
-						let key = dependency.path[k].value;
-						let isLast = k === (dependency.path.length - 1);
-
-						_previous = data.clones[key];
-						_current = _current[key];
-
-						if (_previous !== _current) {
-							data.clones[key] = _current;
-							notify = true;
-
-						} else if (isLast) {
-							let currentProps = this.compare(_current, data.obj);
-							if (currentProps.length) {
-								notify = true;
-								props = props.concat(currentProps);
-							}
-						}
-
-						if (notify && isLast) {
-							data.obj = Helpers.clone(_current);
-						}
-					}
-				} else {
-					let currentProps = this.compare(_current, data.obj);
-					if (currentProps.length) {
-						notify = true;
-						props = props.concat(currentProps);
-						data.obj = Helpers.clone(_current);
-					}
-				}
-
-				if (notify) {
-					changed.push({
-						expr: dependency.code,
-						props: props.length ? props : null,
-					});
-				}
-			}
-
-			if (changed.length) {
-				listener.cb(<any>changed);
+			if (changed.action !== ChangeDetectionAction.Same) {
+				watcher.listener(changed);
 			}
 		}
 
@@ -168,7 +95,59 @@ export class ChangeDetector
 	}
 
 
-	private compare(a: any, b: any): Array<ChangedProperty>
+	private checkWatcher(watcher: WatcherItem): ChangedItem
+	{
+		let changed = {
+			action: ChangeDetectionAction.Same,
+			dependencies: [],
+		};
+
+		for (let i = 0; i < watcher.dependencies.length; i++) {
+			let dependency = watcher.dependencies[i];
+			let changes = this.checkDependency(dependency);
+
+			if (changes.action !== ChangeDetectionAction.Same) {
+				changed.action = ChangeDetectionAction.DeepUpdate;
+				changed.dependencies.push(changes);
+			}
+		}
+
+		return changed;
+	}
+
+
+	private checkDependency(dependency: WatcherItemDependency): ChangedDependency
+	{
+		let current = this.interpolate(dependency.expr);
+		let changes = {
+			action: ChangeDetectionAction.Same,
+			expr: dependency.expr,
+			props: [],
+		};
+
+		// weak change detection
+		if (current !== dependency.previous) {
+			changes.action = ChangeDetectionAction.Update;
+
+		// deep change detection
+		} else {
+			let props = this.compare(current, dependency.clone);
+			if (props.length) {
+				changes.action = ChangeDetectionAction.DeepUpdate;
+				changes.props = props;
+			}
+		}
+
+		if (changes.action !== ChangeDetectionAction.Same) {
+			dependency.previous = current;
+			dependency.clone = Helpers.clone(current);
+		}
+
+		return changes;
+	}
+
+
+	private compare(a: any, b: any): Array<ChangedDependencyProperty>
 	{
 		if (Helpers.isObject(a)) {
 			return this.compareObjects(a, b == null ? {} : b);
@@ -181,7 +160,7 @@ export class ChangeDetector
 	}
 
 
-	private compareObjects(a: any, b: any): Array<ChangedProperty>
+	private compareObjects(a: any, b: any): Array<ChangedDependencyProperty>
 	{
 		let result = [];
 
@@ -189,16 +168,16 @@ export class ChangeDetector
 			if (a.hasOwnProperty(name)) {
 				if (!b.hasOwnProperty(name)) {
 					result.push({
-						prop: name,
-						action: 'add',
+						property: name,
+						action: ChangeDetectionAction.Add,
 						newValue: a[name],
 						oldValue: undefined,
 					});
 
 				} else if (b[name] !== a[name]) {
 					result.push({
-						prop: name,
-						action: 'change',
+						property: name,
+						action: ChangeDetectionAction.Update,
 						newValue: a[name],
 						oldValue: b[name],
 					});
@@ -209,8 +188,8 @@ export class ChangeDetector
 		for (let name in b) {
 			if (b.hasOwnProperty(name) && !a.hasOwnProperty(name)) {
 				result.push({
-					prop: name,
-					action: 'remove',
+					property: name,
+					action: ChangeDetectionAction.Remove,
 					newValue: undefined,
 					oldValue: b[name],
 				});
@@ -221,23 +200,23 @@ export class ChangeDetector
 	}
 
 
-	private compareArrays(a: Array<any>, b: Array<any>): Array<ChangedProperty>
+	private compareArrays(a: Array<any>, b: Array<any>): Array<ChangedDependencyProperty>
 	{
 		let result = [];
 
 		for (let k = 0; k < a.length; k++) {
 			if (typeof b[k] === 'undefined') {
 				result.push({
-					prop: k,
-					action: 'add',
+					property: k,
+					action: ChangeDetectionAction.Add,
 					newValue: a[k],
 					oldValue: undefined,
 				});
 
 			} else if (b[k] !== a[k]) {
 				result.push({
-					prop: k,
-					action: 'change',
+					property: k,
+					action: ChangeDetectionAction.Update,
 					newValue: a[k],
 					oldValue: b[k],
 				});
@@ -247,8 +226,8 @@ export class ChangeDetector
 		for (let k = 0; k < b.length; k++) {
 			if (typeof a[k] === 'undefined') {
 				result.push({
-					prop: k,
-					action: 'remove',
+					property: k,
+					action: ChangeDetectionAction.Remove,
 					newValue: undefined,
 					oldValue: b[k],
 				});
@@ -256,6 +235,13 @@ export class ChangeDetector
 		}
 
 		return result;
+	}
+
+
+	private interpolate(expr: VariableToken): any
+	{
+		let result = Code.interpolateObjectElement(this.parameters, expr);
+		return result.obj[result.key];
 	}
 
 }

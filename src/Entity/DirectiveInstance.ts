@@ -1,6 +1,6 @@
 import {DirectiveDefinition} from './DirectiveParser';
 import {ComponentView} from '../Views/ComponentView';
-import {OnDestroy, OnInit, OnChange, OnUpdate, ChangedObject} from '../Interfaces';
+import {OnDestroy, OnInit, OnChange, OnUpdate, ChangedItem} from '../Interfaces';
 import {Dom} from '../Util/Dom';
 import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
 import {AttributesList} from '../Templating/ElementRef';
@@ -50,7 +50,7 @@ export class DirectiveInstance
 		let hasOnUpdate = typeof this.instance['onUpdate'] === 'function';
 
 		((instance, definition, hasOnChange, hasOnUpdate) => {
-			let processInput = (inputName: string, required: boolean, expr: Expression, changed: Array<ChangedObject> = null) => {
+			let processInput = (inputName: string, required: boolean, expr: Expression, changed: ChangedItem = null) => {
 				let stop = false;
 
 				if (hasOnChange) {
@@ -93,7 +93,7 @@ export class DirectiveInstance
 							processInput(inputName, input.required, expr);
 
 							((inputName, required, expr) => {
-								this.view.watch(expr, (changed) => {
+								this.view.watch(expr, (changed: ChangedItem) => {
 									processInput(inputName, required, expr, changed);
 								});
 							})(inputName, input.required, expr);

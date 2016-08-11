@@ -1,3 +1,6 @@
+import {ChangeDetectionAction} from './ChangeDetection/constants';
+
+
 // ------------ PARAMETERS
 
 
@@ -39,40 +42,25 @@ export declare interface InterpolatedObjectElement
 // ------------ CHANGE DETECTION
 
 
-export declare interface ChangedProperty
-{
-	prop: string,
-	action: string,
+export declare interface ChangedDependencyProperty {
+	action: ChangeDetectionAction,
+	property: string,
 	newValue: any,
 	oldValue: any,
 }
 
 
-export declare interface ChangedObject
-{
-	expr: string,
-	props?: Array<ChangedProperty>,
+export declare interface ChangedDependency {
+	action: ChangeDetectionAction,
+	expr: VariableToken,
+	props: Array<ChangedDependencyProperty>,
 }
 
 
-export declare interface WatcherCallback
+export declare interface ChangedItem
 {
-	(changed: Array<ChangedObject>): void,
-}
-
-
-export declare interface WatcherDependency
-{
-	clones: {[key: string]: any},
-	obj: any,
-	dependency: VariableToken,
-}
-
-
-export declare interface WatcherListener
-{
-	dependencies: Array<WatcherDependency>,
-	cb: WatcherCallback,
+	action: ChangeDetectionAction,
+	dependencies: Array<ChangedDependency>,
 }
 
 
@@ -110,6 +98,6 @@ export interface OnChange
 {
 
 
-	onChange(inputName: string, changed?: Array<ChangedObject>): boolean;
+	onChange(inputName: string, changed?: ChangedItem): boolean;
 
 }

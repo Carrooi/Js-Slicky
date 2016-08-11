@@ -1,5 +1,7 @@
 import {ChangeDetector} from '../../../src/ChangeDetection/ChangeDetector';
+import {ChangeDetectionAction} from '../../../src/ChangeDetection/constants';
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
+import {ChangedItem} from '../../../src/Interfaces';
 
 import chai = require('chai');
 
@@ -30,6 +32,30 @@ describe('#ChangeDetection/ChangeDetector', () => {
 			}, 50);
 		});
 
+		it('should disable checking for changes', (done) => {
+			let parameters = {
+				a: 'hello',
+			};
+
+			let detector = new ChangeDetector(parameters);
+			let called = 0;
+
+			detector.watch(ExpressionParser.precompile('a'), () => {
+				called++;
+			});
+
+			detector.disable();
+
+			parameters['a'] = 'hello world';
+
+			detector.check();
+
+			setTimeout(() => {
+				expect(called).to.be.equal(0);
+				done();
+			}, 50);
+		});
+
 		it('should notify about changes in first level variable', (done) => {
 			let parameters = {
 				a: 'hello',
@@ -37,11 +63,12 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(parameters);
 
-			detector.watch(ExpressionParser.precompile('a'), (changed) => {
-				expect(changed).to.be.eql([{
-					expr: 'a',
-					props: null,
-				}]);
+			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies).to.have.length(1);
+
+				expect(changed.dependencies[0].action).to.be.equal(ChangeDetectionAction.Update);
+				expect(changed.dependencies[0].expr.code).to.be.equal('a');
 
 				done();
 			});
@@ -77,11 +104,12 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(parameters);
 
-			detector.watch(ExpressionParser.precompile('a.b.c'), (changed) => {
-				expect(changed).to.be.eql([{
-					expr: 'a.b.c',
-					props: null,
-				}]);
+			detector.watch(ExpressionParser.precompile('a.b.c'), (changed: ChangedItem) => {
+				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies).to.have.length(1);
+
+				expect(changed.dependencies[0].action).to.be.equal(ChangeDetectionAction.Update);
+				expect(changed.dependencies[0].expr.code).to.be.equal('a.b.c');
 
 				done();
 			});
@@ -119,11 +147,12 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(parameters);
 
-			detector.watch(ExpressionParser.precompile('a + " " + b'), (changed) => {
-				expect(changed).to.be.eql([{
-					expr: 'b',
-					props: null,
-				}]);
+			detector.watch(ExpressionParser.precompile('a + " " + b'), (changed: ChangedItem) => {
+				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies).to.have.length(1);
+
+				expect(changed.dependencies[0].action).to.be.equal(ChangeDetectionAction.Update);
+				expect(changed.dependencies[0].expr.code).to.be.equal('b');
 
 				done();
 			});
@@ -140,16 +169,18 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(parameters);
 
-			detector.watch(ExpressionParser.precompile('a'), (changed) => {
-				expect(changed).to.be.eql([{
-					expr: 'a',
-					props: [{
-						prop: 'b',
-						action: 'add',
-						newValue: 'world',
-						oldValue: undefined,
-					}],
-				}]);
+			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies).to.have.length(1);
+
+				expect(changed.dependencies[0].action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies[0].expr.code).to.be.equal('a');
+
+				expect(changed.dependencies[0].props).to.have.length(1);
+				expect(changed.dependencies[0].props[0].action).to.be.equal(ChangeDetectionAction.Add);
+				expect(changed.dependencies[0].props[0].property).to.be.equal('b');
+				expect(changed.dependencies[0].props[0].newValue).to.be.equal('world');
+				expect(changed.dependencies[0].props[0].oldValue).to.be.equal(undefined);
 
 				done();
 			});
@@ -166,16 +197,18 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(parameters);
 
-			detector.watch(ExpressionParser.precompile('a'), (changed) => {
-				expect(changed).to.be.eql([{
-					expr: 'a',
-					props: [{
-						prop: 'b',
-						action: 'change',
-						newValue: 'world',
-						oldValue: 'moon',
-					}],
-				}]);
+			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies).to.have.length(1);
+
+				expect(changed.dependencies[0].action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies[0].expr.code).to.be.equal('a');
+
+				expect(changed.dependencies[0].props).to.have.length(1);
+				expect(changed.dependencies[0].props[0].action).to.be.equal(ChangeDetectionAction.Update);
+				expect(changed.dependencies[0].props[0].property).to.be.equal('b');
+				expect(changed.dependencies[0].props[0].newValue).to.be.equal('world');
+				expect(changed.dependencies[0].props[0].oldValue).to.be.equal('moon');
 
 				done();
 			});
@@ -192,16 +225,18 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(parameters);
 
-			detector.watch(ExpressionParser.precompile('a'), (changed) => {
-				expect(changed).to.be.eql([{
-					expr: 'a',
-					props: [{
-						prop: 'b',
-						action: 'remove',
-						newValue: undefined,
-						oldValue: 'world',
-					}],
-				}]);
+			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies).to.have.length(1);
+
+				expect(changed.dependencies[0].action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies[0].expr.code).to.be.equal('a');
+
+				expect(changed.dependencies[0].props).to.have.length(1);
+				expect(changed.dependencies[0].props[0].action).to.be.equal(ChangeDetectionAction.Remove);
+				expect(changed.dependencies[0].props[0].property).to.be.equal('b');
+				expect(changed.dependencies[0].props[0].newValue).to.be.equal(undefined);
+				expect(changed.dependencies[0].props[0].oldValue).to.be.equal('world');
 
 				done();
 			});
@@ -218,16 +253,18 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(parameters);
 
-			detector.watch(ExpressionParser.precompile('a'), (changed) => {
-				expect(changed).to.be.eql([{
-					expr: 'a',
-					props: [{
-						prop: 1,
-						action: 'add',
-						newValue: 'world',
-						oldValue: undefined,
-					}],
-				}]);
+			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies).to.have.length(1);
+
+				expect(changed.dependencies[0].action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies[0].expr.code).to.be.equal('a');
+
+				expect(changed.dependencies[0].props).to.have.length(1);
+				expect(changed.dependencies[0].props[0].action).to.be.equal(ChangeDetectionAction.Add);
+				expect(changed.dependencies[0].props[0].property).to.be.equal(1);
+				expect(changed.dependencies[0].props[0].newValue).to.be.equal('world');
+				expect(changed.dependencies[0].props[0].oldValue).to.be.equal(undefined);
 
 				done();
 			});
@@ -244,16 +281,18 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(parameters);
 
-			detector.watch(ExpressionParser.precompile('a'), (changed) => {
-				expect(changed).to.be.eql([{
-					expr: 'a',
-					props: [{
-						prop: 1,
-						action: 'change',
-						newValue: 'world',
-						oldValue: 'moon',
-					}],
-				}]);
+			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies).to.have.length(1);
+
+				expect(changed.dependencies[0].action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies[0].expr.code).to.be.equal('a');
+
+				expect(changed.dependencies[0].props).to.have.length(1);
+				expect(changed.dependencies[0].props[0].action).to.be.equal(ChangeDetectionAction.Update);
+				expect(changed.dependencies[0].props[0].property).to.be.equal(1);
+				expect(changed.dependencies[0].props[0].newValue).to.be.equal('world');
+				expect(changed.dependencies[0].props[0].oldValue).to.be.equal('moon');
 
 				done();
 			});
@@ -270,16 +309,18 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(parameters);
 
-			detector.watch(ExpressionParser.precompile('a'), (changed) => {
-				expect(changed).to.be.eql([{
-					expr: 'a',
-					props: [{
-						prop: 1,
-						action: 'remove',
-						newValue: undefined,
-						oldValue: 'world',
-					}],
-				}]);
+			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies).to.have.length(1);
+
+				expect(changed.dependencies[0].action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies[0].expr.code).to.be.equal('a');
+
+				expect(changed.dependencies[0].props).to.have.length(1);
+				expect(changed.dependencies[0].props[0].action).to.be.equal(ChangeDetectionAction.Remove);
+				expect(changed.dependencies[0].props[0].property).to.be.equal(1);
+				expect(changed.dependencies[0].props[0].newValue).to.be.equal(undefined);
+				expect(changed.dependencies[0].props[0].oldValue).to.be.equal('world');
 
 				done();
 			});

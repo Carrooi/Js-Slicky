@@ -9,5 +9,5 @@ export {Translator} from './src/Translations/Translator';
 export {ElementRef} from './src/Templating/ElementRef';
 export {TemplateRef} from './src/Templating/TemplateRef';
 export {ChangeDetectorRef} from './src/ChangeDetection/ChangeDetectorRef';
-export {ChangeDetectionStrategy} from './src/ChangeDetection/ChangeDetectionStrategy';
+export {ChangeDetectionStrategy} from './src/ChangeDetection/constants';
 export {OnInit, OnDestroy, OnUpdate, OnChange} from './src/Interfaces';

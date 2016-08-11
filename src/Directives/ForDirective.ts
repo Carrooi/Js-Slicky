@@ -1,6 +1,7 @@
 import {Directive, Input, Required} from '../Entity/Metadata';
 import {Compiler} from '../Compiler';
-import {OnChange, OnDestroy, ChangedObject, ForToken} from '../Interfaces';
+import {OnChange, OnDestroy, ForToken, ChangedItem} from '../Interfaces';
+import {ChangeDetectionAction} from '../ChangeDetection/constants';
 import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {ComponentView} from '../Views/ComponentView';
@@ -49,22 +50,25 @@ export class ForDirective implements OnChange, OnDestroy
 	}
 
 
-	public onChange(inputName: string, changed: Array<ChangedObject> = null): boolean
+	public onChange(inputName: string, changed: ChangedItem = null): boolean
 	{
 		if (changed) {
-			for (let i = 0; i < changed.length; i++) {
-				if (changed[i].expr === this.expr.obj.code) {
-					if (changed[i].props) {
-						for (let j = 0; j < changed[i].props.length; j++) {
-							let prop = changed[i].props[j];
+			for (let i = 0; i < changed.dependencies.length; i++) {
+				let dependency = changed.dependencies[i];
 
-							if (prop.action === 'add') {
-								this.addItem(prop.prop, prop.newValue);
+				if (dependency.expr.code === this.expr.obj.code) {
+					if (dependency.action === ChangeDetectionAction.DeepUpdate) {
+						for (let j = 0; j < dependency.props.length; j++) {
+							let prop = dependency.props[j];
 
-							} else if (prop.action === 'remove') {
-								this.removeItem(prop.prop);
+							if (prop.action === ChangeDetectionAction.Add) {
+								this.addItem(prop.property, prop.newValue);
+
+							} else if (prop.action === ChangeDetectionAction.Remove) {
+								this.removeItem(prop.property);
 							}
 						}
+
 					} else {
 						for (let name in this.iterated) {
 							if (this.iterated.hasOwnProperty(name)) {
@@ -74,8 +78,6 @@ export class ForDirective implements OnChange, OnDestroy
 
 						this.update();
 					}
-
-					break;
 				}
 			}
 
