@@ -33,7 +33,7 @@ describe('#Realm', () => {
 			expect(result).to.be.equal('result of run');
 
 			setTimeout(() => {
-				expect(sequence).to.be.eql(['enter', 'timeout 1', 'leave', 'enter', 'timeout 2', 'leave']);
+				expect(sequence).to.be.eql(['enter', 'leave', 'enter', 'timeout 1', 'leave', 'enter', 'timeout 2', 'leave']);
 				done();
 			}, 50);
 		});

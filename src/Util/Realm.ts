@@ -22,7 +22,15 @@ export class Realm
 
 		this.zone = parentZone.fork({
 			name: 'slicky',
-			onInvokeTask: (delegate: ZoneDelegate, current: Zone, target: Zone, task: Task, applyThis: any, applyArgs: any) => {
+			onInvoke: (delegate: ZoneDelegate, current: Zone, target: Zone, callback: Function, applyThis: any, applyArgs: Array<any>, source: string): any => {
+				try {
+					if (this.onEnter && current === target) this.onEnter();
+					return delegate.invoke(target, callback, applyThis, applyArgs, source);
+				} finally {
+					if (this.onLeave && current === target) this.onLeave();
+				}
+			},
+			onInvokeTask: (delegate: ZoneDelegate, current: Zone, target: Zone, task: Task, applyThis: any, applyArgs: any): any => {
 				try {
 					if (this.onEnter && current === target) this.onEnter();
 					return delegate.invokeTask(target, task, applyThis, applyArgs);

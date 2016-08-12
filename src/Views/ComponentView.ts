@@ -15,7 +15,7 @@ export class ComponentView extends RenderableView
 		super.detach();
 
 		if (this.component) {
-			this.run(() => this.component.detach(), true);
+			this.run(() => this.component.detach());
 			this.component = null;
 		}
 	}

@@ -86,13 +86,13 @@ export abstract class RenderableView extends AbstractView
 
 		for (let i = 0; i < this.attachedDirectives.length; i++) {
 			((directive: DirectiveInstance) => {
-				this.run(() => directive.detach(), true);
+				this.run(() => directive.detach());
 			})(this.attachedDirectives[i]);
 		}
 
 		for (let i = 0; i < this.bindings.length; i++) {
 			((binding: IBinding) => {
-				this.run(() => binding.detach(), true);
+				this.run(() => binding.detach());
 			})(this.bindings[i]);
 		}
 
@@ -126,15 +126,9 @@ export abstract class RenderableView extends AbstractView
 	}
 
 
-	public run(fn: () => void, checkForChanges: boolean = false): any
+	public run(fn: () => void): any
 	{
-		let result = this.realm.run(fn);
-
-		if (checkForChanges && this.changeDetector.strategy === ChangeDetectionStrategy.Default) {
-			this.changeDetectorRef.refresh();
-		}
-
-		return result;
+		return this.realm.run(fn);
 	}
 
 
@@ -194,23 +188,23 @@ export abstract class RenderableView extends AbstractView
 
 	public attachBinding(binding: IBinding, expression: Expression): void
 	{
-		this.run(() => binding.attach(), true);
+		this.run(() => binding.attach());
 
 		let hasOnChange = typeof binding['onChange'] === 'function';
 		let hasOnUpdate = typeof binding['onUpdate'] === 'function';
 
 		if (hasOnChange || hasOnUpdate) {
 			if (hasOnUpdate) {
-				this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)), true);
+				this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)));
 			}
 
 			this.watch(expression, (changed: ChangedItem) => {
 				if (hasOnChange) {
-					this.run(() => binding['onChange'](changed), true);
+					this.run(() => binding['onChange'](changed));
 				}
 
 				if (hasOnUpdate) {
-					this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)), true);
+					this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)));
 				}
 			});
 		}
