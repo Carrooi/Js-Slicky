@@ -174,7 +174,7 @@ export class Dom
 			return true;
 		}
 
-		let other = ['disabled', 'class'];
+		let other = ['disabled', 'class', 'src'];
 
 		return other.indexOf(main) > -1;
 	}
