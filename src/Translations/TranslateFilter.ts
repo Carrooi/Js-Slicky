@@ -1,7 +1,7 @@
 import {Filter} from '../Templating/Filters/Metadata';
 import {ViewAware} from '../Templating/Filters/ViewAware';
 import {Translator, ParamsList} from './Translator';
-import {ComponentView} from '../Views/ComponentView';
+import {RenderableView} from '../Views/RenderableView';
 
 
 @Filter({
@@ -13,7 +13,7 @@ export class TranslateFilter implements ViewAware
 
 	private translator: Translator;
 
-	private view: ComponentView;
+	private view: RenderableView;
 
 
 	constructor(translator: Translator)
@@ -22,7 +22,7 @@ export class TranslateFilter implements ViewAware
 	}
 
 
-	public onView(view: ComponentView): void
+	public onView(view: RenderableView): void
 	{
 		this.view = view;
 	}

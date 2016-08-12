@@ -2,14 +2,14 @@ import {IBinding} from './IBinding';
 import {Dom} from '../../Util/Dom';
 import {Helpers} from '../../Util/Helpers';
 import {SafeEval} from '../../Util/SafeEval';
-import {ComponentView} from '../../Views/ComponentView';
+import {RenderableView} from '../../Views/RenderableView';
 
 
 export class EventBinding implements IBinding
 {
 
 
-	private view: ComponentView;
+	private view: RenderableView;
 
 	private el: Element;
 
@@ -20,7 +20,7 @@ export class EventBinding implements IBinding
 	private listeners: Array<{event: string, listener: Function}> = [];
 
 
-	constructor(view: ComponentView, el: Element, attr: string, call: string)
+	constructor(view: RenderableView, el: Element, attr: string, call: string)
 	{
 		this.view = view;
 		this.el = el;

@@ -2,8 +2,9 @@ import {Directive, Input, Required} from '../Entity/Metadata';
 import {OnUpdate, OnDestroy} from '../Interfaces';
 import {Compiler} from '../Compiler';
 import {TemplateRef} from '../Templating/TemplateRef';
-import {ComponentView} from '../Views/ComponentView';
+import {RenderableView} from '../Views/RenderableView';
 import {EmbeddedView} from '../Views/EmbeddedView';
+import {ViewFactory} from '../Views/ViewFactory';
 
 
 @Directive({
@@ -16,7 +17,9 @@ export class IfDirective implements OnUpdate, OnDestroy
 
 	private compiler: Compiler;
 
-	private view: ComponentView;
+	private view: RenderableView;
+
+	private viewFactory: ViewFactory;
 
 	private templateRef: TemplateRef;
 
@@ -28,10 +31,11 @@ export class IfDirective implements OnUpdate, OnDestroy
 	public condition: string;
 
 
-	constructor(compiler: Compiler, view: ComponentView, templateRef: TemplateRef)
+	constructor(compiler: Compiler, view: RenderableView, viewFactory: ViewFactory, templateRef: TemplateRef)
 	{
 		this.compiler = compiler;
 		this.view = view;
+		this.viewFactory = viewFactory;
 		this.templateRef = templateRef;
 	}
 
@@ -39,7 +43,7 @@ export class IfDirective implements OnUpdate, OnDestroy
 	public onDestroy(): void
 	{
 		if (this.nested) {
-			this.view.removeEmbeddedView(this.nested);
+			this.view.removeChildView(this.nested);
 			this.nested = null;
 		}
 	}
@@ -48,11 +52,12 @@ export class IfDirective implements OnUpdate, OnDestroy
 	public onUpdate(): void
 	{
 		if (this.condition && !this.nested) {
-			this.nested = this.view.createEmbeddedView(this.templateRef);
+			this.nested = this.viewFactory.createEmbeddedView(this.view, this.templateRef);
+			this.nested.attach();
 			this.compiler.compileNodes(this.nested, this.nested.nodes);
 
 		} else if (!this.condition && this.nested) {
-			this.view.removeEmbeddedView(this.nested);
+			this.view.removeChildView(this.nested);
 			this.nested = null;
 		}
 	}

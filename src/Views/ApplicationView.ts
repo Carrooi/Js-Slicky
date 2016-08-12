@@ -44,7 +44,7 @@ export class ApplicationView extends AbstractView
 	}
 
 
-	public createApplicationComponentView(el: Element): ComponentView
+	public createApplicationRenderableView(el: Element): ComponentView
 	{
 		let view = new ComponentView(this.container, this, ElementRef.getByNode(el), this.parameters);
 

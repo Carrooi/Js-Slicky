@@ -26,7 +26,7 @@ describe('#Views/EmbeddedView', () => {
 
 			let container = new Container;
 			let view = new ComponentView(container, new MockApplicationView(container), elementRef);
-			let embeddedView = new EmbeddedView(view, templateRef);
+			let embeddedView = new EmbeddedView(container, view, templateRef);
 
 			embeddedView.attach(marker);
 
@@ -50,12 +50,12 @@ describe('#Views/EmbeddedView', () => {
 
 			expect(el.innerHTML).to.be.equal(markerHTML);
 
-			(new EmbeddedView(view, templateRef)).attach(marker);
+			(new EmbeddedView(container, view, templateRef)).attach(marker);
 
 			expect(el.innerHTML).to.be.equal(templateHTML + markerHTML);
 			expect(template.innerHTML).to.be.equal(templateHTML);
 
-			(new EmbeddedView(view, templateRef)).attach(marker);
+			(new EmbeddedView(container, view, templateRef)).attach(marker);
 
 			expect(el.innerHTML).to.be.equal(templateHTML + templateHTML + markerHTML);
 			expect(template.innerHTML).to.be.equal(templateHTML);

@@ -4,8 +4,9 @@ import {OnChange, OnDestroy, ForToken, ChangedItem} from '../Interfaces';
 import {ChangeDetectionAction} from '../ChangeDetection/constants';
 import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
-import {ComponentView} from '../Views/ComponentView';
+import {RenderableView} from '../Views/RenderableView';
 import {EmbeddedView} from '../Views/EmbeddedView';
+import {ViewFactory} from '../Views/ViewFactory';
 import {ForParser} from'../Parsers/ForParser';
 import {Code} from '../Util/Code';
 import {SafeEval} from '../Util/SafeEval';
@@ -21,7 +22,9 @@ export class ForDirective implements OnChange, OnDestroy
 
 	private compiler: Compiler;
 
-	private view: ComponentView;
+	private view: RenderableView;
+
+	private viewFactory: ViewFactory;
 
 	private templateRef: TemplateRef;
 
@@ -37,10 +40,11 @@ export class ForDirective implements OnChange, OnDestroy
 	public loop: any;
 
 
-	constructor(compiler: Compiler, el: ElementRef, view: ComponentView, templateRef: TemplateRef)
+	constructor(compiler: Compiler, el: ElementRef, view: RenderableView, viewFactory: ViewFactory, templateRef: TemplateRef)
 	{
 		this.compiler = compiler;
 		this.view = view;
+		this.viewFactory = viewFactory;
 		this.templateRef = templateRef;
 
 		let attr = ElementRef.getAttributes(el.nativeEl)['s:for'];
@@ -93,7 +97,7 @@ export class ForDirective implements OnChange, OnDestroy
 	{
 		for (let key in this.iterated) {
 			if (this.iterated.hasOwnProperty(key)) {
-				this.view.removeEmbeddedView(this.iterated[key]);
+				this.view.removeChildView(this.iterated[key]);
 			}
 		}
 
@@ -144,7 +148,7 @@ export class ForDirective implements OnChange, OnDestroy
 
 	private addItem(key: string|number, value: any): void
 	{
-		let view = this.view.createEmbeddedView(this.templateRef);
+		let view = this.viewFactory.createEmbeddedView(this.view, this.templateRef);
 
 		if (this.expr.key && this.expr.key.exportable) {
 			view.addParameter(this.expr.key.name, key);
@@ -154,6 +158,7 @@ export class ForDirective implements OnChange, OnDestroy
 			view.addParameter(this.expr.value.name, value);
 		}
 
+		view.attach();
 		this.compiler.compileNodes(view, view.nodes);
 
 		this.iterated[key + ''] = view;

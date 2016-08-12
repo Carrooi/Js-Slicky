@@ -1,5 +1,6 @@
 import {DirectiveInstance} from './DirectiveInstance';
 import {ControllerDefinition} from './ControllerParser';
+import {RenderableView} from '../Views/RenderableView';
 import {ComponentView} from '../Views/ComponentView';
 import {Dom} from '../Util/Dom';
 import {Compiler} from '../Compiler';
@@ -8,6 +9,8 @@ import {Compiler} from '../Compiler';
 export class ComponentInstance extends DirectiveInstance
 {
 
+
+	public view: ComponentView;
 
 	public definition: ControllerDefinition;
 

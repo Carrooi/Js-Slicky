@@ -1,4 +1,5 @@
 import {Application, Compiler, ComponentView, ApplicationView, Component, OnInit, ChangeDetectionStrategy} from '../../../core';
+import {ForDirective} from '../../../common';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 
@@ -172,6 +173,75 @@ describe('#Compiler/components/changeDetection', () => {
 				expect(el.innerText).to.be.equal('App, Inner');
 				done();
 			}, 50);
+		});
+
+		it('should update view when for bindings added in for loop', (done) => {
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				directives: [ForDirective],
+				template: '<span *s:for="#item in app.items">{{ item.name }}</span>',
+			})
+			class App implements OnInit {
+				items = [
+					{name: 'a'},
+					{name: 'b'},
+					{name: 'c'},
+				];
+				onInit() {
+					setTimeout(() => {
+						this.items[1].name = 'B';
+					}, 10);
+				}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
+
+			compiler.compile(view);
+
+			expect(el.innerText).to.be.equal('abc');
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('aBc');
+				done();
+			}, 25);
+		});
+
+		it('should update parameter inside of inserted template', (done) => {
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				template:
+				'<template id="tmpl">' +
+					'Item: {{ id + "/" + title + app.postfix + (!last ? ", ": "") }}' +
+				'</template>' +
+				'<content select="#tmpl" import="id: 1, title: app.prefix + \'first\'"></content>' +
+				'<content select="#tmpl" import="id: 2, title: app.prefix + \'second\'"></content>' +
+				'<content select="#tmpl" import="id: 3, title: app.prefix + \'third\', last: true"></content>'
+			})
+			class App implements OnInit {
+				prefix = 'a-';
+				postfix = '-a';
+				onInit() {
+					setTimeout(() => {
+						this.prefix = 'A-';
+						this.postfix = '-A';
+					}, 10);
+				}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, el, App);
+
+			compiler.compile(view);
+
+			expect(el.innerText).to.be.equal('Item: 1/a-first-a, Item: 2/a-second-a, Item: 3/a-third-a');
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('Item: 1/A-first-A, Item: 2/A-second-A, Item: 3/A-third-A');
+				done();
+			}, 25);
 		});
 
 	});

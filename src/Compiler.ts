@@ -11,6 +11,7 @@ import {TextBinding} from './Templating/Binding/TextBinding';
 import {EventBinding} from './Templating/Binding/EventBinding';
 import {PropertyBinding} from './Templating/Binding/PropertyBinding';
 import {AttributeBinding} from './Templating/Binding/AttributeBinding';
+import {RenderableView} from './Views/RenderableView';
 import {ComponentView} from './Views/ComponentView';
 import {ApplicationView} from './Views/ApplicationView';
 import {ElementRef, AttributesList} from './Templating/ElementRef';
@@ -21,6 +22,7 @@ import {SafeEval} from './Util/SafeEval';
 import {ComponentMetadataDefinition} from './Entity/Metadata';
 import {DirectiveMetadataDefinition} from './Entity/Metadata';
 import {ExpressionParser} from './Parsers/ExpressionParser';
+import {ViewFactory} from './Views/ViewFactory';
 import {EmbeddedView} from './Views/EmbeddedView';
 import {ParametersList} from './Interfaces';
 import {DirectiveFactory} from './DirectiveFactory';
@@ -43,11 +45,14 @@ export class Compiler
 
 	private directiveFactory: DirectiveFactory;
 
+	private viewFactory: ViewFactory;
 
-	constructor(container: Container)
+
+	constructor(container: Container, viewFactory: ViewFactory, directiveFactory: DirectiveFactory)
 	{
 		this.container = container;
-		this.directiveFactory = new DirectiveFactory(container);
+		this.viewFactory = viewFactory;
+		this.directiveFactory = directiveFactory;
 	}
 
 
@@ -62,7 +67,7 @@ export class Compiler
 			return;
 		}
 
-		let view = appView.createApplicationComponentView(el);
+		let view = appView.createApplicationRenderableView(el);
 
 		this.compileElement(view, <HTMLElement>el);
 	}
@@ -77,35 +82,23 @@ export class Compiler
 	}
 
 
-	public compileNodes(view: ComponentView|EmbeddedView, nodes: NodeList|Array<Node>): void
+	public compileNodes(view: RenderableView, nodes: NodeList|Array<Node>): void
 	{
 		if (nodes instanceof NodeList) {
 			nodes = Helpers.toArray(nodes);
 		}
 
-		let currentView: ComponentView = <ComponentView>view;
-		let originalParameters = currentView.parameters;
-
-		if (currentView instanceof EmbeddedView) {
-			currentView = (<any>currentView).getView();
-			originalParameters = currentView.parameters;
-
-			currentView.parameters = {};
-			currentView.addParameters(originalParameters);
-			currentView.addParameters(view.parameters);
-		}
-
-		let currentParameters = currentView.parameters;
+		let originalView = view;
 
 		let i = 0;
-		let restoreParametersAfter: number = null;
+		let restoreViewAfter: number = null;
 		let includedNode = 0;
 
 		while (i < nodes.length) {
 			let child = nodes[i];
 
 			if (child.nodeType === Node.TEXT_NODE) {
-				this.compileText(currentView, <Text>child);
+				this.compileText(view, <Text>child);
 
 			} else if (child.nodeType === Node.ELEMENT_NODE) {
 				let templateRef: TemplateRef = null;
@@ -122,17 +115,14 @@ export class Compiler
 					templateRef = new TemplateRef(el);
 					templateRef.storeElement();
 
-					currentView.storeTemplate(templateRef);
+					view.storeTemplate(templateRef);
 
 				} else if (nodeName === 'CONTENT') {
-					let include = this.tryIncludeTemplate(currentView, <Element>child);
-					let append = include.nodes;
+					view = this.tryIncludeTemplate(view, <Element>child);
 
-					currentView.parameters = {};
-					currentView.addParameters(currentParameters);
-					currentView.addParameters(include.vars);
+					let append = (<EmbeddedView>view).nodes;
 
-					restoreParametersAfter = append.length;
+					restoreViewAfter = append.length;
 
 					append.splice(0, 0, <any>i, <any>1);
 					Array.prototype.splice.apply(nodes, append);
@@ -140,29 +130,25 @@ export class Compiler
 					continue;
 				}
 
-				this.compileElement(currentView, <HTMLElement>child, templateRef);
+				this.compileElement(view, <HTMLElement>child, templateRef);
 			}
 
-			if (restoreParametersAfter !== null) {
+			if (restoreViewAfter !== null) {
 				includedNode++;
 
-				if (restoreParametersAfter === includedNode) {
-					currentView.parameters = currentParameters;
+				if (restoreViewAfter === includedNode) {
+					view = originalView;
 					includedNode = 0;
-					restoreParametersAfter = null;
+					restoreViewAfter = null;
 				}
 			}
 
 			i++;
 		}
-
-		if (view !== currentView) {
-			currentView.parameters = originalParameters;
-		}
 	}
 
 
-	public compileElement(parentView: ComponentView, el: HTMLElement, templateRef?: TemplateRef): void
+	public compileElement(parentView: RenderableView, el: HTMLElement, templateRef?: TemplateRef): void
 	{
 		let attributes = ElementRef.getAttributes(el);
 		let controllerName: string = null;
@@ -244,7 +230,7 @@ export class Compiler
 	}
 
 
-	public compileText(view: ComponentView, text: Text): void
+	public compileText(view: RenderableView, text: Text): void
 	{
 		let tokens = TextParser.parse(text.nodeValue);
 
@@ -307,7 +293,7 @@ export class Compiler
 	}
 
 
-	private tryIncludeTemplate(view: ComponentView, el: Element): {nodes: Array<Node>, vars: ParametersList}
+	private tryIncludeTemplate(view: RenderableView, el: Element): EmbeddedView
 	{
 		let id = el.getAttribute('select');
 		if (!id.match(/^#[A-Za-z]+[\w\-:\.]*$/)) {
@@ -321,21 +307,36 @@ export class Compiler
 			throw new Error('Can not find template with ID "' + id + '".');
 		}
 
+		let innerView = this.viewFactory.createEmbeddedView(view, template);
 		let importVars = el.getAttribute('import');
-		let importVarsList = {};
+
+		innerView.attach(el);
+
+		let setInnerVars = (init: boolean = false) => {
+			let importVarsList = SafeEval.run('return {' + importVars + '}', view.parameters).result;
+
+			if (init) {
+				innerView.addParameters(importVarsList);
+			} else {
+				for (let name in importVarsList) {
+					if (importVarsList.hasOwnProperty(name)) {
+						innerView.parameters[name] = importVarsList[name];
+					}
+				}
+			}
+		};
+
 		if (importVars && importVars !== '') {
-			importVars = 'return {' + importVars + '}';
-			importVarsList = SafeEval.run(importVars, view.parameters).result;
+			setInnerVars(true);
+			view.watch(ExpressionParser.precompile(importVars), () => {
+				setInnerVars();
+				innerView.changeDetectorRef.refresh();
+			});
 		}
-		
-		let nodes = template.insert(el);
 
 		Dom.remove(el);
 
-		return {
-			nodes: nodes,
-			vars: importVarsList,
-		};
+		return innerView;
 	}
 
 

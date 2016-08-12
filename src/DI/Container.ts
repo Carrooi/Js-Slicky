@@ -122,7 +122,7 @@ export class Container
 	private getFromList(services: Array<Service>, service: ConcreteType): any
 	{
 		for (let i = 0; i < services.length; i++) {
-			if (services[i].service === service) {
+			if (service === services[i].service || service.prototype instanceof services[i].service) {
 				if (services[i].instance == null) {
 					if (typeof services[i].options.useFactory !== 'undefined') {
 						services[i].instance = this.create(<ConcreteType>services[i].options.useFactory);

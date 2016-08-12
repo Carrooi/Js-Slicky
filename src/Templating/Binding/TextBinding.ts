@@ -1,6 +1,6 @@
 import {IBinding} from './IBinding';
 import {Expression} from '../../Parsers/ExpressionParser';
-import {ComponentView} from '../../Views/ComponentView';
+import {RenderableView} from '../../Views/RenderableView';
 
 
 export class TextBinding implements IBinding
@@ -11,12 +11,12 @@ export class TextBinding implements IBinding
 
 	private expr: Expression;
 
-	private view: ComponentView;
+	private view: RenderableView;
 
 	private originalText: string;
 
 
-	constructor(text: Text, expr: Expression, view: ComponentView)
+	constructor(text: Text, expr: Expression, view: RenderableView)
 	{
 		this.text = text;
 		this.expr = expr;

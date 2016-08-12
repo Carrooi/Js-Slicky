@@ -1,4 +1,4 @@
-import {ComponentView} from '../Views/ComponentView';
+import {RenderableView} from '../Views/RenderableView';
 import {Dom} from '../Util/Dom';
 
 
@@ -28,7 +28,7 @@ export class ElementRef
 
 	public nativeEl: Node;
 
-	public view: ComponentView;
+	public view: RenderableView;
 
 
 	constructor(nativeEl: Node)

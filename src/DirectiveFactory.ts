@@ -7,6 +7,8 @@ import {ComponentInstance} from './Entity/ComponentInstance'
 import {ElementRef} from './Templating/ElementRef';
 import {TemplateRef} from './Templating/TemplateRef';
 import {ChangeDetectorRef} from './ChangeDetection/ChangeDetectorRef'
+import {ViewFactory} from './Views/ViewFactory';
+import {RenderableView} from './Views/RenderableView';
 import {ComponentView} from './Views/ComponentView';
 import {Dom} from './Util/Dom';
 import {ChangeDetectionStrategy} from "./ChangeDetection/constants";
@@ -18,20 +20,23 @@ export class DirectiveFactory
 
 	private container: Container;
 
+	private viewFactory: ViewFactory;
 
-	constructor(container: Container)
+
+	constructor(container: Container, viewFactory: ViewFactory)
 	{
 		this.container = container;
+		this.viewFactory = viewFactory;
 	}
 
 
-	public create(view: ComponentView, definition: DirectiveDefinition, elementRef: ElementRef, templateRef?: TemplateRef): DirectiveInstance
+	public create(view: RenderableView, definition: DirectiveDefinition, elementRef: ElementRef, templateRef?: TemplateRef): DirectiveInstance
 	{
 		if (definition.metadata instanceof ComponentMetadataDefinition) {
 			let parentChangeDetection = view.changeDetector.strategy;
 			let changeDetection = (<ControllerDefinition>definition).metadata.changeDetection;
-			
-			view = view.fork(elementRef);
+
+			view = this.viewFactory.createComponentView(view, elementRef);
 			view.changeDetector.strategy = changeDetection === null ? parentChangeDetection : changeDetection;
 		}
 
@@ -40,7 +45,7 @@ export class DirectiveFactory
 		let entity: DirectiveInstance = null;
 
 		if (definition.metadata instanceof ComponentMetadataDefinition) {
-			entity = new ComponentInstance(view, <ControllerDefinition>definition, instance);
+			entity = new ComponentInstance(<ComponentView>view, <ControllerDefinition>definition, instance);
 		} else {
 			entity = new DirectiveInstance(view, definition, instance, el);
 		}
@@ -49,7 +54,7 @@ export class DirectiveFactory
 	}
 
 
-	public createInstance(view: ComponentView, definition: DirectiveDefinition, elementRef: ElementRef, templateRef?: TemplateRef): any
+	public createInstance(view: RenderableView, definition: DirectiveDefinition, elementRef: ElementRef, templateRef?: TemplateRef): any
 	{
 		return this.container.create(<any>definition.directive, [
 			{
@@ -59,7 +64,7 @@ export class DirectiveFactory
 				},
 			},
 			{
-				service: ComponentView,
+				service: RenderableView,
 				options: {
 					useFactory: () => view,
 				},

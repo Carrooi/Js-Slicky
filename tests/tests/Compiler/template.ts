@@ -853,7 +853,7 @@ describe('#Compiler/template', () => {
 
 			compiler.compile(view);
 
-			expect(el.innerHTML).to.be.equal('<app><!-- -slicky--data- -->Item: 1/a-first-a, Item: 2/a-second-a, Item: 3/a-third-a</app>');
+			expect(el.innerText).to.be.equal('Item: 1/a-first-a, Item: 2/a-second-a, Item: 3/a-third-a');
 		});
 
 	});

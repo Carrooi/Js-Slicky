@@ -1,5 +1,5 @@
 import {DirectiveDefinition} from './DirectiveParser';
-import {ComponentView} from '../Views/ComponentView';
+import {RenderableView} from '../Views/RenderableView';
 import {OnDestroy, OnInit, OnChange, OnUpdate, ChangedItem} from '../Interfaces';
 import {Dom} from '../Util/Dom';
 import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
@@ -10,7 +10,7 @@ export class DirectiveInstance
 {
 
 
-	public view: ComponentView;
+	public view: RenderableView;
 
 	public definition: DirectiveDefinition;
 
@@ -19,7 +19,7 @@ export class DirectiveInstance
 	public el: Element;
 
 
-	constructor(view: ComponentView, definition: DirectiveDefinition, instance: any, el: Element)
+	constructor(view: RenderableView, definition: DirectiveDefinition, instance: any, el: Element)
 	{
 		this.view = view;
 		this.definition = definition;

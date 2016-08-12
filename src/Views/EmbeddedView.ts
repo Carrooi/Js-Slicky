@@ -1,55 +1,46 @@
-import {AbstractView} from './AbstractView';
+import {RenderableView} from './RenderableView';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {ElementRef} from '../Templating/ElementRef';
-import {ComponentView} from './ComponentView';
+import {RenderableView} from './RenderableView';
 import {Dom} from '../Util/Dom';
+import {Container} from '../DI/Container';
 import {ParametersList} from '../Interfaces';
 
 
-export class EmbeddedView extends AbstractView
+export class EmbeddedView extends RenderableView
 {
 
 
 	private templateRef: TemplateRef;
 
 	public nodes: Array<Node> = [];
-	
-	public parameters: ParametersList = {};
 
 	private attached: boolean = false;
 
 
-	constructor(view: ComponentView, templateRef: TemplateRef)
+	constructor(container: Container, parent: RenderableView, templateRef: TemplateRef, parameters: ParametersList = {})
 	{
-		super(view);
+		super(container, parent, templateRef.el, parameters);
 
 		this.templateRef = templateRef;
 	}
 
 
-	public addParameter(name: string, value: any): void
-	{
-		if (typeof this.parameters[name] !== 'undefined') {
-			throw new Error('Can not import variable ' + name + ' since its already in use.');
-		}
-
-		this.parameters[name] = value;
-	}
-
-
-	public attach(marker?: Comment): void
+	public attach(before?: Node): void
 	{
 		if (this.attached) {
 			return;
 		}
 
-		this.nodes = this.templateRef.insert(marker);
+		this.nodes = this.templateRef.insert(before);
 		this.attached = true;
 	}
 
 
 	public detach(): void
 	{
+		super.detach();
+
 		if (!this.attached) {
 			return;
 		}
@@ -71,16 +62,6 @@ export class EmbeddedView extends AbstractView
 		}
 
 		this.nodes = [];
-	}
-
-
-	public getView(): ComponentView
-	{
-		if (!(this.parent instanceof ComponentView)) {
-			throw new Error('Unexpected error in EmbeddedView.');
-		}
-
-		return <ComponentView>this.parent;
 	}
 
 }
