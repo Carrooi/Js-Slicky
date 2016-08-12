@@ -19,11 +19,8 @@ export class TemplateRef
 
 	public getId(): string
 	{
-		if (!Dom.propertyExists(this.el.nativeEl, 'id')) {
-			return null;
-		}
-
-		return this.el.nativeEl.attributes.getNamedItem('id').value;
+		let id = this.el.nativeEl.attributes.getNamedItem('id');
+		return id == null || id.value === '' ? null : id.value;
 	}
 
 
