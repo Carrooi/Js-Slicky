@@ -52,7 +52,7 @@ export abstract class RenderableView extends AbstractView
 	public templates: {[id: string]: TemplateRef} = {};
 
 
-	constructor(container: Container, parent: RenderableView|ApplicationView, el: ElementRef, parameters: ParametersList = {})
+	constructor(container: Container, el: ElementRef, parent?: RenderableView, parameters: ParametersList = {})
 	{
 		super(parent);
 
@@ -63,14 +63,14 @@ export abstract class RenderableView extends AbstractView
 
 		this.changeDetector = new ChangeDetector(
 			this.parameters,
-			this.parent.changeDetector
+			this.parent ? this.parent.changeDetector : null
 		);
 
 		this.changeDetectorRef = new ChangeDetectorRef(() => {
 			this.changeDetector.check();
 		});
 
-		this.realm = new Realm(this.parent.realm, null, () => {
+		this.realm = new Realm(this.parent ? this.parent.realm : null, null, () => {
 			if (this.changeDetector.strategy === ChangeDetectionStrategy.Default) {
 				this.changeDetectorRef.refresh();
 			}

@@ -1,4 +1,4 @@
-import {Application, Compiler, ApplicationView, Component, HostEvent, HostElement} from '../../../core';
+import {Application, Compiler, ApplicationView, Component, HostEvent, HostElement, ElementRef} from '../../../core';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 
@@ -25,7 +25,8 @@ describe('#Compiler/components/events', () => {
 
 		it('should call host event on main element', (done) => {
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '',
 			})
 			class Test {
 				@HostEvent('click')
@@ -35,16 +36,17 @@ describe('#Compiler/components/events', () => {
 			}
 
 			let el = Dom.el('<div><div test></div></div>');
-			var view = new ApplicationView(container, el, Test);
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 
 			el.querySelector('div').dispatchEvent(Dom.createMouseEvent('click'));
 		});
 
 		it('should call host event on child element', (done) => {
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '<a href="#"></a>',
 			})
 			class Test {
 				@HostEvent('a', 'click')
@@ -53,17 +55,18 @@ describe('#Compiler/components/events', () => {
 				}
 			}
 
-			let el = Dom.el('<div><div test><a href="#"></a></div></div>');
-			var view = new ApplicationView(container, el, Test);
+			let el = Dom.el('<div><div test></div></div>');
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 
 			el.querySelector('a').dispatchEvent(Dom.createMouseEvent('click'));
 		});
 
 		it('should call host event on attached child element', (done) => {
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '<a href="#"></a>',
 			})
 			class Test {
 				@HostElement('a')
@@ -75,10 +78,10 @@ describe('#Compiler/components/events', () => {
 				}
 			}
 
-			let el = Dom.el('<div><div test><a href="#"></a></div></div>');
-			var view = new ApplicationView(container, el, Test);
+			let el = Dom.el('<div><div test></div></div>');
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 
 			el.querySelector('a').dispatchEvent(Dom.createMouseEvent('click'));
 		});
@@ -101,9 +104,9 @@ describe('#Compiler/components/events', () => {
 			}
 
 			let el = Dom.el('<div><div test></div></div>');
-			var view = new ApplicationView(container, el, Test);
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 
 			el.querySelector('a').dispatchEvent(Dom.createMouseEvent('click'));
 		});
@@ -122,9 +125,9 @@ describe('#Compiler/components/events', () => {
 			}
 
 			let el = Dom.el('<div><div button></div></div>');
-			let view = new ApplicationView(container, el, Button);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [Button]);
 
-			compiler.compile(view);
+			compiler.compile(view, Button);
 
 			expect(el.innerText).to.be.equal('Click');
 
@@ -151,9 +154,9 @@ describe('#Compiler/components/events', () => {
 			}
 
 			let el = Dom.el('<div><div button></div></div>');
-			let view = new ApplicationView(container, el, Button);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [Button]);
 
-			compiler.compile(view);
+			compiler.compile(view, Button);
 
 			expect(el.innerText).to.be.equal('Click');
 
@@ -176,9 +179,9 @@ describe('#Compiler/components/events', () => {
 			}
 
 			let el = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, el, App);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view);
+			compiler.compile(view, App);
 
 			let button = el.querySelector('button');
 			let counter = <HTMLSpanElement>el.querySelector('span');

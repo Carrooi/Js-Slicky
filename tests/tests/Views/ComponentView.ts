@@ -1,10 +1,8 @@
-import {ComponentView, ElementRef, TemplateRef} from '../../../core';
+import {ComponentView, ElementRef} from '../../../core';
 import {Container} from '../../../di';
-import {Dom} from '../../../utils';
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
 import {ChangedItem} from '../../../src/Interfaces';
 import {ChangeDetectionAction} from '../../../src/ChangeDetection/constants';
-import {MockApplicationView} from '../../mocks/MockApplicationView';
 
 import chai = require('chai');
 
@@ -19,7 +17,7 @@ describe('#Views/ComponentView', () => {
 		it('should notify about changes in parameter', (done) => {
 			let el = ElementRef.getByNode(document.createElement('div'));
 			var container = new Container;
-			let view = new ComponentView(container, new MockApplicationView(container), el, {
+			let view = new ComponentView(container, el, null, {
 				a: 'hello',
 			});
 

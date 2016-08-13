@@ -1,4 +1,4 @@
-import {Application, Compiler, ApplicationView, Component, HostElement, OnInit} from '../../../core';
+import {Application, Compiler, ApplicationView, Component, HostElement, OnInit, ElementRef} from '../../../core';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 
@@ -27,7 +27,8 @@ describe('#Compiler/components/elements', () => {
 			let el = Dom.el('<div><div test></div></div>');
 
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '',
 			})
 			class Test implements OnInit {
 				@HostElement()
@@ -39,16 +40,17 @@ describe('#Compiler/components/elements', () => {
 				}
 			}
 
-			let view = new ApplicationView(container, el, Test);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 		});
 
 		it('should load child element', (done) => {
-			let el = Dom.el('<div><div test><span>hello</span></div></div>');
+			let el = Dom.el('<div><div test></div></div>');
 
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '<span>hello</span>',
 			})
 			class Test implements OnInit {
 				@HostElement('span')
@@ -60,9 +62,9 @@ describe('#Compiler/components/elements', () => {
 				}
 			}
 
-			var view = new ApplicationView(container, el, Test);
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 		});
 
 	});

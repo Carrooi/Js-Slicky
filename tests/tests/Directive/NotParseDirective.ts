@@ -1,4 +1,4 @@
-import {Application, Compiler, ApplicationView, Component} from '../../../core';
+import {Application, Compiler, ApplicationView, Component, ElementRef} from '../../../core';
 import {NotParseDirective} from '../../../common';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
@@ -25,15 +25,16 @@ describe('#Directives/NotParseDirective', () => {
 		@Component({
 			selector: '[test]',
 			directives: [NotParseDirective],
+			template: '{{ a }}, <span>{{ a }}</span>, <span [s:not-parse]>{{ a }}</span>',
 		})
 		class Test {}
 
-		let el = Dom.el('<div><div test>{{ a }}, <span>{{ a }}</span>, <span [s:not-parse]>{{ a }}</span></div></div>');
-		let view = new ApplicationView(container, el, Test, {
+		let el = Dom.el('<div><div test></div></div>');
+		let view = new ApplicationView(container, ElementRef.getByNode(el), [Test], {
 			a: 42,
 		});
 
-		compiler.compile(view);
+		compiler.compile(view, Test);
 
 		expect(el.innerText).to.be.equal('42, 42, {{ a }}');
 	});

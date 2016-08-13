@@ -25,7 +25,8 @@ describe('#Compiler/components', () => {
 
 		it('should use component', (done) => {
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '',
 			})
 			class Test implements OnInit {
 				onInit() {
@@ -34,14 +35,15 @@ describe('#Compiler/components', () => {
 			}
 
 			let el = Dom.el('<div><div test></div></div>');
-			let view = new ApplicationView(container, el, Test);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 		});
 
 		it('should call onDestroy method on component', (done) => {
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '',
 			})
 			class Test implements OnDestroy {
 				onDestroy() {
@@ -50,9 +52,9 @@ describe('#Compiler/components', () => {
 			}
 
 			let el = Dom.el('<div><div test></div></div>');
-			let view = new ApplicationView(container, el, Test);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 
 			view.detach();
 		});
@@ -62,6 +64,7 @@ describe('#Compiler/components', () => {
 
 			@Component({
 				selector: '[test]',
+				template: '',
 			})
 			class Test {
 				constructor(view: ComponentView, elRef: ElementRef) {
@@ -73,9 +76,9 @@ describe('#Compiler/components', () => {
 				}
 			}
 
-			var view = new ApplicationView(container, el, Test);
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 		});
 
 		it('should initialize component just once', () => {
@@ -85,6 +88,7 @@ describe('#Compiler/components', () => {
 
 			@Component({
 				selector: '[inner]',
+				template: '',
 			})
 			class Inner {
 				constructor() {
@@ -94,6 +98,8 @@ describe('#Compiler/components', () => {
 
 			@Component({
 				selector: '[outer]',
+				directives: [Inner],
+				template: '<div inner></div>',
 			})
 			class Outer {
 				constructor() {
@@ -103,7 +109,8 @@ describe('#Compiler/components', () => {
 
 			@Component({
 				selector: '[app]',
-				directives: [Outer, Inner],
+				directives: [Outer],
+				template: '<div outer></div>',
 			})
 			class App {
 				constructor() {
@@ -111,10 +118,10 @@ describe('#Compiler/components', () => {
 				}
 			}
 
-			let el = Dom.el('<div><div app><div outer><div inner></div></div></div></div>');
-			var view = new ApplicationView(container, el, App);
+			let el = Dom.el('<div><div app></div></div>');
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view);
+			compiler.compile(view, App);
 
 			expect(calledApp).to.be.equal(1);
 			expect(calledOuter).to.be.equal(1);
@@ -124,41 +131,45 @@ describe('#Compiler/components', () => {
 		it('should not allow to attach more than one component to one element', () => {
 			@Component({
 				selector: '[one]',
+				template: '',
 			})
 			class One {}
 
 			@Component({
 				selector: '[two]',
+				template: '',
 			})
 			class Two {}
 
 			@Component({
 				selector: '[app]',
 				directives: [One, Two],
+				template: '<div one two></div>',
 			})
 			class App {}
 
-			let el = Dom.el('<div><div app><div one two></div></div></div>');
-			var view = new ApplicationView(container, el, App);
+			let el = Dom.el('<div><div app></div></div>');
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
 			expect(() => {
-				compiler.compile(view);
+				compiler.compile(view, App);
 			}).to.throw(Error, 'Can\'t attach component "Two" to element "div" since it\'s already attached to component "One".');
 		});
 
 		it('should throw an error when trying to inject TemplateRef in non template element', () => {
 			@Component({
 				selector: 'app',
+				template: '',
 			})
 			class App {
 				constructor(templateRef: TemplateRef) {}
 			}
 
 			let el = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, el, App);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
 			expect(() => {
-				compiler.compile(view);
+				compiler.compile(view, App);
 			}).to.throw(Error, 'Can not import service "TemplateRef" into directive "App". Element "app" is not inside of any <template> element.');
 		});
 
@@ -175,6 +186,7 @@ describe('#Compiler/components', () => {
 			@Component({
 				selector: 'app',
 				directives: [Appendable],
+				template: '',
 			})
 			class App implements OnInit {
 				constructor(public compiler: Compiler, public view: ComponentView, public el: ElementRef) {}
@@ -187,9 +199,9 @@ describe('#Compiler/components', () => {
 			}
 
 			let el = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, el, App);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view);
+			compiler.compile(view, App);
 
 			setTimeout(() => {
 				expect(el.innerHTML).to.be.equal('<app><appendable>Hello</appendable></app>');

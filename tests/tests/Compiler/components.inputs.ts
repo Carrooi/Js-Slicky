@@ -1,4 +1,4 @@
-import {Application, Compiler, ApplicationView, Component, OnInit, Input, Required} from '../../../core';
+import {Application, Compiler, ApplicationView, ComponentView, Component, OnInit, Input, Required, ElementRef} from '../../../core';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 
@@ -25,7 +25,8 @@ describe('#Compiler/components/inputs', () => {
 
 		it('should load component\'s input', (done) => {
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '',
 			})
 			class Test implements OnInit {
 				@Input()
@@ -38,14 +39,15 @@ describe('#Compiler/components/inputs', () => {
 			}
 
 			let el = Dom.el('<div><div test [input1]="\'hello\'"></div></div>');
-			let view = new ApplicationView(container, el, Test);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 		});
 
 		it('should load component\'s input from ordinary attribute', (done) => {
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '',
 			})
 			class Test implements OnInit {
 				@Input()
@@ -58,14 +60,15 @@ describe('#Compiler/components/inputs', () => {
 			}
 
 			let el = Dom.el('<div><div test="hello"></div></div>');
-			let view = new ApplicationView(container, el, Test);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 		});
 
 		it('should load component\'s input with different name', (done) => {
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '',
 			})
 			class Test implements OnInit {
 				@Input('data-input1')
@@ -77,15 +80,16 @@ describe('#Compiler/components/inputs', () => {
 				}
 			}
 
-			let parent = Dom.el('<div><div test [data-input1]="\'hello\'"></div></div>');
-			let view = new ApplicationView(container, parent, Test);
+			let el = Dom.el('<div><div test [data-input1]="\'hello\'"></div></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 		});
 
 		it('should not load component\'s input', (done) => {
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '',
 			})
 			class Test implements OnInit {
 				@Input()
@@ -98,14 +102,15 @@ describe('#Compiler/components/inputs', () => {
 			}
 
 			let el = Dom.el('<div><div test></div></div>');
-			let view = new ApplicationView(container, el, Test);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 		});
 
 		it('should not load component\'s input but use default value', (done) => {
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '',
 			})
 			class Test implements OnInit {
 				@Input()
@@ -118,14 +123,15 @@ describe('#Compiler/components/inputs', () => {
 			}
 
 			let el = Dom.el('<div><div test></div></div>');
-			let view = new ApplicationView(container, el, Test);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 		});
 
 		it('should pass json into component input', (done) => {
 			@Component({
 				selector: 'app',
+				template: '',
 			})
 			class App implements OnInit {
 				@Input()
@@ -138,14 +144,15 @@ describe('#Compiler/components/inputs', () => {
 			}
 
 			let el = Dom.el('<div><app [data]=\'{"a.b.c": "hello"}\'></app></div>');
-			let view = new ApplicationView(container, el, App, {a: 'test'});
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App], {a: 'test'});
 
-			compiler.compile(view);
+			compiler.compile(view, App);
 		});
 
 		it('should throw an error when component\'s required input is missing', () => {
 			@Component({
-				selector: '[test]'
+				selector: '[test]',
+				template: '',
 			})
 			class Test {
 				@Input()
@@ -154,16 +161,17 @@ describe('#Compiler/components/inputs', () => {
 			}
 
 			let el = Dom.el('<div><div test></div></div>');
-			let view = new ApplicationView(container, el, Test);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
 			expect(() => {
-				compiler.compile(view);
+				compiler.compile(view, Test);
 			}).to.throw(Error, "Component's input Test::input was not found in div element.");
 		});
 
 		it('should set component input with upper cased name', (done) => {
 			@Component({
 				selector: '[test]',
+				template: '',
 			})
 			class Test implements OnInit {
 				@Input()
@@ -176,14 +184,15 @@ describe('#Compiler/components/inputs', () => {
 			}
 
 			let el = Dom.el('<div><div test [upperCasedInput]="a"></div></div>');
-			var view = new ApplicationView(container, el, Test, {a: 'hello'});
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test], {a: 'hello'});
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 		});
 
 		it('should update component\'s input', (done) => {
 			@Component({
 				selector: '[test]',
+				template: '',
 			})
 			class Test implements OnInit {
 				@Input()
@@ -200,12 +209,14 @@ describe('#Compiler/components/inputs', () => {
 			}
 
 			let el = Dom.el('<div><div test [input]="a"></div></div>');
-			var view = new ApplicationView(container, el, Test, {a: 'hello'});
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test], {a: 'hello'});
 
-			compiler.compile(view);
+			compiler.compile(view, Test);
 
-			view.parameters['a'] = 'bye';
-			view.changeDetectorRef.refresh();
+			let innerView = <ComponentView>view.children[0];
+
+			innerView.parameters['a'] = 'bye';
+			innerView.changeDetectorRef.refresh();
 		});
 
 	});

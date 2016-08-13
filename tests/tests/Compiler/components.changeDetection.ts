@@ -1,4 +1,4 @@
-import {Application, Compiler, ComponentView, ApplicationView, Component, OnInit, ChangeDetectionStrategy} from '../../../core';
+import {Application, Compiler, ComponentView, ApplicationView, Component, OnInit, ChangeDetectionStrategy, ElementRef} from '../../../core';
 import {ForDirective} from '../../../common';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
@@ -28,6 +28,7 @@ describe('#Compiler/components/changeDetection', () => {
 			@Component({
 				selector: 'app',
 				controllerAs: 'app',
+				template: '{{ app.title }}',
 			})
 			class App implements OnInit {
 				title = 'Hello';
@@ -36,10 +37,10 @@ describe('#Compiler/components/changeDetection', () => {
 				}
 			}
 
-			let el = Dom.el('<div><app>{{ app.title }}</app></div>');
-			let view = new ApplicationView(container, el, App);
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view);
+			compiler.compile(view, App);
 
 			setTimeout(() => {
 				expect(el.innerText).to.be.equal('Hello world');
@@ -75,9 +76,9 @@ describe('#Compiler/components/changeDetection', () => {
 			}
 
 			let el = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, el, App);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view);
+			compiler.compile(view, App);
 
 			expect(el.innerText).to.be.equal('App, Inner');
 
@@ -119,9 +120,9 @@ describe('#Compiler/components/changeDetection', () => {
 			}
 
 			let el = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, el, App);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view);
+			compiler.compile(view, App);
 
 			expect(el.innerText).to.be.equal('App, Inner');
 
@@ -163,9 +164,9 @@ describe('#Compiler/components/changeDetection', () => {
 			}
 
 			let el = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, el, App);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view);
+			compiler.compile(view, App);
 
 			expect(el.innerText).to.be.equal('App, Inner');
 
@@ -196,9 +197,9 @@ describe('#Compiler/components/changeDetection', () => {
 			}
 
 			let el = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, el, App);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view);
+			compiler.compile(view, App);
 
 			expect(el.innerText).to.be.equal('abc');
 
@@ -213,12 +214,12 @@ describe('#Compiler/components/changeDetection', () => {
 				selector: 'app',
 				controllerAs: 'app',
 				template:
-				'<template id="tmpl">' +
-					'Item: {{ id + "/" + title + app.postfix + (!last ? ", ": "") }}' +
-				'</template>' +
-				'<content select="#tmpl" import="id: 1, title: app.prefix + \'first\'"></content>' +
-				'<content select="#tmpl" import="id: 2, title: app.prefix + \'second\'"></content>' +
-				'<content select="#tmpl" import="id: 3, title: app.prefix + \'third\', last: true"></content>'
+					'<template id="tmpl">' +
+						'Item: {{ id + "/" + title + app.postfix + (!last ? ", ": "") }}' +
+					'</template>' +
+					'<content select="#tmpl" import="id: 1, title: app.prefix + \'first\'"></content>' +
+					'<content select="#tmpl" import="id: 2, title: app.prefix + \'second\'"></content>' +
+					'<content select="#tmpl" import="id: 3, title: app.prefix + \'third\', last: true"></content>'
 			})
 			class App implements OnInit {
 				prefix = 'a-';
@@ -232,9 +233,9 @@ describe('#Compiler/components/changeDetection', () => {
 			}
 
 			let el = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, el, App);
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view);
+			compiler.compile(view, App);
 
 			expect(el.innerText).to.be.equal('Item: 1/a-first-a, Item: 2/a-second-a, Item: 3/a-third-a');
 

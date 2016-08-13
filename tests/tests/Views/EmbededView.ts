@@ -1,7 +1,6 @@
 import {ComponentView, EmbeddedView, ElementRef, TemplateRef} from '../../../core';
 import {Dom} from '../../../utils';
 import {Container} from '../../../di';
-import {MockApplicationView} from '../../mocks/MockApplicationView';
 
 import chai = require('chai');
 
@@ -25,7 +24,7 @@ describe('#Views/EmbeddedView', () => {
 			let templateRef = new TemplateRef(elementRef);
 
 			let container = new Container;
-			let view = new ComponentView(container, new MockApplicationView(container), elementRef);
+			let view = new ComponentView(container, elementRef);
 			let embeddedView = new EmbeddedView(container, view, templateRef);
 
 			embeddedView.attach(marker);
@@ -46,7 +45,7 @@ describe('#Views/EmbeddedView', () => {
 			let templateRef = new TemplateRef(elementRef);
 
 			var container = new Container;
-			let view = new ComponentView(container, new MockApplicationView(container), elementRef);
+			let view = new ComponentView(container, elementRef);
 
 			expect(el.innerHTML).to.be.equal(markerHTML);
 

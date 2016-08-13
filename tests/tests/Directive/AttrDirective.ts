@@ -2,7 +2,6 @@ import {AttrDirective} from '../../../common';
 import {Application, Compiler, ComponentView, ElementRef} from '../../../core';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
-import {MockApplicationView} from '../../mocks/MockApplicationView';
 
 import chai = require('chai');
 
@@ -26,7 +25,7 @@ describe('#Directives/AttrDirective', () => {
 		let el = Dom.el('<span [s:attr]="{test: true}"></span>');
 		let elementRef = new ElementRef(el);
 
-		let view = new ComponentView(container, new MockApplicationView(container), elementRef);
+		let view = new ComponentView(container, elementRef);
 		view.directives.push(AttrDirective);
 
 		expect(el['test']).to.be.equal(undefined);

@@ -1,8 +1,10 @@
 import {Container} from './DI/Container';
 import {Injectable} from './DI/Metadata';
+import {Helpers} from './Util/Helpers';
 import {Compiler} from './Compiler';
 import {ViewFactory} from './Views/ViewFactory';
 import {ApplicationView} from './Views/ApplicationView';
+import {ElementRef} from './Templating/ElementRef';
 import {DirectiveFactory} from './DirectiveFactory';
 
 
@@ -43,11 +45,23 @@ export class Application
 	}
 
 
-	public run(controller: any): void
+	public run(directives: Array<any>|any, parentEl?: Element): void
 	{
+		if (!parentEl) {
+			parentEl = <any>document;
+		}
+		
+		if (!Helpers.isArray(directives)) {
+			directives = [directives];
+		}
+
 		setTimeout(() => {
-			let view = new ApplicationView(this.container, <any>document, controller);
-			this.compiler.compile(view);
+			let elementRef = ElementRef.getByNode(parentEl);
+			let view = new ApplicationView(this.container, elementRef, directives);
+
+			for (let i = 0; i < view.directives.length; i++) {
+				this.compiler.compile(view, view.directives[i]);
+			}
 		}, 0);
 	}
 

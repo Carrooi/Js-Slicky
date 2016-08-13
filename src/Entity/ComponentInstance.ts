@@ -1,6 +1,5 @@
 import {DirectiveInstance} from './DirectiveInstance';
 import {ControllerDefinition} from './ControllerParser';
-import {RenderableView} from '../Views/RenderableView';
 import {ComponentView} from '../Views/ComponentView';
 import {Dom} from '../Util/Dom';
 import {Compiler} from '../Compiler';
@@ -21,18 +20,13 @@ export class ComponentInstance extends DirectiveInstance
 	}
 
 
-	public processInnerHTML(compiler: Compiler): boolean
+	public processInnerHTML(): void
 	{
-		if (this.definition.metadata.template) {
-			(<HTMLElement>this.el).innerHTML = this.definition.metadata.template;
+		if (this.definition.metadata.template === null) {
+			throw new Error('Missing template for component "' + this.definition.name + '".');
 		}
 
-		if ((<HTMLElement>this.el).innerHTML !== '' && this.definition.metadata.compileInner) {
-			compiler.compileNodes(this.view, this.el.childNodes);
-			return true;
-		}
-
-		return false;
+		(<HTMLElement>this.el).innerHTML = this.definition.metadata.template;
 	}
 
 

@@ -30,7 +30,7 @@ export class ViewFactory
 		let parameters = Helpers.clone(parent.parameters);
 		let translations = Helpers.clone(parent.translations);
 
-		view = new ComponentView(this.container, parent, el, parameters);
+		view = new ComponentView(this.container, el, parent, parameters);
 		view.translations = translations;
 
 		return view;

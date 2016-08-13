@@ -2,7 +2,6 @@ import {RenderableView} from './RenderableView';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {ElementRef} from '../Templating/ElementRef';
 import {RenderableView} from './RenderableView';
-import {Dom} from '../Util/Dom';
 import {Container} from '../DI/Container';
 import {ParametersList} from '../Interfaces';
 
@@ -20,7 +19,7 @@ export class EmbeddedView extends RenderableView
 
 	constructor(container: Container, parent: RenderableView, templateRef: TemplateRef, parameters: ParametersList = {})
 	{
-		super(container, parent, templateRef.el, parameters);
+		super(container, templateRef.el, parent, parameters);
 
 		this.templateRef = templateRef;
 	}
