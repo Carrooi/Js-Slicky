@@ -245,6 +245,35 @@ describe('#Compiler/components/changeDetection', () => {
 			}, 25);
 		});
 
+		it('should update property of exported component', () => {
+			@Component({
+				selector: 'button',
+				controllerAs: 'btn',
+				template: '{{ btn.title }}',
+			})
+			class Button implements OnInit {
+				title = 'Cool button';
+				onInit() {
+					this.title = 'Super cool button';
+				}
+			}
+
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				directives: [Button],
+				template: '<button #b></button>, Title: {{ b.title }}',
+			})
+			class App {}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
+
+			compiler.compile(view, App);
+
+			expect(el.innerText).to.be.equal('Super cool button, Title: Super cool button');
+		});
+
 	});
 
 });

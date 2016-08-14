@@ -14,7 +14,7 @@ import {AttributeBinding} from './Templating/Binding/AttributeBinding';
 import {RenderableView} from './Views/RenderableView';
 import {ComponentView} from './Views/ComponentView';
 import {ApplicationView} from './Views/ApplicationView';
-import {ElementRef, AttributesList} from './Templating/ElementRef';
+import {ElementRef, AttributesList, AttributeProperty} from './Templating/ElementRef';
 import {TemplateRef} from './Templating/TemplateRef';
 import {Annotations} from './Util/Annotations';
 import {Helpers} from './Util/Helpers';
@@ -66,10 +66,9 @@ export class Compiler
 			let elementRef = ElementRef.getByNode(el);
 			let attributes = ElementRef.getAttributes(el);
 
-			let componentName = this.getComponentName(attributes);
 			let instance = this.directiveFactory.create(appView, directiveData.definition, elementRef);
 
-			this.useDirective(instance, attributes, componentName);
+			this.useDirective(instance, attributes);
 		}
 	}
 
@@ -152,14 +151,14 @@ export class Compiler
 	public compileElement(parentView: RenderableView, el: HTMLElement, templateRef?: TemplateRef): void
 	{
 		let attributes = ElementRef.getAttributes(el);
-		let controllerName: string = null;
+		let exportDirectives: {[name: string]: AttributeProperty} = {};
 
 		for (let attrName in attributes) {
 			if (attributes.hasOwnProperty(attrName)) {
 				let attr = attributes[attrName];
 
-				if (attr.controllerName) {
-					controllerName = attr.name;
+				if (attr.directiveExport) {
+					exportDirectives[attr.expression] = attr;
 					attr.bound = true;
 					continue;
 				}
@@ -199,7 +198,20 @@ export class Compiler
 
 			if (Dom.matches(el, directiveData.metadata.selector)) {
 				let instance = this.directiveFactory.create(parentView, directiveData.definition, ElementRef.getByNode(el), templateRef);
-				this.useDirective(instance, attributes, controllerName);
+				let directiveName = directiveData.definition.name;
+				let exportDirective: AttributeProperty = null;
+
+				this.useDirective(instance, attributes);
+
+				if (typeof exportDirectives[directiveName] !== 'undefined') {
+					exportDirective = exportDirectives[directiveName];
+				} else if (typeof exportDirectives[''] !== 'undefined') {
+					exportDirective = exportDirectives[''];
+				}
+
+				if (exportDirective) {
+					parentView.addParameter(exportDirective.name, instance.instance);
+				}
 
 				if (instance instanceof ComponentInstance || !directiveData.definition.metadata.compileInner) {
 					compileInner = false;
@@ -325,10 +337,10 @@ export class Compiler
 	}
 
 
-	private useDirective(instance: DirectiveInstance, attributes: AttributesList, controllerName?: string): void
+	private useDirective(instance: DirectiveInstance, attributes: AttributesList): void
 	{
 		if (instance instanceof ComponentInstance) {
-			instance.view.setComponent(instance, controllerName);
+			instance.view.setComponent(instance);
 		} else {
 			instance.view.attachDirective(instance);
 		}
@@ -347,22 +359,6 @@ export class Compiler
 
 		instance.processHostEvents();
 		instance.attach();
-	}
-
-
-	private getComponentName(attributes: AttributesList): string
-	{
-		for (let attrName in attributes) {
-			if (attributes.hasOwnProperty(attrName)) {
-				let attr = attributes[attrName];
-
-				if (attr.controllerName) {
-					return attr.name;
-				}
-			}
-		}
-
-		return null;
 	}
 
 

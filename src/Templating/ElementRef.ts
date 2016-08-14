@@ -2,11 +2,11 @@ import {RenderableView} from '../Views/RenderableView';
 import {Dom} from '../Util/Dom';
 
 
-declare interface AttributeProperty
+export declare interface AttributeProperty
 {
 	name: string;
 	expression: string;
-	controllerName: boolean;
+	directiveExport: boolean;
 	property: boolean;
 	event: boolean;
 	bound: boolean;
@@ -88,13 +88,13 @@ export class ElementRef
 
 			let name = attr.name.toLowerCase();
 
-			let controllerName = false;
+			let directiveExport = false;
 			let property = false;
 			let event = false;
 
 			if (name.match(/^#/)) {
 				name = name.substring(1);
-				controllerName = true;
+				directiveExport = true;
 			}
 
 			if (name.match(/^\[.+?\]$/)) {
@@ -110,7 +110,7 @@ export class ElementRef
 			attributes[name] = {
 				name: name,
 				expression: attr.value,
-				controllerName: controllerName,
+				directiveExport: directiveExport,
 				property: property,
 				event: event,
 				bound: false,

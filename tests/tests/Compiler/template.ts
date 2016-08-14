@@ -741,24 +741,85 @@ describe('#Compiler/template', () => {
 			expect(el.innerText).to.be.equal('hi');
 		});
 
-		it.skip('should change local template name of component', () => {
-			let id = 0;
-
+		it('should export component to parent component', () => {
 			@Component({
-				selector: 'test',
-				controllerAs: 't',
-				template: '{{ t.id }}, <test #a>{{ a.id }}, <test #b>{{ b.id }}</test></test>',
+				selector: 'button',
+				controllerAs: 'btn',
+				template: '{{ btn.title }}',
 			})
-			class App {
-				id = id++;
+			class Button {
+				title = 'Cool button';
 			}
 
-			let el = Dom.el('<div><test></test></div>');
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				directives: [Button],
+				template: '<button #b></button>, Title: {{ b.title }}',
+			})
+			class App {}
+
+			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
 			compiler.compile(view, App);
 
-			expect(el.innerText).to.be.equal('0, 1, 2');
+			expect(el.innerText).to.be.equal('Cool button, Title: Cool button');
+		});
+
+		it('should export directive into parent component', () => {
+			@Directive({
+				selector: 'span',
+			})
+			class Span {
+				title = 'Cool span';
+			}
+
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				directives: [Span],
+				template: '<span #b>Span</span>, Title: {{ b.title }}',
+			})
+			class App {}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
+
+			compiler.compile(view, App);
+
+			expect(el.innerText).to.be.equal('Span, Title: Cool span');
+		});
+
+		it('should export selected directive into parent component', () => {
+			@Directive({
+				selector: 'span',
+			})
+			class One {
+				title = 'First';
+			}
+
+			@Directive({
+				selector: 'span',
+			})
+			class Two {
+				title = 'Second';
+			}
+
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				directives: [One, Two],
+				template: '<span #a="One" #b="Two">Span</span>, A: {{ a.title }}, B: {{ b.title }}',
+			})
+			class App {}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
+
+			compiler.compile(view, App);
+
+			expect(el.innerText).to.be.equal('Span, A: First, B: Second');
 		});
 
 		it('should throw an error when trying to use template with non ID selector', () => {

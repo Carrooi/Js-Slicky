@@ -21,7 +21,7 @@ export class ComponentView extends RenderableView
 	}
 
 
-	public setComponent(instance: ComponentInstance, controllerName?: string): ComponentInstance
+	public setComponent(instance: ComponentInstance): ComponentInstance
 	{
 		if (this.component) {
 			throw new Error('Can\'t attach component "' + instance.definition.name + '" to element "' + Dom.getReadableName(<Element>this.el.nativeEl) + '" since it\'s already attached to component "' + this.component.definition.name + '".');
@@ -33,8 +33,8 @@ export class ComponentView extends RenderableView
 		let filters = instance.definition.metadata.filters;
 		let translations = instance.definition.metadata.translations;
 
-		if (controllerName || instance.definition.metadata.controllerAs) {
-			this.addParameter(controllerName ? controllerName : instance.definition.metadata.controllerAs, instance.instance);
+		if (instance.definition.metadata.controllerAs) {
+			this.addParameter(instance.definition.metadata.controllerAs, instance.instance);
 		}
 
 		for (let i = 0; i < directives.length; i++) {
