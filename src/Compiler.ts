@@ -14,7 +14,7 @@ import {AttributeBinding} from './Templating/Binding/AttributeBinding';
 import {RenderableView} from './Views/RenderableView';
 import {ComponentView} from './Views/ComponentView';
 import {ApplicationView} from './Views/ApplicationView';
-import {ElementRef, AttributesList, AttributeProperty} from './Templating/ElementRef';
+import {ElementRef} from './Templating/ElementRef';
 import {TemplateRef} from './Templating/TemplateRef';
 import {Annotations} from './Util/Annotations';
 import {Helpers} from './Util/Helpers';
@@ -25,6 +25,7 @@ import {ExpressionParser} from './Parsers/ExpressionParser';
 import {ViewFactory} from './Views/ViewFactory';
 import {EmbeddedView} from './Views/EmbeddedView';
 import {DirectiveFactory} from './DirectiveFactory';
+import {AttributesList, AttributeProperty} from './Interfaces';
 
 
 @Injectable()

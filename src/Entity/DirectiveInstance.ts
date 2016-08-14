@@ -3,7 +3,7 @@ import {RenderableView} from '../Views/RenderableView';
 import {OnDestroy, OnInit, OnChange, OnUpdate, ChangedItem} from '../Interfaces';
 import {Dom} from '../Util/Dom';
 import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
-import {AttributesList} from '../Templating/ElementRef';
+import {AttributesList} from '../Interfaces';
 
 
 export class DirectiveInstance

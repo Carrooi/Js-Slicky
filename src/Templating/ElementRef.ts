@@ -1,22 +1,6 @@
 import {RenderableView} from '../Views/RenderableView';
 import {Dom} from '../Util/Dom';
-
-
-export declare interface AttributeProperty
-{
-	name: string;
-	expression: string;
-	directiveExport: boolean;
-	property: boolean;
-	event: boolean;
-	bound: boolean;
-}
-
-
-export declare interface AttributesList
-{
-	[name: string]: AttributeProperty;
-}
+import {AttributesList} from '../Interfaces';
 
 
 export class ElementRef

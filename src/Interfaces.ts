@@ -64,6 +64,26 @@ export declare interface ChangedItem
 }
 
 
+// ------------ TEMPLATING
+
+
+export declare interface AttributeProperty
+{
+	name: string;
+	expression: string;
+	directiveExport: boolean;
+	property: boolean;
+	event: boolean;
+	bound: boolean;
+}
+
+
+export declare interface AttributesList
+{
+	[name: string]: AttributeProperty;
+}
+
+
 // ------------ LIFE CYCLE EVENTS
 
 
