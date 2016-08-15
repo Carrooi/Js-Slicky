@@ -5,20 +5,10 @@ import {ComponentMetadataDefinition, HostElementMetadataDefinition} from './Meta
 import {DirectiveParser, DirectiveDefinition} from './DirectiveParser';
 
 
-export declare interface ElementsList
-{
-	[name: string]: HostElementMetadataDefinition;
-}
-
-
 export declare interface ControllerDefinition extends DirectiveDefinition
 {
 	metadata: ComponentMetadataDefinition;
-	elements: ElementsList;
 }
-
-
-let Reflect = global.Reflect;
 
 
 export class ControllerParser extends DirectiveParser
@@ -38,26 +28,7 @@ export class ControllerParser extends DirectiveParser
 
 	public static parse(controller: Function, metadata: ComponentMetadataDefinition): ControllerDefinition
 	{
-		let result = DirectiveParser.parse(controller, metadata);
-
-		let propMetadata = Reflect.getMetadata('propMetadata', controller);
-
-		let elements: ElementsList = {};
-
-		for (let propName in propMetadata) {
-			if (propMetadata.hasOwnProperty(propName)) {
-				for (let i = 0; i < propMetadata[propName].length; i++) {
-					if (propMetadata[propName][i] instanceof HostElementMetadataDefinition) {
-						elements[propName] = propMetadata[propName][i];
-						break;
-					}
-				}
-			}
-		}
-
-		result['elements'] = elements;
-
-		return <ControllerDefinition> result;
+		return <ControllerDefinition>DirectiveParser.parse(controller, metadata);
 	}
 
 }

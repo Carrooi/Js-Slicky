@@ -1,4 +1,4 @@
-import {Application, Compiler, ApplicationView, Component, HostElement, OnInit, ElementRef} from '../../../core';
+import {Application, Compiler, ApplicationView, Component, Directive, HostElement, OnInit, ElementRef} from '../../../core';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 
@@ -33,7 +33,6 @@ describe('#Compiler/components/elements', () => {
 			class Test implements OnInit {
 				@HostElement()
 				el;
-
 				onInit() {
 					expect(this.el).to.be.equal(el.querySelector('div'));
 					done();
@@ -56,6 +55,27 @@ describe('#Compiler/components/elements', () => {
 				@HostElement('span')
 				child;
 
+
+				onInit() {
+					expect(this.child).to.be.equal(el.querySelector('span'));
+					done();
+				}
+			}
+
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
+
+			compiler.compile(view, Test);
+		});
+
+		it('should load host elements in directive', (done) => {
+			let el = Dom.el('<div><div test><span></span></div></div>');
+
+			@Directive({
+				selector: '[test]',
+			})
+			class Test implements OnInit {
+				@HostElement('span')
+				child;
 				onInit() {
 					expect(this.child).to.be.equal(el.querySelector('span'));
 					done();

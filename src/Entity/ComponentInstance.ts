@@ -29,31 +29,4 @@ export class ComponentInstance extends DirectiveInstance
 		(<HTMLElement>this.el).innerHTML = this.definition.metadata.template;
 	}
 
-
-	public processHostElements(): void
-	{
-		let elements = this.definition.elements;
-		for (let elementName in elements) {
-			if (elements.hasOwnProperty(elementName)) {
-				let element = elements[elementName];
-
-				if (element.selector) {
-					let subElements = Dom.querySelectorAll(element.selector, this.el);
-
-					if (subElements.length === 0) {
-						this.instance[elementName] = null;
-
-					} else if (subElements.length === 1) {
-						this.instance[elementName] = subElements[0];
-
-					} else {
-						this.instance[elementName] = subElements;
-					}
-				} else {
-					this.instance[elementName] = this.el;
-				}
-			}
-		}
-	}
-
 }

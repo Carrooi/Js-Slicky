@@ -354,10 +354,9 @@ export class Compiler
 			if (instance.definition.metadata.compileInner) {
 				this.compileNodes(instance.view, instance.el.childNodes);
 			}
-			
-			instance.processHostElements();
 		}
 
+		instance.processHostElements();
 		instance.processHostEvents();
 		instance.attach();
 	}

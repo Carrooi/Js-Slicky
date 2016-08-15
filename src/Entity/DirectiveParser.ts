@@ -1,5 +1,5 @@
 import {Annotations} from '../Util/Annotations';
-import {DirectiveMetadataDefinition, HostEventMetadataDefinition, InputMetadataDefinition, RequiredMetadataDefinition} from './Metadata';
+import {DirectiveMetadataDefinition, HostEventMetadataDefinition, HostElementMetadataDefinition, InputMetadataDefinition, RequiredMetadataDefinition} from './Metadata';
 import {Functions} from '../Util/Functions';
 import {global} from '../Facade/Lang';
 
@@ -7,6 +7,12 @@ import {global} from '../Facade/Lang';
 export declare interface EventsList
 {
 	[name: string]: HostEventMetadataDefinition;
+}
+
+
+export declare interface ElementsList
+{
+	[name: string]: HostElementMetadataDefinition;
 }
 
 
@@ -21,6 +27,7 @@ export declare interface DirectiveDefinition
 	directive: Function,
 	metadata: DirectiveMetadataDefinition,
 	events: EventsList,
+	elements: ElementsList;
 	inputs: InputsList,
 	name: string,
 }
@@ -50,6 +57,7 @@ export class DirectiveParser
 
 		let inputs: InputsList = {};
 		let events: EventsList = {};
+		let elements: ElementsList = {};
 
 		for (let propName in propMetadata) {
 			if (propMetadata.hasOwnProperty(propName)) {
@@ -69,6 +77,11 @@ export class DirectiveParser
 						events[propName] = propMetadata[propName][i];
 						break;
 					}
+
+					if (propMetadata[propName][i] instanceof HostElementMetadataDefinition) {
+						elements[propName] = propMetadata[propName][i];
+						break;
+					}
 				}
 
 				if (inputMetadata !== null) {
@@ -85,6 +98,7 @@ export class DirectiveParser
 			directive: directive,
 			metadata: metadata,
 			events: events,
+			elements: elements,
 			inputs: inputs,
 			name: Functions.getName(directive),
 		};
