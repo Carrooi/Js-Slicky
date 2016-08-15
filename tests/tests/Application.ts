@@ -1,4 +1,4 @@
-import {Application, Component, Directive, OnInit, ElementRef} from '../../core';
+import {Application, Component, Directive, Filter, OnInit, ElementRef} from '../../core';
 import {Container} from '../../di';
 import {Dom} from '../../utils';
 
@@ -27,7 +27,9 @@ describe('#Application', () => {
 
 			let el = Dom.el('<div><app></app></div>');
 			
-			application.run(App, el);
+			application.run(App, {
+				parentElement: el,
+			});
 			
 			setTimeout(() => {
 				expect(el.innerHTML).to.be.equal('<app>Hello world</app>');
@@ -48,7 +50,9 @@ describe('#Application', () => {
 
 			let el = Dom.el('<div><div class="test"></div></div>');
 
-			application.run(Test, el);
+			application.run(Test, {
+				parentElement: el,
+			});
 
 			setTimeout(() => {
 				expect(el.innerHTML).to.be.equal('<div class="test">Hello world</div>');
@@ -75,10 +79,44 @@ describe('#Application', () => {
 
 			let el = Dom.el('<div><app></app><div class="test"></div></div>');
 
-			application.run([App, Test], el);
+			application.run([App, Test], {
+				parentElement: el,
+			});
 
 			setTimeout(() => {
 				expect(el.innerHTML).to.be.equal('<app>Hello world</app><div class="test">Hello world</div>');
+				done();
+			}, 20);
+		});
+
+		it('should register custom filters for all root directives', (done) => {
+			@Filter({
+				name: 'plus',
+			})
+			class PlusFilter {
+				transform(num) {
+					return num + 1;
+				}
+			}
+
+			@Component({
+				selector: 'button',
+				controllerAs: 'btn',
+				template: '{{ btn.number | plus }}'
+			})
+			class Button {
+				number = 4;
+			}
+
+			let el = Dom.el('<div><button></button></div>');
+
+			application.run([Button], {
+				parentElement: el,
+				filters: [PlusFilter],
+			});
+
+			setTimeout(() => {
+				expect(el.innerHTML).to.be.equal('<button>5</button>');
 				done();
 			}, 20);
 		});

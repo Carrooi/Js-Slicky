@@ -8,6 +8,13 @@ import {ElementRef} from './Templating/ElementRef';
 import {DirectiveFactory} from './DirectiveFactory';
 
 
+declare interface ApplicationOptions
+{
+	parentElement?: Element,
+	filters?: Array<any>,
+}
+
+
 @Injectable()
 export class Application
 {
@@ -45,10 +52,14 @@ export class Application
 	}
 
 
-	public run(directives: Array<any>|any, parentEl?: Element): void
+	public run(directives: Array<any>|any, options: ApplicationOptions = {}): void
 	{
-		if (!parentEl) {
-			parentEl = <any>document;
+		if (typeof options.parentElement === 'undefined') {
+			options.parentElement = <any>document;
+		}
+
+		if (typeof options.filters === 'undefined') {
+			options.filters = [];
 		}
 		
 		if (!Helpers.isArray(directives)) {
@@ -56,8 +67,12 @@ export class Application
 		}
 
 		setTimeout(() => {
-			let elementRef = ElementRef.getByNode(parentEl);
+			let elementRef = ElementRef.getByNode(options.parentElement);
 			let view = new ApplicationView(this.container, elementRef, directives);
+
+			for (let i = 0; i < options.filters.length; i++) {
+				view.addFilter(options.filters[i]);
+			}
 
 			for (let i = 0; i < view.directives.length; i++) {
 				this.compiler.compile(view, view.directives[i]);
