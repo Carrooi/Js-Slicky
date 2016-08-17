@@ -200,12 +200,24 @@ export class Dom
 	}
 
 
-	public static createMouseEvent(eventName: string): MouseEvent
+	private static createEvent(eventInterface: string, eventName: string): Event
 	{
-		let event = document.createEvent('MouseEvent');
-		event.initMouseEvent(eventName, true, true, window, null, 0, 0, 0, 0, false, false, false, false, 0, null);
+		let event = document.createEvent(eventInterface);
+		event.initEvent(eventName, false, true);
 
 		return event;
+	}
+
+
+	public static createHTMLEvent(eventName: string): Event
+	{
+		return Dom.createEvent('HTMLEvents', eventName);
+	}
+
+
+	public static createMouseEvent(eventName: string): MouseEvent
+	{
+		return <MouseEvent>Dom.createEvent('MouseEvent', eventName);
 	}
 
 

@@ -75,6 +75,10 @@ export class Code
 			return result;
 		}
 
+		if (scope[token.name] == null) {
+			return result;
+		}
+
 		result.obj = scope[token.name];
 
 		for (let i = 0; i < token.path.length - 1; i++) {

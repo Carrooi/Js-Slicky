@@ -1,4 +1,4 @@
-import {Application, Compiler, ApplicationView, Component, HostEvent, HostElement, ElementRef} from '../../../core';
+import {Application, Compiler, ApplicationView, ComponentView, Component, HostEvent, HostElement, ElementRef} from '../../../core';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 
@@ -195,6 +195,40 @@ describe('#Compiler/components/events', () => {
 			button.dispatchEvent(Dom.createMouseEvent('click'));
 
 			expect(counter.innerText).to.be.equal('counter: 2');
+		});
+
+		it('should update component\'s property with current input data', (done) => {
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				template: '<input type="text" [value]="app.value" (change)="app.value = $this.value">',
+			})
+			class App {
+				value = 'default value';
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
+
+			compiler.compile(view, App);
+
+			let app = <App>(<ComponentView>view.children[0]).component.instance;
+			let input = <HTMLInputElement>el.querySelector('input');
+
+			expect(app.value).to.be.equal('default value');
+			expect(input.value).to.be.equal('default value');
+
+			setTimeout(() => {
+				input.value = 'changed value';
+
+				let event = Dom.createHTMLEvent('change');
+				input.dispatchEvent(event);
+			}, 10);
+
+			setTimeout(() => {
+				expect(app.value).to.be.equal('changed value');
+				done();
+			}, 20);
 		});
 
 	});
