@@ -1,4 +1,4 @@
-import {Application, Compiler, ComponentView, ApplicationView, ElementRef, TemplateRef, Component, OnInit, OnDestroy} from '../../../core';
+import {Application, Compiler, ComponentView, ApplicationView, ElementRef, TemplateRef, Component, Directive, OnInit, OnDestroy, Input} from '../../../core';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 
@@ -207,6 +207,46 @@ describe('#Compiler/components', () => {
 				expect(el.innerHTML).to.be.equal('<app><appendable>Hello</appendable></app>');
 				done();
 			}, 75);
+		});
+
+		it('should set root directive\'s input in component\'s element', (done) => {
+			let appInput;
+			let testInput;
+
+			@Directive({
+				selector: '[test]',
+			})
+			class Test implements OnInit {
+				@Input('test-input')
+				test;
+				onInit() {
+					testInput = this.test;
+				}
+			}
+
+			@Component({
+				selector: 'app',
+				template: '',
+			})
+			class App implements OnInit {
+				@Input('app-input')
+				test;
+				onInit() {
+					appInput = this.test;
+				}
+			}
+
+			let el = Dom.el('<div><app [app-input]="\'Hello!\'" test [test-input]="\'Hi!\'"></app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App, Test]);
+
+			compiler.compile(view, Test);
+			compiler.compile(view, App);
+
+			setTimeout(() => {
+				expect(appInput).to.be.equal('Hello!');
+				expect(testInput).to.be.equal('Hi!');
+				done();
+			}, 20);
 		});
 
 	});

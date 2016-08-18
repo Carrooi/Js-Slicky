@@ -196,18 +196,39 @@ describe('#Compiler/template', () => {
 			compiler.compile(view, Parent);
 		});
 
-		it('should throw an error when trying to add unknown property', () => {
+		it('should throw an error when trying to add unknown property to non-root component', () => {
 			@Component({
-				selector: '[app]',
+				selector: 'cmp',
+				template: '',
+			})
+			class Test {}
+
+			@Component({
+				selector: 'app',
+				directives: [Test],
+				template: '<cmp [unknown-prop]="a"></cmp>',
 			})
 			class App {}
 
-			let el = Dom.el('<div><div app [unknown-prop]="a"></div></div>');
+			let el = Dom.el('<div><app></app></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
 			expect(() => {
 				compiler.compile(view, App);
-			}).to.throw(Error, 'Could not bind property unknown-prop to element div or to any of its directives.');
+			}).to.throw(Error, 'Could not bind property unknown-prop to element cmp or to any of its directives.');
+		});
+
+		it('should not throw an error when trying to add unknown property to root component', () => {
+			@Component({
+				selector: 'app',
+				template: '',
+			})
+			class App {}
+
+			let el = Dom.el('<div><app [unknown-prop]="a"></app></div>');
+			var view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
+
+			compiler.compile(view, App);
 		});
 
 		it('should use if directive', () => {

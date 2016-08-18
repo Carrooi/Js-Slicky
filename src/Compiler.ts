@@ -69,7 +69,7 @@ export class Compiler
 
 			let instance = this.directiveFactory.create(appView, directiveData.definition, elementRef);
 
-			this.useDirective(instance, attributes);
+			this.useDirective(instance, true, attributes);
 		}
 	}
 
@@ -202,7 +202,7 @@ export class Compiler
 				let directiveName = directiveData.definition.name;
 				let exportDirective: AttributeProperty = null;
 
-				this.useDirective(instance, attributes);
+				this.useDirective(instance, false, attributes);
 
 				if (typeof exportDirectives[directiveName] !== 'undefined') {
 					exportDirective = exportDirectives[directiveName];
@@ -338,7 +338,7 @@ export class Compiler
 	}
 
 
-	private useDirective(instance: DirectiveInstance, attributes: AttributesList): void
+	private useDirective(instance: DirectiveInstance, rootDirective: boolean, attributes: AttributesList): void
 	{
 		if (instance instanceof ComponentInstance) {
 			instance.view.setComponent(instance);
@@ -346,7 +346,7 @@ export class Compiler
 			instance.view.attachDirective(instance);
 		}
 
-		instance.bindInputs(attributes);
+		instance.bindInputs(attributes, !rootDirective);
 
 		if (instance instanceof ComponentInstance) {
 			instance.processInnerHTML();

@@ -44,7 +44,7 @@ export class DirectiveInstance
 	}
 
 
-	public bindInputs(attributes: AttributesList): void
+	public bindInputs(attributes: AttributesList, checkBoundProperties: boolean = true): void
 	{
 		let hasOnChange = typeof this.instance['onChange'] === 'function';
 		let hasOnUpdate = typeof this.instance['onUpdate'] === 'function';
@@ -107,12 +107,14 @@ export class DirectiveInstance
 			}
 		})(this.instance, this.definition, hasOnChange, hasOnUpdate);
 
-		for (let attrName in attributes) {
-			if (attributes.hasOwnProperty(attrName)) {
-				let attr = attributes[attrName];
+		if (checkBoundProperties) {
+			for (let attrName in attributes) {
+				if (attributes.hasOwnProperty(attrName)) {
+					let attr = attributes[attrName];
 
-				if (attr.property && !attr.bound) {
-					throw new Error('Could not bind property ' + attr.name + ' to element ' + Dom.getReadableName(this.el) + ' or to any of its directives.');
+					if (attr.property && !attr.bound) {
+						throw new Error('Could not bind property ' + attr.name + ' to element ' + Dom.getReadableName(this.el) + ' or to any of its directives.');
+					}
 				}
 			}
 		}
