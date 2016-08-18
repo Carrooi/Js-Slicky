@@ -58,7 +58,7 @@ export class DirectiveInstance
 				}
 
 				if (!stop) {
-					let value = ExpressionParser.parse(expr, this.view.parameters);
+					let value = this.view.evalExpression(expr);
 
 					instance[inputName] = value;
 

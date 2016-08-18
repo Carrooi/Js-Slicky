@@ -32,19 +32,15 @@ export class EventBinding implements IBinding
 
 	public attach(): void
 	{
-		let scope = Helpers.clone(this.view.parameters);
-
 		for (let i = 0; i < this.events.length; i++) {
 			((event) => {
 				this.listeners.push({
 					event: event,
 					listener: Dom.addEventListener(this.el, event, this, (e: Event) => {
-						let innerScope = Helpers.merge(scope, {
+						this.view.eval(this.call, {
 							'$event': e,
 							'$this': this.el,
 						});
-
-						SafeEval.run(this.call, innerScope);
 					}),
 				});
 			})(this.events[i]);

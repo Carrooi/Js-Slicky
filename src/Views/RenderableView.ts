@@ -120,6 +120,22 @@ export abstract class RenderableView extends AbstractView
 	}
 
 
+	public findParameter(name: string): any
+	{
+		let view: RenderableView = this;
+
+		while (view) {
+			if (typeof view.parameters[name] !== 'undefined') {
+				return view.parameters[name];
+			}
+
+			view = view.parent;
+		}
+
+		return undefined;
+	}
+
+
 	public watch(expr: Expression, listener: (changed: ChangedItem) => void): void
 	{
 		this.changeDetector.watch(expr, listener);
@@ -129,6 +145,54 @@ export abstract class RenderableView extends AbstractView
 	public run(fn: () => void): any
 	{
 		return this.realm.run(fn);
+	}
+
+
+	public eval(code: string, parameters: {[name: string]: any} = {}): any
+	{
+		let expr = ExpressionParser.precompile(code);
+		let scope = {};
+		let instantiate = [];
+		let exports = [];
+
+		for (let i = 0; i < expr.dependencies.length; i++) {
+			var dependency = expr.dependencies[i];
+			let name = dependency.name;
+
+			if (typeof parameters[name] !== 'undefined') {
+				scope[name] = parameters[name];
+			} else {
+				scope[name] = this.findParameter(name);
+			}
+
+			if (dependency.exportable) {
+				exports.push(name);
+			}
+
+			if (typeof scope[name] === 'undefined') {
+				instantiate.push(name);
+			}
+		}
+
+		let result = SafeEval.run(code, scope, {instantiate: instantiate, exports: exports});
+
+		for (let exportVar in result.exports) {
+			if (result.exports.hasOwnProperty(exportVar)) {
+				this.addParameter(exportVar, result.exports[exportVar]);
+			}
+		}
+
+		return result.result;
+	}
+
+
+	public evalExpression(expr: Expression): any
+	{
+		if (expr.expr.type === TypeParser.TYPE_EXPRESSION) {
+			return this.eval('return ' + expr.expr.value);
+		}
+
+		return expr.expr.value;
 	}
 
 
@@ -195,7 +259,7 @@ export abstract class RenderableView extends AbstractView
 
 		if (hasOnChange || hasOnUpdate) {
 			if (hasOnUpdate) {
-				this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)));
+				this.run(() => binding['onUpdate'](this.evalExpression(expression)));
 			}
 
 			this.watch(expression, (changed: ChangedItem) => {
@@ -204,7 +268,7 @@ export abstract class RenderableView extends AbstractView
 				}
 
 				if (hasOnUpdate) {
-					this.run(() => binding['onUpdate'](ExpressionParser.parse(expression, this.parameters)));
+					this.run(() => binding['onUpdate'](this.evalExpression(expression)));
 				}
 			});
 		}
@@ -253,7 +317,9 @@ export abstract class RenderableView extends AbstractView
 
 			for (let j = 0; j < filter.args.length; j++) {
 				let arg = filter.args[j];
-				args.push(arg.type === TypeParser.TYPE_PRIMITIVE ? arg.value : SafeEval.run('return ' + arg.value, this.parameters).result);
+				let result = arg.type === TypeParser.TYPE_PRIMITIVE ? arg.value : this.eval('return ' + arg.value);
+
+				args.push(result);
 			}
 
 			if (typeof filterInstance['onView'] === 'function') {

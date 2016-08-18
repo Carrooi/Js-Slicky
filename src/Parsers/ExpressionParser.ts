@@ -4,6 +4,7 @@ import {TypeParser, TypeToken} from './TypeParser';
 import {VariableParser} from './VariableParser';
 import {Code} from '../Util/Code';
 import {VariableToken} from '../Interfaces';
+import {RenderableView} from '../Views/RenderableView';
 
 
 export declare interface Expression
@@ -17,43 +18,6 @@ export declare interface Expression
 
 export class ExpressionParser
 {
-
-
-	public static parse(expr: Expression, scope: any = {}): any
-	{
-		let exprScope = {};
-		let instantiate = [];
-		let exports = [];
-
-		for (let i = 0; i < expr.dependencies.length; i++) {
-			let dependency = expr.dependencies[i];
-
-			if (dependency.exportable) {
-				exports.push(dependency.name);
-			}
-
-			if (typeof scope[dependency.name] === 'undefined' && dependency.exportable) {
-				instantiate.push(dependency.name);
-			} else {
-				exprScope[dependency.name] = scope[dependency.name];
-			}
-		}
-
-		let result = expr.expr.value;
-		if (expr.expr.type === TypeParser.TYPE_EXPRESSION) {
-			let evalResult = SafeEval.run('return ' + result, exprScope, {instantiate: instantiate, exports: exports});
-			result = evalResult.result;
-
-			// synchronized scope with exported local variables from expression
-			for (let exportVar in evalResult.exports) {
-				if (evalResult.exports.hasOwnProperty(exportVar)) {
-					scope[exportVar] = evalResult.exports[exportVar];
-				}
-			}
-		}
-
-		return result;
-	}
 
 
 	public static precompile(expr: string): Expression

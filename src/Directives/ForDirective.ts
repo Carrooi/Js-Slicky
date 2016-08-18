@@ -132,17 +132,11 @@ export class ForDirective implements OnChange, OnDestroy
 		}
 
 		let parameters = {};
-		for (let key in this.view.parameters) {
-			if (this.view.parameters.hasOwnProperty(key)) {
-				parameters[key] = this.view.parameters[key];
-			}
-		}
-
 		parameters[fnName] = (key, value) => {
 			this.addItem(key, value);
 		};
 
-		SafeEval.run(code, parameters);
+		this.view.eval(code, parameters);
 	}
 
 

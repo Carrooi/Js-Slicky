@@ -707,34 +707,6 @@ describe('#Compiler/template', () => {
 			}, 200);
 		});
 
-		it('should throw an error when trying to rewrite already used variable', () => {
-			@Component({
-				selector: '[item]',
-				controllerAs: 'item',
-				template: '{{ item.item }}',
-			})
-			class Item {
-				@Input('data')
-				item;
-			}
-
-			@Component({
-				selector: 'app',
-				directives: [ForDirective, Item],
-				template: '<span *s:for="#item in items" item [data]="item"></span>',
-			})
-			class App {}
-
-			let el = Dom.el('<div><app></app></div>');
-			let view = new ApplicationView(container, ElementRef.getByNode(el), [App], {
-				items: ['a', 'b']
-			});
-
-			expect(() => {
-				compiler.compile(view, App);
-			}).to.throw(Error, 'Can not import variable item since its already in use.');
-		});
-
 		it('should update expression in nested object', () => {
 			@Component({
 				selector: 'app',

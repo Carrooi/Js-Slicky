@@ -26,11 +26,8 @@ export class ViewFactory
 			return <ComponentView>el.view;
 		}
 
-		let view;
-		let parameters = Helpers.clone(parent.parameters);
 		let translations = Helpers.clone(parent.translations);
-
-		view = new ComponentView(this.container, el, parent, parameters);
+		let view = new ComponentView(this.container, el, parent);
 		view.translations = translations;
 
 		return view;
@@ -39,10 +36,7 @@ export class ViewFactory
 
 	public createEmbeddedView(parent: RenderableView, template: TemplateRef): EmbeddedView
 	{
-		let view;
-		let parameters = Helpers.clone(parent.parameters);
-
-		view = new EmbeddedView(this.container, parent, template, parameters);
+		let view = new EmbeddedView(this.container, parent, template);
 		view.translations = parent.translations;
 
 		return view;

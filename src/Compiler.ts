@@ -297,7 +297,7 @@ export class Compiler
 		innerView.attach(el);
 
 		let setInnerVars = (init: boolean = false) => {
-			let importVarsList = SafeEval.run('return {' + importVars + '}', view.parameters).result;
+			let importVarsList = view.eval('return {' + importVars + '}');
 
 			if (init) {
 				innerView.addParameters(importVarsList);
