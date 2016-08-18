@@ -152,14 +152,12 @@ export class Compiler
 	public compileElement(parentView: RenderableView, el: HTMLElement, templateRef?: TemplateRef): void
 	{
 		let attributes = ElementRef.getAttributes(el);
-		let exportDirectives: {[name: string]: AttributeProperty} = {};
 
 		for (let attrName in attributes) {
 			if (attributes.hasOwnProperty(attrName)) {
 				let attr = attributes[attrName];
 
 				if (attr.directiveExport) {
-					exportDirectives[attr.expression] = attr;
 					attr.bound = true;
 					continue;
 				}
@@ -199,20 +197,8 @@ export class Compiler
 
 			if (Dom.matches(el, directiveData.metadata.selector)) {
 				let instance = this.directiveFactory.create(parentView, directiveData.definition, ElementRef.getByNode(el), templateRef);
-				let directiveName = directiveData.definition.name;
-				let exportDirective: AttributeProperty = null;
 
 				this.useDirective(instance, false, attributes);
-
-				if (typeof exportDirectives[directiveName] !== 'undefined') {
-					exportDirective = exportDirectives[directiveName];
-				} else if (typeof exportDirectives[''] !== 'undefined') {
-					exportDirective = exportDirectives[''];
-				}
-
-				if (exportDirective) {
-					parentView.addParameter(exportDirective.name, instance.instance);
-				}
 
 				if (instance instanceof ComponentInstance || !directiveData.definition.metadata.compileInner) {
 					compileInner = false;
@@ -359,6 +345,36 @@ export class Compiler
 		instance.processHostElements();
 		instance.processHostEvents();
 		instance.attach();
+
+		let exportDirectives: {[name: string]: AttributeProperty} = {};
+		let exportDirective: AttributeProperty = null;
+		let directiveName = instance.definition.name;
+
+		for (let attrName in attributes) {
+			if (attributes.hasOwnProperty(attrName)) {
+				let attr = attributes[attrName];
+
+				if (attr.directiveExport) {
+					exportDirectives[attr.expression] = attr;
+				}
+			}
+		}
+
+		if (typeof exportDirectives[directiveName] !== 'undefined') {
+			exportDirective = exportDirectives[directiveName];
+		} else if (typeof exportDirectives[''] !== 'undefined') {
+			exportDirective = exportDirectives[''];
+		}
+
+		if (exportDirective) {
+			let exportInto: RenderableView = instance.view;
+
+			if (instance instanceof ComponentInstance) {
+				exportInto = instance.view.parent;
+			}
+
+			exportInto.addParameter(exportDirective.name, instance.instance);
+		}
 	}
 
 

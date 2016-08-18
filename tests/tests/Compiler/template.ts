@@ -843,6 +843,59 @@ describe('#Compiler/template', () => {
 			expect(el.innerText).to.be.equal('Span, A: First, B: Second');
 		});
 
+		it('should import root component into another root component input', (done) => {
+			@Component({
+				selector: 'a',
+				template: '',
+			})
+			class A {}
+
+			@Component({
+				selector: 'b',
+				template: '',
+			})
+			class B implements OnInit {
+				@Input()
+				a;
+				onInit() {
+					expect(this.a).to.be.an.instanceof(A);
+					done();
+				}
+			}
+
+			let el = Dom.el('<div><a #first></a><b [a]="first"></b></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [A, B]);
+
+			compiler.compile(view, A);
+			compiler.compile(view, B);
+		});
+
+		it('should import root directive into root component input', (done) => {
+			@Directive({
+				selector: 'a',
+			})
+			class A {}
+
+			@Component({
+				selector: 'b',
+				template: '',
+			})
+			class B implements OnInit {
+				@Input()
+				a;
+				onInit() {
+					expect(this.a).to.be.an.instanceof(A);
+					done();
+				}
+			}
+
+			let el = Dom.el('<div><a #first></a><b [a]="first"></b></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [A, B]);
+
+			compiler.compile(view, A);
+			compiler.compile(view, B);
+		});
+
 		it('should throw an error when trying to use template with non ID selector', () => {
 			@Component({
 				selector: 'app',
