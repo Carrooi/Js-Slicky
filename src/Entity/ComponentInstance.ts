@@ -3,6 +3,8 @@ import {ControllerDefinition} from './ControllerParser';
 import {ComponentView} from '../Views/ComponentView';
 import {Dom} from '../Util/Dom';
 import {Compiler} from '../Compiler';
+import {ElementRef} from '../Templating/ElementRef';
+import {TemplateRef} from '../Templating/TemplateRef';
 
 
 export class ComponentInstance extends DirectiveInstance
@@ -26,7 +28,16 @@ export class ComponentInstance extends DirectiveInstance
 			throw new Error('Missing template for component "' + this.definition.name + '".');
 		}
 
-		(<HTMLElement>this.el).innerHTML = this.definition.metadata.template;
+		let el = <HTMLElement>this.el;
+
+		if (el.innerHTML !== '') {
+			let template = Dom.el('<template>' + el.innerHTML + '</template>');
+			let templateRef = new TemplateRef(ElementRef.getByNode(template));
+
+			this.view.storeTemplate(templateRef);
+		}
+
+		el.innerHTML = this.definition.metadata.template;
 	}
 
 }

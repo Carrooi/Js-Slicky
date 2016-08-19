@@ -943,6 +943,21 @@ describe('#Compiler/template', () => {
 			expect(el.innerText).to.be.equal('Item: 1/a-first-a, Item: 2/a-second-a, Item: 3/a-third-a');
 		});
 
+		it('should pass inner HTML into component as content', () => {
+			@Component({
+				selector: 'app',
+				template: 'Message: <content></content>',
+			})
+			class App {}
+
+			let el = Dom.el('<div><app>hello world</app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
+
+			compiler.compile(view, App);
+
+			expect(el.innerText).to.be.equal('Message: hello world');
+		});
+
 	});
 
 });

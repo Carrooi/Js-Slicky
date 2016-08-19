@@ -279,12 +279,17 @@ export class Compiler
 
 	private tryIncludeTemplate(view: RenderableView, el: Element): EmbeddedView
 	{
-		let id = el.getAttribute('select');
-		if (!id.match(/^#[A-Za-z]+[\w\-:\.]*$/)) {
-			throw new Error('Can not include template by selector "' + id + '". The only supported selector in <content> is ID attribute.');
-		}
+		let id: string = null;
 
-		id = id.substring(1);
+		if (el.hasAttribute('select')) {
+			id = el.getAttribute('select');
+
+			if (!id.match(/^#[A-Za-z]+[\w\-:\.]*$/)) {
+				throw new Error('Can not include template by selector "' + id + '". The only supported selector in <content> is ID attribute.');
+			}
+
+			id = id.substring(1);
+		}
 
 		let template = view.findTemplate(id);
 		if (!template) {
