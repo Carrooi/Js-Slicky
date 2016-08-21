@@ -13,11 +13,13 @@ import './tests/Tokenizer/Parser';
 import './tests/Templating/ElementRef';
 import './tests/Templating/Filters/Filters';
 
-import './tests/Parsers/TypeParser';
+import './tests/Parsers/ExpressionParser';
+import './tests/Parsers/ExpressionParser.squareBrackets';
+import './tests/Parsers/ExpressionParser.parenthesis';
+import './tests/Parsers/ExpressionParser.braces';
 import './tests/Parsers/VariableParser';
 import './tests/Parsers/TextParser';
 import './tests/Parsers/AttributeParser';
-import './tests/Parsers/ExpressionParser';
 import './tests/Parsers/ForParser';
 
 import './tests/Templating/Binding/PropertyBinding';

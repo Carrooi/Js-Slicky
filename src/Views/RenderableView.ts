@@ -4,21 +4,18 @@ import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {ChangeDetector} from '../ChangeDetection/ChangeDetector';
 import {ChangeDetectorRef} from '../ChangeDetection/ChangeDetectorRef';
-import {ChangeDetectionStrategy} from '../ChangeDetection/constants';
+import {ChangeDetectionStrategy} from '../constants';
 import {ApplicationView} from './ApplicationView';
-import {Helpers} from '../Util/Helpers';
-import {Dom} from '../Util/Dom';
 import {Container} from '../DI/Container';
 import {IBinding} from '../Templating/Binding/IBinding';
-import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
+import {ExpressionParser} from '../Parsers/ExpressionParser';
 import {ViewAware} from '../Templating/Filters/ViewAware';
-import {TypeParser} from '../Parsers/TypeParser';
 import {SafeEval} from '../Util/SafeEval';
 import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
 import {Annotations} from '../Util/Annotations';
 import {Functions} from '../Util/Functions';
 import {Realm} from '../Util/Realm';
-import {ParametersList, ChangedItem} from '../Interfaces';
+import {ParametersList, ChangedItem, Expression} from '../Interfaces';
 
 
 export abstract class RenderableView extends AbstractView
@@ -62,7 +59,7 @@ export abstract class RenderableView extends AbstractView
 		this.parameters = parameters;
 
 		this.changeDetector = new ChangeDetector(
-			this.parameters,
+			this,
 			this.parent ? this.parent.changeDetector : null
 		);
 
@@ -150,30 +147,36 @@ export abstract class RenderableView extends AbstractView
 
 	public eval(code: string, parameters: {[name: string]: any} = {}): any
 	{
-		let expr = ExpressionParser.precompile(code);
+		return this.evalExpression(ExpressionParser.parse(code), parameters);
+	}
+
+
+	public evalExpression(expr: Expression, parameters: {[name: string]: any} = {}, autoReturn: boolean = false): any
+	{
 		let scope = {};
 		let instantiate = [];
 		let exports = [];
 
 		for (let i = 0; i < expr.dependencies.length; i++) {
 			var dependency = expr.dependencies[i];
-			let name = dependency.name;
+			let root = dependency.root;
 
-			if (typeof parameters[name] !== 'undefined') {
-				scope[name] = parameters[name];
+			if (typeof parameters[root] !== 'undefined') {
+				scope[root] = parameters[root];
 			} else {
-				scope[name] = this.findParameter(name);
+				scope[root] = this.findParameter(root);
 			}
 
 			if (dependency.exportable) {
-				exports.push(name);
+				exports.push(root);
 			}
 
-			if (typeof scope[name] === 'undefined') {
-				instantiate.push(name);
+			if (typeof scope[root] === 'undefined') {
+				instantiate.push(root);
 			}
 		}
 
+		let code = autoReturn ? 'return ' + expr.code : expr.code;
 		let result = SafeEval.run(code, scope, {instantiate: instantiate, exports: exports});
 
 		for (let exportVar in result.exports) {
@@ -183,16 +186,6 @@ export abstract class RenderableView extends AbstractView
 		}
 
 		return result.result;
-	}
-
-
-	public evalExpression(expr: Expression): any
-	{
-		if (expr.expr.type === TypeParser.TYPE_EXPRESSION) {
-			return this.eval('return ' + expr.expr.value);
-		}
-
-		return expr.expr.value;
 	}
 
 
@@ -259,7 +252,7 @@ export abstract class RenderableView extends AbstractView
 
 		if (hasOnChange || hasOnUpdate) {
 			if (hasOnUpdate) {
-				this.run(() => binding['onUpdate'](this.evalExpression(expression)));
+				this.run(() => binding['onUpdate'](this.evalExpression(expression, {}, true)));
 			}
 
 			this.watch(expression, (changed: ChangedItem) => {
@@ -268,7 +261,7 @@ export abstract class RenderableView extends AbstractView
 				}
 
 				if (hasOnUpdate) {
-					this.run(() => binding['onUpdate'](this.evalExpression(expression)));
+					this.run(() => binding['onUpdate'](this.evalExpression(expression, {}, true)));
 				}
 			});
 		}
@@ -310,16 +303,13 @@ export abstract class RenderableView extends AbstractView
 			let filterInstance = this.findFilter(filter.name);
 
 			if (!filterInstance) {
-				throw new Error('Could not call filter "' + filter.name + '" in "' + expr.code + '" expression, filter is not registered.');
+				throw new Error('Could not call filter "' + filter.name + '" on "' + expr.code + '" expression because filter is not registered.');
 			}
 
 			let args = [value];
 
-			for (let j = 0; j < filter.args.length; j++) {
-				let arg = filter.args[j];
-				let result = arg.type === TypeParser.TYPE_PRIMITIVE ? arg.value : this.eval('return ' + arg.value);
-
-				args.push(result);
+			for (let j = 0; j < filter.arguments.length; j++) {
+				args.push(this.evalExpression(filter.arguments[j], {}, true));
 			}
 
 			if (typeof filterInstance['onView'] === 'function') {

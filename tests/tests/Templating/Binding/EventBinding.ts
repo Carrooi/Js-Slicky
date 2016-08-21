@@ -36,7 +36,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click', 'onClick($event)');
 
-		view.attachBinding(binding, ExpressionParser.precompile('onClick($event)'));
+		view.attachBinding(binding, ExpressionParser.parse('onClick($event)'));
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
 
@@ -57,7 +57,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click', 'obj.onClick($event)');
 
-		view.attachBinding(binding, ExpressionParser.precompile('obj.onClick($event)'));
+		view.attachBinding(binding, ExpressionParser.parse('obj.onClick($event)'));
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
 
@@ -80,7 +80,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click', code);
 
-		view.attachBinding(binding, ExpressionParser.precompile(code));
+		view.attachBinding(binding, ExpressionParser.parse(code));
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
 
@@ -100,7 +100,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click', code);
 
-		view.attachBinding(binding, ExpressionParser.precompile(code));
+		view.attachBinding(binding, ExpressionParser.parse(code));
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
 
@@ -117,7 +117,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click', 'onClick()');
 
-		view.attachBinding(binding, ExpressionParser.precompile('onClick()'));
+		view.attachBinding(binding, ExpressionParser.parse('onClick()'));
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 	});
 
@@ -139,7 +139,7 @@ describe('#Templating/Binding/EventBinding', () => {
 
 		let binding = new EventBinding(view, el, 'click|mousedown', code);
 
-		view.attachBinding(binding, ExpressionParser.precompile(code));
+		view.attachBinding(binding, ExpressionParser.parse(code));
 		el.dispatchEvent(Dom.createMouseEvent('click'));
 		el.dispatchEvent(Dom.createMouseEvent('mousedown'));
 

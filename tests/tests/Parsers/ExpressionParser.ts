@@ -1,6 +1,5 @@
-import {ExpressionParser, Expression} from '../../../src/Parsers/ExpressionParser';
-import {TypeParser} from '../../../src/Parsers/TypeParser';
-import {VariableParser} from '../../../src/Parsers/VariableParser';
+import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
+import {ExpressionCallType, ExpressionDependencyType} from '../../../src/constants';
 
 import chai = require('chai');
 
@@ -8,128 +7,245 @@ import chai = require('chai');
 let expect = chai.expect;
 
 
-describe('#Parsers/ExpressionParser', () => {
+describe('#ExpressionParser', () => {
+	
+	describe('parse()', () => {
 
-	describe('precompile()', () => {
+		it('should parse simple expression', () => {
+			let expr = ExpressionParser.parse('a');
 
-		it('should precompile simple expression', () => {
-			let result = ExpressionParser.precompile('s + "-"');
+			expect(expr).to.be.eql({
+				code: 'a',
+				callType: ExpressionCallType.Static,
+				dependencies: [
+					{
+						code: 'a',
+						root: 'a',
+						type: ExpressionDependencyType.Object,
+						exportable: false,
+					},
+				],
+				filters: [],
+			});
+		});
 
-			expect(result).to.be.eql({
+		it('should parse another simple expression', () => {
+			let expr = ExpressionParser.parse('s + "-"');
+
+			expect(expr).to.be.eql({
 				code: 's + "-"',
-				expr: {value: 's + "-"', type: TypeParser.TYPE_EXPRESSION},
-				dependencies: [{name: 's', code: 's', exportable: false, path: []}],
-				filters: [],
-			});
-		});
-
-		it('should precompile expression with exportable variables', () => {
-			let result = ExpressionParser.precompile('#b = a && #c = b');
-
-			expect(result).to.be.eql({
-				code: '#b = a && #c = b',
-				expr: {value: 'b = a && c = b', type: TypeParser.TYPE_EXPRESSION},
-				dependencies: [
-					{name: 'b', code: '#b', exportable: true, path: []},
-					{name: 'a', code: 'a', exportable: false, path: []},
-					{name: 'c', code: '#c', exportable: true, path: []},
-				],
-				filters: [],
-			});
-		});
-
-		it('should precompile nested variables', () => {
-			let result = ExpressionParser.precompile('a.b.c[2].d[3] + e - f[5]');
-
-			expect(result).to.be.eql({
-				code: 'a.b.c[2].d[3] + e - f[5]',
-				expr: {value: 'a.b.c[2].d[3] + e - f[5]', type: TypeParser.TYPE_EXPRESSION},
+				callType: ExpressionCallType.Static,
 				dependencies: [
 					{
-						name: 'a',
-						code: 'a.b.c[2].d[3]',
+						code: 's',
+						root: 's',
+						type: ExpressionDependencyType.Object,
 						exportable: false,
-						path: [
-							{value: 'b', type: VariableParser.PATH_TYPE_OBJECT},
-							{value: 'c', type: VariableParser.PATH_TYPE_OBJECT},
-							{value: 2, type: VariableParser.PATH_TYPE_ARRAY},
-							{value: 'd', type: VariableParser.PATH_TYPE_OBJECT},
-							{value: 3, type: VariableParser.PATH_TYPE_ARRAY},
-						],
-					},
-					{
-						name: 'e',
-						code: 'e',
-						exportable: false,
-						path: [],
-					},
-					{
-						name: 'f',
-						code: 'f[5]',
-						exportable: false,
-						path: [
-							{value: 5, type: VariableParser.PATH_TYPE_ARRAY},
-						],
 					},
 				],
 				filters: [],
 			});
 		});
 
-		it('should precompile advanced expression', () => {
-			let result = ExpressionParser.precompile('str + "-" | a | b : 5 : "B:|B" : \'C|:C\' | c : p1 + p2 + p3 - p4');
+		it('should parse expression with exportable variable', () => {
+			let expr = ExpressionParser.parse('#a = 5');
 
-			expect(result).to.be.eql({
-				code: 'str + "-" | a | b : 5 : "B:|B" : \'C|:C\' | c : p1 + p2 + p3 - p4',
-				expr: {value: 'str + "-"', type: TypeParser.TYPE_EXPRESSION},
+			expect(expr).to.be.eql({
+				code: 'a = 5',
+				callType: ExpressionCallType.Static,
 				dependencies: [
-					{name: 'str', code: 'str', exportable: false, path: []},
-					{name: 'p1', code: 'p1', exportable: false, path: []},
-					{name: 'p2', code: 'p2', exportable: false, path: []},
-					{name: 'p3', code: 'p3', exportable: false, path: []},
-					{name: 'p4', code: 'p4', exportable: false, path: []},
+					{
+						code: 'a',
+						root: 'a',
+						type: ExpressionDependencyType.Object,
+						exportable: true,
+					},
+				],
+				filters: [],
+			});
+		});
+
+		it('should parse expression with many exportable variables', () => {
+			let expr = ExpressionParser.parse('#b = a && #c = b');
+
+			expect(expr).to.be.eql({
+				code: 'b = a && c = b',
+				callType: ExpressionCallType.Static,
+				dependencies: [
+					{
+						code: 'b',
+						root: 'b',
+						type: ExpressionDependencyType.Object,
+						exportable: true,
+					},
+					{
+						code: 'a',
+						root: 'a',
+						type: ExpressionDependencyType.Object,
+						exportable: false,
+					},
+					{
+						code: 'c',
+						root: 'c',
+						type: ExpressionDependencyType.Object,
+						exportable: true,
+					},
+				],
+				filters: [],
+			});
+		});
+
+		it('should parse expression with object access', () => {
+			let expr = ExpressionParser.parse('a.b');
+
+			expect(expr).to.be.eql({
+				code: 'a.b',
+				callType: ExpressionCallType.Static,
+				dependencies: [
+					{
+						code: 'a.b',
+						root: 'a',
+						type: ExpressionDependencyType.Object,
+						exportable: false,
+					},
+				],
+				filters: [],
+			});
+		});
+
+		it('should parse expression with multiple inner dependencies', () => {
+			let expr = ExpressionParser.parse('a.b(c["d"])("e").f[5](g(h["i"]))');
+
+			expect(expr).to.be.eql({
+				code: 'a.b(c["d"])("e").f[5](g(h["i"]))',
+				callType: ExpressionCallType.Dynamic,
+				dependencies: [
+					{
+						code: 'c["d"]',
+						root: 'c',
+						type: ExpressionDependencyType.Object,
+						exportable: false,
+					},
+					{
+						code: 'h["i"]',
+						root: 'h',
+						type: ExpressionDependencyType.Object,
+						exportable: false,
+					},
+					{
+						code: 'g(h["i"])',
+						root: 'g',
+						type: ExpressionDependencyType.Call,
+						exportable: false,
+					},
+					{
+						code: 'a.b(c["d"])("e").f[5](g(h["i"]))',
+						root: 'a',
+						type: ExpressionDependencyType.Call,
+						exportable: false,
+					},
+				],
+				filters: [],
+			});
+		});
+
+		it('should include filters', () => {
+			let expr = ExpressionParser.parse('a | b | c');
+
+			expect(expr).to.be.eql({
+				code: 'a',
+				callType: ExpressionCallType.Static,
+				dependencies: [
+					{
+						code: 'a',
+						root: 'a',
+						type: ExpressionDependencyType.Object,
+						exportable: false,
+					},
 				],
 				filters: [
 					{
-						name: 'a',
-						args: [],
+						name: 'b',
+						arguments: [],
 					},
 					{
+						name: 'c',
+						arguments: [],
+					},
+				],
+			});
+		});
+
+		it('should include filters with arguments', () => {
+			let expr = ExpressionParser.parse('a | b : "test" : 5 | c : 5 : "hello" + " " + "world" : d');
+
+			expect(expr).to.be.eql({
+				code: 'a',
+				callType: ExpressionCallType.Static,
+				dependencies: [
+					{
+						code: 'a',
+						root: 'a',
+						type: ExpressionDependencyType.Object,
+						exportable: false,
+					},
+					{
+						code: 'd',
+						root: 'd',
+						type: ExpressionDependencyType.Object,
+						exportable: false,
+					},
+				],
+				filters: [
+					{
 						name: 'b',
-						args: [
-							{value: 5, type: TypeParser.TYPE_PRIMITIVE},
-							{value: 'B:|B', type: TypeParser.TYPE_PRIMITIVE},
-							{value: 'C|:C', type: TypeParser.TYPE_PRIMITIVE},
+						arguments: [
+							{
+								code: '"test"',
+								callType: ExpressionCallType.Static,
+								dependencies: [],
+								filters: [],
+							},
+							{
+								code: '5',
+								callType: ExpressionCallType.Static,
+								dependencies: [],
+								filters: [],
+							},
 						],
 					},
 					{
 						name: 'c',
-						args: [
-							{value: 'p1 + p2 + p3 - p4', type: TypeParser.TYPE_EXPRESSION},
+						arguments: [
+							{
+								code: '5',
+								callType: ExpressionCallType.Static,
+								dependencies: [],
+								filters: [],
+							},
+							{
+								code: '"hello" + " " + "world"',
+								callType: ExpressionCallType.Static,
+								dependencies: [],
+								filters: [],
+							},
+							{
+								code: 'd',
+								callType: ExpressionCallType.Static,
+								dependencies: [
+									{
+										code: 'd',
+										root: 'd',
+										type: ExpressionDependencyType.Object,
+										exportable: false,
+									},
+								],
+								filters: [],
+							},
 						],
 					},
 				],
 			});
-		});
-
-	});
-
-	describe('split()', () => {
-
-		it('should split multiple expressions by delimiter', () => {
-			let expr = 'a, 1, "a, 1", b + 2, \'c, 3\', (d, 4), [e, 5], {f, 6}';
-			let result = ExpressionParser.split(expr, ',');
-
-			expect(result).to.be.eql([
-				'a',
-				'1',
-				'"a, 1"',
-				'b + 2',
-				"'c, 3'",
-				'(d, 4)',
-				'[e, 5]',
-				'{f, 6}',
-			]);
 		});
 
 	});

@@ -1,18 +1,17 @@
-import {ChangeDetectionStrategy, ChangeDetectionAction} from './constants';
+import {ChangeDetectionStrategy, ChangeDetectionAction, ExpressionDependencyType} from '../constants';
+import {RenderableView} from '../Views/RenderableView';
 import {Helpers} from '../Util/Helpers';
-import {Code} from '../Util/Code';
-import {Expression} from '../Parsers/ExpressionParser';
-import {ParametersList, VariableToken, ChangedItem, ChangedDependency, ChangedDependencyProperty} from '../Interfaces';
+import {ExpressionParser} from '../Parsers/ExpressionParser';
+import {ParametersList, ChangedItem, ChangedDependency, ChangedDependencyProperty, Expression, ExpressionDependency} from '../Interfaces';
 
 
 declare interface WatcherItemDependency {
-	expr: VariableToken,
+	expr: ExpressionDependency,
 	previous: any,
 	clone: any,
 }
 
 declare interface WatcherItem {
-	expr: Expression,
 	listener: (ChangedItem) => void,
 	dependencies: Array<WatcherItemDependency>,
 }
@@ -28,18 +27,21 @@ export class ChangeDetector
 
 	private parameters: ParametersList;
 
+	private view: RenderableView;
+
 	private watchers: Array<WatcherItem> = [];
 
 	private disabled: boolean = false;
 
 
-	constructor(parameters: ParametersList, parent?: ChangeDetector)
+	constructor(view: RenderableView, parent?: ChangeDetector)
 	{
 		if (parent) {
 			parent.children.push(this);
 		}
 
-		this.parameters = parameters;
+		this.view = view;
+		this.parameters = view.parameters;
 	}
 
 
@@ -54,7 +56,11 @@ export class ChangeDetector
 		let dependencies = [];
 
 		for (let i = 0; i < expr.dependencies.length; i++) {
-			let previous = this.interpolate(expr.dependencies[i]);
+			if (expr.dependencies[i].type === ExpressionDependencyType.Call) {
+				continue;
+			}
+
+			let previous = this.process(expr.dependencies[i]);
 			let clone = Helpers.clone(previous);
 
 			dependencies.push({
@@ -65,7 +71,6 @@ export class ChangeDetector
 		}
 
 		this.watchers.push({
-			expr: expr,
 			listener: listener,
 			dependencies: dependencies,
 		});
@@ -118,7 +123,7 @@ export class ChangeDetector
 
 	private checkDependency(dependency: WatcherItemDependency): ChangedDependency
 	{
-		let current = this.interpolate(dependency.expr);
+		let current = this.process(dependency.expr);
 		let changes = {
 			action: ChangeDetectionAction.Same,
 			expr: dependency.expr,
@@ -238,10 +243,16 @@ export class ChangeDetector
 	}
 
 
-	private interpolate(expr: VariableToken): any
+	/**
+	 * @todo pass list of allowed additional parameters ($this, $event)
+	 */
+	private process(expr: ExpressionDependency): any
 	{
-		let result = Code.interpolateObjectElement(this.parameters, expr);
-		return result.obj[result.key];
+		try {
+			return this.view.evalExpression(ExpressionParser.parse(expr.code), {}, true);
+		} catch (e) {
+			return undefined;
+		}
 	}
 
 }

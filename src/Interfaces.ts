@@ -1,4 +1,4 @@
-import {ChangeDetectionAction} from './ChangeDetection/constants';
+import {ChangeDetectionAction, ExpressionDependencyType, ExpressionCallType} from './constants';
 
 
 // ------------ PARAMETERS
@@ -11,6 +11,31 @@ export declare interface ParametersList
 
 
 // ------------ PARSING
+
+
+export declare interface ExpressionFilter
+{
+	name: string,
+	arguments: Array<Expression>,
+}
+
+
+export declare interface ExpressionDependency
+{
+	code: string,
+	root: string,
+	type: ExpressionDependencyType,
+	exportable: boolean,
+}
+
+
+export declare interface Expression
+{
+	code: string,
+	callType: ExpressionCallType,
+	dependencies: Array<ExpressionDependency>,
+	filters: Array<ExpressionFilter>,
+}
 
 
 export declare interface VariableToken
@@ -52,7 +77,7 @@ export declare interface ChangedDependencyProperty {
 
 export declare interface ChangedDependency {
 	action: ChangeDetectionAction,
-	expr: VariableToken,
+	expr: ExpressionDependency,
 	props: Array<ChangedDependencyProperty>,
 }
 

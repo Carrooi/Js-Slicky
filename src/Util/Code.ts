@@ -43,8 +43,8 @@ export class Code
 					(token.type === Lexer.T_NAME) ||
 					(token.type === Lexer.T_NUMBER) ||
 					(token.type === Lexer.T_STRING) ||
-					(token.type === Lexer.T_SQUARE_BRACKET) ||
-					(token.type === Lexer.T_CHARACTER && token.value === '.')
+					(token.type === Lexer.T_OPEN_SQUARE_BRACKET || token.type === Lexer.T_CLOSE_SQUARE_BRACKET) ||
+					(token.type === Lexer.T_DOT)
 				)
 			) {
 				currentVariable += token.value;

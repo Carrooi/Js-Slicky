@@ -1,17 +1,11 @@
 import {Lexer} from './Lexer';
 import {Tokenizer, Token} from './Tokenizer';
 import {Helpers} from '../Util/Helpers';
+import {TokensIterator} from './TokensIterator';
 
 
-export class Parser
+export class Parser extends TokensIterator
 {
-
-
-	public tokens: Array<Token>;
-
-	public position: number = 0;
-
-	public token: Token = null;
 
 
 	constructor(input: string)
@@ -28,42 +22,17 @@ export class Parser
 		t.addRule(Lexer.T_NAME, /[a-zA-Z_\$][a-zA-Z_\$0-9]*/);
 		t.addRule(Lexer.T_NUMBER, /\d+(?:\.\d+)?(?:e[+-]?\d+)?/);
 
-		t.addRule(Lexer.T_CHARACTER, /[;.:\?\^%<>=!&|+\-,~]/);
+		t.addRule(Lexer.T_CHARACTER, /[;:\?\^%<>=!&|+\-,~]/);
+		t.addRule(Lexer.T_DOT, /\./);
 
-		t.addRule(Lexer.T_PARENTHESIS, /[\(\)]/);
-		t.addRule(Lexer.T_BRACES, /[\{}]/);
-		t.addRule(Lexer.T_SQUARE_BRACKET, /[\[\]]/);
+		t.addRule(Lexer.T_OPEN_PARENTHESIS, /\(/);
+		t.addRule(Lexer.T_CLOSE_PARENTHESIS, /\)/);
+		t.addRule(Lexer.T_OPEN_BRACES, /\{/);
+		t.addRule(Lexer.T_CLOSE_BRACES, /}/);
+		t.addRule(Lexer.T_OPEN_SQUARE_BRACKET, /\[/);
+		t.addRule(Lexer.T_CLOSE_SQUARE_BRACKET, /]/);
 
-		this.tokens = t.tokenize(input);
-
-		if (this.tokens.length) {
-			this.token = this.tokens[0];
-		}
-	}
-
-
-	public isCurrentToken(type: string|Array<string>)
-	{
-		if (!this.token) {
-			return false;
-		}
-
-		if (!Helpers.isArray(type)) {
-			type = <any>[type];
-		}
-
-		return (<Array<string>>type).indexOf(this.token.type) > -1;
-	}
-
-
-	public nextToken(): Token
-	{
-		if (typeof this.tokens[++this.position] === 'undefined') {
-			this.token = null;
-			return null;
-		}
-
-		return this.token = this.tokens[this.position];
+		super(t.tokenize(input));
 	}
 
 }

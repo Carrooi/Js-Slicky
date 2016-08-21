@@ -56,9 +56,9 @@ describe('#Tokenizer/Parser', () => {
 
 			expect(iterated).to.be.eql([
 				{type: Lexer.T_NAME, value: 'alert'},
-				{type: Lexer.T_PARENTHESIS, value: '('},
+				{type: Lexer.T_OPEN_PARENTHESIS, value: '('},
 				{type: Lexer.T_STRING, value: '"hello world"'},
-				{type: Lexer.T_PARENTHESIS, value: ')'},
+				{type: Lexer.T_CLOSE_PARENTHESIS, value: ')'},
 				{type: Lexer.T_CHARACTER, value: ';'},
 			]);
 		});

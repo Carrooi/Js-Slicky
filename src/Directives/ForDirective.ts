@@ -1,15 +1,13 @@
 import {Directive, Input, Required} from '../Entity/Metadata';
 import {Compiler} from '../Compiler';
 import {OnChange, OnDestroy, ForToken, ChangedItem} from '../Interfaces';
-import {ChangeDetectionAction} from '../ChangeDetection/constants';
+import {ChangeDetectionAction} from '../constants';
 import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {RenderableView} from '../Views/RenderableView';
 import {EmbeddedView} from '../Views/EmbeddedView';
 import {ViewFactory} from '../Views/ViewFactory';
 import {ForParser} from'../Parsers/ForParser';
-import {Code} from '../Util/Code';
-import {SafeEval} from '../Util/SafeEval';
 
 
 @Directive({
@@ -32,8 +30,6 @@ export class ForDirective implements OnChange, OnDestroy
 
 	private iterated: {[key: string]: EmbeddedView} = {};
 
-	private dependency;
-
 
 	@Required()
 	@Input('s:for')
@@ -42,15 +38,13 @@ export class ForDirective implements OnChange, OnDestroy
 
 	constructor(compiler: Compiler, el: ElementRef, view: RenderableView, viewFactory: ViewFactory, templateRef: TemplateRef)
 	{
+		let attr = ElementRef.getAttributes(el.nativeEl)['s:for'];
+
 		this.compiler = compiler;
 		this.view = view;
 		this.viewFactory = viewFactory;
 		this.templateRef = templateRef;
-
-		let attr = ElementRef.getAttributes(el.nativeEl)['s:for'];
-
 		this.expr = ForParser.parse(attr.expression);
-		this.dependency = Code.interpolateObjectElement(this.view.parameters, this.expr.obj);
 	}
 
 

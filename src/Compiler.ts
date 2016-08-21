@@ -18,14 +18,13 @@ import {ElementRef} from './Templating/ElementRef';
 import {TemplateRef} from './Templating/TemplateRef';
 import {Annotations} from './Util/Annotations';
 import {Helpers} from './Util/Helpers';
-import {SafeEval} from './Util/SafeEval';
 import {ComponentMetadataDefinition} from './Entity/Metadata';
 import {DirectiveMetadataDefinition} from './Entity/Metadata';
 import {ExpressionParser} from './Parsers/ExpressionParser';
 import {ViewFactory} from './Views/ViewFactory';
 import {EmbeddedView} from './Views/EmbeddedView';
 import {DirectiveFactory} from './DirectiveFactory';
-import {AttributesList, AttributeProperty} from './Interfaces';
+import {AttributesList, AttributeProperty, Expression} from './Interfaces';
 
 
 @Injectable()
@@ -166,7 +165,10 @@ export class Compiler
 					continue;
 				}
 
-				let expr = ExpressionParser.precompile(attr.expression);
+				let expr: Expression = !attr.property && !attr.event ?
+					ExpressionParser.parse(AttributeParser.parse(attr.expression)) :
+					ExpressionParser.parse(attr.expression)
+				;
 
 				if (attr.property && Dom.propertyExists(el, attr.name)) {
 					parentView.attachBinding(new PropertyBinding(el, attr.name), expr);
@@ -178,14 +180,9 @@ export class Compiler
 					attr.bound = true;
 				}
 
-				if (!attr.property && !attr.event) {
-					let attrExpr = AttributeParser.parse(attr.expression);
-
-					if (attrExpr !== "'" + attr.expression + "'") {
-						expr = ExpressionParser.precompile(attrExpr);
-						parentView.attachBinding(new AttributeBinding(el, attr.name), expr);
-						attr.bound = true;
-					}
+				if (!attr.property && !attr.event && expr.code !== "'" + attr.expression + "'") {
+					parentView.attachBinding(new AttributeBinding(el, attr.name), expr);
+					attr.bound = true;
 				}
 			}
 		}
@@ -226,7 +223,7 @@ export class Compiler
 				text.parentNode.insertBefore(newText, text);
 
 				if (token.type === TextParser.TYPE_BINDING) {
-					let expr = ExpressionParser.precompile(token.value);
+					let expr = ExpressionParser.parse(token.value);
 					view.attachBinding(new TextBinding(newText, expr, view), expr);
 				}
 			}
@@ -317,7 +314,7 @@ export class Compiler
 
 		if (importVars && importVars !== '') {
 			setInnerVars(true);
-			view.watch(ExpressionParser.precompile(importVars), () => {
+			view.watch(ExpressionParser.parse(importVars), () => {
 				setInnerVars();
 				innerView.changeDetectorRef.refresh();
 			});

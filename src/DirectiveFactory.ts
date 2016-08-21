@@ -11,7 +11,6 @@ import {ViewFactory} from './Views/ViewFactory';
 import {RenderableView} from './Views/RenderableView';
 import {ComponentView} from './Views/ComponentView';
 import {Dom} from './Util/Dom';
-import {ChangeDetectionStrategy} from "./ChangeDetection/constants";
 
 
 export class DirectiveFactory

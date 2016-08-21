@@ -2,8 +2,8 @@ import {DirectiveDefinition} from './DirectiveParser';
 import {RenderableView} from '../Views/RenderableView';
 import {OnDestroy, OnInit, OnChange, OnUpdate, ChangedItem} from '../Interfaces';
 import {Dom} from '../Util/Dom';
-import {ExpressionParser, Expression} from '../Parsers/ExpressionParser';
-import {AttributesList} from '../Interfaces';
+import {ExpressionParser} from '../Parsers/ExpressionParser';
+import {AttributesList, Expression} from '../Interfaces';
 
 
 export class DirectiveInstance
@@ -58,7 +58,7 @@ export class DirectiveInstance
 				}
 
 				if (!stop) {
-					let value = this.view.evalExpression(expr);
+					let value = this.view.evalExpression(expr, {}, true);
 
 					instance[inputName] = value;
 
@@ -87,8 +87,13 @@ export class DirectiveInstance
 						instance[inputName] = this.el[realInputName];
 
 					} else {
+						if (attr.expression === '') {
+							attr.bound = true;
+							continue;
+						}
+
 						if (attr.property) {
-							let expr = ExpressionParser.precompile(attr.expression);
+							let expr = ExpressionParser.parse(attr.expression);
 
 							processInput(inputName, input.required, expr);
 

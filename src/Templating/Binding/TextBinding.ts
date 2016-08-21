@@ -1,5 +1,5 @@
 import {IBinding} from './IBinding';
-import {Expression} from '../../Parsers/ExpressionParser';
+import {Expression} from '../../Interfaces';
 import {RenderableView} from '../../Views/RenderableView';
 
 

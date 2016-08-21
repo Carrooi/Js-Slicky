@@ -1,12 +1,31 @@
 import {ChangeDetector} from '../../../src/ChangeDetection/ChangeDetector';
-import {ChangeDetectionAction} from '../../../src/ChangeDetection/constants';
+import {ChangeDetectionAction} from '../../../src/constants';
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
 import {ChangedItem} from '../../../src/Interfaces';
+import {RenderableView} from '../../../src/Views/RenderableView';
+import {Container} from '../../../di';
+import {ElementRef} from '../../../core';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
+let view: RenderableView = null;
+
+
+class FakeRenderableView extends RenderableView
+{
+
+
+	constructor(parameters = {})
+	{
+		let container = new Container;
+		let el = ElementRef.getByNode(document.createElement('div'));
+
+		super(container, el, null, parameters);
+	}
+
+}
 
 
 describe('#ChangeDetection/ChangeDetector', () => {
@@ -14,13 +33,13 @@ describe('#ChangeDetection/ChangeDetector', () => {
 	describe('check()', () => {
 
 		it('should not notify about changes for first level variable', (done) => {
-			let detector = new ChangeDetector({
+			let detector = new ChangeDetector(new FakeRenderableView({
 				a: 'hello',
-			});
+			}));
 
 			let called = 0;
 
-			detector.watch(ExpressionParser.precompile('a'), () => {
+			detector.watch(ExpressionParser.parse('a'), () => {
 				called++;
 			});
 
@@ -37,10 +56,10 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: 'hello',
 			};
 
-			let detector = new ChangeDetector(parameters);
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
 			let called = 0;
 
-			detector.watch(ExpressionParser.precompile('a'), () => {
+			detector.watch(ExpressionParser.parse('a'), () => {
 				called++;
 			});
 
@@ -61,9 +80,9 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: 'hello',
 			};
 
-			let detector = new ChangeDetector(parameters);
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
 
-			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+			detector.watch(ExpressionParser.parse('a'), (changed: ChangedItem) => {
 				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
 				expect(changed.dependencies).to.have.length(1);
 
@@ -79,13 +98,13 @@ describe('#ChangeDetection/ChangeDetector', () => {
 		});
 
 		it('should not notify about changes in nested variable', (done) => {
-			let detector = new ChangeDetector({
+			let detector = new ChangeDetector(new FakeRenderableView({
 				a: {b: {c: 'hello'}},
-			});
+			}));
 
 			let called = 0;
 
-			detector.watch(ExpressionParser.precompile('a.b.c'), () => {
+			detector.watch(ExpressionParser.parse('a.b.c'), () => {
 				called++;
 			});
 
@@ -102,9 +121,9 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: {b: {c: 'hello'}},
 			};
 
-			let detector = new ChangeDetector(parameters);
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
 
-			detector.watch(ExpressionParser.precompile('a.b.c'), (changed: ChangedItem) => {
+			detector.watch(ExpressionParser.parse('a.b.c'), (changed: ChangedItem) => {
 				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
 				expect(changed.dependencies).to.have.length(1);
 
@@ -120,14 +139,14 @@ describe('#ChangeDetection/ChangeDetector', () => {
 		});
 
 		it('should not notify about changes in multi expression', (done) => {
-			let detector = new ChangeDetector({
+			let detector = new ChangeDetector(new FakeRenderableView({
 				a: 'hello',
 				b: 'moon',
-			});
+			}));
 
 			let called = 0;
 
-			detector.watch(ExpressionParser.precompile('a + " " + b'), () => {
+			detector.watch(ExpressionParser.parse('a + " " + b'), () => {
 				called++;
 			});
 
@@ -145,9 +164,9 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				b: 'moon',
 			};
 
-			let detector = new ChangeDetector(parameters);
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
 
-			detector.watch(ExpressionParser.precompile('a + " " + b'), (changed: ChangedItem) => {
+			detector.watch(ExpressionParser.parse('a + " " + b'), (changed: ChangedItem) => {
 				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
 				expect(changed.dependencies).to.have.length(1);
 
@@ -167,9 +186,9 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: {a: 'hello'},
 			};
 
-			let detector = new ChangeDetector(parameters);
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
 
-			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+			detector.watch(ExpressionParser.parse('a'), (changed: ChangedItem) => {
 				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
 				expect(changed.dependencies).to.have.length(1);
 
@@ -195,9 +214,9 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: {a: 'hello', b: 'moon'},
 			};
 
-			let detector = new ChangeDetector(parameters);
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
 
-			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+			detector.watch(ExpressionParser.parse('a'), (changed: ChangedItem) => {
 				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
 				expect(changed.dependencies).to.have.length(1);
 
@@ -223,9 +242,9 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: {a: 'hello', b: 'world'},
 			};
 
-			let detector = new ChangeDetector(parameters);
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
 
-			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+			detector.watch(ExpressionParser.parse('a'), (changed: ChangedItem) => {
 				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
 				expect(changed.dependencies).to.have.length(1);
 
@@ -251,9 +270,9 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: ['hello'],
 			};
 
-			let detector = new ChangeDetector(parameters);
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
 
-			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+			detector.watch(ExpressionParser.parse('a'), (changed: ChangedItem) => {
 				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
 				expect(changed.dependencies).to.have.length(1);
 
@@ -279,9 +298,9 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: ['hello', 'moon'],
 			};
 
-			let detector = new ChangeDetector(parameters);
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
 
-			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+			detector.watch(ExpressionParser.parse('a'), (changed: ChangedItem) => {
 				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
 				expect(changed.dependencies).to.have.length(1);
 
@@ -307,9 +326,9 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: ['hello', 'world'],
 			};
 
-			let detector = new ChangeDetector(parameters);
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
 
-			detector.watch(ExpressionParser.precompile('a'), (changed: ChangedItem) => {
+			detector.watch(ExpressionParser.parse('a'), (changed: ChangedItem) => {
 				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
 				expect(changed.dependencies).to.have.length(1);
 

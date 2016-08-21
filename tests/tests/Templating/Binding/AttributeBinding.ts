@@ -35,7 +35,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			let binding = new AttributeBinding(el, 'test');
 
-			view.attachBinding(binding, ExpressionParser.precompile('hello'));
+			view.attachBinding(binding, ExpressionParser.parse('hello'));
 
 			expect(el['test']).to.be.equal('good day');
 		});
@@ -53,7 +53,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			let binding = new AttributeBinding(el, 'test');
 
-			view.attachBinding(binding, ExpressionParser.precompile('a + b + c'));
+			view.attachBinding(binding, ExpressionParser.parse('a + b + c'));
 
 			expect(el['test']).to.be.equal(6);
 		});
