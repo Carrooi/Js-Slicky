@@ -73,7 +73,7 @@ export class Compiler
 	}
 
 
-	public createComponent(parentView: ComponentView, template: string): HTMLElement
+	public createComponent(parentView: RenderableView, template: string): HTMLElement
 	{
 		let el = Dom.el(template);
 		this.compileElement(parentView, el);
