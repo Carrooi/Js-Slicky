@@ -1,5 +1,5 @@
 import {Application, Compiler, ComponentView, ApplicationView, ElementRef, TemplateRef, Component, Directive, OnInit, OnDestroy, Input} from '../../../core';
-import {IfDirective} from '../../../common';
+import {IfDirective, ForDirective} from '../../../common';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 
@@ -284,6 +284,35 @@ describe('#Compiler/components', () => {
 
 			setTimeout(() => {
 				expect(el.innerText).to.be.equal('status: Denied');
+				done();
+			}, 50);
+		});
+
+		it('should remove item from middle of array', (done) => {
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				directives: [ForDirective],
+				template: '<span *s:for="#item in app.items">- {{ item }} -</span>',
+			})
+			class App implements OnInit {
+				items = ['one', 'two', 'three'];
+				onInit() {
+					setTimeout(() => {
+						this.items.splice(1, 1);
+					}, 20);
+				}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
+
+			compiler.compile(view, App);
+
+			expect(el.innerText).to.be.equal('- one -- two -- three -');
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('- one -- three -');
 				done();
 			}, 50);
 		});

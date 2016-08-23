@@ -64,6 +64,10 @@ export class ForDirective implements OnChange, OnDestroy
 
 							} else if (prop.action === ChangeDetectionAction.Remove) {
 								this.removeItem(prop.property);
+
+							} else if (prop.action === ChangeDetectionAction.Update) {
+								this.updateItem(prop.property, prop.newValue);
+
 							}
 						}
 
@@ -162,6 +166,16 @@ export class ForDirective implements OnChange, OnDestroy
 		this.iterated[key].detach();
 
 		delete this.iterated[key];
+	}
+
+
+	public updateItem(key: string|number, value: any): void
+	{
+		let view = this.iterated[key];
+
+		if (this.expr.value.exportable) {
+			view.parameters[this.expr.value.name] = value;
+		}
 	}
 
 }

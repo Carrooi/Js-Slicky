@@ -10,7 +10,6 @@ import chai = require('chai');
 
 
 let expect = chai.expect;
-let view: RenderableView = null;
 
 
 class FakeRenderableView extends RenderableView
@@ -322,7 +321,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 		});
 
 		it('should notify about changes when removing an element from array', (done) => {
-			var parameters = {
+			let parameters = {
 				a: ['hello', 'world'],
 			};
 
@@ -340,6 +339,40 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				expect(changed.dependencies[0].props[0].property).to.be.equal(1);
 				expect(changed.dependencies[0].props[0].newValue).to.be.equal(undefined);
 				expect(changed.dependencies[0].props[0].oldValue).to.be.equal('world');
+
+				done();
+			});
+
+			parameters['a'].splice(1, 1);
+
+			detector.check();
+		});
+
+		it('should notify about changes when removing an element from middle of an array', (done) => {
+			let parameters = {
+				a: ['one', 'two', 'three'],
+			};
+
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
+
+			detector.watch(ExpressionParser.parse('a'), true, (changed: ChangedItem) => {
+				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies).to.have.length(1);
+
+				expect(changed.dependencies[0].action).to.be.equal(ChangeDetectionAction.DeepUpdate);
+				expect(changed.dependencies[0].expr.code).to.be.equal('a');
+
+				expect(changed.dependencies[0].props).to.have.length(2);
+
+				expect(changed.dependencies[0].props[0].action).to.be.equal(ChangeDetectionAction.Update);
+				expect(changed.dependencies[0].props[0].property).to.be.equal(1);
+				expect(changed.dependencies[0].props[0].newValue).to.be.equal('three');
+				expect(changed.dependencies[0].props[0].oldValue).to.be.equal('two');
+
+				expect(changed.dependencies[0].props[1].action).to.be.equal(ChangeDetectionAction.Remove);
+				expect(changed.dependencies[0].props[1].property).to.be.equal(2);
+				expect(changed.dependencies[0].props[1].newValue).to.be.equal(undefined);
+				expect(changed.dependencies[0].props[1].oldValue).to.be.equal('three');
 
 				done();
 			});

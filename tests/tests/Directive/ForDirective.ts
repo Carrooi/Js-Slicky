@@ -113,7 +113,7 @@ describe('#Directives/ForDirective', () => {
 			expect(el.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
 		});
 
-		it('should update view when item is remove from an array', () => {
+		it('should update view when item is removed from an array', () => {
 			let parent = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(parent));
 
@@ -128,6 +128,23 @@ describe('#Directives/ForDirective', () => {
 			view.changeDetectorRef.refresh();
 
 			expect(parent.outerText).to.be.equal('- David -- John -');
+		});
+
+		it('should update view when item is removed from middle of an array', () => {
+			let parent = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
+			let view = new ComponentView(container, ElementRef.getByNode(parent));
+
+			view.directives.push(ForDirective);
+			view.parameters['users'] = ['David', 'John', 'Clare'];
+
+			compiler.compileElement(view, parent);
+
+			expect(parent.outerText).to.be.equal('- David -- John -- Clare -');
+
+			view.parameters['users'].splice(1, 1);
+			view.changeDetectorRef.refresh();
+
+			expect(parent.outerText).to.be.equal('- David -- Clare -');
 		});
 
 		it('should update view when new item is added to an object', () => {
