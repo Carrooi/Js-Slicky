@@ -98,7 +98,7 @@ export class DirectiveInstance
 							processInput(inputName, input.required, expr);
 
 							((inputName, required, expr) => {
-								this.view.watch(expr, (changed: ChangedItem) => {
+								this.view.watch(expr, true, (changed: ChangedItem) => {
 									processInput(inputName, required, expr, changed);
 								});
 							})(inputName, input.required, expr);

@@ -51,12 +51,12 @@ export class ChangeDetector
 	}
 
 
-	public watch(expr: Expression, listener: (changed: ChangedItem) => void): void
+	public watch(expr: Expression, allowCalls: boolean, listener: (changed: ChangedItem) => void): void
 	{
 		let dependencies = [];
 
 		for (let i = 0; i < expr.dependencies.length; i++) {
-			if (expr.dependencies[i].type === ExpressionDependencyType.Call) {
+			if (expr.dependencies[i].type === ExpressionDependencyType.Call && !allowCalls) {
 				continue;
 			}
 

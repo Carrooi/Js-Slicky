@@ -23,7 +23,7 @@ describe('#Views/ComponentView', () => {
 
 			let expr = ExpressionParser.parse('a');
 
-			view.watch(expr, (changed: ChangedItem) => {
+			view.watch(expr, true, (changed: ChangedItem) => {
 				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
 				expect(changed.dependencies).to.have.length(1);
 

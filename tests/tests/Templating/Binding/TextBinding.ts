@@ -35,7 +35,7 @@ describe('#Templating/Binding/TextBinding', () => {
 			let expr = ExpressionParser.parse('a + b + c - 2');
 			let binding = new TextBinding(<Text>el.childNodes[0], expr, view);
 
-			view.attachBinding(binding, expr);
+			view.attachBinding(binding, true, expr);
 
 			expect(el.innerText).to.be.equal('4');
 		});
@@ -51,7 +51,7 @@ describe('#Templating/Binding/TextBinding', () => {
 			var expr = ExpressionParser.parse('a + b + c - 2');
 			let binding = new TextBinding(<Text>el.childNodes[0], expr, view);
 
-			view.attachBinding(binding, expr);
+			view.attachBinding(binding, true, expr);
 
 			expect(el.innerHTML).to.be.equal('4');
 
@@ -76,7 +76,7 @@ describe('#Templating/Binding/TextBinding', () => {
 			let expr = ExpressionParser.parse('a + b + c - 2');
 			let binding = new TextBinding(<Text>el.childNodes[0], expr, view);
 
-			view.attachBinding(binding, expr);
+			view.attachBinding(binding, true, expr);
 
 			expect(el.innerHTML).to.be.equal('4');
 

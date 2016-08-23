@@ -1,4 +1,5 @@
 import {Application, Compiler, ComponentView, ApplicationView, ElementRef, TemplateRef, Component, Directive, OnInit, OnDestroy, Input} from '../../../core';
+import {IfDirective} from '../../../common';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 
@@ -247,6 +248,44 @@ describe('#Compiler/components', () => {
 				expect(testInput).to.be.equal('Hi!');
 				done();
 			}, 20);
+		});
+
+		it('should watch for changes in method calls', (done) => {
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				directives: [IfDirective],
+				template:
+					'status: ' +
+					'<span *s:if="app.isVisible() && app.isAllowed()">Allowed</span>' +
+					'<span *s:if="!app.isVisible() || !app.isVisible()">Denied</span>'
+			})
+			class App implements OnInit {
+				visible = true;
+				onInit() {
+					setTimeout(() => {
+						this.visible = false;
+					}, 20);
+				}
+				isVisible() {
+					return this.visible;
+				}
+				isAllowed() {
+					return true;
+				}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
+
+			compiler.compile(view, App);
+
+			expect(el.innerText).to.be.equal('status: Allowed');
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('status: Denied');
+				done();
+			}, 50);
 		});
 
 	});

@@ -133,9 +133,9 @@ export abstract class RenderableView extends AbstractView
 	}
 
 
-	public watch(expr: Expression, listener: (changed: ChangedItem) => void): void
+	public watch(expr: Expression, allowCalls: boolean, listener: (changed: ChangedItem) => void): void
 	{
-		this.changeDetector.watch(expr, listener);
+		this.changeDetector.watch(expr, allowCalls, listener);
 	}
 
 
@@ -243,7 +243,7 @@ export abstract class RenderableView extends AbstractView
 	}
 
 
-	public attachBinding(binding: IBinding, expression: Expression): void
+	public attachBinding(binding: IBinding, allowCheckCalls: boolean, expression: Expression): void
 	{
 		this.run(() => binding.attach());
 
@@ -255,7 +255,7 @@ export abstract class RenderableView extends AbstractView
 				this.run(() => binding['onUpdate'](this.evalExpression(expression, {}, true)));
 			}
 
-			this.watch(expression, (changed: ChangedItem) => {
+			this.watch(expression, allowCheckCalls, (changed: ChangedItem) => {
 				if (hasOnChange) {
 					this.run(() => binding['onChange'](changed));
 				}

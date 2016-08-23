@@ -171,17 +171,17 @@ export class Compiler
 				;
 
 				if (attr.property && Dom.propertyExists(el, attr.name)) {
-					parentView.attachBinding(new PropertyBinding(el, attr.name), expr);
+					parentView.attachBinding(new PropertyBinding(el, attr.name), true, expr);
 					attr.bound = true;
 				}
 
 				if (attr.event) {
-					parentView.attachBinding(new EventBinding(parentView, el, attr.name, attr.expression), expr);
+					parentView.attachBinding(new EventBinding(parentView, el, attr.name, attr.expression), false, expr);
 					attr.bound = true;
 				}
 
 				if (!attr.property && !attr.event && expr.code !== "'" + attr.expression + "'") {
-					parentView.attachBinding(new AttributeBinding(el, attr.name), expr);
+					parentView.attachBinding(new AttributeBinding(el, attr.name), true, expr);
 					attr.bound = true;
 				}
 			}
@@ -224,7 +224,7 @@ export class Compiler
 
 				if (token.type === TextParser.TYPE_BINDING) {
 					let expr = ExpressionParser.parse(token.value);
-					view.attachBinding(new TextBinding(newText, expr, view), expr);
+					view.attachBinding(new TextBinding(newText, expr, view), true, expr);
 				}
 			}
 
@@ -314,7 +314,7 @@ export class Compiler
 
 		if (importVars && importVars !== '') {
 			setInnerVars(true);
-			view.watch(ExpressionParser.parse(importVars), () => {
+			view.watch(ExpressionParser.parse(importVars), true, () => {
 				setInnerVars();
 				innerView.changeDetectorRef.refresh();
 			});

@@ -188,7 +188,7 @@ export class ExpressionParser
 				inGroup--;
 			}
 
-			if (token.value === delimiter && !inGroup) {
+			if (token.value === delimiter && !inGroup && (!tokens[i + 1] || tokens[i + 1].value !== delimiter) && (!tokens[i - 1] || tokens[i - 1].value !== delimiter)) {
 				j++;
 				continue;
 			}
