@@ -3,7 +3,7 @@ import {Lexer} from './Lexer';
 
 declare interface Rule
 {
-	type: string,
+	type: any,
 	pattern: RegExp,
 }
 
@@ -11,7 +11,7 @@ declare interface Rule
 export declare interface Token
 {
 	value: string,
-	type: string,
+	type: any,
 }
 
 
@@ -24,7 +24,7 @@ export class Tokenizer
 	private re: RegExp = null;
 
 
-	public addRule(type: string, pattern: RegExp): void
+	public addRule(type: any, pattern: RegExp): void
 	{
 		this.re = null;
 		this.rules.push({
@@ -41,7 +41,7 @@ export class Tokenizer
 		let tokens = input.match(this.re);
 		let result = [];
 		let t: string = null;
-		let currentType: string = null;
+		let currentType: any = null;
 		let append: Token = null;
 		let unknown = '';
 
