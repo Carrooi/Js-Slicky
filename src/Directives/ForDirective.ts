@@ -8,6 +8,7 @@ import {RenderableView} from '../Views/RenderableView';
 import {EmbeddedView} from '../Views/EmbeddedView';
 import {ViewFactory} from '../Views/ViewFactory';
 import {ForParser} from'../Parsers/ForParser';
+import {Dom} from '../Util/Dom';
 
 
 @Directive({
@@ -138,7 +139,7 @@ export class ForDirective implements OnChange, OnDestroy
 	}
 
 
-	private addItem(key: string|number, value: any): void
+	private addItem(key: string|number, value: any, insertBefore?: Node): void
 	{
 		let view = this.viewFactory.createEmbeddedView(this.view, this.templateRef);
 
@@ -150,7 +151,7 @@ export class ForDirective implements OnChange, OnDestroy
 			view.addParameter(this.expr.value.name, value);
 		}
 
-		view.attach();
+		view.attach(insertBefore);
 		this.compiler.compileNodes(view, view.nodes);
 
 		this.iterated[key + ''] = view;
@@ -173,9 +174,15 @@ export class ForDirective implements OnChange, OnDestroy
 	{
 		let view = this.iterated[key];
 
-		if (this.expr.value.exportable) {
-			view.parameters[this.expr.value.name] = value;
-		}
+		let lastEl = view.nodes[view.nodes.length - 1];
+		let marker = document.createComment(TemplateRef.MARKER_COMMENT);
+
+		Dom.insertAfter(marker, lastEl);
+
+		this.removeItem(key);
+		this.addItem(key, value, marker);
+
+		Dom.remove(marker);
 	}
 
 }

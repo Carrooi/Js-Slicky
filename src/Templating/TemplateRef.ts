@@ -6,6 +6,9 @@ export class TemplateRef
 {
 
 
+	public static MARKER_COMMENT = ' -slicky--data- ';
+
+
 	public el: ElementRef;
 
 	private marker: Comment;
@@ -31,7 +34,7 @@ export class TemplateRef
 		}
 
 		let el = this.el.nativeEl;
-		let marker = document.createComment(' -slicky--data- ');
+		let marker = document.createComment(TemplateRef.MARKER_COMMENT);
 
 		el.parentNode.insertBefore(marker, el);
 

@@ -1,5 +1,5 @@
-import {Application, Compiler, ComponentView, ApplicationView, Component, OnInit, ChangeDetectionStrategy, ElementRef} from '../../../core';
-import {ForDirective} from '../../../common';
+import {Application, Compiler, ComponentView, ApplicationView, Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, Input} from '../../../core';
+import {IfDirective, ForDirective} from '../../../common';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
 
@@ -272,6 +272,66 @@ describe('#Compiler/components/changeDetection', () => {
 			compiler.compile(view, App);
 
 			expect(el.innerText).to.be.equal('Super cool button, Title: Super cool button');
+		});
+
+		it('should update items in loop with OnPush change detection', (done) => {
+			@Component({
+				selector: 'item',
+				controllerAs: 'item',
+				template: '- {{ item.data.title }} -',
+			})
+			class Item implements OnInit {
+				@Input()
+				data;
+				@Input()
+				app;
+				onInit() {
+					if (this.data.title === 'B') {
+						setTimeout(() => {
+							this.app.remove(this.data);
+						}, 30);
+					}
+				}
+			}
+
+			@Component({
+				selector: 'app',
+				controllerAs: 'app',
+				template: '<template [s:if]="app.items.length">items: <item *s:for="#data in app.items" [app]="app" [data]="data"></item></template>',
+				directives: [Item, IfDirective, ForDirective],
+				changeDetection: ChangeDetectionStrategy.OnPush,
+			})
+			class App implements OnInit {
+				items = [];
+				constructor(private changeDetector: ChangeDetectorRef) {}
+				onInit() {
+					setTimeout(() => {
+						this.items = [
+							{title: 'A'}, {title: 'B'}, {title: 'C'},
+						];
+						this.changeDetector.refresh();
+					}, 10);
+				}
+				remove(item) {
+					let i = this.items.indexOf(item);
+					this.items.splice(i, 1);
+					this.changeDetector.refresh();
+				}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
+
+			compiler.compile(view, App);
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('items: - A -- B -- C -');
+			}, 20);
+
+			setTimeout(() => {
+				expect(el.innerText).to.be.equal('items: - A -- C -');
+				done();
+			}, 200);
 		});
 
 	});
