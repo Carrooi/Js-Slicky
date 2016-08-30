@@ -9,11 +9,14 @@ export class AttributeBinding implements IBinding
 
 	private attr: string;
 
+	private originalAttribute: string;
+
 
 	constructor(el: Element, attr: string)
 	{
 		this.el = el;
 		this.attr = attr;
+		this.originalAttribute = el.getAttribute(attr);
 	}
 
 
@@ -25,7 +28,7 @@ export class AttributeBinding implements IBinding
 
 	public detach(): void
 	{
-
+		this.el.setAttribute(this.attr, this.originalAttribute);
 	}
 
 
@@ -37,9 +40,7 @@ export class AttributeBinding implements IBinding
 
 	private updateValue(value: any): void
 	{
-		let name = this.attr === 'class' ? 'className' : this.attr;
-
-		this.el[name] = value;
+		this.el.setAttribute(this.attr, value);
 	}
 
 }

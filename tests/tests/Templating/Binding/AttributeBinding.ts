@@ -27,8 +27,6 @@ describe('#Templating/Binding/AttributeBinding', () => {
 		it("should bind simple value to element's property", () => {
 			let el = Dom.el('<div test="{{ hello }}"></div>');
 
-			expect(el['test']).to.be.equal(undefined);
-
 			let view = new ComponentView(container, new ElementRef(el), null, {
 				hello: 'good day',
 			});
@@ -37,13 +35,11 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			view.attachBinding(binding, true, ExpressionParser.parse('hello'));
 
-			expect(el['test']).to.be.equal('good day');
+			expect(el.outerHTML).to.be.equal('<div test="good day"></div>');
 		});
 
 		it("should bind result of expression to element's property", () => {
 			let el = Dom.el('<div test="{{ a + b + c }}"></div>');
-
-			expect(el['test']).to.be.equal(undefined);
 
 			let view = new ComponentView(container, new ElementRef(el), null, {
 				a: 1,
@@ -55,7 +51,7 @@ describe('#Templating/Binding/AttributeBinding', () => {
 
 			view.attachBinding(binding, true, ExpressionParser.parse('a + b + c'));
 
-			expect(el['test']).to.be.equal(6);
+			expect(el.outerHTML).to.be.equal('<div test="6"></div>');
 		});
 
 	});
