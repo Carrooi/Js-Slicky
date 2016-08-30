@@ -29,7 +29,9 @@ export class ChangeDetector
 
 	private view: RenderableView;
 
-	private watchers: Array<WatcherItem> = [];
+	private watchers: {[id: number]: WatcherItem} = {};
+
+	private watcherCounter: number = 0;
 
 	private disabled: boolean = false;
 
@@ -51,7 +53,7 @@ export class ChangeDetector
 	}
 
 
-	public watch(expr: Expression, allowCalls: boolean, listener: (changed: ChangedItem) => void): void
+	public watch(expr: Expression, allowCalls: boolean, listener: (changed: ChangedItem) => void): number
 	{
 		let dependencies = [];
 
@@ -70,10 +72,24 @@ export class ChangeDetector
 			});
 		}
 
-		this.watchers.push({
+		this.watchers[this.watcherCounter] = {
 			listener: listener,
 			dependencies: dependencies,
-		});
+		};
+
+		this.watcherCounter++;
+
+		return this.watcherCounter - 1;
+	}
+
+
+	public unwatch(id: number): void
+	{
+		if (typeof this.watchers[id] === 'undefined') {
+			return;
+		}
+
+		delete this.watchers[id];
 	}
 
 
@@ -83,12 +99,14 @@ export class ChangeDetector
 			return;
 		}
 
-		for (let i = 0; i < this.watchers.length; i++) {
-			let watcher = this.watchers[i];
-			let changed = this.checkWatcher(watcher);
+		for (let id in this.watchers) {
+			if (this.watchers.hasOwnProperty(id)) {
+				let watcher = this.watchers[id];
+				let changed = this.checkWatcher(watcher);
 
-			if (changed.action !== ChangeDetectionAction.Same) {
-				watcher.listener(changed);
+				if (changed.action !== ChangeDetectionAction.Same) {
+					watcher.listener(changed);
+				}
 			}
 		}
 

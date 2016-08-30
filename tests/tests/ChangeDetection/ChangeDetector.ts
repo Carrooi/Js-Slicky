@@ -50,30 +50,6 @@ describe('#ChangeDetection/ChangeDetector', () => {
 			}, 50);
 		});
 
-		it('should disable checking for changes', (done) => {
-			let parameters = {
-				a: 'hello',
-			};
-
-			let detector = new ChangeDetector(new FakeRenderableView(parameters));
-			let called = 0;
-
-			detector.watch(ExpressionParser.parse('a'), true, () => {
-				called++;
-			});
-
-			detector.disable();
-
-			parameters['a'] = 'hello world';
-
-			detector.check();
-
-			setTimeout(() => {
-				expect(called).to.be.equal(0);
-				done();
-			}, 50);
-		});
-
 		it('should notify about changes in first level variable', (done) => {
 			let parameters = {
 				a: 'hello',
@@ -116,7 +92,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 		});
 
 		it('should notify about changes in nested variable', (done) => {
-			var parameters = {
+			let parameters = {
 				a: {b: {c: 'hello'}},
 			};
 
@@ -380,6 +356,68 @@ describe('#ChangeDetection/ChangeDetector', () => {
 			parameters['a'].splice(1, 1);
 
 			detector.check();
+		});
+
+	});
+
+	describe('disable()', () => {
+
+		it('should disable checking for changes', (done) => {
+			let parameters = {
+				a: 'hello',
+			};
+
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
+			let called = 0;
+
+			detector.watch(ExpressionParser.parse('a'), true, () => {
+				called++;
+			});
+
+			detector.disable();
+
+			parameters['a'] = 'hello world';
+
+			detector.check();
+
+			setTimeout(() => {
+				expect(called).to.be.equal(0);
+				done();
+			}, 50);
+		});
+
+	});
+
+	describe('unwatch()', () => {
+
+		it('should stop watching changes', (done) => {
+			let called = 0;
+			let parameters = {
+				a: 1,
+			};
+
+			let detector = new ChangeDetector(new FakeRenderableView(parameters));
+
+			let id = detector.watch(ExpressionParser.parse('a'), true, () => {
+				called++;
+			});
+
+			parameters['a']++;
+
+			detector.check();
+
+			setTimeout(() => {
+				expect(called).to.be.equal(1);
+				parameters['a']++;
+
+				detector.unwatch(id);
+				detector.check();
+
+				setTimeout(() => {
+					expect(called).to.be.equal(1);
+					done();
+				}, 20);
+			}, 20);
 		});
 
 	});

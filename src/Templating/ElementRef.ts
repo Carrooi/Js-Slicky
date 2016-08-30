@@ -1,6 +1,7 @@
 import {RenderableView} from '../Views/RenderableView';
 import {Dom} from '../Util/Dom';
 import {AttributesList} from '../Interfaces';
+import {DirectiveInstance} from '../Entity/DirectiveInstance';
 
 
 export class ElementRef
@@ -13,6 +14,8 @@ export class ElementRef
 	public nativeEl: Node;
 
 	public view: RenderableView;
+
+	public directives: Array<DirectiveInstance> = [];
 
 
 	constructor(nativeEl: Node)
@@ -33,6 +36,19 @@ export class ElementRef
 	public static exists(node: Node): boolean
 	{
 		return typeof node[ElementRef.NODE_PROPERTY_STORAGE_NAME] !== 'undefined';
+	}
+
+
+	public detach(): void
+	{
+		if (this.view) {
+			this.view.detach();
+
+		} else {
+			for (let i = 0; i < this.directives.length; i++) {
+				this.directives[i].detach();
+			}
+		}
 	}
 
 
@@ -59,7 +75,14 @@ export class ElementRef
 
 	public remove(): void
 	{
+		this.detach();
 		Dom.remove(this.nativeEl);
+	}
+
+
+	public registerDirective(directive: DirectiveInstance): void
+	{
+		this.directives.push(directive);
 	}
 
 

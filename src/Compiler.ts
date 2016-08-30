@@ -73,6 +73,20 @@ export class Compiler
 	}
 
 
+	public detachElement(appView: ApplicationView, el: Element): void
+	{
+		for (let i = 0; i < appView.directives.length; i++) {
+			let directive = appView.directives[i];
+			let directiveData = this.processDirectiveMetadata(directive);
+			let matches = Dom.querySelectorAll(directiveData.metadata.selector, el);
+
+			for (let j = 0; j < matches.length; j++) {
+				ElementRef.getByNode(matches[j]).detach();
+			}
+		}
+	}
+
+
 	public createComponent(parentView: RenderableView, template: string): HTMLElement
 	{
 		let el = Dom.el(template);

@@ -133,9 +133,9 @@ export abstract class RenderableView extends AbstractView
 	}
 
 
-	public watch(expr: Expression, allowCalls: boolean, listener: (changed: ChangedItem) => void): void
+	public watch(expr: Expression, allowCalls: boolean, listener: (changed: ChangedItem) => void): number
 	{
-		this.changeDetector.watch(expr, allowCalls, listener);
+		return this.changeDetector.watch(expr, allowCalls, listener);
 	}
 
 

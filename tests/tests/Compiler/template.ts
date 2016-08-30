@@ -1,5 +1,5 @@
 import {
-	Application, Compiler, ComponentView, ApplicationView, Component, Directive, ElementRef, Filter, Input, OnInit,
+	Application, Compiler, ComponentView, ApplicationView, Component, Directive, ElementRef, Filter, Input, OnInit, OnDestroy,
 	ChangeDetectorRef, ChangeDetectionStrategy
 } from '../../../core';
 import {IfDirective, ForDirective} from '../../../common';
@@ -956,6 +956,48 @@ describe('#Compiler/template', () => {
 			compiler.compile(view, App);
 
 			expect(el.innerText).to.be.equal('Message: hello world');
+		});
+
+	});
+
+	describe('detachElement()', () => {
+
+		it('should detach all root directives from element', () => {
+			let destroyed = {
+				app: false,
+				test: false,
+			};
+
+			@Component({
+				selector: 'app',
+				template: '',
+			})
+			class App implements OnDestroy {
+				onDestroy() {
+					destroyed.app = true;
+				}
+			}
+
+			@Directive({
+				selector: 'test',
+			})
+			class Test implements OnDestroy {
+				onDestroy() {
+					destroyed.test = true;
+				}
+			}
+
+
+			let el = Dom.el('<div><app></app><test></test></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App, Test]);
+
+			compiler.compile(view, App);
+			compiler.compile(view, Test);
+
+			compiler.detachElement(view, el);
+
+			expect(destroyed.app).to.be.equal(true);
+			expect(destroyed.test).to.be.equal(true);
 		});
 
 	});

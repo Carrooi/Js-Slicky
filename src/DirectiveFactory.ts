@@ -49,6 +49,8 @@ export class DirectiveFactory
 			entity = new DirectiveInstance(view, definition, instance, el);
 		}
 
+		elementRef.registerDirective(entity);
+
 		return entity;
 	}
 

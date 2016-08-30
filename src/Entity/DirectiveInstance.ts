@@ -18,6 +18,10 @@ export class DirectiveInstance
 
 	public el: Element;
 
+	private eventListeners: Array<{el: Node|Element|Window, event: string, listener: () => {}}> = [];
+
+	private watchers: Array<number> = [];
+
 
 	constructor(view: RenderableView, definition: DirectiveDefinition, instance: any, el: Element)
 	{
@@ -38,6 +42,16 @@ export class DirectiveInstance
 
 	public detach(): void
 	{
+		for (let i = 0; i < this.eventListeners.length; i++) {
+			let event = this.eventListeners[i];
+			Dom.removeEventListener(event.el, event.event, event.listener);
+		}
+
+		for (let i = 0; i < this.watchers.length; i++) {
+			let watcher = this.watchers[i];
+			this.view.changeDetector.unwatch(watcher);
+		}
+
 		if (typeof this.instance['onDestroy'] === 'function') {
 			this.view.run(() => (<OnDestroy>this.instance).onDestroy());
 		}
@@ -98,7 +112,7 @@ export class DirectiveInstance
 							processInput(inputName, input.required, expr);
 
 							((inputName, required, expr) => {
-								this.view.watch(expr, true, (changed: ChangedItem) => {
+								this.watch(expr, true, (changed: ChangedItem) => {
 									processInput(inputName, required, expr, changed);
 								});
 							})(inputName, input.required, expr);
@@ -132,7 +146,7 @@ export class DirectiveInstance
 			if (this.definition.events.hasOwnProperty(eventName)) {
 				((eventName, event) => {
 					if (event.el === '@') {
-						this.view.run(() => Dom.addEventListener(this.el, event.name, this.instance, this.instance[eventName]));
+						this.addEventListener(this.el, event.name, this.instance[eventName]);
 
 					} else {
 						if (typeof event.el === 'string' && (<string>event.el).substr(0, 1) === '@') {
@@ -141,18 +155,16 @@ export class DirectiveInstance
 								throw new Error('Can not add event listener for @' + childName + ' at ' + this.definition.name);
 							}
 
-							this.view.run(() => Dom.addEventListener(this.instance[childName], event.name, this.instance, this.instance[eventName]));
+							this.addEventListener(this.instance[childName], event.name, this.instance[eventName]);
 
 						} else if (typeof event.el === 'string') {
 							let eventEls = Dom.querySelectorAll(<string>event.el, this.el);
 							for (let j = 0; j < eventEls.length; j++) {
-								((j) => {
-									this.view.run(() => Dom.addEventListener(eventEls[j], event.name, this.instance, this.instance[eventName]));
-								})(j);
+								this.addEventListener(eventEls[j], event.name, this.instance[eventName]);
 							}
 
 						} else if (event.el instanceof Window || event.el instanceof Node) {
-							this.view.run(() => Dom.addEventListener(<Node>event.el, event.name, this.instance, this.instance[eventName]));
+							this.addEventListener(event.el, event.name, this.instance[eventName]);
 
 						}
 					}
@@ -186,6 +198,26 @@ export class DirectiveInstance
 				}
 			}
 		}
+	}
+
+
+	private addEventListener(el: Node|Element|Window, event, fn: () => void): void
+	{
+		let listener = this.view.run(() => Dom.addEventListener(el, event, this.instance, fn));
+
+		this.eventListeners.push({
+			el: el,
+			event: event,
+			listener: listener,
+		});
+	}
+
+
+	private watch(expr: Expression, allowCalls: boolean, listener: (changed: ChangedItem) => void): void
+	{
+		let id = this.view.watch(expr, allowCalls, listener);
+
+		this.watchers.push(id);
 	}
 
 }
