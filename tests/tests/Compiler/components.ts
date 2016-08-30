@@ -38,7 +38,7 @@ describe('#Compiler/components', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 		});
 
 		it('should call onDestroy method on component', (done) => {
@@ -55,7 +55,7 @@ describe('#Compiler/components', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			view.detach();
 		});
@@ -79,7 +79,7 @@ describe('#Compiler/components', () => {
 
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 		});
 
 		it('should initialize component just once', () => {
@@ -122,7 +122,7 @@ describe('#Compiler/components', () => {
 			let el = Dom.el('<div><div app></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(calledApp).to.be.equal(1);
 			expect(calledOuter).to.be.equal(1);
@@ -153,7 +153,7 @@ describe('#Compiler/components', () => {
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
 			expect(() => {
-				compiler.compile(view, App);
+				compiler.compile(view);
 			}).to.throw(Error, 'Can\'t attach component "Two" to element "div" since it\'s already attached to component "One".');
 		});
 
@@ -170,7 +170,7 @@ describe('#Compiler/components', () => {
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
 			expect(() => {
-				compiler.compile(view, App);
+				compiler.compile(view);
 			}).to.throw(Error, 'Can not import service "TemplateRef" into directive "App". Element "app" is not inside of any <template> element.');
 		});
 
@@ -202,7 +202,7 @@ describe('#Compiler/components', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			setTimeout(() => {
 				expect(el.innerHTML).to.be.equal('<app><appendable>Hello</appendable></app>');
@@ -240,8 +240,7 @@ describe('#Compiler/components', () => {
 			let el = Dom.el('<div><app [app-input]="\'Hello!\'" test [test-input]="\'Hi!\'"></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App, Test]);
 
-			compiler.compile(view, Test);
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			setTimeout(() => {
 				expect(appInput).to.be.equal('Hello!');
@@ -278,7 +277,7 @@ describe('#Compiler/components', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('status: Allowed');
 
@@ -307,7 +306,7 @@ describe('#Compiler/components', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('- one -- two -- three -');
 

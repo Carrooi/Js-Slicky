@@ -38,7 +38,7 @@ describe('#Compiler/components/events', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			el.querySelector('div').dispatchEvent(Dom.createMouseEvent('click'));
 		});
@@ -58,7 +58,7 @@ describe('#Compiler/components/events', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			el.querySelector('a').dispatchEvent(Dom.createMouseEvent('click'));
 		});
@@ -81,7 +81,7 @@ describe('#Compiler/components/events', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			el.querySelector('a').dispatchEvent(Dom.createMouseEvent('click'));
 		});
@@ -106,7 +106,7 @@ describe('#Compiler/components/events', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			el.querySelector('a').dispatchEvent(Dom.createMouseEvent('click'));
 		});
@@ -127,7 +127,7 @@ describe('#Compiler/components/events', () => {
 			let el = Dom.el('<div><div button></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Button]);
 
-			compiler.compile(view, Button);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('Click');
 
@@ -156,7 +156,7 @@ describe('#Compiler/components/events', () => {
 			let el = Dom.el('<div><div button></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Button]);
 
-			compiler.compile(view, Button);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('Click');
 
@@ -181,7 +181,7 @@ describe('#Compiler/components/events', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			let button = el.querySelector('button');
 			let counter = <HTMLSpanElement>el.querySelector('span');
@@ -210,7 +210,7 @@ describe('#Compiler/components/events', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			let app = <App>(<ComponentView>view.children[0]).component.instance;
 			let input = <HTMLInputElement>el.querySelector('input');

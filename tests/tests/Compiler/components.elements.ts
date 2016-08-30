@@ -41,7 +41,7 @@ describe('#Compiler/components/elements', () => {
 
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 		});
 
 		it('should load child element', (done) => {
@@ -64,7 +64,7 @@ describe('#Compiler/components/elements', () => {
 
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 		});
 
 		it('should load host elements in directive', (done) => {
@@ -84,7 +84,7 @@ describe('#Compiler/components/elements', () => {
 
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 		});
 
 	});

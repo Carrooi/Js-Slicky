@@ -55,26 +55,37 @@ export class Compiler
 	}
 
 
-	public compile(appView: ApplicationView, directive: any): void
+	public compile(appView: ApplicationView, el?: Element): void
 	{
-		let directiveData = this.processDirectiveMetadata(directive);
-		let matches = Dom.querySelectorAll(directiveData.metadata.selector, <Element>appView.el.nativeEl);
+		if (!el) {
+			el = <Element>appView.el.nativeEl;
+		}
 
-		for (let i = 0; i < matches.length; i++) {
-			let el = matches[i];
+		for (let i = 0; i < appView.directives.length; i++) {
+			let directive = appView.directives[i];
+			let directiveData = this.processDirectiveMetadata(directive);
+			let matches = Dom.querySelectorAll(directiveData.metadata.selector, el);
 
-			let elementRef = ElementRef.getByNode(el);
-			let attributes = ElementRef.getAttributes(el);
+			for (let j = 0; j < matches.length; j++) {
+				let match = matches[j];
 
-			let instance = this.directiveFactory.create(appView, directiveData.definition, elementRef);
+				let elementRef = ElementRef.getByNode(match);
+				let attributes = ElementRef.getAttributes(match);
 
-			this.useDirective(instance, true, attributes);
+				let instance = this.directiveFactory.create(appView, directiveData.definition, elementRef);
+
+				this.useDirective(instance, true, attributes);
+			}
 		}
 	}
 
 
-	public detachElement(appView: ApplicationView, el: Element): void
+	public detach(appView: ApplicationView, el?: Element): void
 	{
+		if (!el) {
+			el = <Element>appView.el.nativeEl;
+		}
+
 		for (let i = 0; i < appView.directives.length; i++) {
 			let directive = appView.directives[i];
 			let directiveData = this.processDirectiveMetadata(directive);

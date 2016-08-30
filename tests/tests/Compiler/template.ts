@@ -40,7 +40,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('days: 2');
 		});
@@ -64,7 +64,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('days: 2');
 
@@ -101,7 +101,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('number: 0');
 
@@ -127,7 +127,7 @@ describe('#Compiler/template', () => {
 
 			view.parameters['alertType'] = 'success';
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			let innerView = <ComponentView>view.children[0];
 
@@ -162,7 +162,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div parent></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Parent]);
 
-			compiler.compile(view, Parent);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal("I'm outer / I'm inner and my parent is outer");
 		});
@@ -193,7 +193,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div parent></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Parent]);
 
-			compiler.compile(view, Parent);
+			compiler.compile(view);
 		});
 
 		it('should throw an error when trying to add unknown property to non-root component', () => {
@@ -214,7 +214,7 @@ describe('#Compiler/template', () => {
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
 			expect(() => {
-				compiler.compile(view, App);
+				compiler.compile(view);
 			}).to.throw(Error, 'Could not bind property unknown-prop to element cmp or to any of its directives.');
 		});
 
@@ -228,7 +228,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app [unknown-prop]="a"></app></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 		});
 
 		it('should use if directive', () => {
@@ -245,7 +245,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('1');
 		});
@@ -271,7 +271,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [TestComponent]);
 
-			compiler.compile(view, TestComponent);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('hello');
 		});
@@ -289,7 +289,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('lorem');
 		});
@@ -317,7 +317,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('2');
 		});
@@ -352,7 +352,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('2');
 		});
@@ -380,7 +380,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div root></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Root]);
 
-			compiler.compile(view, Root);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('inner component');
 		});
@@ -408,7 +408,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div app></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Main]);
 
-			compiler.compile(view, Main);
+			compiler.compile(view);
 
 			expect((<HTMLElement>el.querySelector('div')).innerText).to.be.equal('num: 20 / num: 4');
 		});
@@ -424,7 +424,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('hello');
 		});
@@ -447,7 +447,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div button></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Button]);
 
-			compiler.compile(view, Button);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('Click');
 
@@ -481,7 +481,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('a, b, c, ');
 		});
@@ -509,7 +509,7 @@ describe('#Compiler/template', () => {
 
 			view.parameters['a'] = 'hello';
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('hello world');
 		});
@@ -537,7 +537,7 @@ describe('#Compiler/template', () => {
 
 			view.parameters['list'] = ['hello'];
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('hello world');
 		});
@@ -581,7 +581,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			setTimeout(() => {
 				expect(el.innerText).to.be.equal('abc');
@@ -608,7 +608,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			setTimeout(() => {
 				expect(el.innerText).to.be.equal('abc');
@@ -652,7 +652,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			setTimeout(() => {
 				expect(letters).to.be.eql(['a', 'b', 'c']);
@@ -699,7 +699,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			setTimeout(() => {
 				expect(el.innerText).to.be.equal('abc');
@@ -722,7 +722,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('hello world');
 
@@ -755,7 +755,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('Cool button, Title: Cool button');
 		});
@@ -779,7 +779,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('Span, Title: Cool span');
 		});
@@ -810,7 +810,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('Span, A: First, B: Second');
 		});
@@ -838,8 +838,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><a #first></a><b [a]="first"></b></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [A, B]);
 
-			compiler.compile(view, A);
-			compiler.compile(view, B);
+			compiler.compile(view);
 		});
 
 		it('should import root directive into root component input', (done) => {
@@ -864,8 +863,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><a #first></a><b [a]="first"></b></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [A, B]);
 
-			compiler.compile(view, A);
-			compiler.compile(view, B);
+			compiler.compile(view);
 		});
 
 		it('should throw an error when trying to use template with non ID selector', () => {
@@ -879,7 +877,7 @@ describe('#Compiler/template', () => {
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
 			expect(() => {
-				compiler.compile(view, App);
+				compiler.compile(view);
 			}).to.throw(Error, 'Can not include template by selector ".tmpl". The only supported selector in <content> is ID attribute.');
 		});
 
@@ -894,7 +892,7 @@ describe('#Compiler/template', () => {
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
 			expect(() => {
-				compiler.compile(view, App);
+				compiler.compile(view);
 			}).to.throw(Error, 'Can not find template with ID "find-me".');
 		});
 
@@ -913,7 +911,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerHTML).to.be.equal('<app><!-- -slicky--data- -->text<!-- comment --><span>element</span>text<!-- comment --><span>element</span></app>');
 		});
@@ -938,7 +936,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('Item: 1/a-first-a, Item: 2/a-second-a, Item: 3/a-third-a');
 		});
@@ -953,14 +951,14 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app>hello world</app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('Message: hello world');
 		});
 
 	});
 
-	describe('detachElement()', () => {
+	describe('detach()', () => {
 
 		it('should detach all root directives from element', () => {
 			let destroyed = {
@@ -991,10 +989,8 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app><test></test></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App, Test]);
 
-			compiler.compile(view, App);
-			compiler.compile(view, Test);
-
-			compiler.detachElement(view, el);
+			compiler.compile(view);
+			compiler.detach(view);
 
 			expect(destroyed.app).to.be.equal(true);
 			expect(destroyed.test).to.be.equal(true);

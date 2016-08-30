@@ -78,9 +78,7 @@ export class Application
 				view.addFilter(options.filters[i]);
 			}
 
-			for (let i = 0; i < view.directives.length; i++) {
-				this.compiler.compile(view, view.directives[i]);
-			}
+			this.compiler.compile(view);
 		}, 0);
 	}
 

@@ -40,7 +40,7 @@ describe('#Compiler/components/changeDetection', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			setTimeout(() => {
 				expect(el.innerText).to.be.equal('Hello world');
@@ -78,7 +78,7 @@ describe('#Compiler/components/changeDetection', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('App, Inner');
 
@@ -122,7 +122,7 @@ describe('#Compiler/components/changeDetection', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('App, Inner');
 
@@ -166,7 +166,7 @@ describe('#Compiler/components/changeDetection', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('App, Inner');
 
@@ -199,7 +199,7 @@ describe('#Compiler/components/changeDetection', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('abc');
 
@@ -235,7 +235,7 @@ describe('#Compiler/components/changeDetection', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('Item: 1/a-first-a, Item: 2/a-second-a, Item: 3/a-third-a');
 
@@ -269,7 +269,7 @@ describe('#Compiler/components/changeDetection', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('Super cool button, Title: Super cool button');
 		});
@@ -322,7 +322,7 @@ describe('#Compiler/components/changeDetection', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			setTimeout(() => {
 				expect(el.innerText).to.be.equal('items: - A -- B -- C -');

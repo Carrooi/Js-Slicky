@@ -43,7 +43,7 @@ describe('#Compiler/translations', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('message');
 		});
@@ -66,7 +66,7 @@ describe('#Compiler/translations', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('hello world');
 		});
@@ -95,7 +95,7 @@ describe('#Compiler/translations', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('hello world');
 		});
@@ -118,7 +118,7 @@ describe('#Compiler/translations', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('hello world');
 		});
@@ -141,7 +141,7 @@ describe('#Compiler/translations', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('hello world, hello worlds');
 		});
@@ -164,7 +164,7 @@ describe('#Compiler/translations', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('1 apple, 3 apples');
 		});
@@ -187,7 +187,7 @@ describe('#Compiler/translations', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('1 red car, 9 blue cars');
 		});
@@ -220,7 +220,7 @@ describe('#Compiler/translations', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 
 			expect(el.innerText).to.be.equal('APPLE, CAR');
 		});

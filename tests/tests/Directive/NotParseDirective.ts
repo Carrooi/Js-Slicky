@@ -34,7 +34,7 @@ describe('#Directives/NotParseDirective', () => {
 			a: 42,
 		});
 
-		compiler.compile(view, Test);
+		compiler.compile(view);
 
 		expect(el.innerText).to.be.equal('42, 42, {{ a }}');
 	});

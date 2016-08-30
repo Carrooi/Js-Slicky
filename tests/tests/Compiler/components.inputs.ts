@@ -41,7 +41,7 @@ describe('#Compiler/components/inputs', () => {
 			let el = Dom.el('<div><div test [input1]="\'hello\'"></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 		});
 
 		it('should load component\'s input from ordinary attribute', (done) => {
@@ -62,7 +62,7 @@ describe('#Compiler/components/inputs', () => {
 			let el = Dom.el('<div><div test="hello"></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 		});
 
 		it('should load component\'s input with different name', (done) => {
@@ -83,7 +83,7 @@ describe('#Compiler/components/inputs', () => {
 			let el = Dom.el('<div><div test [data-input1]="\'hello\'"></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 		});
 
 		it('should not load component\'s input', (done) => {
@@ -104,7 +104,7 @@ describe('#Compiler/components/inputs', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 		});
 
 		it('should not load component\'s input but use default value', (done) => {
@@ -125,7 +125,7 @@ describe('#Compiler/components/inputs', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 		});
 
 		it('should pass json into component input', (done) => {
@@ -146,7 +146,7 @@ describe('#Compiler/components/inputs', () => {
 			let el = Dom.el('<div><app [data]=\'{"a.b.c": "hello"}\'></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App], {a: 'test'});
 
-			compiler.compile(view, App);
+			compiler.compile(view);
 		});
 
 		it('should throw an error when component\'s required input is missing', () => {
@@ -164,7 +164,7 @@ describe('#Compiler/components/inputs', () => {
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
 			expect(() => {
-				compiler.compile(view, Test);
+				compiler.compile(view);
 			}).to.throw(Error, "Component's input Test::input was not found in div element.");
 		});
 
@@ -186,7 +186,7 @@ describe('#Compiler/components/inputs', () => {
 			let el = Dom.el('<div><div test [upperCasedInput]="a"></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test], {a: 'hello'});
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 		});
 
 		it('should update component\'s input', (done) => {
@@ -211,7 +211,7 @@ describe('#Compiler/components/inputs', () => {
 			let el = Dom.el('<div><div test [input]="a"></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test], {a: 'hello'});
 
-			compiler.compile(view, Test);
+			compiler.compile(view);
 
 			let innerView = <ComponentView>view.children[0];
 
