@@ -249,7 +249,7 @@ export class Compiler
 
 				if (token.type === TextParser.TYPE_BINDING) {
 					let expr = ExpressionParser.parse(token.value);
-					view.attachBinding(new TextBinding(newText, expr, view), true, expr);
+					view.attachBinding(new TextBinding(newText, view), true, expr);
 				}
 			}
 

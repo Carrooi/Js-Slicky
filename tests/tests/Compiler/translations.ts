@@ -225,6 +225,29 @@ describe('#Compiler/translations', () => {
 			expect(el.innerText).to.be.equal('APPLE, CAR');
 		});
 
+		it('should translate message in attribute', () => {
+			@Component({
+				selector: 'app',
+				template: '<span title="{{ \'message\' | translate }}"></span>',
+				filters: [TranslateFilter],
+				translations: {
+					en: {message: 'hello world'}
+				},
+			})
+			class App {
+				constructor(translator: Translator) {
+					translator.locale = 'en';
+				}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
+
+			compiler.compile(view);
+
+			expect(el.innerHTML).to.be.equal('<app><span title="hello world"></span></app>');
+		});
+
 	});
 
 });

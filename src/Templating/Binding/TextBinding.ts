@@ -1,5 +1,4 @@
 import {IBinding} from './IBinding';
-import {Expression} from '../../Interfaces';
 import {RenderableView} from '../../Views/RenderableView';
 
 
@@ -9,17 +8,14 @@ export class TextBinding implements IBinding
 
 	private text: Text;
 
-	private expr: Expression;
-
 	private view: RenderableView;
 
 	private originalText: string;
 
 
-	constructor(text: Text, expr: Expression, view: RenderableView)
+	constructor(text: Text, view: RenderableView)
 	{
 		this.text = text;
-		this.expr = expr;
 		this.view = view;
 		this.originalText = this.text.nodeValue;
 	}
@@ -45,7 +41,7 @@ export class TextBinding implements IBinding
 
 	private update(value: string): void
 	{
-		this.text.nodeValue = this.view.applyFilters(value, this.expr);
+		this.text.nodeValue = value;
 	}
 
 }

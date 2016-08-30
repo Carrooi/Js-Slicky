@@ -158,7 +158,7 @@ export abstract class RenderableView extends AbstractView
 		let exports = [];
 
 		for (let i = 0; i < expr.dependencies.length; i++) {
-			var dependency = expr.dependencies[i];
+			let dependency = expr.dependencies[i];
 			let root = dependency.root;
 
 			if (typeof parameters[root] !== 'undefined') {
@@ -185,7 +185,9 @@ export abstract class RenderableView extends AbstractView
 			}
 		}
 
-		return result.result;
+		return this.applyFilters(result.result, expr);
+
+		//return result.result;
 	}
 
 
