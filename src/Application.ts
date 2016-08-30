@@ -70,6 +70,10 @@ export class Application
 			let elementRef = ElementRef.getByNode(options.parentElement);
 			let view = new ApplicationView(this.container, elementRef, directives);
 
+			this.container.provide(ApplicationView, {
+				useFactory: () => view,
+			});
+
 			for (let i = 0; i < options.filters.length; i++) {
 				view.addFilter(options.filters[i]);
 			}
