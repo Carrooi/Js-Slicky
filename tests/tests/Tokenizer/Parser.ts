@@ -1,5 +1,5 @@
 import {Parser} from '../../../src/Tokenizer/Parser';
-import {Lexer} from '../../../src/Tokenizer/Lexer';
+import {TokenType} from '../../../src/Tokenizer/Tokens';
 
 import chai = require('chai');
 
@@ -15,14 +15,14 @@ describe('#Tokenizer/Parser', () => {
 			let tokens = (new Parser('let hello = "hello world";')).tokens;
 
 			expect(tokens).to.be.eql([
-				{type: Lexer.T_KEYWORD, value: 'let'},
-				{type: Lexer.T_WHITESPACE, value: ' '},
-				{type: Lexer.T_NAME, value: 'hello'},
-				{type: Lexer.T_WHITESPACE, value: ' '},
-				{type: Lexer.T_CHARACTER, value: '='},
-				{type: Lexer.T_WHITESPACE, value: ' '},
-				{type: Lexer.T_STRING, value: '"hello world"'},
-				{type: Lexer.T_CHARACTER, value: ';'},
+				{type: TokenType.T_KEYWORD, value: 'let'},
+				{type: TokenType.T_WHITESPACE, value: ' '},
+				{type: TokenType.T_NAME, value: 'hello'},
+				{type: TokenType.T_WHITESPACE, value: ' '},
+				{type: TokenType.T_CHARACTER, value: '='},
+				{type: TokenType.T_WHITESPACE, value: ' '},
+				{type: TokenType.T_STRING, value: '"hello world"'},
+				{type: TokenType.T_CHARACTER, value: ';'},
 			]);
 		});
 
@@ -30,13 +30,13 @@ describe('#Tokenizer/Parser', () => {
 			let tokens = (new Parser('let °°° = °°')).tokens;
 
 			expect(tokens).to.be.eql([
-				{type: Lexer.T_KEYWORD, value: 'let'},
-				{type: Lexer.T_WHITESPACE, value: ' '},
-				{type: Lexer.T_UNKNOWN, value: '°°°'},
-				{type: Lexer.T_WHITESPACE, value: ' '},
-				{type: Lexer.T_CHARACTER, value: '='},
-				{type: Lexer.T_WHITESPACE, value: ' '},
-				{type: Lexer.T_UNKNOWN, value: '°°'},
+				{type: TokenType.T_KEYWORD, value: 'let'},
+				{type: TokenType.T_WHITESPACE, value: ' '},
+				{type: TokenType.T_UNKNOWN, value: '°°°'},
+				{type: TokenType.T_WHITESPACE, value: ' '},
+				{type: TokenType.T_CHARACTER, value: '='},
+				{type: TokenType.T_WHITESPACE, value: ' '},
+				{type: TokenType.T_UNKNOWN, value: '°°'},
 			]);
 		});
 
@@ -55,11 +55,11 @@ describe('#Tokenizer/Parser', () => {
 			}
 
 			expect(iterated).to.be.eql([
-				{type: Lexer.T_NAME, value: 'alert'},
-				{type: Lexer.T_OPEN_PARENTHESIS, value: '('},
-				{type: Lexer.T_STRING, value: '"hello world"'},
-				{type: Lexer.T_CLOSE_PARENTHESIS, value: ')'},
-				{type: Lexer.T_CHARACTER, value: ';'},
+				{type: TokenType.T_NAME, value: 'alert'},
+				{type: TokenType.T_OPEN_PARENTHESIS, value: '('},
+				{type: TokenType.T_STRING, value: '"hello world"'},
+				{type: TokenType.T_CLOSE_PARENTHESIS, value: ')'},
+				{type: TokenType.T_CHARACTER, value: ';'},
 			]);
 		});
 

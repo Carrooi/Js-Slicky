@@ -1,7 +1,7 @@
 import {Parser} from '../Tokenizer/Parser';
 import {TokensIterator} from '../Tokenizer/TokensIterator';
 import {Token} from '../Tokenizer/Tokenizer';
-import {Lexer} from '../Tokenizer/Lexer';
+import {TokenType} from '../Tokenizer/Tokens';
 import {Compiler} from '../Compiler';
 import {ExpressionCallType, ExpressionDependencyType} from '../constants';
 import {Expression, ExpressionDependency, ExpressionDependency, ExpressionFilter} from '../Interfaces';
@@ -44,9 +44,9 @@ export class ExpressionParser
 		while (token = parser.token) {
 			let isDependency = false;
 
-			if (token.type === Lexer.T_UNKNOWN && token.value === '#') {
+			if (token.type === TokenType.T_UNKNOWN && token.value === '#') {
 				let nextToken = parser.getNextToken();
-				if (nextToken && nextToken.type === Lexer.T_NAME) {
+				if (nextToken && nextToken.type === TokenType.T_NAME) {
 					currentDependencyExportable = true;
 					//currentExpression.code += 'var ';
 
@@ -55,7 +55,7 @@ export class ExpressionParser
 				}
 			}
 
-			if (token.type === Lexer.T_NAME && !currentDependency) {
+			if (token.type === TokenType.T_NAME && !currentDependency) {
 				isDependency = true;
 				currentDependency = {
 					code: '',
@@ -67,10 +67,10 @@ export class ExpressionParser
 			} else if (
 				currentDependency && previousToken &&
 				(
-					(token.type === Lexer.T_NAME && previousToken.type === Lexer.T_DOT) ||
+					(token.type === TokenType.T_NAME && previousToken.type === TokenType.T_DOT) ||
 					(
-						token.type === Lexer.T_DOT &&
-						[Lexer.T_NAME, Lexer.T_CLOSE_PARENTHESIS, Lexer.T_CLOSE_SQUARE_BRACKET].indexOf(previousToken.type) > -1
+						token.type === TokenType.T_DOT &&
+						[TokenType.T_NAME, TokenType.T_CLOSE_PARENTHESIS, TokenType.T_CLOSE_SQUARE_BRACKET].indexOf(previousToken.type) > -1
 					)
 				)
 			) {
@@ -81,17 +81,17 @@ export class ExpressionParser
 				let exitInnerExpressionWith = null;
 
 				if (
-					token.type === Lexer.T_OPEN_PARENTHESIS &&
-					([Lexer.T_NAME, Lexer.T_CLOSE_PARENTHESIS, Lexer.T_CLOSE_SQUARE_BRACKET].indexOf(previousToken.type) > -1)
+					token.type === TokenType.T_OPEN_PARENTHESIS &&
+					([TokenType.T_NAME, TokenType.T_CLOSE_PARENTHESIS, TokenType.T_CLOSE_SQUARE_BRACKET].indexOf(previousToken.type) > -1)
 				) {
 					currentDependency.type = ExpressionDependencyType.Call;
-					exitInnerExpressionWith = Lexer.T_CLOSE_PARENTHESIS;
+					exitInnerExpressionWith = TokenType.T_CLOSE_PARENTHESIS;
 
 				} else if (
-					token.type === Lexer.T_OPEN_SQUARE_BRACKET &&
-					([Lexer.T_NAME, Lexer.T_CLOSE_SQUARE_BRACKET, Lexer.T_CLOSE_PARENTHESIS].indexOf(previousToken.type) > -1)
+					token.type === TokenType.T_OPEN_SQUARE_BRACKET &&
+					([TokenType.T_NAME, TokenType.T_CLOSE_SQUARE_BRACKET, TokenType.T_CLOSE_PARENTHESIS].indexOf(previousToken.type) > -1)
 				) {
-					exitInnerExpressionWith = Lexer.T_CLOSE_SQUARE_BRACKET;
+					exitInnerExpressionWith = TokenType.T_CLOSE_SQUARE_BRACKET;
 				}
 
 				if (exitInnerExpressionWith !== null) {
@@ -157,7 +157,7 @@ export class ExpressionParser
 		tokens = parts.shift();
 
 		let name = ExpressionParser.trim(tokens);
-		if (name.length !== 1 || name[0].type !== Lexer.T_NAME) {
+		if (name.length !== 1 || name[0].type !== TokenType.T_NAME) {
 			throw new Error('Invalid name of filter');
 		}
 
@@ -181,10 +181,10 @@ export class ExpressionParser
 		for (let i = 0, j = 0; i < tokens.length; i++) {
 			let token = tokens[i];
 
-			if (token.type === Lexer.T_OPEN_PARENTHESIS || token.type === Lexer.T_OPEN_SQUARE_BRACKET || token.type === Lexer.T_OPEN_BRACES) {
+			if (token.type === TokenType.T_OPEN_PARENTHESIS || token.type === TokenType.T_OPEN_SQUARE_BRACKET || token.type === TokenType.T_OPEN_BRACES) {
 				inGroup++;
 
-			} else if (token.type === Lexer.T_CLOSE_PARENTHESIS || token.type === Lexer.T_CLOSE_SQUARE_BRACKET || token.type === Lexer.T_CLOSE_BRACES) {
+			} else if (token.type === TokenType.T_CLOSE_PARENTHESIS || token.type === TokenType.T_CLOSE_SQUARE_BRACKET || token.type === TokenType.T_CLOSE_BRACES) {
 				inGroup--;
 			}
 
@@ -210,10 +210,10 @@ export class ExpressionParser
 			return [];
 		}
 
-		if (tokens[0].type === Lexer.T_WHITESPACE) {
+		if (tokens[0].type === TokenType.T_WHITESPACE) {
 			let i = 0;
 			for (; i < tokens.length; i++) {
-				if (tokens[i].type !== Lexer.T_WHITESPACE) {
+				if (tokens[i].type !== TokenType.T_WHITESPACE) {
 					break;
 				}
 			}
@@ -221,10 +221,10 @@ export class ExpressionParser
 			tokens = tokens.slice(i);
 		}
 
-		if (tokens[tokens.length - 1].type === Lexer.T_WHITESPACE) {
+		if (tokens[tokens.length - 1].type === TokenType.T_WHITESPACE) {
 			let i = tokens.length - 1;
 			for (; i >= 0; i--) {
-				if (tokens[i].type !== Lexer.T_WHITESPACE) {
+				if (tokens[i].type !== TokenType.T_WHITESPACE) {
 					break;
 				}
 			}

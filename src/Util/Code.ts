@@ -1,6 +1,6 @@
 import {VariableToken, InterpolatedObjectElement} from '../Interfaces';
 import {Parser} from '../Tokenizer/Parser';
-import {Lexer} from '../Tokenizer/Lexer';
+import {TokenType} from '../Tokenizer/Tokens';
 
 
 export class Code
@@ -24,12 +24,12 @@ export class Code
 		};
 
 		while (token = parser.token) {
-			if (token.type === Lexer.T_NAME && !currentVariable.length) {
+			if (token.type === TokenType.T_NAME && !currentVariable.length) {
 				let previousToken = parser.tokens[parser.position - 1];
 				if (
 					!currentVariable.length &&
 					typeof previousToken !== 'undefined' &&
-					previousToken.type === Lexer.T_UNKNOWN &&
+					previousToken.type === TokenType.T_UNKNOWN &&
 					previousToken.value === '#'
 				) {
 					currentVariable += '#';
@@ -40,11 +40,11 @@ export class Code
 			} else if (
 				currentVariable.length &&
 				(
-					(token.type === Lexer.T_NAME) ||
-					(token.type === Lexer.T_NUMBER) ||
-					(token.type === Lexer.T_STRING) ||
-					(token.type === Lexer.T_OPEN_SQUARE_BRACKET || token.type === Lexer.T_CLOSE_SQUARE_BRACKET) ||
-					(token.type === Lexer.T_DOT)
+					(token.type === TokenType.T_NAME) ||
+					(token.type === TokenType.T_NUMBER) ||
+					(token.type === TokenType.T_STRING) ||
+					(token.type === TokenType.T_OPEN_SQUARE_BRACKET || token.type === TokenType.T_CLOSE_SQUARE_BRACKET) ||
+					(token.type === TokenType.T_DOT)
 				)
 			) {
 				currentVariable += token.value;

@@ -1,5 +1,5 @@
 import {Tokenizer} from '../../../src/Tokenizer/Tokenizer';
-import {Lexer} from '../../../src/Tokenizer/Lexer';
+import {TokenType} from '../../../src/Tokenizer/Tokens';
 
 import chai = require('chai');
 
@@ -20,11 +20,11 @@ describe('#Tokenizer/Tokenizer', () => {
 			let tokens = tokenizer.tokenize('hello world, I am the best developer.');
 
 			expect(tokens).to.be.eql([
-				{type: Lexer.T_UNKNOWN, value: 'hello '},
+				{type: TokenType.T_UNKNOWN, value: 'hello '},
 				{type: 'T_WORLD', value: 'world'},
-				{type: Lexer.T_UNKNOWN, value: ', I am the best '},
+				{type: TokenType.T_UNKNOWN, value: ', I am the best '},
 				{type: 'T_DEVELOPER', value: 'developer'},
-				{type: Lexer.T_UNKNOWN, value: '.'},
+				{type: TokenType.T_UNKNOWN, value: '.'},
 			]);
 		});
 

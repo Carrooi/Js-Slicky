@@ -1,4 +1,4 @@
-import {Lexer} from './Lexer';
+import {TokenType} from './Tokens';
 
 
 declare interface Rule
@@ -59,7 +59,7 @@ export class Tokenizer
 				}
 			}
 
-			if (currentType === Lexer.T_UNKNOWN) {
+			if (currentType === TokenType.T_UNKNOWN) {
 				unknown += t;
 				continue;
 			} else if (unknown.length) {
@@ -69,7 +69,7 @@ export class Tokenizer
 				};
 
 				t = unknown;
-				currentType = Lexer.T_UNKNOWN;
+				currentType = TokenType.T_UNKNOWN;
 				unknown = '';
 			}
 
@@ -86,7 +86,7 @@ export class Tokenizer
 		if (unknown.length) {
 			result.push({
 				value: unknown,
-				type: Lexer.T_UNKNOWN,
+				type: TokenType.T_UNKNOWN,
 			});
 		}
 
@@ -100,7 +100,7 @@ export class Tokenizer
 			return;
 		}
 
-		this.addRule(Lexer.T_UNKNOWN, /(?:.+?)/);
+		this.addRule(TokenType.T_UNKNOWN, /(?:.+?)/);
 
 		this.re = new RegExp('(' + this.rules.map((rule: Rule) => {
 			let e = rule.pattern.toString();

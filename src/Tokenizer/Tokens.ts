@@ -1,4 +1,4 @@
-export enum Lexer
+export enum TokenType
 {
 	T_WHITESPACE,
 	T_STRING,
