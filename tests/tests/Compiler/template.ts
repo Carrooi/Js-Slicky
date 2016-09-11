@@ -472,7 +472,7 @@ describe('#Compiler/template', () => {
 				selector: 'app',
 				controllerAs: 'app',
 				directives: [IfDirective, ForDirective, Inner],
-				template: '<inner-item *s:for="#item in app.items" [item]="item"></inner-item>'
+				template: '<inner-item *s:for="#item of app.items" [item]="item"></inner-item>'
 			})
 			class App {
 				items = ['a', 'b', 'c'];
@@ -528,7 +528,7 @@ describe('#Compiler/template', () => {
 			@Component({
 				selector: 'app',
 				directives: [ForDirective, IfDirective, Item],
-				template: '<item *s:for="#data in list" [data]="data"></item>',
+				template: '<item *s:for="#data of list" [data]="data"></item>',
 			})
 			class App {}
 
@@ -557,7 +557,7 @@ describe('#Compiler/template', () => {
 				selector: 'container',
 				controllerAs: 'container',
 				directives: [ItemComponent],
-				template: '<ul><li *s:for="#itemData in container.items" item [data]="itemData"></li></ul>',
+				template: '<ul><li *s:for="#itemData of container.items" item [data]="itemData"></li></ul>',
 			})
 			class ContainerComponent implements OnInit {
 				items = [];
@@ -594,7 +594,7 @@ describe('#Compiler/template', () => {
 				selector: 'app',
 				controllerAs: 'app',
 				directives: [ForDirective],
-				template: '<span *s:for="#letter in app.letters">{{ letter }}</span>',
+				template: '<span *s:for="#letter of app.letters">{{ letter }}</span>',
 			})
 			class App implements OnInit {
 				letters = [];
@@ -636,7 +636,7 @@ describe('#Compiler/template', () => {
 				selector: 'app',
 				controllerAs: 'app',
 				directives: [ForDirective, Letter],
-				template: '<span *s:for="#letter in app.letters" letter [name]="letter"></span>',
+				template: '<span *s:for="#letter of app.letters" letter [name]="letter"></span>',
 			})
 			class App implements OnInit {
 				letters = [];
@@ -664,9 +664,11 @@ describe('#Compiler/template', () => {
 			@Component({
 				selector: '[item]',
 				controllerAs: 'item',
-				template: '<a *s:if="item.data">{{ item.data }}</a>',
+				template: '<a *s:if="item.data">- {{ item.index }}: {{ item.data }} -</a>',
 			})
 			class ItemComponent {
+				@Input()
+				index;
 				@Input()
 				data;
 			}
@@ -675,7 +677,7 @@ describe('#Compiler/template', () => {
 				selector: 'container',
 				controllerAs: 'container',
 				directives: [ItemComponent],
-				template: '<ul><li *s:for="#itemData in container.items" item [data]="itemData"></li></ul>',
+				template: '<ul><li *s:for="#itemData of container.items; #i = index" item [index]="i" [data]="itemData"></li></ul>',
 			})
 			class ContainerComponent implements OnInit {
 				items = [];
@@ -702,7 +704,7 @@ describe('#Compiler/template', () => {
 			compiler.compile(view);
 
 			setTimeout(() => {
-				expect(el.innerText).to.be.equal('abc');
+				expect(el.innerText).to.be.equal('- 0: a -- 1: b -- 2: c -');
 				done();
 			}, 200);
 		});

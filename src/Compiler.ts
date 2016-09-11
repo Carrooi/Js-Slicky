@@ -20,6 +20,7 @@ import {Helpers} from './Util/Helpers';
 import {ComponentMetadataDefinition} from './Entity/Metadata';
 import {DirectiveMetadataDefinition} from './Entity/Metadata';
 import {ExpressionParser} from './Parsers/ExpressionParser';
+import {TemplateAttributeParser} from './Parsers/TemplateAttributeParser';
 import {ViewFactory} from './Views/ViewFactory';
 import {EmbeddedView} from './Views/EmbeddedView';
 import {DirectiveFactory} from './DirectiveFactory';
@@ -266,7 +267,10 @@ export class Compiler
 		for (let i = 0; i < el.attributes.length; i++) {
 			let attribute = el.attributes[i];
 			if (attribute.name.match(/^\*/)) {
-				let template = Dom.el('<template [' + attribute.name.substr(1) + ']="' + attribute.value + '"></template>');
+				let attributes = TemplateAttributeParser.parse(attribute.name, attribute.value);
+				let attributesCode = TemplateAttributeParser.toElementString(attributes);
+
+				let template = Dom.el('<template ' + attributesCode + '></template>');
 
 				if (templateEl) {
 					templateEl.appendChild(template);

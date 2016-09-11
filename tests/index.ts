@@ -17,6 +17,7 @@ import './tests/Parsers/ExpressionParser';
 import './tests/Parsers/ExpressionParser.squareBrackets';
 import './tests/Parsers/ExpressionParser.parenthesis';
 import './tests/Parsers/ExpressionParser.braces';
+import './tests/Parsers/TemplateAttributeParser';
 import './tests/Parsers/VariableParser';
 import './tests/Parsers/TextParser';
 import './tests/Parsers/AttributeParser';

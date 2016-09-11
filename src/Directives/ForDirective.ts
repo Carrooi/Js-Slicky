@@ -1,25 +1,34 @@
 import {Directive, Input, Required} from '../Entity/Metadata';
 import {Compiler} from '../Compiler';
-import {OnChange, OnDestroy, ForToken, ChangedItem} from '../Interfaces';
+import {OnUpdate, OnInit, OnDestroy, ChangedItem} from '../Interfaces';
 import {ChangeDetectionAction} from '../constants';
 import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
 import {RenderableView} from '../Views/RenderableView';
 import {EmbeddedView} from '../Views/EmbeddedView';
 import {ViewFactory} from '../Views/ViewFactory';
-import {ForParser} from'../Parsers/ForParser';
 import {Dom} from '../Util/Dom';
+import {Helpers} from '../Util/Helpers';
+
+
+enum Exports
+{
+	Index,
+	Item,
+}
 
 
 @Directive({
-	selector: '[\\[s\\:for\\]]',
+	selector: '[\\[s\\:for\\]][\\[s\\:for-of\\]]',
 	compileInner: false,
 })
-export class ForDirective implements OnChange, OnDestroy
+export class ForDirective implements OnUpdate, OnInit, OnDestroy
 {
 
 
 	private compiler: Compiler;
+
+	private el: ElementRef;
 
 	private view: RenderableView;
 
@@ -27,68 +36,44 @@ export class ForDirective implements OnChange, OnDestroy
 
 	private templateRef: TemplateRef;
 
-	private expr: ForToken;
-
 	private iterated: {[key: string]: EmbeddedView} = {};
+
+	private exports: {[type: number]: string} = {};
 
 
 	@Required()
 	@Input('s:for')
-	public loop: any;
+	public sFor: any;
+
+	//@Required()
+	@Input('s:forOf')
+	public sForOf: any;
 
 
 	constructor(compiler: Compiler, el: ElementRef, view: RenderableView, viewFactory: ViewFactory, templateRef: TemplateRef)
 	{
-		let attr = ElementRef.getAttributes(el.nativeEl)['s:for'];
-
+		this.el = el;
 		this.compiler = compiler;
 		this.view = view;
 		this.viewFactory = viewFactory;
 		this.templateRef = templateRef;
-		this.expr = ForParser.parse(attr.expression);
 	}
 
 
-	public onChange(inputName: string, changed: ChangedItem = null): boolean
+	public onInit(): void
 	{
-		if (changed) {
-			for (let i = 0; i < changed.dependencies.length; i++) {
-				let dependency = changed.dependencies[i];
-
-				if (dependency.expr.code === this.expr.obj.code) {
-					if (dependency.action === ChangeDetectionAction.DeepUpdate) {
-						for (let j = 0; j < dependency.props.length; j++) {
-							let prop = dependency.props[j];
-
-							if (prop.action === ChangeDetectionAction.Add) {
-								this.addItem(prop.property, prop.newValue);
-
-							} else if (prop.action === ChangeDetectionAction.Remove) {
-								this.removeItem(prop.property);
-
-							} else if (prop.action === ChangeDetectionAction.Update) {
-								this.updateItem(prop.property, prop.newValue);
-
-							}
-						}
-
-					} else {
-						for (let name in this.iterated) {
-							if (this.iterated.hasOwnProperty(name)) {
-								this.removeItem(name);
-							}
-						}
-
-						this.update();
-					}
+		let attributes = ElementRef.getAttributes(this.el.nativeEl);
+		for (let name in attributes) {
+			if (attributes.hasOwnProperty(name) && attributes[name].directiveExport) {
+				if (attributes[name].expression === '') {
+					this.exports[Exports.Item] = name;
+				} else if (attributes[name].expression === 'index') {
+					this.exports[Exports.Index] = name;
 				}
 			}
-
-		} else {
-			this.update();
 		}
 
-		return false;
+		this.update();
 	}
 
 
@@ -104,38 +89,62 @@ export class ForDirective implements OnChange, OnDestroy
 	}
 
 
-	private update(): void
+	public onUpdate(inputName: string, value: any, changed: ChangedItem = null): boolean
 	{
-		let code: string = null;
+		if (changed && inputName === 'sForOf') {
+			for (let i = 0; i < changed.dependencies.length; i++) {
+				let dependency = changed.dependencies[i];
 
-		let keyName = '__slicky_key__';
-		let fnName = '__slicky_iterate__';
+				if (dependency.action === ChangeDetectionAction.DeepUpdate) {
+					for (let j = 0; j < dependency.props.length; j++) {
+						let prop = dependency.props[j];
 
-		let obj = this.expr.obj.code;
+						if (prop.action === ChangeDetectionAction.Add) {
+							this.addItem(prop.property, prop.newValue);
 
-		if (this.expr.type === ForParser.TYPE_ARRAY) {
-			code =
-				'for (var ' + keyName + ' = 0; ' + keyName + ' < ' + obj + '.length; ' + keyName + '++) { ' +
-					fnName + '(' + keyName + ', ' + obj + '[' + keyName + ']); ' +
-				'}'
-			;
+						} else if (prop.action === ChangeDetectionAction.Remove) {
+							this.removeItem(prop.property);
 
-		} else {
-			code =
-				'for (var ' + keyName + ' in ' + obj + ') { ' +
-					'if (' + obj + '.hasOwnProperty(' + keyName + ')) { ' +
-						fnName + '(' + keyName + ', ' + obj + '[' + keyName + ']); ' +
-					'} ' +
-				'}'
-			;
+						} else if (prop.action === ChangeDetectionAction.Update) {
+							this.updateItem(prop.property, prop.newValue);
+
+						}
+					}
+
+				} else {
+					for (let name in this.iterated) {
+						if (this.iterated.hasOwnProperty(name)) {
+							this.removeItem(name);
+						}
+					}
+
+					this.update();
+				}
+			}
+
 		}
 
-		let parameters = {};
-		parameters[fnName] = (key, value) => {
-			this.addItem(key, value);
-		};
+		return true;
+	}
 
-		this.view.eval(code, parameters);
+
+	private update(): void
+	{
+		if (Helpers.isArray(this.sForOf)) {
+			for (let i = 0; i < this.sForOf.length; i++) {
+				this.addItem(i, this.sForOf[i]);
+			}
+
+		} else if (Helpers.isObject(this.sForOf)) {
+			for (let key in this.sForOf) {
+				if (this.sForOf.hasOwnProperty(key)) {
+					this.addItem(key, this.sForOf[key]);
+				}
+			}
+
+		} else {
+			throw new Error('For: can not iterate through object type ' + Object.prototype.toString.call(this.sForOf) + '.');
+		}
 	}
 
 
@@ -143,12 +152,12 @@ export class ForDirective implements OnChange, OnDestroy
 	{
 		let view = this.viewFactory.createEmbeddedView(this.view, this.templateRef);
 
-		if (this.expr.key && this.expr.key.exportable) {
-			view.addParameter(this.expr.key.name, key);
+		if (typeof this.exports[Exports.Item] !== 'undefined') {
+			view.addParameter(this.exports[Exports.Item], value);
 		}
 
-		if (this.expr.value.exportable) {
-			view.addParameter(this.expr.value.name, value);
+		if (typeof this.exports[Exports.Index] !== 'undefined') {
+			view.addParameter(this.exports[Exports.Index], key);
 		}
 
 		view.attach(insertBefore);
@@ -158,7 +167,7 @@ export class ForDirective implements OnChange, OnDestroy
 	}
 
 
-	public removeItem(key: string|number): void
+	private removeItem(key: string|number): void
 	{
 		if (typeof this.iterated[key] === 'undefined') {
 			return;
@@ -170,7 +179,7 @@ export class ForDirective implements OnChange, OnDestroy
 	}
 
 
-	public updateItem(key: string|number, value: any): void
+	private updateItem(key: string|number, value: any): void
 	{
 		let view = this.iterated[key];
 

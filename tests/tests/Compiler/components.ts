@@ -292,7 +292,7 @@ describe('#Compiler/components', () => {
 				selector: 'app',
 				controllerAs: 'app',
 				directives: [ForDirective],
-				template: '<span *s:for="#item in app.items">- {{ item }} -</span>',
+				template: '<span *s:for="#item of app.items">- {{ item }} -</span>',
 			})
 			class App implements OnInit {
 				items = ['one', 'two', 'three'];

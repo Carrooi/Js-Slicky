@@ -1,6 +1,6 @@
 import {DirectiveDefinition} from './DirectiveParser';
 import {RenderableView} from '../Views/RenderableView';
-import {OnDestroy, OnInit, OnChange, OnUpdate, ChangedItem} from '../Interfaces';
+import {OnDestroy, OnInit, OnUpdate, ChangedItem} from '../Interfaces';
 import {Dom} from '../Util/Dom';
 import {ExpressionParser} from '../Parsers/ExpressionParser';
 import {AttributesList, Expression} from '../Interfaces';
@@ -60,25 +60,16 @@ export class DirectiveInstance
 
 	public bindInputs(attributes: AttributesList, checkBoundProperties: boolean = true): void
 	{
-		let hasOnChange = typeof this.instance['onChange'] === 'function';
 		let hasOnUpdate = typeof this.instance['onUpdate'] === 'function';
 
-		((instance, definition, hasOnChange, hasOnUpdate) => {
+		((instance, definition, hasOnUpdate) => {
 			let processInput = (inputName: string, required: boolean, expr: Expression, changed: ChangedItem = null) => {
-				let stop = false;
+				let value = this.view.evalExpression(expr, {}, true);
 
-				if (hasOnChange) {
-					stop = this.view.run(() => (<OnChange>instance).onChange(inputName, changed) === false);
-				}
+				instance[inputName] = value;
 
-				if (!stop) {
-					let value = this.view.evalExpression(expr, {}, true);
-
-					instance[inputName] = value;
-
-					if (hasOnUpdate) {
-						this.view.run(() => (<OnUpdate>instance).onUpdate(inputName, value));
-					}
+				if (hasOnUpdate) {
+					this.view.run(() => (<OnUpdate>instance).onUpdate(inputName, value, changed));
 				}
 			};
 
@@ -124,7 +115,7 @@ export class DirectiveInstance
 					}
 				}
 			}
-		})(this.instance, this.definition, hasOnChange, hasOnUpdate);
+		})(this.instance, this.definition, hasOnUpdate);
 
 		if (checkBoundProperties) {
 			for (let attrName in attributes) {

@@ -181,7 +181,7 @@ describe('#Compiler/components/changeDetection', () => {
 				selector: 'app',
 				controllerAs: 'app',
 				directives: [ForDirective],
-				template: '<span *s:for="#item in app.items">{{ item.name }}</span>',
+				template: '<span *s:for="#item of app.items">{{ item.name }}</span>',
 			})
 			class App implements OnInit {
 				items = [
@@ -297,7 +297,7 @@ describe('#Compiler/components/changeDetection', () => {
 			@Component({
 				selector: 'app',
 				controllerAs: 'app',
-				template: '<template [s:if]="app.items.length">items: <item *s:for="#data in app.items" [app]="app" [data]="data"></item></template>',
+				template: '<template [s:if]="app.items.length">items: <item *s:for="#data of app.items" [app]="app" [data]="data"></item></template>',
 				directives: [Item, IfDirective, ForDirective],
 				changeDetection: ChangeDetectionStrategy.OnPush,
 			})

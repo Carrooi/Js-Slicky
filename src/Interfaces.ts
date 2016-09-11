@@ -109,9 +109,6 @@ export declare interface AttributesList
 }
 
 
-// ------------ LIFE CYCLE EVENTS
-
-
 export interface OnInit
 {
 
@@ -134,15 +131,6 @@ export interface OnUpdate
 {
 
 
-	onUpdate(inputName: string, value: any): void;
-
-}
-
-
-export interface OnChange
-{
-
-
-	onChange(inputName: string, changed?: ChangedItem): boolean;
+	onUpdate(inputName: string, value: any, changed?: ChangedItem): void;
 
 }

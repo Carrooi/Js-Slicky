@@ -24,7 +24,7 @@ describe('#Directives/ForDirective', () => {
 	describe('bind()', () => {
 
 		it('should iterate through simple array list', () => {
-			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
@@ -36,7 +36,7 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should iterate through simple array list with key', () => {
-			let el = Dom.el('<ul><template [s:for]="#i, #user in users"><li>- {{ i + ": " + user }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #i="index" #user [s:for-of]="users"><li>- {{ i + ": " + user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
@@ -48,7 +48,7 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should iterate through simple object', () => {
-			let el = Dom.el('<ul><template [s:for]="#value of options"><li>- {{ value }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #value [s:for-of]="options"><li>- {{ value }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
@@ -64,7 +64,7 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should iterate through simple object with keys', () => {
-			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options"><li>- {{ key + ": " + value }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
@@ -80,7 +80,7 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when whole array is changed', () => {
-			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
@@ -97,7 +97,7 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when new item is added to array', () => {
-			let el = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
@@ -114,7 +114,7 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when item is removed from an array', () => {
-			let parent = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
+			let parent = Dom.el('<ul><template [s:for] #user [s:for-of]="users"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(parent));
 
 			view.directives.push(ForDirective);
@@ -131,7 +131,7 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when item is removed from middle of an array', () => {
-			let parent = Dom.el('<ul><template [s:for]="#user in users"><li>- {{ user }} -</li></template></ul>');
+			let parent = Dom.el('<ul><template [s:for] #user [s:for-of]="users"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(parent));
 
 			view.directives.push(ForDirective);
@@ -148,7 +148,7 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when new item is added to an object', () => {
-			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options"><li>- {{ key + ": " + value }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
@@ -169,7 +169,7 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when item is removed from an object', () => {
-			let el = Dom.el('<ul><template [s:for]="#key, #value of options"><li>- {{ key + ": " + value }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options"><li>- {{ key + ": " + value }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
@@ -210,7 +210,7 @@ describe('#Directives/ForDirective', () => {
 				}
 			}
 
-			let el = Dom.el('<div><template [s:for]="a in b"><div test></div></template></div>');
+			let el = Dom.el('<div><template [s:for] #a [s:for-of]="b"><div test></div></template></div>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);

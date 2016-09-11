@@ -88,10 +88,4 @@ export class Helpers
 		return obj;
 	}
 
-
-	public static hyphenToCamelCase(str: string): string
-	{
-		return str.replace(/-([a-z])/g, (match) => match[1].toUpperCase());
-	}
-
 }

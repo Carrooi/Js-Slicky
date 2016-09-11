@@ -122,14 +122,17 @@ not working with visibility of object but with removing and appending elements.
 
 Used for iterating through arrays or objects in templates.
 
+**Without key:**
+
 ```html
-<span *s:for="#i, #item in t.items">{{ i + ": " + item" }}</span>
+<span *s:for="#item of t.items">{{ item }}</span>
 ```
 
-* `*s:for="#i, #item in items"`: iterate through array and store key with value
-* `*s:for="#item in items"`: iterate through array and store value
-* `*s:for="#key, #value of options"`: iterate through object and store key with value
-* `*s:for="#value of options"`: iterate through object and store value
+**With key:**
+
+```html
+<span *s:for="#item of t.items; #i index">{{ i + ": " + item }}</span>
+```
 
 ### ClassDirective (`s:class`)
 
