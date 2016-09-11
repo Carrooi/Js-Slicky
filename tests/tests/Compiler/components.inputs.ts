@@ -71,7 +71,7 @@ describe('#Compiler/components/inputs', () => {
 				template: '',
 			})
 			class Test implements OnInit {
-				@Input('data-input1')
+				@Input('dataInput1')
 				public input1: string;
 
 				onInit() {
@@ -183,7 +183,7 @@ describe('#Compiler/components/inputs', () => {
 				}
 			}
 
-			let el = Dom.el('<div><div test [upperCasedInput]="a"></div></div>');
+			let el = Dom.el('<div><div test [upper-cased-input]="a"></div></div>');
 			var view = new ApplicationView(container, ElementRef.getByNode(el), [Test], {a: 'hello'});
 
 			compiler.compile(view);

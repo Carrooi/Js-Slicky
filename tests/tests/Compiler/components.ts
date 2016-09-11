@@ -218,7 +218,7 @@ describe('#Compiler/components', () => {
 				selector: '[test]',
 			})
 			class Test implements OnInit {
-				@Input('test-input')
+				@Input('testInput')
 				test;
 				onInit() {
 					testInput = this.test;
@@ -230,7 +230,7 @@ describe('#Compiler/components', () => {
 				template: '',
 			})
 			class App implements OnInit {
-				@Input('app-input')
+				@Input('appInput')
 				test;
 				onInit() {
 					appInput = this.test;

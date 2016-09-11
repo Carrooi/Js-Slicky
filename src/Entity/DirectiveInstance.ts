@@ -85,7 +85,7 @@ export class DirectiveInstance
 			for (let inputName in definition.inputs) {
 				if (definition.inputs.hasOwnProperty(inputName)) {
 					let input = definition.inputs[inputName];
-					let realInputName = (input.name ? input.name : inputName).toLowerCase();
+					let realInputName = input.name ? input.name : inputName;
 
 					let attr = attributes[realInputName];
 

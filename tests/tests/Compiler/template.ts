@@ -215,7 +215,7 @@ describe('#Compiler/template', () => {
 
 			expect(() => {
 				compiler.compile(view);
-			}).to.throw(Error, 'Could not bind property unknown-prop to element cmp or to any of its directives.');
+			}).to.throw(Error, 'Could not bind property unknownProp to element cmp or to any of its directives.');
 		});
 
 		it('should not throw an error when trying to add unknown property to root component', () => {
@@ -748,7 +748,7 @@ describe('#Compiler/template', () => {
 				selector: 'app',
 				controllerAs: 'app',
 				directives: [Button],
-				template: '<button #b></button>, Title: {{ b.title }}',
+				template: '<button #my-cool-button></button>, Title: {{ myCoolButton.title }}',
 			})
 			class App {}
 

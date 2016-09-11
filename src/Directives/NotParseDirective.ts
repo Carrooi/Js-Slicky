@@ -10,7 +10,7 @@ export class NotParseDirective
 
 
 	@Required()
-	@Input('s:not-parse')
+	@Input('s:notParse')
 	public notParse: any;
 
 }

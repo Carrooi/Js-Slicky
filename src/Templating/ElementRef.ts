@@ -1,5 +1,6 @@
 import {RenderableView} from '../Views/RenderableView';
 import {Dom} from '../Util/Dom';
+import {Helpers} from '../Util/Helpers';
 import {AttributesList} from '../Interfaces';
 import {DirectiveInstance} from '../Entity/DirectiveInstance';
 
@@ -93,7 +94,7 @@ export class ElementRef
 		for (let i = 0; i < el.attributes.length; i++) {
 			let attr = el.attributes[i];
 
-			let name = attr.name.toLowerCase();
+			let name = Helpers.hyphenToCamelCase(attr.name.toLowerCase());
 
 			let directiveExport = false;
 			let property = false;
