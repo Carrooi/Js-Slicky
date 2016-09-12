@@ -4,7 +4,7 @@ import {Helpers} from '../Util/Helpers';
 import {Injectable} from '../DI/Metadata';
 
 
-declare interface TrackByFn
+export declare interface TrackByFn
 {
 	(index: number|string, item: any): number|string,
 }
@@ -58,6 +58,20 @@ export class IterableDiffer
 	{
 		let result = [];
 
+		for (let i = 0; i < this.properties.length; i++) {
+			let property = this.properties[i];
+			let current = this.getCurrentProperty(property);
+
+			if (!current) {
+				result.push({
+					property: property.key,
+					action: ChangeDetectionAction.Remove,
+					newValue: undefined,
+					oldValue: property.value,
+				});
+			}
+		}
+
 		Helpers.each(this.record, (key: number|string, value: any) => {
 			let previous = this.getPreviousProperty(key, value);
 
@@ -86,20 +100,6 @@ export class IterableDiffer
 				});
 			}
 		});
-
-		for (let i = 0; i < this.properties.length; i++) {
-			let property = this.properties[i];
-			let current = this.getCurrentProperty(property);
-
-			if (!current) {
-				result.push({
-					property: property.key,
-					action: ChangeDetectionAction.Remove,
-					newValue: undefined,
-					oldValue: property.value,
-				});
-			}
-		}
 
 		return result;
 	}

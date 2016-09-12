@@ -34,6 +34,7 @@ import './tests/Entity/ControllerParser';
 
 import './tests/Directive/IfDirective';
 import './tests/Directive/ForDirective';
+import './tests/Directive/ForDirective.trackBy';
 import './tests/Directive/NotParseDirective';
 import './tests/Directive/ClassDirective';
 import './tests/Directive/AttrDirective';

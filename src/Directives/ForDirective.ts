@@ -9,7 +9,7 @@ import {EmbeddedView} from '../Views/EmbeddedView';
 import {ViewFactory} from '../Views/ViewFactory';
 import {Dom} from '../Util/Dom';
 import {Helpers} from '../Util/Helpers';
-import {IterableDifferFactory, IterableDiffer} from '../ChangeDetection/IterableDiffer';
+import {IterableDifferFactory, IterableDiffer, TrackByFn} from '../ChangeDetection/IterableDiffer';
 
 
 enum Exports
@@ -50,9 +50,12 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 	@Input('s:for')
 	public sFor: any;
 
-	//@Required()
+	@Required()
 	@Input('s:forOf')
 	public sForOf: any;
+
+	@Input('s:forTrackBy')
+	public sForTrackBy: TrackByFn;
 
 
 	constructor(compiler: Compiler, el: ElementRef, view: RenderableView, viewFactory: ViewFactory, templateRef: TemplateRef, differFactory: IterableDifferFactory)
@@ -79,7 +82,7 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 			}
 		}
 
-		this.differ = this.differFactory.create(this.sForOf);
+		this.differ = this.differFactory.create(this.sForOf, this.sForTrackBy);
 
 		this.update();
 	}
@@ -118,6 +121,7 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 					this.updateItem(prop.property, prop.newValue);
 
 				} else if (prop.action === ChangeDetectionAction.UpdateKey) {
+					this.updateItemKey(prop.oldValue, prop.newValue);
 
 				}
 			}
@@ -136,21 +140,9 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 
 	private update(): void
 	{
-		if (Helpers.isArray(this.sForOf)) {
-			for (let i = 0; i < this.sForOf.length; i++) {
-				this.addItem(i, this.sForOf[i]);
-			}
-
-		} else if (Helpers.isObject(this.sForOf)) {
-			for (let key in this.sForOf) {
-				if (this.sForOf.hasOwnProperty(key)) {
-					this.addItem(key, this.sForOf[key]);
-				}
-			}
-
-		} else {
-			throw new Error('For: can not iterate through object type ' + Object.prototype.toString.call(this.sForOf) + '.');
-		}
+		Helpers.each(this.sForOf, (key: number|string, value: any) => {
+			this.addItem(key, value);
+		});
 	}
 
 
@@ -188,16 +180,34 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 	private updateItem(key: string|number, value: any): void
 	{
 		let view = this.iterated[key];
+		let refresh = false;
 
-		let lastEl = view.nodes[view.nodes.length - 1];
-		let marker = document.createComment(TemplateRef.MARKER_COMMENT);
+		if (typeof this.exports[Exports.Item] !== 'undefined') {
+			view.parameters[this.exports[Exports.Item]] = value;
+			refresh = true;
+		}
 
-		Dom.insertAfter(marker, lastEl);
+		if (typeof this.exports[Exports.Index] !== 'undefined') {
+			view.parameters[this.exports[Exports.Index]] = key;
+			refresh = true;
+		}
 
-		this.removeItem(key);
-		this.addItem(key, value, marker);
+		if (refresh) {
+			view.changeDetectorRef.refresh();
+		}
+	}
 
-		Dom.remove(marker);
+
+	private updateItemKey(previousKey: string|number, currentKey: string|number): void
+	{
+		let view = this.iterated[previousKey];
+		delete this.iterated[previousKey];
+		this.iterated[currentKey] = view;
+
+		if (typeof this.exports[Exports.Index] !== 'undefined') {
+			view.parameters[this.exports[Exports.Index]] = currentKey;
+			view.changeDetectorRef.refresh();
+		}
 	}
 
 }

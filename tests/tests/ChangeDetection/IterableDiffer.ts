@@ -153,16 +153,16 @@ describe('#ChangeDetection/IterableDiffer', () => {
 
 			expect(differ.check()).to.be.eql([
 				{
-					property: 1,
-					action: ChangeDetectionAction.Update,
-					newValue: 'b',
-					oldValue: 'c',
-				},
-				{
 					property: 2,
 					action: ChangeDetectionAction.Remove,
 					newValue: undefined,
 					oldValue: 'b',
+				},
+				{
+					property: 1,
+					action: ChangeDetectionAction.Update,
+					newValue: 'b',
+					oldValue: 'c',
 				},
 			]);
 		});
@@ -206,15 +206,15 @@ describe('#ChangeDetection/IterableDiffer', () => {
 			expect(differ.check()).to.be.eql([
 				{
 					property: 1,
-					action: ChangeDetectionAction.UpdateKey,
-					newValue: 1,
-					oldValue: 2,
-				},
-				{
-					property: 1,
 					action: ChangeDetectionAction.Remove,
 					newValue: undefined,
 					oldValue: 'c',
+				},
+				{
+					property: 1,
+					action: ChangeDetectionAction.UpdateKey,
+					newValue: 1,
+					oldValue: 2,
 				},
 			]);
 		});

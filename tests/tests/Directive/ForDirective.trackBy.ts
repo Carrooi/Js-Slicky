@@ -13,7 +13,7 @@ let application: Application = null;
 let compiler: Compiler = null;
 
 
-describe('#Directives/ForDirective', () => {
+describe('#Directives/ForDirective.trackBy', () => {
 
 	beforeEach(() => {
 		container = new Container;
@@ -24,10 +24,11 @@ describe('#Directives/ForDirective', () => {
 	describe('bind()', () => {
 
 		it('should iterate through simple array list', () => {
-			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users"><li>- {{ user }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
+			view.parameters['trackBy'] = (i, name) => name;
 			view.parameters['users'] = ['David', 'John', 'Clare'];
 
 			compiler.compileElement(view, el);
@@ -36,10 +37,11 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should iterate through simple array list with key', () => {
-			let el = Dom.el('<ul><template [s:for] #i="index" #user [s:for-of]="users"><li>- {{ i + ": " + user }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #i="index" #user [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ i + ": " + user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
+			view.parameters['trackBy'] = (i, name) => name;
 			view.parameters['users'] = ['David', 'John', 'Clare'];
 
 			compiler.compileElement(view, el);
@@ -48,10 +50,11 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should iterate through simple object', () => {
-			let el = Dom.el('<ul><template [s:for] #value [s:for-of]="options"><li>- {{ value }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #value [s:for-of]="options" [s:for-track-by]="trackBy"><li>- {{ value }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
+			view.parameters['trackBy'] = (key, value) => value;
 			view.parameters['options'] = {
 				one: 'foo',
 				two: 'bar',
@@ -64,10 +67,11 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should iterate through simple object with keys', () => {
-			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options"><li>- {{ key + ": " + value }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options" [s:for-track-by]="trackBy"><li>- {{ key + ": " + value }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
+			view.parameters['trackBy'] = (key, value) => value;
 			view.parameters['options'] = {
 				one: 'foo',
 				two: 'bar',
@@ -80,10 +84,11 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when whole array is changed', () => {
-			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users"><li>- {{ user }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
+			view.parameters['trackBy'] = (i, name) => name;
 			view.parameters['users'] = ['David', 'John', 'Clare'];
 
 			compiler.compileElement(view, el);
@@ -97,10 +102,11 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when new item is added to array', () => {
-			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users"><li>- {{ user }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
+			view.parameters['trackBy'] = (i, name) => name;
 			view.parameters['users'] = ['David', 'John', 'Clare'];
 
 			compiler.compileElement(view, el);
@@ -114,10 +120,11 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when item is removed from an array', () => {
-			let parent = Dom.el('<ul><template [s:for] #user [s:for-of]="users"><li>- {{ user }} -</li></template></ul>');
+			let parent = Dom.el('<ul><template [s:for] #user [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(parent));
 
 			view.directives.push(ForDirective);
+			view.parameters['trackBy'] = (i, name) => name;
 			view.parameters['users'] = ['David', 'John', 'Clare'];
 
 			compiler.compileElement(view, parent);
@@ -131,10 +138,11 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when item is removed from middle of an array', () => {
-			let parent = Dom.el('<ul><template [s:for] #user #key="index" [s:for-of]="users"><li>- {{ key + ": " + user }} -</li></template></ul>');
+			let parent = Dom.el('<ul><template [s:for] #user #key="index" [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ key + ": " + user }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(parent));
 
 			view.directives.push(ForDirective);
+			view.parameters['trackBy'] = (i, name) => name;
 			view.parameters['users'] = ['David', 'John', 'Clare'];
 
 			compiler.compileElement(view, parent);
@@ -148,10 +156,11 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when new item is added to an object', () => {
-			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options"><li>- {{ key + ": " + value }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options" [s:for-track-by]="trackBy"><li>- {{ key + ": " + value }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
+			view.parameters['trackBy'] = (key, value) => value;
 			view.parameters['options'] = {
 				a: 1,
 				b: 2,
@@ -169,10 +178,11 @@ describe('#Directives/ForDirective', () => {
 		});
 
 		it('should update view when item is removed from an object', () => {
-			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options"><li>- {{ key + ": " + value }} -</li></template></ul>');
+			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options" [s:for-track-by]="trackBy"><li>- {{ key + ": " + value }} -</li></template></ul>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
+			view.parameters['trackBy'] = (key, value) => value;
 			view.parameters['options'] = {
 				a: 1,
 				b: 2,
@@ -210,11 +220,12 @@ describe('#Directives/ForDirective', () => {
 				}
 			}
 
-			let el = Dom.el('<div><template [s:for] #a [s:for-of]="b"><div test></div></template></div>');
+			let el = Dom.el('<div><template [s:for] #a [s:for-of]="b" [s:for-track-by]="trackBy"><div test></div></template></div>');
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
 			view.directives.push(Test);
+			view.parameters['trackBy'] = (i, letter) => letter;
 			view.parameters['b'] = [];
 
 			compiler.compileElement(view, el);
