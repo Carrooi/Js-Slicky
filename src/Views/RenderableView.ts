@@ -15,7 +15,7 @@ import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
 import {Annotations} from '../Util/Annotations';
 import {Functions} from '../Util/Functions';
 import {Realm} from '../Util/Realm';
-import {ParametersList, ChangedItem, Expression} from '../Interfaces';
+import {ParametersList, Expression} from '../Interfaces';
 
 
 export abstract class RenderableView extends AbstractView
@@ -133,7 +133,7 @@ export abstract class RenderableView extends AbstractView
 	}
 
 
-	public watch(expr: Expression, allowCalls: boolean, listener: (changed: ChangedItem) => void): number
+	public watch(expr: Expression, allowCalls: boolean, listener: () => void): number
 	{
 		return this.changeDetector.watch(expr, allowCalls, listener);
 	}
@@ -257,9 +257,9 @@ export abstract class RenderableView extends AbstractView
 				this.run(() => binding['onUpdate'](this.evalExpression(expression, {}, true)));
 			}
 
-			this.watch(expression, allowCheckCalls, (changed: ChangedItem) => {
+			this.watch(expression, allowCheckCalls, () => {
 				if (hasOnChange) {
-					this.run(() => binding['onChange'](changed));
+					this.run(() => binding['onChange']());
 				}
 
 				if (hasOnUpdate) {

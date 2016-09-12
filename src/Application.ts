@@ -6,6 +6,7 @@ import {ViewFactory} from './Views/ViewFactory';
 import {ApplicationView} from './Views/ApplicationView';
 import {ElementRef} from './Templating/ElementRef';
 import {DirectiveFactory} from './DirectiveFactory';
+import {IterableDifferFactory} from './ChangeDetection/IterableDiffer';
 
 
 declare interface ApplicationOptions
@@ -41,6 +42,8 @@ export class Application
 		this.container.provide(DirectiveFactory, {
 			useFactory: () => directiveFactory,
 		});
+
+		this.container.provide(IterableDifferFactory);
 
 		this.container.provide(Compiler, {
 			useFactory: () => this.compiler,

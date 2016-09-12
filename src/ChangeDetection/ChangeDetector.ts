@@ -1,8 +1,8 @@
-import {ChangeDetectionStrategy, ChangeDetectionAction, ExpressionDependencyType} from '../constants';
 import {RenderableView} from '../Views/RenderableView';
 import {Helpers} from '../Util/Helpers';
 import {ExpressionParser} from '../Parsers/ExpressionParser';
-import {ParametersList, ChangedItem, ChangedDependency, ChangedDependencyProperty, Expression, ExpressionDependency} from '../Interfaces';
+import {ChangeDetectionStrategy, ExpressionDependencyType} from '../constants';
+import {ParametersList, Expression, ExpressionDependency} from '../Interfaces';
 
 
 declare interface WatcherItemDependency {
@@ -12,7 +12,7 @@ declare interface WatcherItemDependency {
 }
 
 declare interface WatcherItem {
-	listener: (ChangedItem) => void,
+	listener: () => void,
 	dependencies: Array<WatcherItemDependency>,
 }
 
@@ -53,7 +53,7 @@ export class ChangeDetector
 	}
 
 
-	public watch(expr: Expression, allowCalls: boolean, listener: (changed: ChangedItem) => void): number
+	public watch(expr: Expression, allowCalls: boolean, listener: () => void): number
 	{
 		let dependencies = [];
 
@@ -102,10 +102,9 @@ export class ChangeDetector
 		for (let id in this.watchers) {
 			if (this.watchers.hasOwnProperty(id)) {
 				let watcher = this.watchers[id];
-				let changed = this.checkWatcher(watcher);
 
-				if (changed.action !== ChangeDetectionAction.Same) {
-					watcher.listener(changed);
+				if (this.checkWatcher(watcher)) {
+					watcher.listener();
 				}
 			}
 		}
@@ -118,59 +117,42 @@ export class ChangeDetector
 	}
 
 
-	private checkWatcher(watcher: WatcherItem): ChangedItem
+	private checkWatcher(watcher: WatcherItem): boolean
 	{
-		let changed = {
-			action: ChangeDetectionAction.Same,
-			dependencies: [],
-		};
-
 		for (let i = 0; i < watcher.dependencies.length; i++) {
-			let dependency = watcher.dependencies[i];
-			let changes = this.checkDependency(dependency);
-
-			if (changes.action !== ChangeDetectionAction.Same) {
-				changed.action = ChangeDetectionAction.DeepUpdate;
-				changed.dependencies.push(changes);
+			if (this.checkDependency(watcher.dependencies[i])) {
+				return true;
 			}
 		}
 
-		return changed;
+		return false;
 	}
 
 
-	private checkDependency(dependency: WatcherItemDependency): ChangedDependency
+	private checkDependency(dependency: WatcherItemDependency): boolean
 	{
 		let current = this.process(dependency.expr);
-		let changes = {
-			action: ChangeDetectionAction.Same,
-			expr: dependency.expr,
-			props: [],
-		};
 
 		// weak change detection
 		if (current !== dependency.previous) {
-			changes.action = ChangeDetectionAction.Update;
+			dependency.previous = current;
+			dependency.clone = Helpers.clone(current);
+			return true;
 
 		// deep change detection
 		} else {
-			let props = this.compare(current, dependency.clone);
-			if (props.length) {
-				changes.action = ChangeDetectionAction.DeepUpdate;
-				changes.props = props;
+			if (this.compare(current, dependency.clone)) {
+				dependency.previous = current;
+				dependency.clone = Helpers.clone(current);
+				return true;
 			}
 		}
 
-		if (changes.action !== ChangeDetectionAction.Same) {
-			dependency.previous = current;
-			dependency.clone = Helpers.clone(current);
-		}
-
-		return changes;
+		return false;
 	}
 
 
-	private compare(a: any, b: any): Array<ChangedDependencyProperty>
+	private compare(a: any, b: any): boolean
 	{
 		if (Helpers.isObject(a)) {
 			return this.compareObjects(a, b == null ? {} : b);
@@ -179,85 +161,51 @@ export class ChangeDetector
 			return this.compareArrays(a, b == null ? [] : b);
 		}
 
-		return [];
+		return false;
 	}
 
 
-	private compareObjects(a: any, b: any): Array<ChangedDependencyProperty>
+	private compareObjects(a: any, b: any): boolean
 	{
-		let result = [];
-
 		for (let name in a) {
 			if (a.hasOwnProperty(name)) {
 				if (!b.hasOwnProperty(name)) {
-					result.push({
-						property: name,
-						action: ChangeDetectionAction.Add,
-						newValue: a[name],
-						oldValue: undefined,
-					});
+					return true;
 
 				} else if (b[name] !== a[name]) {
-					result.push({
-						property: name,
-						action: ChangeDetectionAction.Update,
-						newValue: a[name],
-						oldValue: b[name],
-					});
+					return true;
 				}
 			}
 		}
 
 		for (let name in b) {
 			if (b.hasOwnProperty(name) && !a.hasOwnProperty(name)) {
-				result.push({
-					property: name,
-					action: ChangeDetectionAction.Remove,
-					newValue: undefined,
-					oldValue: b[name],
-				});
+				return true;
 			}
 		}
 
-		return result;
+		return false;
 	}
 
 
-	private compareArrays(a: Array<any>, b: Array<any>): Array<ChangedDependencyProperty>
+	private compareArrays(a: Array<any>, b: Array<any>): boolean
 	{
-		let result = [];
-
 		for (let k = 0; k < a.length; k++) {
 			if (typeof b[k] === 'undefined') {
-				result.push({
-					property: k,
-					action: ChangeDetectionAction.Add,
-					newValue: a[k],
-					oldValue: undefined,
-				});
+				return true;
 
 			} else if (b[k] !== a[k]) {
-				result.push({
-					property: k,
-					action: ChangeDetectionAction.Update,
-					newValue: a[k],
-					oldValue: b[k],
-				});
+				return true;
 			}
 		}
 
 		for (let k = 0; k < b.length; k++) {
 			if (typeof a[k] === 'undefined') {
-				result.push({
-					property: k,
-					action: ChangeDetectionAction.Remove,
-					newValue: undefined,
-					oldValue: b[k],
-				});
+				return true;
 			}
 		}
 
-		return result;
+		return false;
 	}
 
 

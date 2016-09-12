@@ -1,6 +1,6 @@
 import {DirectiveDefinition} from './DirectiveParser';
 import {RenderableView} from '../Views/RenderableView';
-import {OnDestroy, OnInit, OnUpdate, ChangedItem} from '../Interfaces';
+import {OnDestroy, OnInit, OnUpdate} from '../Interfaces';
 import {Dom} from '../Util/Dom';
 import {ExpressionParser} from '../Parsers/ExpressionParser';
 import {AttributesList, Expression} from '../Interfaces';
@@ -63,13 +63,13 @@ export class DirectiveInstance
 		let hasOnUpdate = typeof this.instance['onUpdate'] === 'function';
 
 		((instance, definition, hasOnUpdate) => {
-			let processInput = (inputName: string, required: boolean, expr: Expression, changed: ChangedItem = null) => {
+			let processInput = (inputName: string, required: boolean, expr: Expression) => {
 				let value = this.view.evalExpression(expr, {}, true);
 
 				instance[inputName] = value;
 
 				if (hasOnUpdate) {
-					this.view.run(() => (<OnUpdate>instance).onUpdate(inputName, value, changed));
+					this.view.run(() => (<OnUpdate>instance).onUpdate(inputName, value));
 				}
 			};
 
@@ -103,8 +103,8 @@ export class DirectiveInstance
 							processInput(inputName, input.required, expr);
 
 							((inputName, required, expr) => {
-								this.watch(expr, true, (changed: ChangedItem) => {
-									processInput(inputName, required, expr, changed);
+								this.watch(expr, true, () => {
+									processInput(inputName, required, expr);
 								});
 							})(inputName, input.required, expr);
 						} else {
@@ -204,7 +204,7 @@ export class DirectiveInstance
 	}
 
 
-	private watch(expr: Expression, allowCalls: boolean, listener: (changed: ChangedItem) => void): void
+	private watch(expr: Expression, allowCalls: boolean, listener: () => void): void
 	{
 		let id = this.view.watch(expr, allowCalls, listener);
 

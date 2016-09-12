@@ -75,20 +75,6 @@ export declare interface ChangedDependencyProperty {
 }
 
 
-export declare interface ChangedDependency {
-	action: ChangeDetectionAction,
-	expr: ExpressionDependency,
-	props: Array<ChangedDependencyProperty>,
-}
-
-
-export declare interface ChangedItem
-{
-	action: ChangeDetectionAction,
-	dependencies: Array<ChangedDependency>,
-}
-
-
 // ------------ TEMPLATING
 
 
@@ -131,6 +117,6 @@ export interface OnUpdate
 {
 
 
-	onUpdate(inputName: string, value: any, changed?: ChangedItem): void;
+	onUpdate(inputName: string, value: any): void;
 
 }

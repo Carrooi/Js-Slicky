@@ -1,6 +1,6 @@
 import {Directive, Input, Required} from '../Entity/Metadata';
 import {Compiler} from '../Compiler';
-import {OnUpdate, OnInit, OnDestroy, ChangedItem} from '../Interfaces';
+import {OnUpdate, OnInit, OnDestroy} from '../Interfaces';
 import {ChangeDetectionAction} from '../constants';
 import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
@@ -9,6 +9,7 @@ import {EmbeddedView} from '../Views/EmbeddedView';
 import {ViewFactory} from '../Views/ViewFactory';
 import {Dom} from '../Util/Dom';
 import {Helpers} from '../Util/Helpers';
+import {IterableDifferFactory, IterableDiffer} from '../ChangeDetection/IterableDiffer';
 
 
 enum Exports
@@ -36,6 +37,10 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 
 	private templateRef: TemplateRef;
 
+	private differFactory: IterableDifferFactory;
+
+	private differ: IterableDiffer;
+
 	private iterated: {[key: string]: EmbeddedView} = {};
 
 	private exports: {[type: number]: string} = {};
@@ -50,13 +55,14 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 	public sForOf: any;
 
 
-	constructor(compiler: Compiler, el: ElementRef, view: RenderableView, viewFactory: ViewFactory, templateRef: TemplateRef)
+	constructor(compiler: Compiler, el: ElementRef, view: RenderableView, viewFactory: ViewFactory, templateRef: TemplateRef, differFactory: IterableDifferFactory)
 	{
 		this.el = el;
 		this.compiler = compiler;
 		this.view = view;
 		this.viewFactory = viewFactory;
 		this.templateRef = templateRef;
+		this.differFactory = differFactory;
 	}
 
 
@@ -72,6 +78,8 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 				}
 			}
 		}
+
+		this.differ = this.differFactory.create(this.sForOf);
 
 		this.update();
 	}
@@ -89,42 +97,38 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 	}
 
 
-	public onUpdate(inputName: string, value: any, changed: ChangedItem = null): boolean
+	public onUpdate(inputName: string, value: any): void
 	{
-		if (changed && inputName === 'sForOf') {
-			for (let i = 0; i < changed.dependencies.length; i++) {
-				let dependency = changed.dependencies[i];
+		if (inputName !== 'sForOf' || !this.differ) {
+			return;
+		}
 
-				if (dependency.action === ChangeDetectionAction.DeepUpdate) {
-					for (let j = 0; j < dependency.props.length; j++) {
-						let prop = dependency.props[j];
+		let changes = this.differ.check();
+		if (changes) {
+			for (let i = 0; i < changes.length; i++) {
+				let prop = changes[i];
 
-						if (prop.action === ChangeDetectionAction.Add) {
-							this.addItem(prop.property, prop.newValue);
+				if (prop.action === ChangeDetectionAction.Add) {
+					this.addItem(prop.property, prop.newValue);
 
-						} else if (prop.action === ChangeDetectionAction.Remove) {
-							this.removeItem(prop.property);
+				} else if (prop.action === ChangeDetectionAction.Remove) {
+					this.removeItem(prop.property);
 
-						} else if (prop.action === ChangeDetectionAction.Update) {
-							this.updateItem(prop.property, prop.newValue);
+				} else if (prop.action === ChangeDetectionAction.Update) {
+					this.updateItem(prop.property, prop.newValue);
 
-						}
-					}
-
-				} else {
-					for (let name in this.iterated) {
-						if (this.iterated.hasOwnProperty(name)) {
-							this.removeItem(name);
-						}
-					}
-
-					this.update();
 				}
 			}
 
-		}
+		} else {
+			for (let name in this.iterated) {
+				if (this.iterated.hasOwnProperty(name)) {
+					this.removeItem(name);
+				}
+			}
 
-		return true;
+			this.update();
+		}
 	}
 
 

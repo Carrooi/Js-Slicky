@@ -1,7 +1,6 @@
 import {ComponentView, ElementRef} from '../../../core';
 import {Container} from '../../../di';
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
-import {ChangedItem} from '../../../src/Interfaces';
 import {ChangeDetectionAction} from '../../../src/constants';
 
 import chai = require('chai');
@@ -23,13 +22,7 @@ describe('#Views/ComponentView', () => {
 
 			let expr = ExpressionParser.parse('a');
 
-			view.watch(expr, true, (changed: ChangedItem) => {
-				expect(changed.action).to.be.equal(ChangeDetectionAction.DeepUpdate);
-				expect(changed.dependencies).to.have.length(1);
-
-				expect(changed.dependencies[0].action).to.be.equal(ChangeDetectionAction.Update);
-				expect(changed.dependencies[0].expr.code).to.be.equal('a');
-
+			view.watch(expr, true, () => {
 				done();
 			});
 

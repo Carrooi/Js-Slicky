@@ -6,6 +6,7 @@ import './tests/Util/Code';
 import './tests/Util/SafeEval';
 
 import './tests/ChangeDetection/ChangeDetector';
+import './tests/ChangeDetection/IterableDiffer';
 
 import './tests/Tokenizer/Tokenizer';
 import './tests/Tokenizer/Parser';
