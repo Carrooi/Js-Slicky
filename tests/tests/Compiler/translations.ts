@@ -1,7 +1,7 @@
-import {Application, Compiler, Component, ApplicationView, ElementRef} from '../../../core';
+import {Application, Compiler, Component, ApplicationView, ElementRef, OnInit} from '../../../core';
 import {Container} from '../../../di';
 import {Dom} from '../../../utils';
-import {Translator, TranslateFilter} from '../../../translations';
+import {Translator, TranslateFilter, ComponentTranslator} from '../../../translations';
 
 
 import chai = require('chai');
@@ -246,6 +246,30 @@ describe('#Compiler/translations', () => {
 			compiler.compile(view);
 
 			expect(el.innerHTML).to.be.equal('<app><span title="hello world"></span></app>');
+		});
+		
+		it('should translate message in component', (done) => {
+			@Component({
+				selector: 'app',
+				template: '',
+				translations: {
+					en: {message: 'hello world'},
+				},
+			})
+			class App implements OnInit {
+				constructor(private translator: Translator, private cmpTranslator: ComponentTranslator) {}
+				onInit() {
+					this.translator.locale = 'en';
+					
+					expect(this.cmpTranslator.translate('message')).to.be.eql('hello world');
+					done();
+				}
+			}
+
+			let el = Dom.el('<div><app></app></div>');
+			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
+
+			compiler.compile(view);
 		});
 
 	});

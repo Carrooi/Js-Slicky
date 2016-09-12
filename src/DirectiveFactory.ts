@@ -11,6 +11,8 @@ import {ViewFactory} from './Views/ViewFactory';
 import {RenderableView} from './Views/RenderableView';
 import {ComponentView} from './Views/ComponentView';
 import {Dom} from './Util/Dom';
+import {ComponentTranslator} from './Translations/ComponentTranslator';
+import {Translator} from './Translations/Translator';
 
 
 export class DirectiveFactory
@@ -74,6 +76,12 @@ export class DirectiveFactory
 				service: ChangeDetectorRef,
 				options: {
 					useFactory: () => view.changeDetectorRef,
+				},
+			},
+			{
+				service: ComponentTranslator,
+				options: {
+					useFactory: () => new ComponentTranslator(<Translator>this.container.get(Translator), view),
 				},
 			},
 			{
