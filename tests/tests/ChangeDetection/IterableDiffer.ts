@@ -167,6 +167,58 @@ describe('#ChangeDetection/IterableDiffer', () => {
 			]);
 		});
 
+		it('should add item into middle of array with tracking function', () => {
+			let trackBy = (i: number, letter: string) => {
+				return letter;
+			};
+
+			let parameters = ['a', 'c'];
+			let differ = differFactory.create(parameters, trackBy);
+
+			parameters.splice(1, 0, 'b');
+
+			expect(differ.check()).to.be.eql([
+				{
+					property: 1,
+					action: ChangeDetectionAction.Add,
+					newValue: 'b',
+					oldValue: undefined,
+				},
+				{
+					property: 2,
+					action: ChangeDetectionAction.UpdateKey,
+					newValue: 2,
+					oldValue: 1,
+				},
+			]);
+		});
+
+		it('should remove item from middle of array with tracking function', () => {
+			let trackBy = (i: number, letter: string) => {
+				return letter;
+			};
+
+			let parameters = ['a', 'c', 'b'];
+			let differ = differFactory.create(parameters, trackBy);
+
+			parameters.splice(1, 1);
+
+			expect(differ.check()).to.be.eql([
+				{
+					property: 1,
+					action: ChangeDetectionAction.UpdateKey,
+					newValue: 1,
+					oldValue: 2,
+				},
+				{
+					property: 1,
+					action: ChangeDetectionAction.Remove,
+					newValue: undefined,
+					oldValue: 'c',
+				},
+			]);
+		});
+
 	});
 
 });

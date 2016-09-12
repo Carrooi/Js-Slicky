@@ -117,6 +117,8 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 				} else if (prop.action === ChangeDetectionAction.Update) {
 					this.updateItem(prop.property, prop.newValue);
 
+				} else if (prop.action === ChangeDetectionAction.UpdateKey) {
+
 				}
 			}
 

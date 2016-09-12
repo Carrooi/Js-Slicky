@@ -7,11 +7,10 @@ export enum ChangeDetectionStrategy
 
 export enum ChangeDetectionAction
 {
-	Same,
 	Add,
 	Update,
 	Remove,
-	DeepUpdate,
+	UpdateKey,
 }
 
 

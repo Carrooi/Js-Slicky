@@ -32,6 +32,36 @@ export class Helpers
 	}
 
 
+	public static each(obj: any, fn: (i: number|string, value: any) => any): any
+	{
+		let result;
+
+		if (Helpers.isArray(obj)) {
+			for (let i = 0; i < obj.length; i++) {
+				result = fn(i, obj[i]);
+				if (typeof result !== 'undefined') {
+					return result;
+				}
+			}
+
+		} else if (Helpers.isObject(obj)) {
+			for (let key in obj) {
+				if (obj.hasOwnProperty(key)) {
+					result = fn(key, obj[key]);
+					if (typeof result !== 'undefined') {
+						return result;
+					}
+				}
+			}
+
+		} else {
+			throw new Error('Can not iterate through ' + Helpers.type(obj) + '.');
+		}
+
+		return null;
+	}
+
+
 	public static clone(obj: any): any
 	{
 		if (Helpers.isArray(obj)) {

@@ -4,127 +4,147 @@ import {Helpers} from '../Util/Helpers';
 import {Injectable} from '../DI/Metadata';
 
 
+declare interface TrackByFn
+{
+	(index: number|string, item: any): number|string,
+}
+
+
+declare interface RecordProperty
+{
+	key: number|string,
+	value: any,
+	trackBy: number|string,
+}
+
+
 export class IterableDiffer
 {
 
 
 	private record: any;
 
-	private previous: any;
+	private properties: Array<RecordProperty>;
+
+	private trackBy: TrackByFn;
 
 
-	constructor(record: any)
+	constructor(record: any, trackBy?: TrackByFn)
 	{
 		if (!Helpers.isArray(record) && !Helpers.isObject(record)) {
 			throw new Error('IterableDiffer: can only watch arrays or objects, ' + Object.prototype.toString.call(record) + ' given.');
 		}
 
 		this.record = record;
-		this.previous = Helpers.clone(this.record);
+		this.trackBy = trackBy ? trackBy : (i: number|string) => i;
+		this.storePrevious(this.record);
 	}
 
 
 	public check(): any
 	{
-		let props = this.compare(this.record, this.previous);
+		let properties = this.compare();
 
-		if (props.length) {
-			this.previous = Helpers.clone(this.record);
-			return props;
+		if (properties.length) {
+			this.storePrevious(this.record);
+			return properties;
 		}
 
 		return null;
 	}
 
 
-	private compare(a: any, b: any): Array<ChangedDependencyProperty>
-	{
-		if (Helpers.isObject(a)) {
-			return this.compareObjects(a, b == null ? {} : b);
-
-		} else if (Helpers.isArray(a)) {
-			return this.compareArrays(a, b == null ? [] : b);
-		}
-
-		return [];
-	}
-
-
-	private compareObjects(a: any, b: any): Array<ChangedDependencyProperty>
+	private compare(): Array<ChangedDependencyProperty>
 	{
 		let result = [];
 
-		for (let name in a) {
-			if (a.hasOwnProperty(name)) {
-				if (!b.hasOwnProperty(name)) {
-					result.push({
-						property: name,
-						action: ChangeDetectionAction.Add,
-						newValue: a[name],
-						oldValue: undefined,
-					});
+		Helpers.each(this.record, (key: number|string, value: any) => {
+			let previous = this.getPreviousProperty(key, value);
 
-				} else if (b[name] !== a[name]) {
-					result.push({
-						property: name,
-						action: ChangeDetectionAction.Update,
-						newValue: a[name],
-						oldValue: b[name],
-					});
-				}
-			}
-		}
-
-		for (let name in b) {
-			if (b.hasOwnProperty(name) && !a.hasOwnProperty(name)) {
+			if (!previous) {
 				result.push({
-					property: name,
-					action: ChangeDetectionAction.Remove,
-					newValue: undefined,
-					oldValue: b[name],
-				});
-			}
-		}
-
-		return result;
-	}
-
-
-	private compareArrays(a: Array<any>, b: Array<any>): Array<ChangedDependencyProperty>
-	{
-		let result = [];
-
-		for (let k = 0; k < a.length; k++) {
-			if (typeof b[k] === 'undefined') {
-				result.push({
-					property: k,
+					property: key,
 					action: ChangeDetectionAction.Add,
-					newValue: a[k],
+					newValue: value,
 					oldValue: undefined,
 				});
 
-			} else if (b[k] !== a[k]) {
+			} else if (previous.value !== value) {
 				result.push({
-					property: k,
+					property: key,
 					action: ChangeDetectionAction.Update,
-					newValue: a[k],
-					oldValue: b[k],
+					newValue: value,
+					oldValue: previous.value,
+				});
+
+			} else if (previous.key !== key) {
+				result.push({
+					property: key,
+					action: ChangeDetectionAction.UpdateKey,
+					newValue: key,
+					oldValue: previous.key,
 				});
 			}
-		}
+		});
 
-		for (let k = 0; k < b.length; k++) {
-			if (typeof a[k] === 'undefined') {
+		for (let i = 0; i < this.properties.length; i++) {
+			let property = this.properties[i];
+			let current = this.getCurrentProperty(property);
+
+			if (!current) {
 				result.push({
-					property: k,
+					property: property.key,
 					action: ChangeDetectionAction.Remove,
 					newValue: undefined,
-					oldValue: b[k],
+					oldValue: property.value,
 				});
 			}
 		}
 
 		return result;
+	}
+
+
+	private storePrevious(record: any): void
+	{
+		let properties = [];
+
+		Helpers.each(record, (key: number|string, value: any) => {
+			properties.push({
+				key: key,
+				value: value,
+				trackBy: this.trackBy(key, value),
+			});
+		});
+
+		this.properties = properties;
+	}
+
+
+	private getCurrentProperty(property: RecordProperty): {key: number|string, value: string}
+	{
+		return Helpers.each(this.record, (rKey: number|string, rValue: any) => {
+			if (this.trackBy(rKey, rValue) === property.trackBy) {
+				return {
+					key: rKey,
+					value: rValue,
+				};
+			}
+		});
+	}
+
+
+	private getPreviousProperty(key: string|number, value: any): RecordProperty
+	{
+		for (let i = 0; i < this.properties.length; i++) {
+			let property = this.properties[i];
+
+			if (property.trackBy === this.trackBy(key, value)) {
+				return property;
+			}
+		}
+
+		return null;
 	}
 
 }
@@ -135,9 +155,9 @@ export class IterableDifferFactory
 {
 
 
-	public create(record: any): IterableDiffer
+	public create(record: any, trackBy?: TrackByFn): IterableDiffer
 	{
-		return new IterableDiffer(record);
+		return new IterableDiffer(record, trackBy);
 	}
 
 }
