@@ -26,7 +26,7 @@ describe('#Views/ComponentView', () => {
 				done();
 			});
 
-			view.parameters['a'] = 'hello world';
+			view.scope.setParameter('a', 'hello world');
 			view.changeDetectorRef.refresh();
 		});
 

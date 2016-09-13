@@ -49,7 +49,7 @@ describe('#Templating/Binding/EventBinding', () => {
 			obj: {
 				onClick: function(e: Event) {
 					expect(e).to.be.an.instanceOf(Event);
-					expect(this).to.be.equal(view.parameters['obj']);
+					expect(this).to.be.equal(view.scope.findParameter('obj'));
 					done();
 				},
 			},
@@ -72,7 +72,7 @@ describe('#Templating/Binding/EventBinding', () => {
 				expect(num).to.be.equal(1);
 				expect(letter).to.be.equal('a');
 				expect(e).to.be.an.instanceOf(Event);
-				expect(fn).to.be.equal(view.parameters['onClick']);
+				expect(fn).to.be.equal(view.scope.findParameter('onClick'));
 				expect(mixed).to.be.equal('5b');
 				done();
 			},
@@ -130,7 +130,7 @@ describe('#Templating/Binding/EventBinding', () => {
 			obj: {
 				onChange: function(e: Event) {
 					expect(e).to.be.an.instanceOf(Event);
-					expect(this).to.be.equal(view.parameters['obj']);
+					expect(this).to.be.equal(view.scope.findParameter('obj'));
 
 					called++;
 				},

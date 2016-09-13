@@ -34,7 +34,7 @@ export class ComponentView extends RenderableView
 		let translations = instance.definition.metadata.translations;
 
 		if (instance.definition.metadata.controllerAs) {
-			this.addParameter(instance.definition.metadata.controllerAs, instance.instance);
+			this.scope.addParameter(instance.definition.metadata.controllerAs, instance.instance);
 		}
 
 		for (let i = 0; i < directives.length; i++) {

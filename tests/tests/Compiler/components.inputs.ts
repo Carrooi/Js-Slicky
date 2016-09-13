@@ -215,7 +215,7 @@ describe('#Compiler/components/inputs', () => {
 
 			let innerView = <ComponentView>view.children[0];
 
-			innerView.parameters['a'] = 'bye';
+			innerView.scope.setParameter('a', 'bye');
 			innerView.changeDetectorRef.refresh();
 		});
 

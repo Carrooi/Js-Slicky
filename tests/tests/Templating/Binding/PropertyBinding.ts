@@ -160,7 +160,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el['test']).to.be.equal('good day');
 
-			view.parameters['hello'] = 'nope';
+			view.scope.setParameter('hello', 'nope');
 			view.changeDetectorRef.refresh();
 
 			expect(el['test']).to.be.equal('nope');
@@ -184,7 +184,7 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el['test']).to.be.equal('good day');
 
-			view.parameters['a'][0]['b'] = 'nope';
+			view.scope.findParameter('a')[0]['b'] = 'nope';
 			view.changeDetectorRef.refresh();
 
 			expect(el['test']).to.be.equal('nope');
@@ -208,13 +208,13 @@ describe('#Templating/Binding/PropertyBinding', () => {
 
 			expect(el['test']).to.be.equal('good day');
 
-			view.parameters['hello'] = 'nope';
+			view.scope.setParameter('hello', 'nope');
 			view.changeDetectorRef.refresh();
 
 			expect(el['test']).to.be.equal('nope');
 
 			view.detach();
-			view.parameters['hello'] = 'yes';
+			view.scope.setParameter('hello', 'yes');
 			view.changeDetectorRef.refresh();
 
 			expect(el['test']).to.be.equal('nope');

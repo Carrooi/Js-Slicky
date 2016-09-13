@@ -26,7 +26,7 @@ describe('#Directives/IfDirective', () => {
 		let view = new ComponentView(container, ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
-		view.parameters['a'] = false;
+		view.scope.setParameter('a', false);
 
 		compiler.compileElement(view, el);
 
@@ -38,7 +38,7 @@ describe('#Directives/IfDirective', () => {
 		let view = new ComponentView(container, ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
-		view.parameters['a'] = true;
+		view.scope.setParameter('a', true);
 
 		compiler.compileElement(view, el);
 
@@ -50,18 +50,18 @@ describe('#Directives/IfDirective', () => {
 		let view = new ComponentView(container, ElementRef.getByNode(el));
 
 		view.directives.push(IfDirective);
-		view.parameters['a'] = true;
+		view.scope.setParameter('a', true);
 
 		compiler.compileElement(view, el);
 
 		expect(el.innerText).to.be.equal('');
 
-		view.parameters['a'] = false;
+		view.scope.setParameter('a', false);
 		view.changeDetectorRef.refresh();
 
 		expect(el.innerText).to.be.equal('hello');
 
-		view.parameters['a'] = true;
+		view.scope.setParameter('a', true);
 		view.changeDetectorRef.refresh();
 
 		expect(el.innerText).to.be.equal('');
@@ -84,7 +84,7 @@ describe('#Directives/IfDirective', () => {
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);
-		view.parameters['a'] = true;
+		view.scope.setParameter('a', true);
 
 		compiler.compileElement(view, el);
 
@@ -110,7 +110,7 @@ describe('#Directives/IfDirective', () => {
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);
-		view.parameters['a'] = false;
+		view.scope.setParameter('a', false);
 
 		compiler.compileElement(view, el);
 
@@ -142,7 +142,7 @@ describe('#Directives/IfDirective', () => {
 
 		view.directives.push(IfDirective);
 		view.directives.push(Test);
-		view.parameters['a'] = false;
+		view.scope.setParameter('a', false);
 
 		compiler.compileElement(view, el);
 
@@ -150,21 +150,21 @@ describe('#Directives/IfDirective', () => {
 		expect(destroyCalled).to.be.equal(0);
 		expect(el.innerText).to.be.equal('');
 
-		view.parameters['a'] = true;
+		view.scope.setParameter('a', true);
 		view.changeDetectorRef.refresh();
 
 		expect(initCalled).to.be.equal(1);
 		expect(destroyCalled).to.be.equal(0);
 		expect(el.innerText).to.be.equal('exists');
 
-		view.parameters['a'] = false;
+		view.scope.setParameter('a', false);
 		view.changeDetectorRef.refresh();
 
 		expect(initCalled).to.be.equal(1);
 		expect(destroyCalled).to.be.equal(1);
 		expect(el.innerText).to.be.equal('');
 
-		view.parameters['a'] = true;
+		view.scope.setParameter('a', true);
 		view.changeDetectorRef.refresh();
 
 		expect(initCalled).to.be.equal(2);

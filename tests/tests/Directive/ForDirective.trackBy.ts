@@ -28,8 +28,8 @@ describe('#Directives/ForDirective.trackBy', () => {
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
-			view.parameters['trackBy'] = (i, name) => name;
-			view.parameters['users'] = ['David', 'John', 'Clare'];
+			view.scope.setParameter('trackBy', (i, name) => name);
+			view.scope.setParameter('users', ['David', 'John', 'Clare']);
 
 			compiler.compileElement(view, el);
 
@@ -41,8 +41,8 @@ describe('#Directives/ForDirective.trackBy', () => {
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
-			view.parameters['trackBy'] = (i, name) => name;
-			view.parameters['users'] = ['David', 'John', 'Clare'];
+			view.scope.setParameter('trackBy', (i, name) => name);
+			view.scope.setParameter('users', ['David', 'John', 'Clare']);
 
 			compiler.compileElement(view, el);
 
@@ -54,12 +54,12 @@ describe('#Directives/ForDirective.trackBy', () => {
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
-			view.parameters['trackBy'] = (key, value) => value;
-			view.parameters['options'] = {
+			view.scope.setParameter('trackBy', (key, value) => value);
+			view.scope.setParameter('options', {
 				one: 'foo',
 				two: 'bar',
 				three: 'baz',
-			};
+			});
 
 			compiler.compileElement(view, el);
 
@@ -71,12 +71,12 @@ describe('#Directives/ForDirective.trackBy', () => {
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
-			view.parameters['trackBy'] = (key, value) => value;
-			view.parameters['options'] = {
+			view.scope.setParameter('trackBy', (key, value) => value);
+			view.scope.setParameter('options', {
 				one: 'foo',
 				two: 'bar',
 				three: 'baz',
-			};
+			});
 
 			compiler.compileElement(view, el);
 
@@ -88,14 +88,14 @@ describe('#Directives/ForDirective.trackBy', () => {
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
-			view.parameters['trackBy'] = (i, name) => name;
-			view.parameters['users'] = ['David', 'John', 'Clare'];
+			view.scope.setParameter('trackBy', (i, name) => name);
+			view.scope.setParameter('users', ['David', 'John', 'Clare']);
 
 			compiler.compileElement(view, el);
 
 			expect(el.outerText).to.be.equal('- David -- John -- Clare -');
 
-			view.parameters['users'] = ['David', 'John', 'Clare', 'Luke'];
+			view.scope.setParameter('users', ['David', 'John', 'Clare', 'Luke']);
 			view.changeDetectorRef.refresh();
 
 			expect(el.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
@@ -106,14 +106,14 @@ describe('#Directives/ForDirective.trackBy', () => {
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
-			view.parameters['trackBy'] = (i, name) => name;
-			view.parameters['users'] = ['David', 'John', 'Clare'];
+			view.scope.setParameter('trackBy', (i, name) => name);
+			view.scope.setParameter('users', ['David', 'John', 'Clare']);
 
 			compiler.compileElement(view, el);
 
 			expect(el.outerText).to.be.equal('- David -- John -- Clare -');
 
-			view.parameters['users'].push('Luke');
+			view.scope.findParameter('users').push('Luke');
 			view.changeDetectorRef.refresh();
 
 			expect(el.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
@@ -124,14 +124,14 @@ describe('#Directives/ForDirective.trackBy', () => {
 			let view = new ComponentView(container, ElementRef.getByNode(parent));
 
 			view.directives.push(ForDirective);
-			view.parameters['trackBy'] = (i, name) => name;
-			view.parameters['users'] = ['David', 'John', 'Clare'];
+			view.scope.setParameter('trackBy', (i, name) => name);
+			view.scope.setParameter('users', ['David', 'John', 'Clare']);
 
 			compiler.compileElement(view, parent);
 
 			expect(parent.outerText).to.be.equal('- David -- John -- Clare -');
 
-			view.parameters['users'].splice(-1, 1);
+			view.scope.findParameter('users').splice(-1, 1);
 			view.changeDetectorRef.refresh();
 
 			expect(parent.outerText).to.be.equal('- David -- John -');
@@ -142,14 +142,14 @@ describe('#Directives/ForDirective.trackBy', () => {
 			let view = new ComponentView(container, ElementRef.getByNode(parent));
 
 			view.directives.push(ForDirective);
-			view.parameters['trackBy'] = (i, name) => name;
-			view.parameters['users'] = ['David', 'John', 'Clare'];
+			view.scope.setParameter('trackBy', (i, name) => name);
+			view.scope.setParameter('users', ['David', 'John', 'Clare']);
 
 			compiler.compileElement(view, parent);
 
 			expect(parent.outerText).to.be.equal('- 0: David -- 1: John -- 2: Clare -');
 
-			view.parameters['users'].splice(1, 1);
+			view.scope.findParameter('users').splice(1, 1);
 			view.changeDetectorRef.refresh();
 
 			expect(parent.outerText).to.be.equal('- 0: David -- 1: Clare -');
@@ -160,18 +160,18 @@ describe('#Directives/ForDirective.trackBy', () => {
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
-			view.parameters['trackBy'] = (key, value) => value;
-			view.parameters['options'] = {
+			view.scope.setParameter('trackBy', (key, value) => value);
+			view.scope.setParameter('options', {
 				a: 1,
 				b: 2,
 				c: 3,
-			};
+			});
 
 			compiler.compileElement(view, el);
 
 			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -');
 
-			view.parameters['options'].d = 4;
+			view.scope.findParameter('options').d = 4;
 			view.changeDetectorRef.refresh();
 
 			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -- d: 4 -');
@@ -182,18 +182,18 @@ describe('#Directives/ForDirective.trackBy', () => {
 			let view = new ComponentView(container, ElementRef.getByNode(el));
 
 			view.directives.push(ForDirective);
-			view.parameters['trackBy'] = (key, value) => value;
-			view.parameters['options'] = {
+			view.scope.setParameter('trackBy', (key, value) => value);
+			view.scope.setParameter('options', {
 				a: 1,
 				b: 2,
 				c: 3,
-			};
+			});
 
 			compiler.compileElement(view, el);
 
 			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -');
 
-			delete view.parameters['options'].c;
+			delete view.scope.findParameter('options').c;
 			view.changeDetectorRef.refresh();
 
 			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -');
@@ -225,8 +225,8 @@ describe('#Directives/ForDirective.trackBy', () => {
 
 			view.directives.push(ForDirective);
 			view.directives.push(Test);
-			view.parameters['trackBy'] = (i, letter) => letter;
-			view.parameters['b'] = [];
+			view.scope.setParameter('trackBy', (i, letter) => letter);
+			view.scope.setParameter('b', []);
 
 			compiler.compileElement(view, el);
 
@@ -234,22 +234,22 @@ describe('#Directives/ForDirective.trackBy', () => {
 			expect(destroyCalled).to.be.equal(0);
 			expect(el.innerText).to.be.equal('');
 
-			view.parameters['b'].push(null);
+			view.scope.findParameter('b').push(null);
 			view.changeDetectorRef.refresh();
 
 			expect(initCalled).to.be.equal(1);
 			expect(destroyCalled).to.be.equal(0);
 			expect(el.innerText).to.be.equal('- exists (1) -');
 
-			view.parameters['b'].splice(0, 1);
+			view.scope.findParameter('b').splice(0, 1);
 			view.changeDetectorRef.refresh();
 
 			expect(initCalled).to.be.equal(1);
 			expect(destroyCalled).to.be.equal(1);
 			expect(el.innerText).to.be.equal('');
 
-			view.parameters['b'].push(null);
-			view.parameters['b'].push(null);
+			view.scope.findParameter('b').push(null);
+			view.scope.findParameter('b').push(null);
 			view.changeDetectorRef.refresh();
 
 			expect(initCalled).to.be.equal(3);

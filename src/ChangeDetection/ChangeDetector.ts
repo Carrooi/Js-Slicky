@@ -2,7 +2,7 @@ import {RenderableView} from '../Views/RenderableView';
 import {Helpers} from '../Util/Helpers';
 import {ExpressionParser} from '../Parsers/ExpressionParser';
 import {ChangeDetectionStrategy, ExpressionDependencyType} from '../constants';
-import {ParametersList, Expression, ExpressionDependency} from '../Interfaces';
+import {Expression, ExpressionDependency} from '../Interfaces';
 
 
 declare interface WatcherItemDependency {
@@ -25,8 +25,6 @@ export class ChangeDetector
 
 	private children: Array<ChangeDetector> = [];
 
-	private parameters: ParametersList;
-
 	private view: RenderableView;
 
 	private watchers: {[id: number]: WatcherItem} = {};
@@ -43,7 +41,6 @@ export class ChangeDetector
 		}
 
 		this.view = view;
-		this.parameters = view.parameters;
 	}
 
 

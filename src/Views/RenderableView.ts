@@ -15,6 +15,7 @@ import {FilterMetadataDefinition} from '../Templating/Filters/Metadata';
 import {Annotations} from '../Util/Annotations';
 import {Functions} from '../Util/Functions';
 import {Realm} from '../Util/Realm';
+import {Scope} from '../Util/Scope';
 import {ParametersList, Expression} from '../Interfaces';
 
 
@@ -40,7 +41,7 @@ export abstract class RenderableView extends AbstractView
 
 	public filters: {[name: string]: any} = {};
 
-	public parameters: ParametersList = {};
+	public scope: Scope;
 
 	public attachedDirectives: Array<DirectiveInstance> = [];
 
@@ -56,12 +57,9 @@ export abstract class RenderableView extends AbstractView
 		this.container = container;
 		this.el = el;
 		this.el.view = this;
-		this.parameters = parameters;
 
-		this.changeDetector = new ChangeDetector(
-			this,
-			this.parent ? this.parent.changeDetector : null
-		);
+		this.scope = new Scope(parameters, parent ? parent.scope : null);
+		this.changeDetector = new ChangeDetector(this, this.parent ? this.parent.changeDetector : null);
 
 		this.changeDetectorRef = new ChangeDetectorRef(() => {
 			this.changeDetector.check();
@@ -97,42 +95,6 @@ export abstract class RenderableView extends AbstractView
 	}
 
 
-	public addParameter(name: string, value: any): void
-	{
-		if (typeof this.parameters[name] !== 'undefined') {
-			throw new Error('Can not import variable ' + name + ' since its already in use.');
-		}
-
-		this.parameters[name] = value;
-	}
-
-
-	public addParameters(parameters: ParametersList): void
-	{
-		for (let name in parameters) {
-			if (parameters.hasOwnProperty(name)) {
-				this.addParameter(name, parameters[name]);
-			}
-		}
-	}
-
-
-	public findParameter(name: string): any
-	{
-		let view: RenderableView = this;
-
-		while (view) {
-			if (typeof view.parameters[name] !== 'undefined') {
-				return view.parameters[name];
-			}
-
-			view = view.parent;
-		}
-
-		return undefined;
-	}
-
-
 	public watch(expr: Expression, allowCalls: boolean, listener: () => void): number
 	{
 		return this.changeDetector.watch(expr, allowCalls, listener);
@@ -164,7 +126,7 @@ export abstract class RenderableView extends AbstractView
 			if (typeof parameters[root] !== 'undefined') {
 				scope[root] = parameters[root];
 			} else {
-				scope[root] = this.findParameter(root);
+				scope[root] = this.scope.findParameter(root);
 			}
 
 			if (dependency.exportable) {
@@ -181,7 +143,7 @@ export abstract class RenderableView extends AbstractView
 
 		for (let exportVar in result.exports) {
 			if (result.exports.hasOwnProperty(exportVar)) {
-				this.addParameter(exportVar, result.exports[exportVar]);
+				this.scope.addParameter(exportVar, result.exports[exportVar]);
 			}
 		}
 

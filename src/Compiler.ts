@@ -330,11 +330,11 @@ export class Compiler
 			let importVarsList = view.eval('return {' + importVars + '}');
 
 			if (init) {
-				innerView.addParameters(importVarsList);
+				innerView.scope.addParameters(importVarsList);
 			} else {
 				for (let name in importVarsList) {
 					if (importVarsList.hasOwnProperty(name)) {
-						innerView.parameters[name] = importVarsList[name];
+						innerView.scope.setParameter(name, importVarsList[name]);
 					}
 				}
 			}
@@ -403,7 +403,7 @@ export class Compiler
 				exportInto = instance.view.parent;
 			}
 
-			exportInto.addParameter(exportDirective.name, instance.instance);
+			exportInto.scope.addParameter(exportDirective.name, instance.instance);
 		}
 	}
 

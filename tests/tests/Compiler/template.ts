@@ -125,7 +125,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><div test></div></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [Test]);
 
-			view.parameters['alertType'] = 'success';
+			view.scope.setParameter('alertType', 'success');
 
 			compiler.compile(view);
 
@@ -133,7 +133,7 @@ describe('#Compiler/template', () => {
 
 			expect(el.querySelector('span').className).to.be.equal('success');
 
-			innerView.parameters['alertType'] = 'danger';
+			innerView.scope.setParameter('alertType', 'danger');
 			innerView.changeDetectorRef.refresh();
 
 			expect(el.querySelector('span').className).to.be.equal('danger');
@@ -507,7 +507,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			view.parameters['a'] = 'hello';
+			view.scope.setParameter('a', 'hello');
 
 			compiler.compile(view);
 
@@ -535,7 +535,7 @@ describe('#Compiler/template', () => {
 			let el = Dom.el('<div><app></app></div>');
 			let view = new ApplicationView(container, ElementRef.getByNode(el), [App]);
 
-			view.parameters['list'] = ['hello'];
+			view.scope.setParameter('list', ['hello']);
 
 			compiler.compile(view);
 
@@ -730,7 +730,7 @@ describe('#Compiler/template', () => {
 
 			let innerView = <ComponentView>view.children[0];
 
-			innerView.parameters['app'].obj = {a: 'hi'};
+			innerView.scope.findParameter('app').obj = {a: 'hi'};
 			innerView.changeDetectorRef.refresh();
 
 			expect(el.innerText).to.be.equal('hi');

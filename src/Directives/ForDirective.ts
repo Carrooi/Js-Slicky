@@ -151,11 +151,11 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 		let view = this.viewFactory.createEmbeddedView(this.view, this.templateRef);
 
 		if (typeof this.exports[Exports.Item] !== 'undefined') {
-			view.addParameter(this.exports[Exports.Item], value);
+			view.scope.addParameter(this.exports[Exports.Item], value);
 		}
 
 		if (typeof this.exports[Exports.Index] !== 'undefined') {
-			view.addParameter(this.exports[Exports.Index], key);
+			view.scope.addParameter(this.exports[Exports.Index], key);
 		}
 
 		view.attach(insertBefore);
@@ -179,16 +179,16 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 
 	private updateItem(key: string|number, value: any): void
 	{
-		let view = this.iterated[key];
+		let view = <EmbeddedView>this.iterated[key];
 		let refresh = false;
 
 		if (typeof this.exports[Exports.Item] !== 'undefined') {
-			view.parameters[this.exports[Exports.Item]] = value;
+			view.scope.setParameter(this.exports[Exports.Item], value);
 			refresh = true;
 		}
 
 		if (typeof this.exports[Exports.Index] !== 'undefined') {
-			view.parameters[this.exports[Exports.Index]] = key;
+			view.scope.setParameter(this.exports[Exports.Index], key);
 			refresh = true;
 		}
 
@@ -200,12 +200,12 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 
 	private updateItemKey(previousKey: string|number, currentKey: string|number): void
 	{
-		let view = this.iterated[previousKey];
+		let view = <EmbeddedView>this.iterated[previousKey];
 		delete this.iterated[previousKey];
 		this.iterated[currentKey] = view;
 
 		if (typeof this.exports[Exports.Index] !== 'undefined') {
-			view.parameters[this.exports[Exports.Index]] = currentKey;
+			view.scope.setParameter(this.exports[Exports.Index], currentKey);
 			view.changeDetectorRef.refresh();
 		}
 	}

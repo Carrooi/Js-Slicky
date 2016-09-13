@@ -60,7 +60,7 @@ describe('#Compiler/components/changeDetection', () => {
 				onInit() {
 					setTimeout(() => {
 						this.title = 'Inner refreshed';
-						this.view.parent.parameters['a'].title = 'App refreshed';
+						this.view.parent.scope.findParameter('a').title = 'App refreshed';
 					}, 10);
 				}
 			}

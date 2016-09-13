@@ -55,7 +55,7 @@ describe('#Templating/Binding/TextBinding', () => {
 
 			expect(el.innerHTML).to.be.equal('4');
 
-			view.parameters['c']--;
+			view.scope.setParameter('c', view.scope.findParameter('c') - 1);
 			view.changeDetectorRef.refresh();
 
 			expect(el.innerHTML).to.be.equal('3');
@@ -80,13 +80,13 @@ describe('#Templating/Binding/TextBinding', () => {
 
 			expect(el.innerHTML).to.be.equal('4');
 
-			view.parameters['c']--;
+			view.scope.setParameter('c', view.scope.findParameter('c') - 1);
 			view.changeDetectorRef.refresh();
 
 			expect(el.innerHTML).to.be.equal('3');
 
 			view.detach();
-			view.parameters['c']--;
+			view.scope.setParameter('c', view.scope.findParameter('c') - 1);
 			view.changeDetectorRef.refresh();
 
 			expect(el.innerHTML).to.be.equal('{{ a + b + c - 2 }}');
