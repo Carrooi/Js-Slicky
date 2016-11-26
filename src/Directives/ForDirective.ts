@@ -1,39 +1,18 @@
 import {Directive, Input, Required} from '../Entity/Metadata';
-import {Compiler} from '../Compiler';
 import {OnUpdate, OnInit, OnDestroy} from '../Interfaces';
 import {ChangeDetectionAction} from '../constants';
-import {ElementRef} from '../Templating/ElementRef';
 import {TemplateRef} from '../Templating/TemplateRef';
-import {RenderableView} from '../Views/RenderableView';
-import {EmbeddedView} from '../Views/EmbeddedView';
-import {ViewFactory} from '../Views/ViewFactory';
-import {Dom} from '../Util/Dom';
 import {Helpers} from '../Util/Helpers';
 import {IterableDifferFactory, IterableDiffer, TrackByFn} from '../ChangeDetection/IterableDiffer';
-
-
-enum Exports
-{
-	Index,
-	Item,
-}
+import {EmbeddedTemplate} from '../Templating/Templates/EmbeddedTemplate';
 
 
 @Directive({
-	selector: '[\\[s\\:for\\]][\\[s\\:for-of\\]]',
-	compileInner: false,
+	selector: '[s:for][s:forOf]',
 })
 export class ForDirective implements OnUpdate, OnInit, OnDestroy
 {
 
-
-	private compiler: Compiler;
-
-	private el: ElementRef;
-
-	private view: RenderableView;
-
-	private viewFactory: ViewFactory;
 
 	private templateRef: TemplateRef;
 
@@ -41,9 +20,7 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 
 	private differ: IterableDiffer;
 
-	private iterated: {[key: string]: EmbeddedView} = {};
-
-	private exports: {[type: number]: string} = {};
+	private iterated: {[key: string]: EmbeddedTemplate} = {};
 
 
 	@Required()
@@ -58,12 +35,8 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 	public sForTrackBy: TrackByFn;
 
 
-	constructor(compiler: Compiler, el: ElementRef, view: RenderableView, viewFactory: ViewFactory, templateRef: TemplateRef, differFactory: IterableDifferFactory)
+	constructor(templateRef: TemplateRef, differFactory: IterableDifferFactory)
 	{
-		this.el = el;
-		this.compiler = compiler;
-		this.view = view;
-		this.viewFactory = viewFactory;
 		this.templateRef = templateRef;
 		this.differFactory = differFactory;
 	}
@@ -71,30 +44,16 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 
 	public onInit(): void
 	{
-		let attributes = ElementRef.getAttributes(this.el.nativeEl);
-		for (let name in attributes) {
-			if (attributes.hasOwnProperty(name) && attributes[name].directiveExport) {
-				if (attributes[name].expression === '') {
-					this.exports[Exports.Item] = name;
-				} else if (attributes[name].expression === 'index') {
-					this.exports[Exports.Index] = name;
-				}
-			}
-		}
-
 		this.differ = this.differFactory.create(this.sForOf, this.sForTrackBy);
-
 		this.update();
 	}
 
 
 	public onDestroy(): void
 	{
-		for (let key in this.iterated) {
-			if (this.iterated.hasOwnProperty(key)) {
-				this.view.removeChildView(this.iterated[key]);
-			}
-		}
+		Helpers.each(this.iterated, (name: string, template: EmbeddedTemplate) => {
+			template.remove();
+		});
 
 		this.iterated = {};
 	}
@@ -102,7 +61,7 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 
 	public onUpdate(inputName: string, value: any): void
 	{
-		if (inputName !== 'sForOf' || !this.differ) {
+		if (inputName !== 'sForOf') {
 			return;
 		}
 
@@ -148,20 +107,10 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 
 	private addItem(key: string|number, value: any, insertBefore?: Node): void
 	{
-		let view = this.viewFactory.createEmbeddedView(this.view, this.templateRef);
-
-		if (typeof this.exports[Exports.Item] !== 'undefined') {
-			view.scope.addParameter(this.exports[Exports.Item], value);
-		}
-
-		if (typeof this.exports[Exports.Index] !== 'undefined') {
-			view.scope.addParameter(this.exports[Exports.Index], key);
-		}
-
-		view.attach(insertBefore);
-		this.compiler.compileNodes(view, view.nodes);
-
-		this.iterated[key + ''] = view;
+		this.iterated[key] = this.templateRef.createEmbeddedTemplate({
+			index: key,
+			'': value,
+		}, insertBefore);
 	}
 
 
@@ -171,43 +120,37 @@ export class ForDirective implements OnUpdate, OnInit, OnDestroy
 			return;
 		}
 
-		this.iterated[key].detach();
-
+		this.iterated[key].remove();
 		delete this.iterated[key];
 	}
 
 
 	private updateItem(key: string|number, value: any): void
 	{
-		let view = <EmbeddedView>this.iterated[key];
-		let refresh = false;
-
-		if (typeof this.exports[Exports.Item] !== 'undefined') {
-			view.scope.setParameter(this.exports[Exports.Item], value);
-			refresh = true;
+		if (typeof this.iterated[key] === 'undefined') {
+			return;
 		}
-
-		if (typeof this.exports[Exports.Index] !== 'undefined') {
-			view.scope.setParameter(this.exports[Exports.Index], key);
-			refresh = true;
-		}
-
-		if (refresh) {
-			view.changeDetectorRef.refresh();
-		}
+		
+		this.iterated[key].updateExports({
+			index: key,
+			'': value,
+		});
 	}
 
 
 	private updateItemKey(previousKey: string|number, currentKey: string|number): void
 	{
-		let view = <EmbeddedView>this.iterated[previousKey];
-		delete this.iterated[previousKey];
-		this.iterated[currentKey] = view;
-
-		if (typeof this.exports[Exports.Index] !== 'undefined') {
-			view.scope.setParameter(this.exports[Exports.Index], currentKey);
-			view.changeDetectorRef.refresh();
+		if (typeof this.iterated[previousKey] === 'undefined') {
+			return;
 		}
+
+		let template = this.iterated[previousKey];
+		delete this.iterated[previousKey];
+		this.iterated[currentKey] = template;
+
+		template.updateExports({
+			index: currentKey,
+		});
 	}
 
 }

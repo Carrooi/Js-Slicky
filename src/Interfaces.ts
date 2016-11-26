@@ -1,4 +1,4 @@
-import {ChangeDetectionAction, ExpressionDependencyType, ExpressionCallType} from './constants';
+import {ChangeDetectionAction, ExpressionDependencyType} from './constants';
 
 
 // ------------ PARAMETERS
@@ -25,42 +25,14 @@ export declare interface ExpressionDependency
 	code: string,
 	root: string,
 	type: ExpressionDependencyType,
-	exportable: boolean,
 }
 
 
 export declare interface Expression
 {
 	code: string,
-	callType: ExpressionCallType,
 	dependencies: Array<ExpressionDependency>,
 	filters: Array<ExpressionFilter>,
-}
-
-
-export declare interface VariableToken
-{
-	code: string,
-	name: string,
-	exportable: boolean,
-	path: Array<{value: any, type: number}>,
-}
-
-
-export declare interface ForToken
-{
-	code: string,
-	key?: VariableToken,
-	value: VariableToken,
-	obj: VariableToken,
-	type: number,
-}
-
-
-export declare interface InterpolatedObjectElement
-{
-	obj: any,
-	key: string|number,
 }
 
 
@@ -76,23 +48,6 @@ export declare interface ChangedDependencyProperty {
 
 
 // ------------ TEMPLATING
-
-
-export declare interface AttributeProperty
-{
-	name: string;
-	expression: string;
-	directiveExport: boolean;
-	property: boolean;
-	event: boolean;
-	bound: boolean;
-}
-
-
-export declare interface AttributesList
-{
-	[name: string]: AttributeProperty;
-}
 
 
 export interface OnInit

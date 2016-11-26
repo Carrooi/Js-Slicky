@@ -19,10 +19,3 @@ export enum ExpressionDependencyType
 	Object,
 	Call,
 }
-
-
-export enum ExpressionCallType
-{
-	Static,
-	Dynamic,
-}

@@ -1,5 +1,5 @@
-import {ChangeDetectionStrategy, ChangeDetectionAction, ExpressionDependencyType} from '../constants';
-import {ParametersList, ChangedDependencyProperty, Expression, ExpressionDependency} from '../Interfaces';
+import {ChangeDetectionAction} from '../constants';
+import {ChangedDependencyProperty} from '../Interfaces';
 import {Helpers} from '../Util/Helpers';
 import {Injectable} from '../DI/Metadata';
 

@@ -1,6 +1,6 @@
 import {Directive, HostEvent} from '../../../core';
 import {DirectiveParser} from '../../../src/Entity/DirectiveParser';
-import {DirectiveMetadataDefinition, HostEventMetadataDefinition} from '../../../src/Entity/Metadata';
+import {HostEventMetadataDefinition} from '../../../src/Entity/Metadata';
 
 import chai = require('chai');
 
@@ -10,33 +10,15 @@ let expect = chai.expect;
 
 describe('#Entity/DirectiveParser', () => {
 
-	describe('getDirectiveMetadata()', () => {
+	describe('parse()', () => {
 
 		it('should throw en error for directives without @Directive annotation', () => {
 			class Test {}
 
 			expect(() => {
-				DirectiveParser.getDirectiveMetadata(Test);
-			}).to.throw(Error, 'Directive Test is not valid directive, please add @Directive annotation.');
+				DirectiveParser.parse(Test);
+			}).to.throw(Error, 'Directive Test is not valid directive, please add @Directive() or @Component() annotation.');
 		});
-
-		it('should get directives metadata', () => {
-			@Directive({
-				selector: '[test]',
-				compileInner: true,
-			})
-			class Test {}
-
-			let metadata = DirectiveParser.getDirectiveMetadata(Test);
-
-			expect(metadata).to.be.an.instanceof(DirectiveMetadataDefinition);
-			expect(metadata.selector).to.be.equal('[test]');
-			expect(metadata.compileInner).to.be.equal(true);
-		});
-
-	});
-
-	describe('parse()', () => {
 
 		it('should return parsed directive definition', () => {
 			@Directive({
@@ -49,11 +31,8 @@ describe('#Entity/DirectiveParser', () => {
 				onClick() {}
 			}
 
-			let metadata = DirectiveParser.getDirectiveMetadata(Test);
-			let definition = DirectiveParser.parse(Test, metadata);
+			let definition = DirectiveParser.parse(Test);
 			let events = definition.events;
-
-			expect(definition.directive).to.be.equal(Test);
 
 			expect(events).to.have.all.keys('onMouseOver', 'onClick');
 

@@ -1,8 +1,8 @@
-import {RenderableView} from '../Views/RenderableView';
 import {Helpers} from '../Util/Helpers';
-import {ExpressionParser} from '../Parsers/ExpressionParser';
 import {ChangeDetectionStrategy, ExpressionDependencyType} from '../constants';
 import {Expression, ExpressionDependency} from '../Interfaces';
+import {SafeEval} from '../Util/SafeEval';
+import {Scope} from '../Util/Scope';
 
 
 declare interface WatcherItemDependency {
@@ -25,7 +25,7 @@ export class ChangeDetector
 
 	private children: Array<ChangeDetector> = [];
 
-	private view: RenderableView;
+	private scope: Scope;
 
 	private watchers: {[id: number]: WatcherItem} = {};
 
@@ -34,13 +34,14 @@ export class ChangeDetector
 	private disabled: boolean = false;
 
 
-	constructor(view: RenderableView, parent?: ChangeDetector)
+	constructor(scope: Scope, parent?: ChangeDetector)
 	{
 		if (parent) {
 			parent.children.push(this);
+			this.strategy = parent.strategy;
 		}
 
-		this.view = view;
+		this.scope = scope;
 	}
 
 
@@ -211,8 +212,11 @@ export class ChangeDetector
 	 */
 	private process(expr: ExpressionDependency): any
 	{
+		let scope = {};
+		scope[expr.root] = this.scope.findParameter(expr.root);
+
 		try {
-			return this.view.evalExpression(ExpressionParser.parse(expr.code), {}, true);
+			return SafeEval.run('return ' + expr.code, scope);
 		} catch (e) {
 			return undefined;
 		}

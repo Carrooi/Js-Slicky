@@ -1,29 +1,19 @@
 import {Directive, Input, Required} from '../Entity/Metadata';
-import {OnUpdate, OnDestroy} from '../Interfaces';
-import {Compiler} from '../Compiler';
+import {OnUpdate, OnDestroy, OnInit} from '../Interfaces';
 import {TemplateRef} from '../Templating/TemplateRef';
-import {RenderableView} from '../Views/RenderableView';
-import {EmbeddedView} from '../Views/EmbeddedView';
-import {ViewFactory} from '../Views/ViewFactory';
+import {EmbeddedTemplate} from '../Templating/Templates/EmbeddedTemplate';
 
 
 @Directive({
-	selector: '[\\[s\\:if\\]]',
-	compileInner: false,
+	selector: '[s:if]',
 })
-export class IfDirective implements OnUpdate, OnDestroy
+export class IfDirective implements OnInit, OnUpdate, OnDestroy
 {
 
 
-	private compiler: Compiler;
-
-	private view: RenderableView;
-
-	private viewFactory: ViewFactory;
-
 	private templateRef: TemplateRef;
 
-	private nested: EmbeddedView;
+	private nested: EmbeddedTemplate;
 
 
 	@Required()
@@ -31,19 +21,22 @@ export class IfDirective implements OnUpdate, OnDestroy
 	public condition: string;
 
 
-	constructor(compiler: Compiler, view: RenderableView, viewFactory: ViewFactory, templateRef: TemplateRef)
+	constructor(templateRef: TemplateRef)
 	{
-		this.compiler = compiler;
-		this.view = view;
-		this.viewFactory = viewFactory;
 		this.templateRef = templateRef;
+	}
+
+
+	public onInit(): void
+	{
+		this.update();
 	}
 
 
 	public onDestroy(): void
 	{
 		if (this.nested) {
-			this.view.removeChildView(this.nested);
+			this.nested.remove();
 			this.nested = null;
 		}
 	}
@@ -51,13 +44,17 @@ export class IfDirective implements OnUpdate, OnDestroy
 
 	public onUpdate(): void
 	{
+		this.update();
+	}
+
+
+	private update(): void
+	{
 		if (this.condition && !this.nested) {
-			this.nested = this.viewFactory.createEmbeddedView(this.view, this.templateRef);
-			this.nested.attach();
-			this.compiler.compileNodes(this.nested, this.nested.nodes);
+			this.nested = this.templateRef.createEmbeddedTemplate();
 
 		} else if (!this.condition && this.nested) {
-			this.view.removeChildView(this.nested);
+			this.nested.remove();
 			this.nested = null;
 		}
 	}

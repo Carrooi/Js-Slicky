@@ -1,14 +1,14 @@
 import {Directive, Input, Required} from '../Entity/Metadata';
-import {OnUpdate} from '../Interfaces';
+import {OnUpdate, OnInit} from '../Interfaces';
 import {ElementRef} from '../Templating/ElementRef';
 import {Helpers} from '../Util/Helpers';
 import {Dom} from '../Util/Dom';
 
 
 @Directive({
-	selector: '[\\[s\\:class\\]]',
+	selector: '[s:class]',
 })
-export class ClassDirective implements OnUpdate
+export class ClassDirective implements OnInit, OnUpdate
 {
 
 
@@ -26,13 +26,25 @@ export class ClassDirective implements OnUpdate
 	}
 
 
+	public onInit(): void
+	{
+		this.update();
+	}
+
+
 	public onUpdate(): void
+	{
+		this.update();
+	}
+
+
+	private update(): void
 	{
 		if (!Helpers.isObject(this.classes)) {
 			throw new Error('ClassDirective: expression must be an object, "' + this.classes + '" given.');
 		}
 
-		let el = <Element>this.el.nativeEl;
+		let el = <Element>this.el.nativeElement;
 
 		for (let name in this.classes) {
 			if (this.classes.hasOwnProperty(name)) {

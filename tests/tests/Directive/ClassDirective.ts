@@ -1,52 +1,34 @@
 import {ClassDirective} from '../../../common';
-import {Application, Compiler, ComponentView, ElementRef} from '../../../core';
-import {Container} from '../../../di';
-import {Dom} from '../../../utils';
+
+import {createTemplate} from '../_testHelpers';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 
-let container: Container = null;
-let application: Application = null;
-let compiler: Compiler = null;
+let parent: HTMLDivElement;
 
 
 describe('#Directives/ClassDirective', () => {
 
 	beforeEach(() => {
-		container = new Container;
-		application = new Application(container);
-		compiler = container.get(<any>Compiler);
+		parent = document.createElement('div');
 	});
 
-	it('should add new css class', () => {
-		let el = Dom.el('<span [s:class]="{icon: true}"></span>');
-		let elementRef = new ElementRef(el);
+	it('should attach and detach css classes', () => {
+		let scope = {
+			show: true,
+		};
 
-		let view = new ComponentView(container, elementRef);
-		view.directives.push(ClassDirective);
+		let template = createTemplate(parent, '<span [s:class]="{icon: show}"></span>', scope, [ClassDirective]);
 
-		expect(el.classList.contains('icon')).to.be.equal(false);
+		expect(parent.children[0].classList.contains('icon')).to.be.equal(true);
 
-		compiler.compileElement(view, el);
+		scope.show = false;
+		template.changeDetector.check();
 
-		expect(el.classList.contains('icon')).to.be.equal(true);
-	});
-
-	it('should remove existing css class', () => {
-		let el = Dom.el('<span [s:class]="{icon: false}" class="icon"></span>');
-		let elementRef = new ElementRef(el);
-
-		let view = new ComponentView(container, elementRef);
-		view.directives.push(ClassDirective);
-
-		expect(el.classList.contains('icon')).to.be.equal(true);
-
-		compiler.compileElement(view, el);
-
-		expect(el.classList.contains('icon')).to.be.equal(false);
+		expect(parent.children[0].classList.contains('icon')).to.be.equal(false);
 	});
 
 });

@@ -2,35 +2,38 @@ import {Parser} from '../Tokenizer/Parser';
 import {TokensIterator} from '../Tokenizer/TokensIterator';
 import {Token} from '../Tokenizer/Tokenizer';
 import {TokenType} from '../Tokenizer/Tokens';
-import {Compiler} from '../Compiler';
-import {ExpressionCallType, ExpressionDependencyType} from '../constants';
+import {ExpressionDependencyType} from '../constants';
 import {Expression, ExpressionDependency, ExpressionDependency, ExpressionFilter} from '../Interfaces';
+
+
+export declare interface ExpressionParserOptions
+{
+	replaceGlobalRoot?: string,
+}
 
 
 export class ExpressionParser
 {
 
 
-	public static parse(code: string): Expression
+	public static parse(code: string, options: ExpressionParserOptions = {}): Expression
 	{
-		return ExpressionParser.parseGroup(new Parser(code), true);
+		return ExpressionParser.parseGroup(new Parser(code), options, true);
 	}
 
 
-	private static parseGroup(parser: TokensIterator, allowFilters: boolean = false, exitToken?: string): Expression
+	private static parseGroup(parser: TokensIterator, options: ExpressionParserOptions, allowFilters: boolean = false, exitToken?: string): Expression
 	{
-		let parts = ExpressionParser.split(parser.tokens, Compiler.FILTER_DELIMITER);
+		let parts = ExpressionParser.split(parser.tokens, '|');
 		parser.tokens = parts.shift();
 
 		let token: Token;
 		let previousToken: Token;
 		let position = 0;
 
-		let currentDependencyExportable = false;
 		let currentDependency: ExpressionDependency = null;
 		let currentExpression: Expression = {
 			code: '',
-			callType: ExpressionCallType.Static,
 			dependencies: [],
 			filters: [],
 		};
@@ -42,27 +45,36 @@ export class ExpressionParser
 		};
 
 		while (token = parser.token) {
+			parser.resetPeek();
+
 			let isDependency = false;
+			let isObjectKey = false;
+			let peek: Token = null;
+			let value = token.value;
 
-			if (token.type === TokenType.T_UNKNOWN && token.value === '#') {
-				let nextToken = parser.getNextToken();
-				if (nextToken && nextToken.type === TokenType.T_NAME) {
-					currentDependencyExportable = true;
-					//currentExpression.code += 'var ';
-
-					next();
-					continue;
+			if (token.type === TokenType.T_NAME) {
+				if (
+					((peek = parser.peek()) && peek.type === TokenType.T_CHARACTER && peek.value === ':') ||
+					(
+						(peek && peek.type === TokenType.T_WHITESPACE) &&
+						((peek = parser.peek()) && peek.type === TokenType.T_CHARACTER && peek.value === ':')
+					)
+				) {
+					isObjectKey = true;
 				}
 			}
 
-			if (token.type === TokenType.T_NAME && !currentDependency) {
+			if (token.type === TokenType.T_NAME && !isObjectKey && !currentDependency) {
 				isDependency = true;
 				currentDependency = {
 					code: '',
 					root: token.value,
 					type: ExpressionDependencyType.Object,
-					exportable: false,
 				};
+
+				if (options.replaceGlobalRoot && token.value.charAt(0) !== '$') {
+					value = options.replaceGlobalRoot.replace('%root', value);
+				}
 
 			} else if (
 				currentDependency && previousToken &&
@@ -95,7 +107,7 @@ export class ExpressionParser
 				}
 
 				if (exitInnerExpressionWith !== null) {
-					let innerExpression = ExpressionParser.parseGroup(parser, false, exitInnerExpressionWith);
+					let innerExpression = ExpressionParser.parseGroup(parser, options, false, exitInnerExpressionWith);
 					token = parser.token;
 					currentDependency.code += innerExpression.code;
 					currentExpression.code += innerExpression.code;
@@ -111,16 +123,11 @@ export class ExpressionParser
 			}
 
 			if (!isDependency && currentDependency !== null) {
-				if (currentDependencyExportable) {
-					currentDependency.exportable = true;
-				}
-
 				ExpressionParser.addDependencies(currentExpression, [currentDependency]);
 				currentDependency = null;
-				currentDependencyExportable = false;
 			}
 
-			currentExpression.code += token.value;
+			currentExpression.code += value;
 
 			if (token.type === exitToken) {
 				break;
@@ -135,7 +142,7 @@ export class ExpressionParser
 
 		if (allowFilters) {
 			for (let i = 0; i < parts.length; i++) {
-				let filter = ExpressionParser.parseFilter(parts[i]);
+				let filter = ExpressionParser.parseFilter(parts[i], options);
 				for (let j = 0; j < filter.arguments.length; j++) {
 					ExpressionParser.addDependencies(currentExpression, filter.arguments[j].dependencies);
 				}
@@ -150,9 +157,9 @@ export class ExpressionParser
 	}
 
 
-	private static parseFilter(tokens: Array<Token>): ExpressionFilter
+	private static parseFilter(tokens: Array<Token>, options: ExpressionParserOptions): ExpressionFilter
 	{
-		let parts = ExpressionParser.split(tokens, Compiler.FILTER_ARGUMENT_DELIMITER);
+		let parts = ExpressionParser.split(tokens, ':');
 
 		tokens = parts.shift();
 
@@ -163,7 +170,7 @@ export class ExpressionParser
 
 		let args = [];
 		for (let i = 0; i < parts.length; i++) {
-			args.push(ExpressionParser.parseGroup(new TokensIterator(parts[i])));
+			args.push(ExpressionParser.parseGroup(new TokensIterator(parts[i]), options));
 		}
 
 		return {
@@ -251,16 +258,7 @@ export class ExpressionParser
 	private static addDependencies(expression: Expression, dependencies: Array<ExpressionDependency>): void
 	{
 		for (let i = 0; i < dependencies.length; i++) {
-			if (dependencies[i].type === ExpressionDependencyType.Call) {
-				expression.callType = ExpressionCallType.Dynamic;
-			}
-
-			let previous = ExpressionParser.findDependency(expression, dependencies[i].code);
-
-			if (previous && !previous.exportable && dependencies[i].exportable) {
-				previous.exportable = true;
-
-			} else if (!previous) {
+			if (!ExpressionParser.findDependency(expression, dependencies[i].code)) {
 				expression.dependencies.push(dependencies[i]);
 			}
 		}

@@ -1,13 +1,13 @@
 import {Directive, Input, Required} from '../Entity/Metadata';
-import {OnUpdate} from '../Interfaces';
+import {OnUpdate, OnInit} from '../Interfaces';
 import {ElementRef} from '../Templating/ElementRef';
 import {Helpers} from '../Util/Helpers';
 
 
 @Directive({
-	selector: '[\\[s\\:attr\\]]',
+	selector: '[s:attr]',
 })
-export class AttrDirective implements OnUpdate
+export class AttrDirective implements OnInit, OnUpdate
 {
 
 
@@ -25,13 +25,25 @@ export class AttrDirective implements OnUpdate
 	}
 
 
+	public onInit(): void
+	{
+		this.update();
+	}
+
+
 	public onUpdate(): void
+	{
+		this.update();
+	}
+
+
+	private update(): void
 	{
 		if (!Helpers.isObject(this.attrs)) {
 			throw new Error('AttrDirective: expression must be an object, "' + this.attrs + '" given.');
 		}
 
-		let el = <Element>this.el.nativeEl;
+		let el = <Element>this.el.nativeElement;
 
 		for (let name in this.attrs) {
 			if (this.attrs.hasOwnProperty(name)) {

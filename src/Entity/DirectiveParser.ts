@@ -1,7 +1,18 @@
 import {Annotations} from '../Util/Annotations';
-import {DirectiveMetadataDefinition, HostEventMetadataDefinition, HostElementMetadataDefinition, InputMetadataDefinition, RequiredMetadataDefinition} from './Metadata';
+import {
+	DirectiveMetadataDefinition, HostEventMetadataDefinition, HostElementMetadataDefinition,
+	InputMetadataDefinition, RequiredMetadataDefinition, ComponentMetadataDefinition
+} from './Metadata';
 import {Functions} from '../Util/Functions';
 import {global} from '../Facade/Lang';
+import {ChangeDetectionStrategy} from "../constants";
+
+
+export enum DirectiveType
+{
+	Directive,
+	Component,
+}
 
 
 export declare interface EventsList
@@ -22,14 +33,26 @@ export declare interface InputsList
 }
 
 
+export declare interface DirectiveDefinitionMetadata
+{
+	selector: string,
+	controllerAs?: string,
+	changeDetection?: ChangeDetectionStrategy,
+	template?: string,
+	directives?: Array<any>,
+	filters?: Array<any>,
+	translations?: {[locale: string]: any},
+}
+
+
 export declare interface DirectiveDefinition
 {
-	directive: Function,
-	metadata: DirectiveMetadataDefinition,
-	events: EventsList,
-	elements: ElementsList;
-	inputs: InputsList,
 	name: string,
+	type: DirectiveType,
+	metadata: DirectiveDefinitionMetadata,
+	events: EventsList,
+	elements: ElementsList,
+	inputs: InputsList,
 }
 
 
@@ -40,19 +63,9 @@ export class DirectiveParser
 {
 
 
-	public static getDirectiveMetadata(directive: Function): DirectiveMetadataDefinition
+	public static parse(directive: Function): DirectiveDefinition
 	{
-		let metadata: DirectiveMetadataDefinition = Annotations.getAnnotation(directive, DirectiveMetadataDefinition);
-		if (!metadata) {
-			throw new Error('Directive ' + Functions.getName(directive) + ' is not valid directive, please add @Directive annotation.');
-		}
-
-		return metadata;
-	}
-
-
-	public static parse(directive: Function, metadata: DirectiveMetadataDefinition): DirectiveDefinition
-	{
+		let metadata = DirectiveParser.getMetadata(directive);
 		let propMetadata = Reflect.getMetadata('propMetadata', directive);
 
 		let inputs: InputsList = {};
@@ -95,12 +108,44 @@ export class DirectiveParser
 		}
 
 		return {
-			directive: directive,
-			metadata: metadata,
+			name: Functions.getName(directive),
+			type: metadata.type,
+			metadata: metadata.metadata,
 			events: events,
 			elements: elements,
 			inputs: inputs,
-			name: Functions.getName(directive),
+		};
+	}
+
+
+	private static getMetadata(directive: any): {type: DirectiveType, metadata: DirectiveDefinitionMetadata}
+	{
+		let type = DirectiveType.Directive;
+		let metadata;
+		let data: DirectiveDefinitionMetadata = {
+			selector: '',
+		};
+
+		if (!(metadata = Annotations.getAnnotation(directive, ComponentMetadataDefinition))) {
+			if (!(metadata = Annotations.getAnnotation(directive, DirectiveMetadataDefinition))) {
+				throw new Error('Directive ' + Functions.getName(directive) + ' is not valid directive, please add @Directive() or @Component() annotation.');
+			}
+		} else {
+			type = DirectiveType.Component;
+
+			data.controllerAs = metadata.controllerAs;
+			data.changeDetection = metadata.changeDetection;
+			data.template = metadata.template;
+			data.directives = metadata.directives;
+			data.filters = metadata.filters;
+			data.translations = metadata.translations;
+		}
+
+		data.selector = metadata.selector;
+
+		return {
+			type: type,
+			metadata: data,
 		};
 	}
 

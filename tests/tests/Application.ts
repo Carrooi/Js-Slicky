@@ -6,119 +6,109 @@ import chai = require('chai');
 
 
 let expect = chai.expect;
+let parent: HTMLDivElement;
 let application: Application = null;
 
 
 describe('#Application', () => {
 
 	beforeEach(() => {
+		parent = document.createElement('div');
 		let container = new Container;
 		application = new Application(container);
 	});
 	
 	describe('run()', () => {
 		
-		it('should compile application with one root component', (done) => {
+		it('should compile application with one root component', () => {
 			@Component({
-				selector: 'app',
+				selector: 'component',
 				template: 'Hello world',
 			})
-			class App {}
+			class TestComponent {}
 
-			let el = Dom.el('<div><app></app></div>');
+			parent.innerHTML = '<component></component>';
 			
-			application.run(App, {
-				parentElement: el,
+			application.run(TestComponent, {
+				parentElement: parent,
 			});
-			
-			setTimeout(() => {
-				expect(el.innerHTML).to.be.equal('<app>Hello world</app>');
-				done();
-			}, 20);
+
+			expect(parent.innerHTML).to.be.equal('<component>Hello world</component>');
 		});
 
-		it('should compile application with one directive', (done) => {
+		it('should compile application with one root directive', () => {
 			@Directive({
-				selector: 'div.test',
+				selector: 'directive',
 			})
-			class Test implements OnInit {
+			class TestDirective implements OnInit {
 				constructor(private el: ElementRef) {}
 				onInit() {
-					(<HTMLElement>this.el.nativeEl).innerText = 'Hello world';
+					(<HTMLElement>this.el.nativeElement).innerText = 'Hello world';
 				}
 			}
 
-			let el = Dom.el('<div><div class="test"></div></div>');
+			parent.innerHTML = '<directive></directive>';
 
-			application.run(Test, {
-				parentElement: el,
+			application.run(TestDirective, {
+				parentElement: parent,
 			});
 
-			setTimeout(() => {
-				expect(el.innerHTML).to.be.equal('<div class="test">Hello world</div>');
-				done();
-			}, 20);
+			expect(parent.innerHTML).to.be.equal('<directive>Hello world</directive>');
 		});
 
-		it('should compile application with directives and components', (done) => {
+		it('should compile application with directives and components', () => {
 			@Component({
-				selector: 'app',
+				selector: 'component',
 				template: 'Hello world',
 			})
-			class App {}
+			class TestComponent {}
 
 			@Directive({
-				selector: 'div.test',
+				selector: 'directive',
 			})
-			class Test implements OnInit {
+			class TestDirective implements OnInit {
 				constructor(private el: ElementRef) {}
 				onInit() {
-					(<HTMLElement>this.el.nativeEl).innerText = 'Hello world';
+					this.el.nativeElement.innerText = 'Hello world';
 				}
 			}
 
-			let el = Dom.el('<div><app></app><div class="test"></div></div>');
+			parent.innerHTML = '<component></component><directive></directive>';
 
-			application.run([App, Test], {
-				parentElement: el,
+			application.run([TestComponent, TestDirective], {
+				parentElement: parent,
 			});
 
-			setTimeout(() => {
-				expect(el.innerHTML).to.be.equal('<app>Hello world</app><div class="test">Hello world</div>');
-				done();
-			}, 20);
+			expect(parent.innerHTML).to.be.equal('<component>Hello world</component><directive>Hello world</directive>');
 		});
 
-		it('should register custom filters for all root directives', (done) => {
+		it('should register custom filters for all root directives', () => {
 			@Filter({
 				name: 'plus',
 			})
-			class PlusFilter {
+			class TestFilter {
 				transform(num) {
 					return num + 1;
 				}
 			}
 
 			@Component({
-				selector: 'button',
-				controllerAs: 'btn',
-				template: '{{ btn.number | plus }}'
+				selector: 'component',
+				controllerAs: 'cmp',
+				template: '{{ cmp.number | plus }}',
 			})
-			class Button {
+			class TestComponent {
 				number = 4;
 			}
 
-			let el = Dom.el('<div><button></button></div>');
+			parent.innerHTML = '<component></component>';
 
-			application.run([Button], {
-				parentElement: el,
-				filters: [PlusFilter],
+			application.run([TestComponent], {
+				parentElement: parent,
+				filters: [TestFilter],
 			});
 
-			setTimeout(() => {
-				expect(el.innerHTML).to.be.equal('<button>5</button>');
-				done();
-			}, 20);
+			expect(parent.innerHTML).to.be.equal('<component>5</component>');
 		});
 		
 	});

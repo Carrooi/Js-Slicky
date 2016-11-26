@@ -1,4 +1,3 @@
-import {VariableToken, InterpolatedObjectElement} from '../Interfaces';
 import {Parser} from '../Tokenizer/Parser';
 import {TokenType} from '../Tokenizer/Tokens';
 
@@ -61,37 +60,6 @@ export class Code
 		}
 
 		return variables;
-	}
-
-
-	public static interpolateObjectElement(scope: any, token: VariableToken): InterpolatedObjectElement
-	{
-		let result = {
-			obj: scope,
-			key: token.name,
-		};
-
-		if (!token.path.length) {
-			return result;
-		}
-
-		if (scope[token.name] == null) {
-			return result;
-		}
-
-		result.obj = scope[token.name];
-
-		for (let i = 0; i < token.path.length - 1; i++) {
-			if (result.obj == null) {
-				break;
-			}
-
-			result.obj = result.obj[token.path[i].value];
-		}
-
-		result.key = token.path[token.path.length - 1].value;
-
-		return result;
 	}
 
 }

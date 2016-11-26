@@ -5,6 +5,7 @@ import {makeDecorator} from '../../Util/Decorators';
 declare interface FilterOptions
 {
 	name: string,
+	injectTemplate?: boolean,
 }
 
 
@@ -15,10 +16,13 @@ export class FilterMetadataDefinition
 
 	public name: string;
 
+	public injectTemplate: boolean;
+
 
 	constructor(options: FilterOptions)
 	{
 		this.name = options.name;
+		this.injectTemplate = typeof options.injectTemplate === 'undefined' ? false : options.injectTemplate;
 	}
 
 }

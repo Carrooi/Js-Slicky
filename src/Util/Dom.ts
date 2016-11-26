@@ -120,7 +120,7 @@ export class Dom
 		let parent = document.createElement('div');
 		parent.innerHTML = html;
 
-		let el = parent.children[0];
+		let el = parent.childNodes[0];
 		parent.removeChild(el);
 
 		return <HTMLElement>el;
@@ -291,19 +291,27 @@ export class Dom
 	}
 
 
+	public static propertyAllowed(nodeName: string, prop: string): boolean
+	{
+		if (typeof attributes[prop] === 'undefined') {
+			return false;
+		}
+
+		if (attributes[prop] === null) {
+			return true;
+		}
+
+		if (attributes[prop].indexOf(nodeName.toLowerCase()) >= 0) {
+			return true;
+		}
+	}
+
+
 	public static propertyExists(el: Node, prop: string): boolean
 	{
 		let main = prop.split('.')[0];
 
-		if (typeof attributes[main] === 'undefined') {
-			return false;
-		}
-
-		if (attributes[main] === null) {
-			return true;
-		}
-
-		if (attributes[main].indexOf(el.nodeName.toLowerCase()) >= 0) {
+		if (Dom.propertyAllowed(el.nodeName, main)) {
 			return true;
 		}
 

@@ -1,131 +1,45 @@
-import {RenderableView} from '../Views/RenderableView';
-import {Dom} from '../Util/Dom';
-import {Strings} from '../Util/Strings';
-import {AttributesList} from '../Interfaces';
-import {DirectiveInstance} from '../Entity/DirectiveInstance';
+import {TemplateRef} from './TemplateRef';
 
 
 export class ElementRef
 {
 
 
-	public static NODE_PROPERTY_STORAGE_NAME = '__slicky_node_ref__';
+	public static ELEMENT_REF_STORAGE = '__slicky_element_ref';
 
 
-	public nativeEl: Node;
+	public nativeElement: HTMLElement;
 
-	public view: RenderableView;
-
-	public directives: Array<DirectiveInstance> = [];
+	private templateRef: TemplateRef;
 
 
-	constructor(nativeEl: Node)
+	constructor(nativeElement: HTMLElement)
 	{
-		this.nativeEl = nativeEl;
+		this.nativeElement = nativeElement;
 	}
 
 
-	public static getByNode(node: Node): ElementRef
+	public static get(el: HTMLElement): ElementRef
 	{
-		return ElementRef.exists(node) ?
-			node[ElementRef.NODE_PROPERTY_STORAGE_NAME] :
-			node[ElementRef.NODE_PROPERTY_STORAGE_NAME] = new ElementRef(node)
-		;
-	}
-
-
-	public static exists(node: Node): boolean
-	{
-		return typeof node[ElementRef.NODE_PROPERTY_STORAGE_NAME] !== 'undefined';
-	}
-
-
-	public detach(): void
-	{
-		if (this.view) {
-			this.view.detach();
-
-		} else {
-			for (let i = 0; i < this.directives.length; i++) {
-				this.directives[i].detach();
-			}
-		}
-	}
-
-
-	public isType(nodeType: number): boolean
-	{
-		return this.nativeEl.nodeType === nodeType;
-	}
-
-
-	public isElement(elementType: string|Array<string>): boolean
-	{
-		let names: Array<string> = typeof elementType === 'string' ? [elementType] : elementType;
-		let name = this.nativeEl.nodeName.toUpperCase();
-
-		for (let i = 0; i < names.length; i++) {
-			if (names[i].toUpperCase() === name) {
-				return true;
-			}
+		if (typeof el[ElementRef.ELEMENT_REF_STORAGE] === 'undefined') {
+			el[ElementRef.ELEMENT_REF_STORAGE] = new ElementRef(el);
 		}
 
-		return false;
+		return el[ElementRef.ELEMENT_REF_STORAGE];
 	}
 
 
-	public remove(): void
+	public getTemplateRef(factory?: (elementRef: ElementRef) => TemplateRef): TemplateRef
 	{
-		this.detach();
-		Dom.remove(this.nativeEl);
-	}
-
-
-	public registerDirective(directive: DirectiveInstance): void
-	{
-		this.directives.push(directive);
-	}
-
-
-	public static getAttributes(el: Node): AttributesList
-	{
-		let attributes: AttributesList = {};
-
-		for (let i = 0; i < el.attributes.length; i++) {
-			let attr = el.attributes[i];
-
-			let name = Strings.hyphensToCamelCase(attr.name.toLowerCase());
-
-			let directiveExport = false;
-			let property = false;
-			let event = false;
-
-			if (name.match(/^#/)) {
-				name = name.substring(1);
-				directiveExport = true;
-			}
-
-			if (name.match(/^\[.+?\]$/)) {
-				name = name.substring(1, name.length - 1);
-				property = true;
-			}
-
-			if (name.match(/^\(.+?\)$/)) {
-				name = name.substring(1, name.length - 1);
-				event = true;
-			}
-
-			attributes[name] = {
-				name: name,
-				expression: attr.value,
-				directiveExport: directiveExport,
-				property: property,
-				event: event,
-				bound: false,
-			};
+		if (this.nativeElement.nodeName.toLowerCase() !== 'template') {
+			throw new Error('ElementRef: can not create TemplateRef for element "' + this.nativeElement.nodeName.toLowerCase() + '".');
 		}
 
-		return attributes;
+		if (typeof this.templateRef === 'undefined' && factory) {
+			this.templateRef = factory(this);
+		}
+
+		return this.templateRef;
 	}
 
 }

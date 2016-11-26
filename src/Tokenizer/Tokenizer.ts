@@ -36,6 +36,10 @@ export class Tokenizer
 
 	public tokenize(input: string): Array<Token>
 	{
+		if (input === '') {
+			return [];
+		}
+
 		this.initialize();
 
 		let tokens = input.match(this.re);

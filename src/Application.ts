@@ -1,18 +1,21 @@
 import {Container} from './DI/Container';
 import {Injectable} from './DI/Metadata';
 import {Helpers} from './Util/Helpers';
-import {Compiler} from './Compiler';
-import {ViewFactory} from './Views/ViewFactory';
-import {ApplicationView} from './Views/ApplicationView';
-import {ElementRef} from './Templating/ElementRef';
-import {DirectiveFactory} from './DirectiveFactory';
 import {IterableDifferFactory} from './ChangeDetection/IterableDiffer';
+import {Dom} from "./Util/Dom";
+import {DirectiveParser, DirectiveType} from "./Entity/DirectiveParser";
+import {RootCompiler} from "./Templating/Compilers/RootCompiler";
+import {ApplicationTemplate} from "./Templating/Templates/ApplicationTemplate";
+import {ParamsList} from "./Translations/Translator";
+import {FilterMetadataDefinition} from "./Templating/Filters/Metadata";
+import {Annotations} from "./Util/Annotations";
 
 
 declare interface ApplicationOptions
 {
 	parentElement?: Element,
 	filters?: Array<any>,
+	parameters?: ParamsList,
 }
 
 
@@ -23,35 +26,11 @@ export class Application
 
 	private container: Container;
 
-	private compiler: Compiler;
-
 
 	constructor(container: Container)
 	{
 		this.container = container;
-
-		let viewFactory = new ViewFactory(this.container);
-		let directiveFactory = new DirectiveFactory(this.container, viewFactory);
-
-		this.compiler = new Compiler(container, viewFactory, directiveFactory);
-
-		this.container.provide(ViewFactory, {
-			useFactory: () => viewFactory,
-		});
-
-		this.container.provide(DirectiveFactory, {
-			useFactory: () => directiveFactory,
-		});
-
 		this.container.provide(IterableDifferFactory);
-
-		this.container.provide(Compiler, {
-			useFactory: () => this.compiler,
-		});
-
-		this.container.provide(Application, {
-			useFactory: () => this,
-		});
 	}
 
 
@@ -69,20 +48,31 @@ export class Application
 			directives = [directives];
 		}
 
-		setTimeout(() => {
-			let elementRef = ElementRef.getByNode(options.parentElement);
-			let view = new ApplicationView(this.container, elementRef, directives);
+		let template = new ApplicationTemplate(this.container, options.parameters);
 
-			this.container.provide(ApplicationView, {
-				useFactory: () => view,
-			});
+		for (let i = 0; i < options.filters.length; i++) {
+			let filter = options.filters[i];
+			let metadata: FilterMetadataDefinition = Annotations.getAnnotation(filter, FilterMetadataDefinition);
 
-			for (let i = 0; i < options.filters.length; i++) {
-				view.addFilter(options.filters[i]);
+			template.addFilter(metadata.name, template.createInstance(filter), metadata.injectTemplate);
+		}
+
+		for (let i = 0; i < (<Array<any>>directives).length; i++) {
+			let definition = DirectiveParser.parse(directives[i]);
+			let found = Dom.querySelectorAll(definition.metadata.selector, options.parentElement);
+
+			if (found.length) {
+				let compiler = new RootCompiler(this.container, template, directives[i], definition);
+
+				for (let j = 0; j < found.length; j++) {
+					if (definition.type === DirectiveType.Directive) {
+						compiler.processDirective(<HTMLElement>found[j]);
+					} else {
+						compiler.processComponent(<HTMLElement>found[j]);
+					}
+				}
 			}
-
-			this.compiler.compile(view);
-		}, 0);
+		}
 	}
 
 }

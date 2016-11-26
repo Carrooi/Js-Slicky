@@ -1,260 +1,183 @@
-import {Application, Compiler, ComponentView, ElementRef, Component, OnInit, OnDestroy} from '../../../core';
+import {OnInit, OnDestroy} from '../../../core';
 import {ForDirective} from '../../../common';
-import {Container} from '../../../di';
-import {Dom} from '../../../utils';
+import {IterableDifferFactory} from '../../../src/ChangeDetection/IterableDiffer';
+import {Directive} from '../../../src/Entity/Metadata';
+
+import {createTemplate} from '../_testHelpers';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 
-let container: Container = null;
-let application: Application = null;
-let compiler: Compiler = null;
+let parent: HTMLDivElement;
 
 
 describe('#Directives/ForDirective.trackBy', () => {
 
 	beforeEach(() => {
-		container = new Container;
-		application = new Application(container);
-		compiler = container.get(<any>Compiler);
+		parent = document.createElement('div');
 	});
 
 	describe('bind()', () => {
 
 		it('should iterate through simple array list', () => {
-			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(container, ElementRef.getByNode(el));
+			let scope = {
+				trackBy: (i, user) => user.id,
+				users: [
+					{id: 1, name: 'David'},
+					{id: 2, name: 'John'},
+					{id: 3, name: 'Clare'},
+				],
+			};
 
-			view.directives.push(ForDirective);
-			view.scope.setParameter('trackBy', (i, name) => name);
-			view.scope.setParameter('users', ['David', 'John', 'Clare']);
+			let template = createTemplate(parent, '<template [s:for] #user [s:for-of]="users" [s:for-track-by]="trackBy">- {{ user.name }} -</template>', scope, [ForDirective], [IterableDifferFactory]);
 
-			compiler.compileElement(view, el);
+			expect(parent.innerText).to.be.equal('- David -- John -- Clare -');
 
-			expect(el.outerText).to.be.equal('- David -- John -- Clare -');
+			scope.users.push({id: 4, name: 'Luke'});
+			template.changeDetector.check();
+
+			expect(parent.innerText).to.be.equal('- David -- John -- Clare -- Luke -');
+
+			scope.users.splice(1, 1);
+			scope.users[2].name = 'John';
+			template.changeDetector.check();
+
+			expect(parent.innerText).to.be.equal('- David -- Clare -- John -');
 		});
 
-		it('should iterate through simple array list with key', () => {
-			let el = Dom.el('<ul><template [s:for] #i="index" #user [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ i + ": " + user }} -</li></template></ul>');
-			let view = new ComponentView(container, ElementRef.getByNode(el));
+		it('should iterate through simple array list with keys', () => {
+			let scope = {
+				trackBy: (i, user) => user.id,
+				users: [
+					{id: 1, name: 'David'},
+					{id: 2, name: 'John'},
+					{id: 3, name: 'Clare'},
+				],
+			};
 
-			view.directives.push(ForDirective);
-			view.scope.setParameter('trackBy', (i, name) => name);
-			view.scope.setParameter('users', ['David', 'John', 'Clare']);
+			let template = createTemplate(parent, '<template [s:for] #i="index" #user [s:for-of]="users" [s:for-track-by]="trackBy">- {{ i + ": " + user.name }} -</template>', scope, [ForDirective], [IterableDifferFactory]);
 
-			compiler.compileElement(view, el);
+			expect(parent.innerText).to.be.equal('- 0: David -- 1: John -- 2: Clare -');
 
-			expect(el.outerText).to.be.equal('- 0: David -- 1: John -- 2: Clare -');
+			scope.users.push({id: 4, name: 'Luke'});
+			template.changeDetector.check();
+
+			expect(parent.innerText).to.be.equal('- 0: David -- 1: John -- 2: Clare -- 3: Luke -');
+
+			scope.users.splice(1, 1);
+			scope.users[2].name = 'John';
+			template.changeDetector.check();
+
+			expect(parent.innerText).to.be.equal('- 0: David -- 1: Clare -- 2: John -');
 		});
 
 		it('should iterate through simple object', () => {
-			let el = Dom.el('<ul><template [s:for] #value [s:for-of]="options" [s:for-track-by]="trackBy"><li>- {{ value }} -</li></template></ul>');
-			let view = new ComponentView(container, ElementRef.getByNode(el));
+			let scope = {
+				trackBy: (key, option) => option.id,
+				options: {
+					one: {id: 1, name: 'foo'},
+					two: {id: 2, name: 'bar'},
+					three: {id: 3, name: 'baz'},
+				},
+			};
 
-			view.directives.push(ForDirective);
-			view.scope.setParameter('trackBy', (key, value) => value);
-			view.scope.setParameter('options', {
-				one: 'foo',
-				two: 'bar',
-				three: 'baz',
-			});
+			let template = createTemplate(parent, '<template [s:for] #value [s:for-of]="options" [s:for-track-by]="trackBy">- {{ value.name }} -</template>', scope, [ForDirective], [IterableDifferFactory]);
 
-			compiler.compileElement(view, el);
+			expect(parent.innerText).to.be.equal('- foo -- bar -- baz -');
 
-			expect(el.outerText).to.be.equal('- foo -- bar -- baz -');
+			scope.options['four'] = {id: 4, name: 'qux'};
+			template.changeDetector.check();
+
+			expect(parent.innerText).to.be.equal('- foo -- bar -- baz -- qux -');
+
+			delete scope.options['two'];
+			scope.options.three.name = 'bar';
+			template.changeDetector.check();
+
+			expect(parent.innerText).to.be.equal('- foo -- bar -- qux -');
 		});
 
 		it('should iterate through simple object with keys', () => {
-			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options" [s:for-track-by]="trackBy"><li>- {{ key + ": " + value }} -</li></template></ul>');
-			let view = new ComponentView(container, ElementRef.getByNode(el));
+			let scope = {
+				trackBy: (key, option) => option.id,
+				options: {
+					one: {id: 1, name: 'foo'},
+					two: {id: 2, name: 'bar'},
+					three: {id: 3, name: 'baz'},
+				},
+			};
 
-			view.directives.push(ForDirective);
-			view.scope.setParameter('trackBy', (key, value) => value);
-			view.scope.setParameter('options', {
-				one: 'foo',
-				two: 'bar',
-				three: 'baz',
-			});
+			let template = createTemplate(parent, '<template [s:for] #key="index" #value [s:for-of]="options" [s:for-track-by]="trackBy">- {{ key }}: {{ value.name }} -</template>', scope, [ForDirective], [IterableDifferFactory]);
 
-			compiler.compileElement(view, el);
+			expect(parent.innerText).to.be.equal('- one: foo -- two: bar -- three: baz -');
 
-			expect(el.outerText).to.be.equal('- one: foo -- two: bar -- three: baz -');
+			scope.options['four'] = {id: 4, name: 'qux'};
+			template.changeDetector.check();
+
+			expect(parent.innerText).to.be.equal('- one: foo -- two: bar -- three: baz -- four: qux -');
+
+			delete scope.options['two'];
+			scope.options.three.name = 'bar';
+			template.changeDetector.check();
+
+			expect(parent.innerText).to.be.equal('- one: foo -- three: bar -- four: qux -');
 		});
 
-		it('should update view when whole array is changed', () => {
-			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(container, ElementRef.getByNode(el));
+		it('should update template when whole array is changed', () => {
+			let scope = {
+				trackBy: (i, user) => user.id,
+				users: [
+					{id: 1, name: 'David'},
+				],
+			};
 
-			view.directives.push(ForDirective);
-			view.scope.setParameter('trackBy', (i, name) => name);
-			view.scope.setParameter('users', ['David', 'John', 'Clare']);
+			let template = createTemplate(parent, '<template [s:for] #user [s:for-of]="users" [s:for-track-by]="trackBy">- {{ user.name }} -</template>', scope, [ForDirective], [IterableDifferFactory]);
 
-			compiler.compileElement(view, el);
+			expect(parent.innerText).to.be.equal('- David -');
 
-			expect(el.outerText).to.be.equal('- David -- John -- Clare -');
+			scope.users = [{id: 1, name: 'Clare'}];
+			template.changeDetector.check();
 
-			view.scope.setParameter('users', ['David', 'John', 'Clare', 'Luke']);
-			view.changeDetectorRef.refresh();
-
-			expect(el.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
+			expect(parent.innerText).to.be.equal('- Clare -');
 		});
 
-		it('should update view when new item is added to array', () => {
-			let el = Dom.el('<ul><template [s:for] #user [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(container, ElementRef.getByNode(el));
+		it('should create and destroy directive', () => {
+			let calledInit = 0;
+			let calledDestroy = 0;
 
-			view.directives.push(ForDirective);
-			view.scope.setParameter('trackBy', (i, name) => name);
-			view.scope.setParameter('users', ['David', 'John', 'Clare']);
-
-			compiler.compileElement(view, el);
-
-			expect(el.outerText).to.be.equal('- David -- John -- Clare -');
-
-			view.scope.findParameter('users').push('Luke');
-			view.changeDetectorRef.refresh();
-
-			expect(el.outerText).to.be.equal('- David -- John -- Clare -- Luke -');
-		});
-
-		it('should update view when item is removed from an array', () => {
-			let parent = Dom.el('<ul><template [s:for] #user [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ user }} -</li></template></ul>');
-			let view = new ComponentView(container, ElementRef.getByNode(parent));
-
-			view.directives.push(ForDirective);
-			view.scope.setParameter('trackBy', (i, name) => name);
-			view.scope.setParameter('users', ['David', 'John', 'Clare']);
-
-			compiler.compileElement(view, parent);
-
-			expect(parent.outerText).to.be.equal('- David -- John -- Clare -');
-
-			view.scope.findParameter('users').splice(-1, 1);
-			view.changeDetectorRef.refresh();
-
-			expect(parent.outerText).to.be.equal('- David -- John -');
-		});
-
-		it('should update view when item is removed from middle of an array', () => {
-			let parent = Dom.el('<ul><template [s:for] #user #key="index" [s:for-of]="users" [s:for-track-by]="trackBy"><li>- {{ key + ": " + user }} -</li></template></ul>');
-			let view = new ComponentView(container, ElementRef.getByNode(parent));
-
-			view.directives.push(ForDirective);
-			view.scope.setParameter('trackBy', (i, name) => name);
-			view.scope.setParameter('users', ['David', 'John', 'Clare']);
-
-			compiler.compileElement(view, parent);
-
-			expect(parent.outerText).to.be.equal('- 0: David -- 1: John -- 2: Clare -');
-
-			view.scope.findParameter('users').splice(1, 1);
-			view.changeDetectorRef.refresh();
-
-			expect(parent.outerText).to.be.equal('- 0: David -- 1: Clare -');
-		});
-
-		it('should update view when new item is added to an object', () => {
-			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options" [s:for-track-by]="trackBy"><li>- {{ key + ": " + value }} -</li></template></ul>');
-			let view = new ComponentView(container, ElementRef.getByNode(el));
-
-			view.directives.push(ForDirective);
-			view.scope.setParameter('trackBy', (key, value) => value);
-			view.scope.setParameter('options', {
-				a: 1,
-				b: 2,
-				c: 3,
-			});
-
-			compiler.compileElement(view, el);
-
-			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -');
-
-			view.scope.findParameter('options').d = 4;
-			view.changeDetectorRef.refresh();
-
-			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -- d: 4 -');
-		});
-
-		it('should update view when item is removed from an object', () => {
-			let el = Dom.el('<ul><template [s:for] #key="index" #value [s:for-of]="options" [s:for-track-by]="trackBy"><li>- {{ key + ": " + value }} -</li></template></ul>');
-			let view = new ComponentView(container, ElementRef.getByNode(el));
-
-			view.directives.push(ForDirective);
-			view.scope.setParameter('trackBy', (key, value) => value);
-			view.scope.setParameter('options', {
-				a: 1,
-				b: 2,
-				c: 3,
-			});
-
-			compiler.compileElement(view, el);
-
-			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -- c: 3 -');
-
-			delete view.scope.findParameter('options').c;
-			view.changeDetectorRef.refresh();
-
-			expect(el.outerText).to.be.equal('- a: 1 -- b: 2 -');
-		});
-
-		it('should create new component, destroy it and create again', () => {
-			let initCalled = 0;
-			let destroyCalled = 0;
-
-			@Component({
-				selector: '[test]',
-				controllerAs: 't',
-				template: '- {{ t.s }} ({{ t.num }}) -',
+			@Directive({
+				selector: 'directive',
 			})
-			class Test implements OnInit, OnDestroy {
-				public s = 'exists';
-				public num = 0;
+			class TestDirective implements OnInit, OnDestroy {
 				onInit() {
-					initCalled++;
-					this.num = initCalled;
+					calledInit++;
 				}
 				onDestroy() {
-					destroyCalled++;
+					calledDestroy++;
 				}
 			}
 
-			let el = Dom.el('<div><template [s:for] #a [s:for-of]="b" [s:for-track-by]="trackBy"><div test></div></template></div>');
-			let view = new ComponentView(container, ElementRef.getByNode(el));
+			let scope = {
+				trackBy: (i, number) => number.number,
+				numbers: [{id: 1, number: 1}],
+				visible: true,
+			};
 
-			view.directives.push(ForDirective);
-			view.directives.push(Test);
-			view.scope.setParameter('trackBy', (i, letter) => letter);
-			view.scope.setParameter('b', []);
+			let template = createTemplate(parent, '<template [s:for] [s:for-of]="numbers" [s:for-track-by]="trackBy"><directive></directive></template>', scope, [TestDirective, ForDirective], [IterableDifferFactory]);
 
-			compiler.compileElement(view, el);
+			scope.numbers = [];
+			template.changeDetector.check();
 
-			expect(initCalled).to.be.equal(0);
-			expect(destroyCalled).to.be.equal(0);
-			expect(el.innerText).to.be.equal('');
+			expect(calledInit).to.be.equal(1);
+			expect(calledDestroy).to.be.equal(1);
 
-			view.scope.findParameter('b').push(null);
-			view.changeDetectorRef.refresh();
+			scope.numbers = [{id: 1, number: 1}];
+			template.changeDetector.check();
 
-			expect(initCalled).to.be.equal(1);
-			expect(destroyCalled).to.be.equal(0);
-			expect(el.innerText).to.be.equal('- exists (1) -');
-
-			view.scope.findParameter('b').splice(0, 1);
-			view.changeDetectorRef.refresh();
-
-			expect(initCalled).to.be.equal(1);
-			expect(destroyCalled).to.be.equal(1);
-			expect(el.innerText).to.be.equal('');
-
-			view.scope.findParameter('b').push(null);
-			view.scope.findParameter('b').push(null);
-			view.changeDetectorRef.refresh();
-
-			expect(initCalled).to.be.equal(3);
-			expect(destroyCalled).to.be.equal(1);
-			expect(el.innerText).to.be.equal('- exists (2) -- exists (3) -');
+			expect(calledInit).to.be.equal(2);
+			expect(calledDestroy).to.be.equal(1);
 		});
 
 	});

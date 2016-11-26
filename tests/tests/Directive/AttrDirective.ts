@@ -1,38 +1,34 @@
 import {AttrDirective} from '../../../common';
-import {Application, Compiler, ComponentView, ElementRef} from '../../../core';
-import {Container} from '../../../di';
-import {Dom} from '../../../utils';
+
+import {createTemplate} from '../_testHelpers';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 
-let container: Container = null;
-let application: Application = null;
-let compiler: Compiler = null;
+let parent: HTMLDivElement;
 
 
 describe('#Directives/AttrDirective', () => {
 
 	beforeEach(() => {
-		container = new Container;
-		application = new Application(container);
-		compiler = container.get(<any>Compiler);
+		parent = document.createElement('div');
 	});
 
 	it('should add attribute', () => {
-		let el = Dom.el('<span [s:attr]="{test: true}"></span>');
-		let elementRef = new ElementRef(el);
+		let scope = {
+			test: true,
+		};
 
-		let view = new ComponentView(container, elementRef);
-		view.directives.push(AttrDirective);
+		let template = createTemplate(parent, '<span [s:attr]="{test: test}"></span>', scope, [AttrDirective]);
 
-		expect(el['test']).to.be.equal(undefined);
+		expect(parent.children[0]['test']).to.be.equal(true);
 
-		compiler.compileElement(view, el);
+		scope.test = false;
+		template.changeDetector.check();
 
-		expect(el['test']).to.be.equal(true);
+		expect(parent.children[0]['test']).to.be.equal(false);
 	});
 
 });

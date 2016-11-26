@@ -1,5 +1,5 @@
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
-import {ExpressionCallType, ExpressionDependencyType} from '../../../src/constants';
+import {ExpressionDependencyType} from '../../../src/constants';
 
 import chai = require('chai');
 
@@ -16,7 +16,6 @@ describe('#ExpressionParser.squareBrackets', () => {
 
 			expect(expr).to.be.eql({
 				code: '["a", 1]',
-				callType: ExpressionCallType.Static,
 				dependencies: [],
 				filters: [],
 			});
@@ -27,13 +26,11 @@ describe('#ExpressionParser.squareBrackets', () => {
 
 			expect(expr).to.be.eql({
 				code: 'a["b"]',
-				callType: ExpressionCallType.Static,
 				dependencies: [
 					{
 						code: 'a["b"]',
 						root: 'a',
 						type: ExpressionDependencyType.Object,
-						exportable: false,
 					},
 				],
 				filters: [],
@@ -45,13 +42,11 @@ describe('#ExpressionParser.squareBrackets', () => {
 
 			expect(expr).to.be.eql({
 				code: 'a["b"]["c"]',
-				callType: ExpressionCallType.Static,
 				dependencies: [
 					{
 						code: 'a["b"]["c"]',
 						root: 'a',
 						type: ExpressionDependencyType.Object,
-						exportable: false,
 					},
 				],
 				filters: [],
@@ -63,13 +58,11 @@ describe('#ExpressionParser.squareBrackets', () => {
 
 			expect(expr).to.be.eql({
 				code: 'a("b")["c"]',
-				callType: ExpressionCallType.Dynamic,
 				dependencies: [
 					{
 						code: 'a("b")["c"]',
 						root: 'a',
 						type: ExpressionDependencyType.Call,
-						exportable: false,
 					},
 				],
 				filters: [],
@@ -81,13 +74,11 @@ describe('#ExpressionParser.squareBrackets', () => {
 
 			expect(expr).to.be.eql({
 				code: 'a["b"].c',
-				callType: ExpressionCallType.Static,
 				dependencies: [
 					{
 						code: 'a["b"].c',
 						root: 'a',
 						type: ExpressionDependencyType.Object,
-						exportable: false,
 					},
 				],
 				filters: [],

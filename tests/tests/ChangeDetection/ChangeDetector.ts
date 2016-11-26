@@ -1,9 +1,6 @@
 import {ChangeDetector} from '../../../src/ChangeDetection/ChangeDetector';
-import {ChangeDetectionAction} from '../../../src/constants';
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
-import {RenderableView} from '../../../src/Views/RenderableView';
-import {Container} from '../../../di';
-import {ElementRef} from '../../../core';
+import {Scope} from '../../../src/Util/Scope';
 
 import chai = require('chai');
 
@@ -11,27 +8,12 @@ import chai = require('chai');
 let expect = chai.expect;
 
 
-class FakeRenderableView extends RenderableView
-{
-
-
-	constructor(parameters = {})
-	{
-		let container = new Container;
-		let el = ElementRef.getByNode(document.createElement('div'));
-
-		super(container, el, null, parameters);
-	}
-
-}
-
-
 describe('#ChangeDetection/ChangeDetector', () => {
 
 	describe('check()', () => {
 
 		it('should not notify about changes for first level variable', (done) => {
-			let detector = new ChangeDetector(new FakeRenderableView({
+			let detector = new ChangeDetector(new Scope({
 				a: 'hello',
 			}));
 
@@ -54,7 +36,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: 'hello',
 			};
 
-			let detector = new ChangeDetector(new FakeRenderableView(parameters));
+			let detector = new ChangeDetector(new Scope(parameters));
 
 			detector.watch(ExpressionParser.parse('a'), true, () => {
 				done();
@@ -66,7 +48,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 		});
 
 		it('should not notify about changes in nested variable', (done) => {
-			let detector = new ChangeDetector(new FakeRenderableView({
+			let detector = new ChangeDetector(new Scope({
 				a: {b: {c: 'hello'}},
 			}));
 
@@ -89,7 +71,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: {b: {c: 'hello'}},
 			};
 
-			let detector = new ChangeDetector(new FakeRenderableView(parameters));
+			let detector = new ChangeDetector(new Scope(parameters));
 
 			detector.watch(ExpressionParser.parse('a.b.c'), true, () => {
 				done();
@@ -101,7 +83,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 		});
 
 		it('should not notify about changes in multi expression', (done) => {
-			let detector = new ChangeDetector(new FakeRenderableView({
+			let detector = new ChangeDetector(new Scope({
 				a: 'hello',
 				b: 'moon',
 			}));
@@ -126,7 +108,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				b: 'moon',
 			};
 
-			let detector = new ChangeDetector(new FakeRenderableView(parameters));
+			let detector = new ChangeDetector(new Scope(parameters));
 
 			detector.watch(ExpressionParser.parse('a + " " + b'), true, () => {
 				done();
@@ -146,7 +128,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: 'hello',
 			};
 
-			let detector = new ChangeDetector(new FakeRenderableView(parameters));
+			let detector = new ChangeDetector(new Scope(parameters));
 			let called = 0;
 
 			detector.watch(ExpressionParser.parse('a'), true, () => {
@@ -175,7 +157,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 				a: 1,
 			};
 
-			let detector = new ChangeDetector(new FakeRenderableView(parameters));
+			let detector = new ChangeDetector(new Scope(parameters));
 
 			let id = detector.watch(ExpressionParser.parse('a'), true, () => {
 				called++;

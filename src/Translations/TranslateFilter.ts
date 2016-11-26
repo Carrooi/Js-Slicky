@@ -1,19 +1,17 @@
 import {Filter} from '../Templating/Filters/Metadata';
-import {ViewAware} from '../Templating/Filters/ViewAware';
 import {Translator, ParamsList} from './Translator';
-import {RenderableView} from '../Views/RenderableView';
+import {AbstractTemplate} from '../Templating/Templates/AbstractTemplate';
 
 
 @Filter({
 	name: 'translate',
+	injectTemplate: true,
 })
-export class TranslateFilter implements ViewAware
+export class TranslateFilter
 {
 
 
 	private translator: Translator;
-
-	private view: RenderableView;
 
 
 	constructor(translator: Translator)
@@ -22,18 +20,8 @@ export class TranslateFilter implements ViewAware
 	}
 
 
-	public onView(view: RenderableView): void
+	public transform(template: AbstractTemplate, msg: string, countOrParams: number|ParamsList = null, params: ParamsList = null): string
 	{
-		this.view = view;
-	}
-
-
-	public transform(msg: string, countOrParams: number|ParamsList = null, params: ParamsList = null): string
-	{
-		if (!this.view) {
-			throw new Error('Translate filter must be called from template.');
-		}
-
 		let count = null;
 		let parameters = {};
 
@@ -47,7 +35,7 @@ export class TranslateFilter implements ViewAware
 			parameters = params;
 		}
 
-		return this.translator.translate(this.view, msg, count, parameters);
+		return this.translator.translate(template, msg, count, parameters);
 	}
 
 }

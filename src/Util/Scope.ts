@@ -1,4 +1,5 @@
 import {ParametersList} from '../Interfaces';
+import {Helpers} from "./Helpers";
 
 
 export class Scope
@@ -14,6 +15,18 @@ export class Scope
 	{
 		this.parameters = defaults;
 		this.parent = parent;
+	}
+
+
+	public getParameters(): ParametersList
+	{
+		return this.parameters;
+	}
+
+
+	public each(fn: (name: string, value: any) => void): void
+	{
+		Helpers.each(this.parameters, fn);
 	}
 
 

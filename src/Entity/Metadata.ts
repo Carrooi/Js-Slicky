@@ -81,15 +81,15 @@ export class HostEventMetadataDefinition
 {
 
 
-	public el: string|Node|Window;
+	public el: string;
 
 	public name: string;
 
 
-	constructor(el: string|Node|Window, name?: string)
+	constructor(el: string, name?: string)
 	{
-		if (!name && typeof el === 'string') {
-			name = <string>el;
+		if (!name && typeof el !== 'undefined') {
+			name = el;
 			el = '@';
 
 		} else if (!name) {

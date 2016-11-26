@@ -1,9 +1,7 @@
 import {PluralForms} from './PluralForms';
 import {Injectable} from '../DI/Metadata';
-import {RenderableView} from '../Views/RenderableView';
-import {Code} from '../Util/Code';
 import {Helpers} from '../Util/Helpers';
-import {VariableParser} from '../Parsers/VariableParser';
+import {AbstractTemplate} from "../Templating/Templates/AbstractTemplate";
 
 
 export declare interface ParamsList
@@ -22,7 +20,7 @@ export class Translator
 	private pluralForms = PluralForms;
 
 
-	public translate(view: RenderableView, msg: string, count: number = null, params: ParamsList = {}): string
+	public translate(template: AbstractTemplate, msg: string, count: number = null, params: ParamsList = {}): string
 	{
 		if (typeof msg !== 'string') {
 			return msg;
@@ -32,18 +30,10 @@ export class Translator
 			throw new Error('You have to set current locale before using translator.');
 		}
 
-		if (typeof view.translations[this.locale] === 'undefined') {
+		let translation = template.findTranslation(this.locale, msg);
+		if (translation === null) {
 			return msg;
 		}
-
-		let variable = VariableParser.parse(msg);
-		let obj = Code.interpolateObjectElement(view.translations[this.locale], variable);
-
-		if (typeof obj.obj[obj.key] === 'undefined') {
-			return msg;
-		}
-
-		let translation = obj.obj[obj.key];
 
 		if (Helpers.isArray(translation)) {
 			if (count === null) {
