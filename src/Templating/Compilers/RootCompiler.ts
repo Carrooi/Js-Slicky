@@ -14,6 +14,7 @@ import {
 } from "../../Entity/Metadata";
 import {Dom} from "../../Util/Dom";
 import {TemplatesStorage} from "../Templates/TemplatesStorage";
+import {Errors} from "../../Errors";
 
 
 export class RootCompiler extends AbstractCompiler
@@ -121,7 +122,7 @@ export class RootCompiler extends AbstractCompiler
 
 			if (typeof attribute === 'undefined') {
 				if (input.required) {
-					throw new Error(this.definition.name + '.' + name + ': could not find any suitable input in "' + el.nodeName.toLowerCase() + '" element.');
+					throw Errors.suitableInputNotFound(this.definition.name, name, el.nodeName.toLowerCase());
 				}
 
 				return;
@@ -147,7 +148,7 @@ export class RootCompiler extends AbstractCompiler
 				let child = Dom.querySelector(element.selector, el.nativeElement);
 
 				if (!child) {
-					throw new Error(this.definition.name + '.' + name + ': could not find child element "' + element.selector + '".');
+					throw Errors.hostElementNotFound(this.definition.name, name, element.selector);
 				}
 
 				directive[name] = ElementRef.get(<HTMLElement>child);
@@ -175,7 +176,7 @@ export class RootCompiler extends AbstractCompiler
 			}
 
 			if (!child) {
-				throw new Error(this.definition.name + '.' + name + ': could not find child element "' + event.el + '" for event.');
+				throw Errors.hostEventElementNotFound(this.definition.name, name, event.name, event.el);
 			}
 
 			this.template.addEventListener(child, event.name, (e: Event, elementRef: ElementRef) => {

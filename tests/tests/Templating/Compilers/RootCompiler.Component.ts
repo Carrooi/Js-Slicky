@@ -1,9 +1,9 @@
 import {Dom} from '../../../../src/Util/Dom';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {OnInit, OnUpdate} from "../../../../src/Interfaces";
-import {Directive, HostElement, Input, Required, HostEvent, Component} from "../../../../src/Entity/Metadata";
+import {HostElement, Input, Required, HostEvent, Component} from "../../../../src/Entity/Metadata";
 
-import {processDirective, processComponent} from '../../_testHelpers';
+import {processComponent} from '../../_testHelpers';
 
 
 import chai = require('chai');
@@ -55,7 +55,7 @@ describe('#Templating/Compilers/RootCompiler.Component', () => {
 
 			expect(() => {
 				processComponent(parent, TestComponent);
-			}).to.throw(Error, 'TestComponent: could not import host element "button" into "btn". Element does not exists.');
+			}).to.throw(Error, 'TestComponent.btn: could not import host element "button". Element does not exists.');
 		});
 
 		it('should throw an error when host element overflow component boundary', () => {
@@ -69,7 +69,7 @@ describe('#Templating/Compilers/RootCompiler.Component', () => {
 
 			expect(() => {
 				processComponent(parent, TestComponent);
-			}).to.throw(Error, 'TestComponent: could not import host element "component > button" into "btn". Element does not exists.');
+			}).to.throw(Error, 'TestComponent.btn: could not import host element "component > button". Element does not exists.');
 		});
 
 		it('should include host elements', () => {
@@ -201,7 +201,7 @@ describe('#Templating/Compilers/RootCompiler.Component', () => {
 
 			expect(() => {
 				processComponent(parent, TestComponent);
-			}).to.throw(Error, 'TestComponent: could not bind "click" event to element "button". Element does not exists.');
+			}).to.throw(Error, 'TestComponent.onClick: could not bind "click" event to element "button". Element does not exists.');
 		});
 
 		it('should throw an error when adding host event to not existing host element', () => {
@@ -216,7 +216,7 @@ describe('#Templating/Compilers/RootCompiler.Component', () => {
 
 			expect(() => {
 				processComponent(parent, TestComponent);
-			}).to.throw(Error, 'TestComponent: could not bind "click" event to host element "btn". Host element does not exists.');
+			}).to.throw(Error, 'TestComponent.onClick: could not bind "click" event to host element "btn". Host element does not exists.');
 		});
 
 		it('should throw an error when host event selector overflow directive boundary', () => {
@@ -231,7 +231,7 @@ describe('#Templating/Compilers/RootCompiler.Component', () => {
 
 			expect(() => {
 				processComponent(parent, TestComponent);
-			}).to.throw(Error, 'TestComponent: could not bind "click" event to element "component > button". Element does not exists.');
+			}).to.throw(Error, 'TestComponent.onClick: could not bind "click" event to element "component > button". Element does not exists.');
 		});
 
 		it('should call host event on inner node', (done) => {

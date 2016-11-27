@@ -23,6 +23,7 @@ import {Functions} from '../../Util/Functions';
 import {Buffer} from '../../Util/Buffer';
 import {AbstractCompiler} from "./AbstractCompiler";
 import {TemplatesStorage} from "../Templates/TemplatesStorage";
+import {Errors} from "../../Errors";
 
 
 enum ChildRequestType
@@ -197,7 +198,7 @@ export class ComponentCompiler extends AbstractCompiler
 			let metadata: FilterMetadataDefinition = Annotations.getAnnotation(filter, FilterMetadataDefinition);
 
 			if (!metadata) {
-				throw new Error('Filter ' + Functions.getName(filter) + ' is not valid filter, please add @Filter annotation.');
+				throw Errors.invalidFilter(Functions.getName(filter));
 			}
 
 			let name = 'Filter_' + Strings.hash(metadata.name);
@@ -377,7 +378,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 			if (type === '' && node.name !== 'template') {
 				if (names.length > 1) {
-					throw new Error('Please, specify exporting type for "' + name + '". Element "' + node.name + '" has more than one attached directives.');
+					throw Errors.ambitiousExportingDirectives(node.name, name);
 
 				} else if (names.length === 1) {
 					realType = names[0];
@@ -398,7 +399,7 @@ export class ComponentCompiler extends AbstractCompiler
 			}
 
 			if (node.name !== 'template' && realType === null) {
-				throw new Error('Can not export directive "' + type + '" into "' + name + '" on element "' + node.name + '". Such directive does not exists there.');
+				throw Errors.unknownExportingDirective(node.name, type, name);
 			}
 
 			if (node.name === 'template') {
@@ -422,7 +423,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 			if (typeof attribute === 'undefined') {
 				if (input.required) {
-					throw new Error(definition.name + '.' + name + ': could not find any suitable input in ' + node.name + ' element.');
+					throw Errors.suitableInputNotFound(definition.name, name, node.name);
 				}
 
 				return;
@@ -515,7 +516,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 		Helpers.each(definition.events, (name: string, event: HostEventMetadataDefinition) => {
 			if (typeof event.el !== 'string') {
-				throw new Error('Only string event listeners are supported.');
+				throw Errors.invalidEventListenerType(definition.name, name);
 			}
 
 			if (event.el === '@') {
@@ -548,7 +549,7 @@ export class ComponentCompiler extends AbstractCompiler
 		let selector = <string>node.attributes['selector'].value;
 
 		if (!selector.match(/^#[a-zA-Z0-9-_]+$/)) {
-			throw new Error('Can not include template by selector "' + selector + '", only id selector is supported for now.');
+			throw Errors.invalidIncludedTemplateSelector(selector);
 		}
 
 		let imports = node.attributes['import'];
@@ -573,7 +574,7 @@ export class ComponentCompiler extends AbstractCompiler
 				let element = this.findElementDirectiveRequest(directiveLocalName, hostElement);
 
 				if (!element) {
-					throw new Error(definition.name + ': could not bind "' + request.event + '" event to host element "' + hostElement + '". Host element does not exists.');
+					throw Errors.hostElementForHostEventNotFound(definition.name, request.listener, request.event, hostElement);
 				}
 
 				request.imported = true;
@@ -582,10 +583,10 @@ export class ComponentCompiler extends AbstractCompiler
 
 			if (!request.imported) {
 				if (request.type === ChildRequestType.Event) {
-					throw new Error(definition.name + ': could not bind "' + request.event + '" event to element "' + request.selector + '". Element does not exists.');
+					throw Errors.hostEventElementNotFound(definition.name, request.listener, request.event, request.selector);
 
 				} else if (request.type === ChildRequestType.Element) {
-					throw new Error(definition.name + ': could not import host element "' + request.selector + '" into "' + request.property + '". Element does not exists.');
+					throw Errors.hostElementNotFound(definition.name, request.property, request.selector);
 				}
 			}
 		}, directiveLocalNames);

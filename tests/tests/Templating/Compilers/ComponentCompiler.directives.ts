@@ -2,8 +2,6 @@ import {OnInit, OnUpdate, OnDestroy} from '../../../../src/Interfaces';
 import {Directive, HostElement, Input, Required, HostEvent} from '../../../../src/Entity/Metadata';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {Dom} from '../../../../src/Util/Dom';
-import {TemplateRef} from "../../../../src/Templating/TemplateRef";
-import {ComponentCompiler} from "../../../../src/Templating/Compilers/ComponentCompiler";
 
 import {createTemplate} from '../../_testHelpers';
 
@@ -54,7 +52,7 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 
 			expect(() => {
 				createTemplate(parent, '<directive></directive>', {}, [TestDirective]);
-			}).to.throw(Error, 'TestDirective: could not import host element "button" into "btn". Element does not exists.');
+			}).to.throw(Error, 'TestDirective.btn: could not import host element "button". Element does not exists.');
 		});
 
 		it('should throw an error when host element overflow directive boundary', () => {
@@ -67,7 +65,7 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 
 			expect(() => {
 				createTemplate(parent, '<directive><button></button></directive>', {}, [TestDirective]);
-			}).to.throw(Error, 'TestDirective: could not import host element "directive > button" into "btn". Element does not exists.');
+			}).to.throw(Error, 'TestDirective.btn: could not import host element "directive > button". Element does not exists.');
 		});
 
 		it('should include host elements', () => {
@@ -157,7 +155,7 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 
 			expect(() => {
 				createTemplate(parent, '<directive></directive>', {}, [TestDirective]);
-			}).to.throw(Error, 'TestDirective.input: could not find any suitable input in directive element.');
+			}).to.throw(Error, 'TestDirective.input: could not find any suitable input in "directive" element.');
 		});
 
 		it('should call host event on itself', (done) => {
@@ -191,7 +189,7 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 
 			expect(() => {
 				createTemplate(parent, '<directive></directive>', {}, [TestDirective]);
-			}).to.throw(Error, 'TestDirective: could not bind "click" event to element "button". Element does not exists.');
+			}).to.throw(Error, 'TestDirective.onClick: could not bind "click" event to element "button". Element does not exists.');
 		});
 
 		it('should throw an error when adding host event to not existing host element', () => {
@@ -205,7 +203,7 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 
 			expect(() => {
 				createTemplate(parent, '<directive></directive>', {}, [TestDirective]);
-			}).to.throw(Error, 'TestDirective: could not bind "click" event to host element "btn". Host element does not exists.');
+			}).to.throw(Error, 'TestDirective.onClick: could not bind "click" event to host element "btn". Host element does not exists.');
 		});
 
 		it('should throw an error when host event selector overflow directive boundary', () => {
@@ -219,7 +217,7 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 
 			expect(() => {
 				createTemplate(parent, '<directive><button></button></directive>', {}, [TestDirective]);
-			}).to.throw(Error, 'TestDirective: could not bind "click" event to element "directive > button". Element does not exists.');
+			}).to.throw(Error, 'TestDirective.onClick: could not bind "click" event to element "directive > button". Element does not exists.');
 		});
 
 		it('should call host event on inner node', (done) => {

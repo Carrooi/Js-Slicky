@@ -51,7 +51,7 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 
 			expect(() => {
 				processDirective(parent, TestDirective);
-			}).to.throw(Error, 'TestDirective.btn: could not find child element "button".');
+			}).to.throw(Error, 'TestDirective.btn: could not import host element "button". Element does not exists.');
 		});
 
 		it('should throw an error when host element overflow directive boundary', () => {
@@ -64,7 +64,7 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 
 			expect(() => {
 				processDirective(parent, TestDirective);
-			}).to.throw(Error, 'TestDirective.btn: could not find child element "directive > button".');
+			}).to.throw(Error, 'TestDirective.btn: could not import host element "directive > button". Element does not exists.');
 		});
 
 		it('should include host elements', () => {
@@ -193,7 +193,7 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 
 			expect(() => {
 				processDirective(parent, TestDirective);
-			}).to.throw(Error, 'TestDirective.onClick: could not find child element "button" for event.');
+			}).to.throw(Error, 'TestDirective.onClick: could not bind "click" event to element "button". Element does not exists.');
 		});
 
 		it('should throw an error when adding host event to not existing host element', () => {
@@ -207,7 +207,7 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 
 			expect(() => {
 				processDirective(parent, TestDirective);
-			}).to.throw(Error, 'TestDirective.onClick: could not find child element "@btn" for event.');
+			}).to.throw(Error, 'TestDirective.onClick: could not bind "click" event to element "@btn". Element does not exists.');
 		});
 
 		it('should throw an error when host event selector overflow directive boundary', () => {
@@ -221,7 +221,7 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 
 			expect(() => {
 				processDirective(parent, TestDirective);
-			}).to.throw(Error, 'TestDirective.onClick: could not find child element "directive > button" for event.');
+			}).to.throw(Error, 'TestDirective.onClick: could not bind "click" event to element "directive > button". Element does not exists.');
 		});
 
 		it('should call host event on inner node', (done) => {

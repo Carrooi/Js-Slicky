@@ -54,7 +54,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 
 			expect(() => {
 				createTemplate(parent, '<component></component>', {}, [TestComponent]);
-			}).to.throw(Error, 'TestComponent: could not import host element "button" into "btn". Element does not exists.');
+			}).to.throw(Error, 'TestComponent.btn: could not import host element "button". Element does not exists.');
 		});
 
 		it('should throw an error when host element overflow component boundary', () => {
@@ -68,7 +68,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 
 			expect(() => {
 				createTemplate(parent, '<component></component>', {}, [TestComponent]);
-			}).to.throw(Error, 'TestComponent: could not import host element "component > button" into "btn". Element does not exists.');
+			}).to.throw(Error, 'TestComponent.btn: could not import host element "component > button". Element does not exists.');
 		});
 
 		it('should include host elements', () => {
@@ -161,7 +161,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 
 			expect(() => {
 				createTemplate(parent, '<component></component>', {}, [TestComponent]);
-			}).to.throw(Error, 'TestComponent.input: could not find any suitable input in component element.');
+			}).to.throw(Error, 'TestComponent.input: could not find any suitable input in "component" element.');
 		});
 
 		it('should call host event on itself', (done) => {
@@ -197,7 +197,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 
 			expect(() => {
 				createTemplate(parent, '<component></component>', {}, [TestComponent]);
-			}).to.throw(Error, 'TestComponent: could not bind "click" event to element "button". Element does not exists.');
+			}).to.throw(Error, 'TestComponent.onClick: could not bind "click" event to element "button". Element does not exists.');
 		});
 
 		it('should throw an error when adding host event to not existing host element', () => {
@@ -212,7 +212,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 
 			expect(() => {
 				createTemplate(parent, '<component></component>', {}, [TestComponent]);
-			}).to.throw(Error, 'TestComponent: could not bind "click" event to host element "btn". Host element does not exists.');
+			}).to.throw(Error, 'TestComponent.onClick: could not bind "click" event to host element "btn". Host element does not exists.');
 		});
 
 		it('should throw an error when host event selector overflow component boundary', () => {
@@ -227,7 +227,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 
 			expect(() => {
 				createTemplate(parent, '<component></component>', {}, [TestComponent]);
-			}).to.throw(Error, 'TestComponent: could not bind "click" event to element "component > button". Element does not exists.');
+			}).to.throw(Error, 'TestComponent.onClick: could not bind "click" event to element "component > button". Element does not exists.');
 		});
 
 		it('should call host event on inner node', (done) => {
