@@ -13,6 +13,7 @@ import {
 	HostEventMetadataDefinition
 } from "../../Entity/Metadata";
 import {Dom} from "../../Util/Dom";
+import {TemplatesStorage} from "../Templates/TemplatesStorage";
 
 
 export class RootCompiler extends AbstractCompiler
@@ -21,6 +22,8 @@ export class RootCompiler extends AbstractCompiler
 
 	private container: Container;
 
+	private templatesStorage: TemplatesStorage;
+
 	private template: ApplicationTemplate;
 
 	private directiveType: any;
@@ -28,11 +31,12 @@ export class RootCompiler extends AbstractCompiler
 	private definition: DirectiveDefinition;
 
 
-	constructor(container: Container, template: ApplicationTemplate, directiveType: any, definition: DirectiveDefinition)
+	constructor(container: Container, templatesStorage: TemplatesStorage, template: ApplicationTemplate, directiveType: any, definition: DirectiveDefinition)
 	{
 		super();
 
 		this.container = container;
+		this.templatesStorage = templatesStorage;
 		this.template = template;
 		this.directiveType = directiveType;
 		this.definition = definition;
@@ -58,7 +62,7 @@ export class RootCompiler extends AbstractCompiler
 
 	public processComponent(el: HTMLElement, parameters: ParametersList = {}): AbstractComponentTemplate
 	{
-		let compiler = new ComponentCompiler(this.container, this.directiveType);
+		let compiler = new ComponentCompiler(this.container, this.templatesStorage, this.directiveType);
 		let elementRef = ElementRef.get(el);
 		let node = HTMLParser.parseElement(el, {
 			replaceGlobalRoot: ComponentCompiler.GLOBAL_ROOT_REPLACEMENT,

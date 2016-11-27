@@ -6,27 +6,32 @@ import {RootCompiler} from "../../src/Templating/Compilers/RootCompiler";
 import {DirectiveParser} from "../../src/Entity/DirectiveParser";
 import {AbstractComponentTemplate} from "../../src/Templating/Templates/AbstractComponentTemplate";
 import {ApplicationTemplate} from "../../src/Templating/Templates/ApplicationTemplate";
+import {TemplatesStorage} from "../../src/Templating/Templates/TemplatesStorage";
 
 
-export var processDirective = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}): any => {
-	let container = new Container;
+let prepareCompiler = (directiveType: any, parameters: ParametersList = {}, container?: Container): RootCompiler => {
+	if (!container) {
+		container = new Container;
+	}
+
 	let applicationTemplate = new ApplicationTemplate(container, parameters);
-	let compiler = new RootCompiler(container, applicationTemplate, directiveType, DirectiveParser.parse(directiveType));
+	let templatesStorage = new TemplatesStorage;
 
-	 return compiler.processDirective(parent);
+	return new RootCompiler(container, templatesStorage, applicationTemplate, directiveType, DirectiveParser.parse(directiveType));
 };
 
 
-export var processComponent = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}): any => {
-	let container = new Container;
-	let applicationTemplate = new ApplicationTemplate(container, parameters);
-	let compiler = new RootCompiler(container, applicationTemplate, directiveType, DirectiveParser.parse(directiveType));
-
-	return compiler.processComponent(parent);
+export let processDirective = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}): any => {
+	return prepareCompiler(directiveType, parameters).processDirective(parent);
 };
 
 
-export var createTemplate = (parent: HTMLElement, html: string, parameters: ParametersList = {}, directives: Array<any> = [], services: Array<any> = [], filters: Array<any> = [], translations: {} = {}): AbstractComponentTemplate => {
+export let processComponent = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}): any => {
+	return prepareCompiler(directiveType, parameters).processComponent(parent);
+};
+
+
+export let createTemplate = (parent: HTMLElement, html: string, parameters: ParametersList = {}, directives: Array<any> = [], services: Array<any> = [], filters: Array<any> = [], translations: {} = {}): AbstractComponentTemplate => {
 	@Component({
 		selector: 'test',
 		template: html,
@@ -48,8 +53,7 @@ export var createTemplate = (parent: HTMLElement, html: string, parameters: Para
 		},
 	});
 
-	var applicationTemplate = new ApplicationTemplate(container, parameters);
-	let compiler = new RootCompiler(container, applicationTemplate, SuperTestComponent, DirectiveParser.parse(SuperTestComponent));
+	let compiler = prepareCompiler(SuperTestComponent, parameters, container);
 	let template = compiler.processComponent(parent);
 
 	return template;

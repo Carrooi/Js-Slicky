@@ -9,6 +9,7 @@ import {ApplicationTemplate} from "./Templating/Templates/ApplicationTemplate";
 import {ParamsList} from "./Translations/Translator";
 import {FilterMetadataDefinition} from "./Templating/Filters/Metadata";
 import {Annotations} from "./Util/Annotations";
+import {TemplatesStorage} from "./Templating/Templates/TemplatesStorage";
 
 
 declare interface ApplicationOptions
@@ -49,6 +50,7 @@ export class Application
 		}
 
 		let template = new ApplicationTemplate(this.container, options.parameters);
+		let templatesStorage = new TemplatesStorage;
 
 		for (let i = 0; i < options.filters.length; i++) {
 			let filter = options.filters[i];
@@ -62,7 +64,7 @@ export class Application
 			let found = Dom.querySelectorAll(definition.metadata.selector, options.parentElement);
 
 			if (found.length) {
-				let compiler = new RootCompiler(this.container, template, directives[i], definition);
+				let compiler = new RootCompiler(this.container, templatesStorage, template, directives[i], definition);
 
 				for (let j = 0; j < found.length; j++) {
 					if (definition.type === DirectiveType.Directive) {

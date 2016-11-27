@@ -22,6 +22,7 @@ import {FilterMetadataDefinition} from '../Filters/Metadata';
 import {Functions} from '../../Util/Functions';
 import {Buffer} from '../../Util/Buffer';
 import {AbstractCompiler} from "./AbstractCompiler";
+import {TemplatesStorage} from "../Templates/TemplatesStorage";
 
 
 enum ChildRequestType
@@ -80,6 +81,8 @@ export class ComponentCompiler extends AbstractCompiler
 
 	private directivesCount: number = 0;
 
+	private storage: TemplatesStorage;
+
 	private container: Container;
 
 	private parent: ComponentCompiler;
@@ -99,11 +102,12 @@ export class ComponentCompiler extends AbstractCompiler
 	private templateImports: {[localName: string]: any} = {};
 
 
-	constructor(container: Container, component: any, parent?: ComponentCompiler)
+	constructor(container: Container, storage: TemplatesStorage, component: any, parent?: ComponentCompiler)
 	{
 		super();
 
 		this.container = container;
+		this.storage = storage;
 		this.component = component;
 
 		if (parent) {
@@ -122,7 +126,19 @@ export class ComponentCompiler extends AbstractCompiler
 	}
 
 
-	public compile(node?: ElementToken): Function
+	public compile(): Function
+	{
+		let name = this.getName();
+
+		if (!this.storage.isTemplateExists(name)) {
+			this.storage.save(name, this._compile());
+		}
+
+		return this.storage.getTemplate(name);
+	}
+
+
+	public _compile(node?: ElementToken): Function
 	{
 		this.template = new ClassGenerator(this.getName(), 'Template');
 
@@ -474,7 +490,7 @@ export class ComponentCompiler extends AbstractCompiler
 			this.templateImports[name] = directive;
 
 			if (definition.type === DirectiveType.Component) {
-				componentCompiler = new ComponentCompiler(this.container, directive, this);
+				componentCompiler = new ComponentCompiler(this.container, this.storage, directive, this);
 
 				let innerTemplateName = componentCompiler.getName();
 				let controllerAs = definition.metadata['controllerAs'] ? definition.metadata['controllerAs'] : null;
