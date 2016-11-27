@@ -1,9 +1,9 @@
 import {Dom} from '../../../../src/Util/Dom';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {OnInit, OnUpdate} from "../../../../src/Interfaces";
-import {Directive, HostElement, Input, Required, HostEvent} from "../../../../src/Entity/Metadata";
+import {Directive, HostElement, Input, Required, HostEvent, Component} from "../../../../src/Entity/Metadata";
 
-import {processDirective} from '../../_testHelpers';
+import {processDirective, processComponent} from '../../_testHelpers';
 
 
 import chai = require('chai');
@@ -13,7 +13,7 @@ let expect = chai.expect;
 let parent: HTMLDivElement;
 
 
-describe('#Templating/Compilers/RootCompiler.Directive', () => {
+describe('#Templating/Compilers/RootCompiler.Component', () => {
 
 	beforeEach(() => {
 		parent = document.createElement('div');
@@ -21,59 +21,65 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 
 	describe('processDirective()', () => {
 
-		it('should include simple directive', () => {
+		it('should include simple component', () => {
 			let called = false;
 
-			@Directive({
-				selector: 'directive',
+			@Component({
+				selector: 'component',
+				template: '',
+
 			})
-			class TestDirective implements OnInit {
+			class TestComponent implements OnInit {
 				constructor(private el: ElementRef) {}
 				onInit() {
 					expect(this.el).to.be.an.instanceOf(ElementRef);
+					console.log(this.el);
 
 					called = true;
 				}
 			}
 
-			processDirective(parent, TestDirective);
+			processComponent(parent, TestComponent);
 
 			expect(called).to.be.equal(true);
 		});
 
 		it('should throw an error when host element does not exists', () => {
-			@Directive({
-				selector: 'directive',
+			@Component({
+				selector: 'component',
+				template: '',
 			})
-			class TestDirective {
+			class TestComponent {
 				@HostElement('button') btn;
 			}
 
 			expect(() => {
-				processDirective(parent, TestDirective);
-			}).to.throw(Error, 'TestDirective.btn: could not find child element "button".');
+				processComponent(parent, TestComponent);
+			}).to.throw(Error, 'TestComponent: could not import host element "button" into "btn". Element does not exists.');
 		});
 
-		it('should throw an error when host element overflow directive boundary', () => {
-			@Directive({
-				selector: 'directive',
+		it('should throw an error when host element overflow component boundary', () => {
+			@Component({
+				selector: 'component',
+				template: '',
 			})
-			class TestDirective {
-				@HostElement('directive > button') btn;
+			class TestComponent {
+				@HostElement('component > button') btn;
 			}
 
 			expect(() => {
-				processDirective(parent, TestDirective);
-			}).to.throw(Error, 'TestDirective.btn: could not find child element "directive > button".');
+				processComponent(parent, TestComponent);
+			}).to.throw(Error, 'TestComponent: could not import host element "component > button" into "btn". Element does not exists.');
 		});
 
 		it('should include host elements', () => {
 			let called = false;
 
-			@Directive({
-				selector: 'directive',
+			@Component({
+				selector: 'component',
+				template: '<button>Click</button><div><span>hello</span></div>',
 			})
-			class TestDirective implements OnInit {
+			class TestComponent implements OnInit {
 				@HostElement() div: ElementRef;
 				@HostElement('button') btn: ElementRef;
 				@HostElement('div > span') title: ElementRef;
@@ -95,9 +101,7 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 				}
 			}
 
-			parent.innerHTML = '<button>Click</button><div><span>hello</span></div>';
-
-			processDirective(parent, TestDirective);
+			processComponent(parent, TestComponent);
 
 			expect(called).to.be.equal(true);
 		});
@@ -110,10 +114,11 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 				attr: 'attribute',
 			};
 
-			@Directive({
-				selector: 'directive',
+			@Component({
+				selector: 'component',
+				template: '',
 			})
-			class TestDirective implements OnInit, OnUpdate {
+			class TestComponent implements OnInit, OnUpdate {
 				@Input() property;
 				@Input('attributeCustom') attribute;
 				@Input() simpleAttribute;
@@ -140,31 +145,33 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 				}
 			}
 
-			parent.innerHTML = '<directive [property]="prop" attribute-custom="{{ attr }}" simple-attribute="simple"></directive>';
+			parent.innerHTML = '<component [property]="prop" attribute-custom="{{ attr }}" simple-attribute="simple"></component>';
 
-			processDirective(<HTMLElement>parent.children[0], TestDirective, scope);
+			processComponent(<HTMLElement>parent.children[0], TestComponent, scope);
 
 			expect(called).to.be.equal(true);
 		});
 
 		it('should throw an error when required input does not exists', () => {
-			@Directive({
+			@Component({
 				selector: 'directive',
+				template: '',
 			})
-			class TestDirective {
+			class TestComponent {
 				@Input() @Required() input;
 			}
 
 			expect(() => {
-				processDirective(parent, TestDirective);
-			}).to.throw(Error, 'TestDirective.input: could not find any suitable input in "div" element.');
+				processComponent(parent, TestComponent);
+			}).to.throw(Error, 'TestComponent.input: could not find any suitable input in "div" element.');
 		});
 
 		it('should call host event on itself', (done) => {
-			@Directive({
+			@Component({
 				selector: 'button',
+				template: '',
 			})
-			class TestDirective {
+			class TestComponent {
 				constructor(private el: ElementRef) {}
 				@HostEvent('click')
 				onClick(e: Event, btn: ElementRef) {
@@ -177,58 +184,62 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 
 			parent.innerHTML = '<button></button>';
 
-			processDirective(<HTMLElement>parent.children[0], TestDirective);
+			processComponent(<HTMLElement>parent.children[0], TestComponent);
 
 			parent.children[0].dispatchEvent(Dom.createMouseEvent('click'));
 		});
 
 		it('should throw an error when host event element does not exists', () => {
-			@Directive({
-				selector: 'directive',
+			@Component({
+				selector: 'component',
+				template: '',
 			})
-			class TestDirective {
+			class TestComponent {
 				@HostEvent('button', 'click')
 				onClick() {}
 			}
 
 			expect(() => {
-				processDirective(parent, TestDirective);
-			}).to.throw(Error, 'TestDirective.onClick: could not find child element "button" for event.');
+				processComponent(parent, TestComponent);
+			}).to.throw(Error, 'TestComponent: could not bind "click" event to element "button". Element does not exists.');
 		});
 
 		it('should throw an error when adding host event to not existing host element', () => {
-			@Directive({
-				selector: 'directive',
+			@Component({
+				selector: 'component',
+				template: '',
 			})
-			class TestDirective {
+			class TestComponent {
 				@HostEvent('@btn', 'click')
 				onClick() {}
 			}
 
 			expect(() => {
-				processDirective(parent, TestDirective);
-			}).to.throw(Error, 'TestDirective.onClick: could not find child element "@btn" for event.');
+				processComponent(parent, TestComponent);
+			}).to.throw(Error, 'TestComponent: could not bind "click" event to host element "btn". Host element does not exists.');
 		});
 
 		it('should throw an error when host event selector overflow directive boundary', () => {
-			@Directive({
-				selector: 'directive',
+			@Component({
+				selector: 'component',
+				template: '',
 			})
-			class TestDirective {
-				@HostEvent('directive > button', 'click')
+			class TestComponent {
+				@HostEvent('component > button', 'click')
 				onClick() {}
 			}
 
 			expect(() => {
-				processDirective(parent, TestDirective);
-			}).to.throw(Error, 'TestDirective.onClick: could not find child element "directive > button" for event.');
+				processComponent(parent, TestComponent);
+			}).to.throw(Error, 'TestComponent: could not bind "click" event to element "component > button". Element does not exists.');
 		});
 
 		it('should call host event on inner node', (done) => {
-			@Directive({
-				selector: 'directive',
+			@Component({
+				selector: 'component',
+				template: '<div><button></button></div>',
 			})
-			class TestDirective {
+			class TestComponent {
 				@HostEvent('div > button', 'click')
 				onClick(e: Event, btn: ElementRef) {
 					expect(e).to.be.an.instanceOf(Event);
@@ -239,18 +250,17 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 				}
 			}
 
-			parent.innerHTML = '<div><button></button></div>';
-
-			processDirective(parent, TestDirective);
+			processComponent(parent, TestComponent);
 
 			parent.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
 		});
 
 		it('should call host event on registered inner node', (done) => {
-			@Directive({
-				selector: 'directive',
+			@Component({
+				selector: 'component',
+				template: '<div><button></button></div>',
 			})
-			class TestDirective {
+			class TestComponent {
 				@HostElement('div > button') btn;
 				@HostEvent('@btn', 'click')
 				onClick(e: Event, btn: ElementRef) {
@@ -263,9 +273,7 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 				}
 			}
 
-			parent.innerHTML = '<div><button></button></div>';
-
-			processDirective(parent, TestDirective);
+			processComponent(parent, TestComponent);
 
 			parent.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
 		});

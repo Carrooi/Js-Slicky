@@ -599,7 +599,7 @@ export class ComponentCompiler extends AbstractCompiler
 	}
 
 
-	private storeElementDirectiveRequest(directiveLocalName: string, definition: DirectiveDefinition, parent: ElementToken, selector: string, property: string): void
+	public storeElementDirectiveRequest(directiveLocalName: string, definition: DirectiveDefinition, parent: ElementToken, selector: string, property: string): void
 	{
 		if (typeof this.directiveRequests[directiveLocalName] === 'undefined') {
 			this.directiveRequests[directiveLocalName] = {
@@ -618,7 +618,7 @@ export class ComponentCompiler extends AbstractCompiler
 	}
 
 
-	private storeEventDirectiveRequest(directiveLocalName: string, definition: DirectiveDefinition, parent: ElementToken, selector: string, listener: string, event: string): void
+	public storeEventDirectiveRequest(directiveLocalName: string, definition: DirectiveDefinition, parent: ElementToken, selector: string, listener: string, event: string): void
 	{
 		if (typeof this.directiveRequests[directiveLocalName] === 'undefined') {
 			this.directiveRequests[directiveLocalName] = {

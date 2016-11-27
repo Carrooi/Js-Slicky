@@ -17,6 +17,7 @@ import './tests/Templating/Filters/Filters';
 
 import './tests/Templating/QuerySelector';
 import './tests/Templating/Compilers/RootCompiler.Directive';
+import './tests/Templating/Compilers/RootCompiler.Component';
 import './tests/Templating/Compilers/ComponentCompiler';
 import './tests/Templating/Compilers/ComponentCompiler.directives';
 import './tests/Templating/Compilers/ComponentCompiler.components';

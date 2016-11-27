@@ -45,7 +45,7 @@ export class RootCompiler extends AbstractCompiler
 		let directive = this.template.attachDirective(this.directiveType, elementRef);
 
 		this.processInputs(el, directive);
-		this.processElements(el, directive);
+		this.processElements(elementRef, directive);
 		this.processEvents(el, elementRef, directive);
 
 		if (typeof directive['onInit'] === 'function') {
@@ -60,13 +60,40 @@ export class RootCompiler extends AbstractCompiler
 	{
 		let compiler = new ComponentCompiler(this.container, this.directiveType);
 		let elementRef = ElementRef.get(el);
+		let node = HTMLParser.parseElement(el, {
+			replaceGlobalRoot: '_t.scope.findParameter("%root")',
+		});
+
+		Helpers.each(this.definition.elements, (property: string, el: HostElementMetadataDefinition) => {
+			if (el.selector) {
+				compiler.storeElementDirectiveRequest('_r.component', this.definition, node, el.selector, property);
+			}
+		});
+
+		Helpers.each(this.definition.events, (property: string, event: HostEventMetadataDefinition) => {
+			if (event.el !== '@') {
+				compiler.storeEventDirectiveRequest('_r.component', this.definition, node, event.el, property, event.name);
+			}
+		});
 
 		let TemplateType = <any>compiler.compile();
 		let template: AbstractComponentTemplate = new TemplateType(this.template, this.directiveType, elementRef, this.container, parameters, null, this.definition.metadata.controllerAs);
 
-		//this.processInputs(el, template.component);
-		//this.processElements(el, template.component);
-		//this.processEvents(el, elementRef, template.component);
+		this.processInputs(el, template.component);
+
+		Helpers.each(this.definition.elements, (property: string, el: HostElementMetadataDefinition) => {
+			if (!el.selector) {
+				template.component[property] = elementRef;
+			}
+		});
+
+		Helpers.each(this.definition.events, (property: string, event: HostEventMetadataDefinition) => {
+			if (event.el === '@') {
+				this.template.addEventListener(elementRef, event.name, (e: Event, elementRef: ElementRef) => {
+					template.component[property](e, elementRef);
+				});
+			}
+		});
 
 		template.main(() => {
 			if (typeof template.component['onInit'] === 'function') {
@@ -109,16 +136,20 @@ export class RootCompiler extends AbstractCompiler
 	}
 
 
-	private processElements(el: HTMLElement, directive: any): void
+	private processElements(el: ElementRef, directive: any): void
 	{
 		Helpers.each(this.definition.elements, (name: string, element: HostElementMetadataDefinition) => {
-			let child = Dom.querySelector(element.selector, el);
+			if (element.selector) {
+				let child = Dom.querySelector(element.selector, el.nativeElement);
 
-			if (!child) {
-				throw new Error(this.definition.name + '.' + name + ': could not find child element "' + element.selector + '".');
+				if (!child) {
+					throw new Error(this.definition.name + '.' + name + ': could not find child element "' + element.selector + '".');
+				}
+
+				directive[name] = ElementRef.get(<HTMLElement>child);
+			} else {
+				directive[name] = el;
 			}
-
-			directive[name] = ElementRef.get(<HTMLElement>child);
 		});
 	}
 

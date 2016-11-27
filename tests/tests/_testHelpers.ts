@@ -10,10 +10,19 @@ import {ApplicationTemplate} from "../../src/Templating/Templates/ApplicationTem
 
 export var processDirective = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}): any => {
 	let container = new Container;
-	var applicationTemplate = new ApplicationTemplate(container, parameters);
+	let applicationTemplate = new ApplicationTemplate(container, parameters);
 	let compiler = new RootCompiler(container, applicationTemplate, directiveType, DirectiveParser.parse(directiveType));
 
 	 return compiler.processDirective(parent);
+};
+
+
+export var processComponent = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}): any => {
+	let container = new Container;
+	let applicationTemplate = new ApplicationTemplate(container, parameters);
+	let compiler = new RootCompiler(container, applicationTemplate, directiveType, DirectiveParser.parse(directiveType));
+
+	return compiler.processComponent(parent);
 };
 
 
