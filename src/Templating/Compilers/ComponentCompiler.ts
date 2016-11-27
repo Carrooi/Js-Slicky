@@ -138,7 +138,7 @@ export class ComponentCompiler extends AbstractCompiler
 	}
 
 
-	public _compile(node?: ElementToken): Function
+	public _compile(): Function
 	{
 		this.template = new ClassGenerator(this.getName(), 'Template');
 
@@ -166,11 +166,6 @@ export class ComponentCompiler extends AbstractCompiler
 		}
 
 		this.compileFilters(mainBody);
-
-		if (node) {
-			this.compileDirective(mainBody, '_r.component', definition, node, false);
-		}
-
 		this.compileBranch(mainBody, html, false);
 		this.checkDirectiveRequests(mainBody, ['_r.component']);
 
