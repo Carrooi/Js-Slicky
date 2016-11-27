@@ -73,6 +73,8 @@ export class ComponentCompiler extends AbstractCompiler
 
 	public static PLACEHOLDER_COMMENT = '__slicky_data__';
 
+	public static GLOBAL_ROOT_REPLACEMENT = '_t.scope.findParameter("%root")';
+
 
 	private templatesCount: number = 0;
 
@@ -126,7 +128,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 		let definition = this.getDefinition();
 		let html = HTMLParser.parse(definition.metadata.template, {
-			replaceGlobalRoot: '_t.scope.findParameter("%root")',
+			replaceGlobalRoot: ComponentCompiler.GLOBAL_ROOT_REPLACEMENT,
 		});
 
 		let main = this.template.addMethod('main', ['onReady'], [

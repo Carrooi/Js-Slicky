@@ -61,7 +61,7 @@ export class RootCompiler extends AbstractCompiler
 		let compiler = new ComponentCompiler(this.container, this.directiveType);
 		let elementRef = ElementRef.get(el);
 		let node = HTMLParser.parseElement(el, {
-			replaceGlobalRoot: '_t.scope.findParameter("%root")',
+			replaceGlobalRoot: ComponentCompiler.GLOBAL_ROOT_REPLACEMENT,
 		});
 
 		Helpers.each(this.definition.elements, (property: string, el: HostElementMetadataDefinition) => {
