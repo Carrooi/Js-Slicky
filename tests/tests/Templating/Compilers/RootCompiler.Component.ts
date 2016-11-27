@@ -1,7 +1,7 @@
 import {Dom} from '../../../../src/Util/Dom';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
-import {OnInit, OnUpdate} from "../../../../src/Interfaces";
-import {HostElement, Input, Required, HostEvent, Component} from "../../../../src/Entity/Metadata";
+import {OnInit, OnUpdate} from '../../../../src/Interfaces';
+import {HostElement, Input, Required, HostEvent, Component} from '../../../../src/Entity/Metadata';
 
 import {processComponent} from '../../_testHelpers';
 

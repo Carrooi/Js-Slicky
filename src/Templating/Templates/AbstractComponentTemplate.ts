@@ -3,7 +3,7 @@ import {AbstractTemplate} from './AbstractTemplate';
 import {Container} from '../../DI/Container';
 import {ParametersList, OnDestroy} from '../../Interfaces';
 import {ElementRef} from '../ElementRef';
-import {ChangeDetectorRef} from "../../ChangeDetection/ChangeDetectorRef";
+import {ChangeDetectorRef} from '../../ChangeDetection/ChangeDetectorRef';
 
 
 export abstract class AbstractComponentTemplate extends AbstractTemplate

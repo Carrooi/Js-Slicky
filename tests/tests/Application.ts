@@ -1,6 +1,5 @@
 import {Application, Component, Directive, Filter, OnInit, ElementRef} from '../../core';
 import {Container} from '../../di';
-import {Dom} from '../../utils';
 
 import chai = require('chai');
 

@@ -1,5 +1,5 @@
 import {Directive} from '../../../../src/Entity/Metadata';
-import {ElementRef} from "../../../../src/Templating/ElementRef";
+import {ElementRef} from '../../../../src/Templating/ElementRef';
 
 import {createTemplate} from '../../_testHelpers';
 

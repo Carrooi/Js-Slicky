@@ -7,14 +7,11 @@ import {ElementRef} from '../ElementRef';
 import {AbstractComponentTemplate} from '../Templates/AbstractComponentTemplate';
 import {ParametersList, Expression, OnInit} from '../../Interfaces';
 import {ApplicationTemplate} from '../Templates/ApplicationTemplate';
-import {Helpers} from "../../Util/Helpers";
-import {
-	InputMetadataDefinition, HostElementMetadataDefinition,
-	HostEventMetadataDefinition
-} from "../../Entity/Metadata";
-import {Dom} from "../../Util/Dom";
-import {TemplatesStorage} from "../Templates/TemplatesStorage";
-import {Errors} from "../../Errors";
+import {Helpers} from '../../Util/Helpers';
+import {InputMetadataDefinition, HostElementMetadataDefinition, HostEventMetadataDefinition} from '../../Entity/Metadata';
+import {Dom} from '../../Util/Dom';
+import {TemplatesStorage} from '../Templates/TemplatesStorage';
+import {Errors} from '../../Errors';
 
 
 export class RootCompiler extends AbstractCompiler

@@ -6,24 +6,18 @@ import {AbstractComponentTemplate} from '../Templates/AbstractComponentTemplate'
 import {ElementRef} from '../ElementRef';
 import {TemplateRef} from '../TemplateRef';
 import {Helpers} from '../../Util/Helpers';
-import {
-	HostElementMetadataDefinition, InputMetadataDefinition,
-	HostEventMetadataDefinition
-} from '../../Entity/Metadata';
+import {HostElementMetadataDefinition, InputMetadataDefinition, HostEventMetadataDefinition} from '../../Entity/Metadata';
 import {Annotations} from '../../Util/Annotations';
-import {
-	HTMLParser, StringToken, ExpressionToken, ElementToken, HTMLTokenType, HTMLAttributeType,
-	AttributeToken
-} from '../../Parsers/HTMLParser';
+import {HTMLParser, StringToken, ExpressionToken, ElementToken, HTMLTokenType, HTMLAttributeType, AttributeToken} from '../../Parsers/HTMLParser';
 import {QuerySelector} from '../QuerySelector';
 import {Container} from '../../DI/Container';
 import {Dom} from '../../Util/Dom';
 import {FilterMetadataDefinition} from '../Filters/Metadata';
 import {Functions} from '../../Util/Functions';
 import {Buffer} from '../../Util/Buffer';
-import {AbstractCompiler} from "./AbstractCompiler";
-import {TemplatesStorage} from "../Templates/TemplatesStorage";
-import {Errors} from "../../Errors";
+import {AbstractCompiler} from './AbstractCompiler';
+import {TemplatesStorage} from '../Templates/TemplatesStorage';
+import {Errors} from '../../Errors';
 
 
 enum ChildRequestType

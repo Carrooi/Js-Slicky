@@ -1,6 +1,5 @@
 import {ComponentCompiler} from '../../../../src/Templating/Compilers/ComponentCompiler';
 import {Dom} from '../../../../src/Util/Dom';
-import {TemplateRef} from '../../../../src/Templating/TemplateRef';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 
 import {createTemplate} from '../../_testHelpers';

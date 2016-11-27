@@ -3,7 +3,7 @@ import {EmbeddedTemplate} from './Templates/EmbeddedTemplate';
 import {ElementRef} from './ElementRef';
 import {ParametersList} from '../Interfaces';
 import {Scope} from '../Util/Scope';
-import {Helpers} from "../Util/Helpers";
+import {Helpers} from '../Util/Helpers';
 
 
 export class TemplateRef

@@ -1,6 +1,5 @@
 import {Strings} from '../Strings';
 import {SafeEval} from '../SafeEval';
-import {Helpers} from '../Helpers';
 import {MethodGenerator} from './MethodGenerator';
 
 
@@ -88,7 +87,7 @@ export class ClassGenerator
 		let args: Array<string> = this.ctor ? this.ctor.args : [];
 		let body: string = this.ctor ? this.ctor.body : (this.extendsFrom ? '_super.apply(this, arguments);' : '');
 
-		let result = ['function ' + this.name + '(' + args.join(', ') + ') {' + (body === '' ? '' : ('\n' + Strings.indent(body) + '\n')) + '}'];
+		let result = ['function ' + this.name + '(' + args.join(', ') + ') {' + (body === '' ? '' : ('\n' + Strings.indent(body) + '\n')) + '};'];
 
 		for (let i = 0; i < this.properties.length; i++) {
 			result.push(this.generateProperty(this.properties[i]));

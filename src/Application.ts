@@ -2,14 +2,14 @@ import {Container} from './DI/Container';
 import {Injectable} from './DI/Metadata';
 import {Helpers} from './Util/Helpers';
 import {IterableDifferFactory} from './ChangeDetection/IterableDiffer';
-import {Dom} from "./Util/Dom";
-import {DirectiveParser, DirectiveType} from "./Entity/DirectiveParser";
-import {RootCompiler} from "./Templating/Compilers/RootCompiler";
-import {ApplicationTemplate} from "./Templating/Templates/ApplicationTemplate";
-import {ParamsList} from "./Translations/Translator";
-import {FilterMetadataDefinition} from "./Templating/Filters/Metadata";
-import {Annotations} from "./Util/Annotations";
-import {TemplatesStorage} from "./Templating/Templates/TemplatesStorage";
+import {Dom} from './Util/Dom';
+import {DirectiveParser, DirectiveType} from './Entity/DirectiveParser';
+import {RootCompiler} from './Templating/Compilers/RootCompiler';
+import {ApplicationTemplate} from './Templating/Templates/ApplicationTemplate';
+import {ParamsList} from './Translations/Translator';
+import {FilterMetadataDefinition} from './Templating/Filters/Metadata';
+import {Annotations} from './Util/Annotations';
+import {TemplatesStorage} from './Templating/Templates/TemplatesStorage';
 
 
 declare interface ApplicationOptions

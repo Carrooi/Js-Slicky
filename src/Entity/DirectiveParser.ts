@@ -1,11 +1,11 @@
 import {Annotations} from '../Util/Annotations';
-import {
-	DirectiveMetadataDefinition, HostEventMetadataDefinition, HostElementMetadataDefinition,
-	InputMetadataDefinition, RequiredMetadataDefinition, ComponentMetadataDefinition
-} from './Metadata';
 import {Functions} from '../Util/Functions';
 import {global} from '../Facade/Lang';
-import {ChangeDetectionStrategy} from "../constants";
+import {ChangeDetectionStrategy} from '../constants';
+import {
+	DirectiveMetadataDefinition, HostEventMetadataDefinition, HostElementMetadataDefinition, InputMetadataDefinition,
+	RequiredMetadataDefinition, ComponentMetadataDefinition
+} from './Metadata';
 
 
 export enum DirectiveType

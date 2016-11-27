@@ -1,4 +1,6 @@
-import {Buffer} from "./Buffer";
+import {Buffer} from './Buffer';
+
+
 export class Strings
 {
 

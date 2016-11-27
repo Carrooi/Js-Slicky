@@ -1,8 +1,8 @@
 import {Component} from '../../../../src/Entity/Metadata';
 import {Dom} from '../../../../src/Util/Dom';
 import {OnInit} from '../../../../src/Interfaces';
-import {ChangeDetectionStrategy} from "../../../../src/constants";
-import {ChangeDetectorRef} from "../../../../src/ChangeDetection/ChangeDetectorRef";
+import {ChangeDetectionStrategy} from '../../../../src/constants';
+import {ChangeDetectorRef} from '../../../../src/ChangeDetection/ChangeDetectorRef';
 
 import {createTemplate} from '../../_testHelpers';
 

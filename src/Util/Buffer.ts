@@ -1,5 +1,4 @@
 import {Helpers} from './Helpers';
-import {Strings} from "./Strings";
 
 
 export class Buffer<T>

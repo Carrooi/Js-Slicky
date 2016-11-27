@@ -1,4 +1,4 @@
-import {IterableDiffer, IterableDifferFactory} from '../../../src/ChangeDetection/IterableDiffer';
+import {IterableDifferFactory} from '../../../src/ChangeDetection/IterableDiffer';
 import {ChangeDetectionAction} from '../../../src/constants';
 
 import chai = require('chai');

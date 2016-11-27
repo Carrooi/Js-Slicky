@@ -1,7 +1,7 @@
 import {PluralForms} from './PluralForms';
 import {Injectable} from '../DI/Metadata';
 import {Helpers} from '../Util/Helpers';
-import {AbstractTemplate} from "../Templating/Templates/AbstractTemplate";
+import {AbstractTemplate} from '../Templating/Templates/AbstractTemplate';
 
 
 export declare interface ParamsList

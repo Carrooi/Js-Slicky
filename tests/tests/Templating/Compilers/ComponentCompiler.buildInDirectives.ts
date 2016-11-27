@@ -1,6 +1,6 @@
 import {IfDirective} from '../../../../src/Directives/IfDirective';
 import {ForDirective} from '../../../../src/Directives/ForDirective';
-import {IterableDifferFactory} from "../../../../src/ChangeDetection/IterableDiffer";
+import {IterableDifferFactory} from '../../../../src/ChangeDetection/IterableDiffer';
 
 import {createTemplate} from '../../_testHelpers';
 

@@ -1,5 +1,5 @@
 import {ParametersList} from '../Interfaces';
-import {Helpers} from "./Helpers";
+import {Helpers} from './Helpers';
 
 
 export class Scope

@@ -3,7 +3,7 @@ import {Strings} from '../Util/Strings';
 import {TemplateAttributeParser} from '../Parsers/TemplateAttributeParser';
 import {ExpressionParser, ExpressionParserOptions} from './ExpressionParser';
 import {Expression} from '../Interfaces';
-import {Helpers} from "../Util/Helpers";
+import {Helpers} from '../Util/Helpers';
 
 
 export enum HTMLAttributeType
