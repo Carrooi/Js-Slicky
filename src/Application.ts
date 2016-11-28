@@ -43,10 +43,8 @@ export class Application
 	}
 
 
-	public addExtension(extensionType: any): void
+	public addExtension(extension: AbstractExtension): void
 	{
-		let extension: AbstractExtension = this.container.create(extensionType);
-
 		this.container.provide(extension.getServices());
 		this.extensions.addExtension(extension);
 	}

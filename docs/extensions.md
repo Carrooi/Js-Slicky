@@ -32,7 +32,7 @@ class MyOwnExtension extends AbstractExtension
 
 }
 
-application.addExtension(MyOwnExtension);
+application.addExtension(new MyOwnExtension);
 ```
 
 **`Application.addExtension` must be called before `Application.run`**

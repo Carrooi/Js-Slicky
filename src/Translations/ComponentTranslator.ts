@@ -1,8 +1,7 @@
 import {Translator, ParamsList} from './Translator';
-import {AbstractTemplate} from '../Templating/AbstractTemplate';
+import {AbstractTemplate} from '../Templating/Templates/AbstractTemplate';
 
 
-// todo: fix
 export class ComponentTranslator
 {
 

@@ -77,7 +77,7 @@ describe('#Application.extensions', () => {
 				}
 			}
 
-			application.addExtension(TestExtension);
+			application.addExtension(new TestExtension);
 
 			parent.innerHTML = '<component></component>';
 

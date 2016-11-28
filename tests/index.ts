@@ -27,6 +27,7 @@ import './tests/Templating/Compilers/ComponentCompiler.changeDetection';
 import './tests/Templating/Compilers/ComponentCompiler.buildInDirectives';
 
 import './tests/Translations/Translations';
+import './tests/Translations/Translations.extension';
 
 import './tests/Parsers/ExpressionParser';
 import './tests/Parsers/ExpressionParser.squareBrackets';

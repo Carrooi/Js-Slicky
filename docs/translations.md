@@ -3,63 +3,30 @@
 Like with included [components](./components.md) or [directives](./directives.md), 
 translations are also attached to specific component.
 
-To start using translations, you need to register `Translator` service into 
-[di container](./di.md) and also register the `TranslateFilter`. This is a
-[template filter](./templates.md) which will actually allow you to translate 
-something from template.
+To start using translations, you only need to register `TranslationsExtension`
+into your application.
 
 **bootstrap:**
 
 ```ts
-import 'es7-reflect-metadata/dist/browser';
+import {TranslationsExtension} from 'slicky/translations';
 
-import {Application, Translator} from 'slicky/core';
-import {Container} from 'slicky/di';
+// ...
 
-import {AppComponent} from './components/AppComponent';
+app.addExtension(new TranslationsExtension({
+    locale: 'en',       // provide default locale
+}));
 
-let container = new Container;
-container.provide(Translator);
-
-let app = new Application(container);
 app.run(AppComponent);
 ```
 
-**AppComponent:**
-
-Here you also need to set current language based on some of your checks.
-This setup needs to be in `constructor` so it will be called before any compiling.
-
-```ts
-import {Component, Translator} from 'slicky/core';
-import {TranslateFilter} from 'slicky/common';
-
-import {appTranslations} from './translations';
-
-@Component({
-	selector: 'app',
-	filters: [TranslateFilter],
-	translations: appTranslations,
-})
-export class AppComponent
-{
-
-
-	constructor(translator: Translator)
-	{
-		translator.locale = 'en';
-	}
-
-}
-```
-
-## Writing translating files
+## Usage
 
 Translating files are files with all your translations. Basically they are 
 just plain JS objects.
 
 ```ts
-export var appTranslations = {
+export var contentTranslations = {
 	en: {
 		homepage: {
 			headline: 'Welcome',
@@ -71,16 +38,20 @@ export var appTranslations = {
 };
 ```
 
-## Using translations
+```ts
+import {contentTranslations} from './contentTranslations';
 
-Given the translation above, you could use it in [template](./templates.md) 
-like this:
-
-```html
-{{ "homepage.headline" | translate }}
+@Component({
+    selector: 'content',
+    translations: contentTranslations,
+    template: '{{ "homepage.headline" | translate }}',
+})
+class ContentComponent
+{
+}
 ```
 
-Output will be `Welcome`.
+Output of `ContentComponent` will be `Welcome` text.
 
 ## Plural forms
 
