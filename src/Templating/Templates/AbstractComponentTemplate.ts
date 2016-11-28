@@ -4,6 +4,7 @@ import {Container} from '../../DI/Container';
 import {ParametersList, OnDestroy} from '../../Interfaces';
 import {ElementRef} from '../ElementRef';
 import {ChangeDetectorRef} from '../../ChangeDetection/ChangeDetectorRef';
+import {ExtensionsManager} from '../../Extensions/ExtensionsManager';
 
 
 export abstract class AbstractComponentTemplate extends AbstractTemplate
@@ -12,6 +13,8 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 
 	private templates: {[name: string]: TemplateRef} = {};
 
+	public extensions: ExtensionsManager;
+
 	public component: any;
 
 	public elementRef: ElementRef;
@@ -19,10 +22,11 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 	public templateRef: TemplateRef;
 
 
-	constructor(parent: AbstractTemplate, componentType: any, elementRef: ElementRef, container: Container, parameters: ParametersList = {}, templateRef?: TemplateRef, controllerAs?: string)
+	constructor(parent: AbstractTemplate, componentType: any, elementRef: ElementRef, container: Container, extensions: ExtensionsManager, parameters: ParametersList = {}, templateRef?: TemplateRef, controllerAs?: string)
 	{
 		super(container, parameters, parent);
 
+		this.extensions = extensions;
 		this.elementRef = elementRef;
 		this.templateRef = templateRef;
 
@@ -51,6 +55,8 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 				},
 			});
 		}
+
+		this.extensions.doUpdateComponentServices(this, elementRef, use);
 
 		this.component = this.container.create(componentType, use);
 

@@ -488,7 +488,7 @@ export class ComponentCompiler extends AbstractCompiler
 				requestsStorage = componentCompiler;
 				directiveAppendTo = new Buffer<string>();
 
-				appendTo.append('var ' + localName + ' = (new ' + innerTemplateName + '(_t, ' + name + ', _er, _t.container, {}' + (hasTemplateRef ? ', _tr' : (controllerAs ? ', null' : '')) + (controllerAs ? ', "' + controllerAs + '"' : '') + ')).main(function(_r, _t) {');
+				appendTo.append('var ' + localName + ' = (new ' + innerTemplateName + '(_t, ' + name + ', _er, _t.container, _r.extensions, {}' + (hasTemplateRef ? ', _tr' : (controllerAs ? ', null' : '')) + (controllerAs ? ', "' + controllerAs + '"' : '') + ')).main(function(_r, _t) {');
 
 				localName = '_r.component';
 			} else {

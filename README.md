@@ -58,3 +58,4 @@ $ npm install es7-reflect-metadata
 8. [life cycle events](./docs/life-cycle-events.md)
 9. [View](./docs/view.md)
 10. [ElementRef](./docs/element-ref.md)
+11. [Extensions](./docs/extensions.md)

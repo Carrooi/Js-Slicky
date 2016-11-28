@@ -10,11 +10,11 @@ let Reflect = global.Reflect;
 export declare interface CustomServiceDefinition
 {
 	service: any,
-	options: ProvideOptions,
+	options?: ProvideOptions,
 }
 
 
-declare interface ProvideOptions
+export declare interface ProvideOptions
 {
 	useFactory?: Function;
 }
@@ -124,7 +124,7 @@ export class Container
 		for (let i = 0; i < services.length; i++) {
 			if (service === services[i].service || service.prototype instanceof services[i].service) {
 				if (services[i].instance == null) {
-					if (typeof services[i].options.useFactory !== 'undefined') {
+					if (services[i].options && typeof services[i].options.useFactory !== 'undefined') {
 						services[i].instance = services[i].options.useFactory(this);
 					} else {
 						services[i].instance = this.create(services[i].service);

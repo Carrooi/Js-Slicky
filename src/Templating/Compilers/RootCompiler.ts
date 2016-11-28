@@ -12,6 +12,7 @@ import {InputMetadataDefinition, HostElementMetadataDefinition, HostEventMetadat
 import {Dom} from '../../Util/Dom';
 import {TemplatesStorage} from '../Templates/TemplatesStorage';
 import {Errors} from '../../Errors';
+import {ExtensionsManager} from '../../Extensions/ExtensionsManager';
 
 
 export class RootCompiler extends AbstractCompiler
@@ -22,6 +23,8 @@ export class RootCompiler extends AbstractCompiler
 
 	private templatesStorage: TemplatesStorage;
 
+	private extensions: ExtensionsManager;
+
 	private template: ApplicationTemplate;
 
 	private directiveType: any;
@@ -29,12 +32,13 @@ export class RootCompiler extends AbstractCompiler
 	private definition: DirectiveDefinition;
 
 
-	constructor(container: Container, templatesStorage: TemplatesStorage, template: ApplicationTemplate, directiveType: any, definition: DirectiveDefinition)
+	constructor(container: Container, templatesStorage: TemplatesStorage, extensions: ExtensionsManager, template: ApplicationTemplate, directiveType: any, definition: DirectiveDefinition)
 	{
 		super();
 
 		this.container = container;
 		this.templatesStorage = templatesStorage;
+		this.extensions = extensions;
 		this.template = template;
 		this.directiveType = directiveType;
 		this.definition = definition;
@@ -79,7 +83,7 @@ export class RootCompiler extends AbstractCompiler
 		});
 
 		let TemplateType = <any>compiler.compile();
-		let template: AbstractComponentTemplate = new TemplateType(this.template, this.directiveType, elementRef, this.container, parameters, null, this.definition.metadata.controllerAs);
+		let template: AbstractComponentTemplate = new TemplateType(this.template, this.directiveType, elementRef, this.container, this.extensions, parameters, null, this.definition.metadata.controllerAs);
 
 		this.processInputs(el, template.component);
 

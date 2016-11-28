@@ -47,4 +47,6 @@ import './tests/Directive/ClassDirective';
 import './tests/Directive/AttrDirective';
 
 import './tests/DI/Container';
+
 import './tests/Application';
+import './tests/Application.extensions';
