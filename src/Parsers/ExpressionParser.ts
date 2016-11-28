@@ -3,7 +3,7 @@ import {TokensIterator} from '../Tokenizer/TokensIterator';
 import {Token} from '../Tokenizer/Tokenizer';
 import {TokenType} from '../Tokenizer/Tokens';
 import {ExpressionDependencyType} from '../constants';
-import {Expression, ExpressionDependency, ExpressionDependency, ExpressionFilter} from '../Interfaces';
+import {Expression, ExpressionDependency, ExpressionFilter} from '../Interfaces';
 
 
 export declare interface ExpressionParserOptions
