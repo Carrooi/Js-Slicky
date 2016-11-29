@@ -1,0 +1,13 @@
+docs/
+examples/
+node_modules/
+tests/
+
+.gitignore
+.travis.yml
+
+gulpfile.js
+README.md
+tsconfig.json
+
+*.ts

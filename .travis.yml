@@ -4,6 +4,3 @@ node_js:
   - "0.12"
   - "4.1"
   - "iojs"
-
-before_script:
-  - npm run typings-tests

@@ -1,4 +1,4 @@
-declare interface Token
+export declare interface Token
 {
 	type: number,
 	value: string,

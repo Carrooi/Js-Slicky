@@ -1,5 +1,8 @@
 # Bootstrap
 
+First you should create typescript configuration file for your project (`tsconfig.json`).
+[Here](../examples/tsconfig.json) you can find example of basic configuration.
+
 For bootstraping a new application you have to create some main file, like 
 `bootstrap.ts`.
 

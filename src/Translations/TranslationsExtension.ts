@@ -8,7 +8,7 @@ import {ElementRef} from '../Templating/ElementRef';
 import {ComponentTranslator} from './ComponentTranslator';
 
 
-declare interface ExtensionOptions
+export declare interface ExtensionOptions
 {
 	locale?: string,
 }

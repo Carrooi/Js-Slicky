@@ -3,14 +3,14 @@ import {makeDecorator, makePropDecorator} from '../Util/Decorators';
 import {ChangeDetectionStrategy} from '../constants';
 
 
-declare interface DirectiveOptions
+export declare interface DirectiveOptions
 {
 	selector: string,
 	compileInner?: boolean,
 }
 
 
-declare interface ComponentOptions extends DirectiveOptions
+export declare interface ComponentOptions extends DirectiveOptions
 {
 	controllerAs?: string,
 	changeDetection?: ChangeDetectionStrategy,

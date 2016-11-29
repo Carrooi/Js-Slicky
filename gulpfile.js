@@ -1,11 +1,26 @@
 var gulp = require('gulp');
 var gutil = require('gulp-util');
+var ts = require('gulp-typescript');
+var merge = require('merge2');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 
 var webpack = require('webpack');
 
 
-gulp.task('compile-tests', function(done) {
+gulp.task('build:source', function() {
+	var project = ts.createProject('./tsconfig.json');
+
+	var result = project.src()
+		.pipe(project());
+
+	return merge([
+		result.dts.pipe(gulp.dest('.')),
+		result.js.pipe(gulp.dest('.'))
+	]);
+});
+
+
+gulp.task('build:tests', function(done) {
 	var webpackConfig = require('./tests/webpack.config');
 
 	webpack(webpackConfig, function(err, stats) {

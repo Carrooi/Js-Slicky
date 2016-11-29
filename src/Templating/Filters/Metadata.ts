@@ -2,7 +2,7 @@ import {CONST} from '../../Facade/Lang';
 import {makeDecorator} from '../../Util/Decorators';
 
 
-declare interface FilterOptions
+export declare interface FilterOptions
 {
 	name: string,
 	injectTemplate?: boolean,

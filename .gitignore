@@ -1,4 +1,10 @@
-/.idea/
+.idea/
 
-/node_modules/
-/typings/
+npm-debug.log
+node_modules/
+typings/
+
+!gulpfile.js
+
+*.js
+*.d.ts

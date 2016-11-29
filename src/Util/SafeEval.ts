@@ -2,7 +2,7 @@ import {Functions} from './Functions';
 import {Strings} from './Strings';
 
 
-declare interface EvalOptions
+export declare interface EvalOptions
 {
 	bindTo?: any,
 }

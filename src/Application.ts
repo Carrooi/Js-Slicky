@@ -14,7 +14,7 @@ import {ExtensionsManager} from './Extensions/ExtensionsManager';
 import {AbstractExtension} from './Extensions/AbstractExtension';
 
 
-declare interface ApplicationOptions
+export declare interface ApplicationOptions
 {
 	parentElement?: Element,
 	filters?: Array<any>,

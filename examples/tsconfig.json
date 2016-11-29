@@ -6,20 +6,16 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"noEmitHelpers": false,
-		"sourceMap": true,
-		"baseUrl": "../",
-		"lib": ["es5", "es2015.promise", "es2015.iterable", "es2015.collection", "dom"],
 		"types": [
-			"zone.js",
-			"mocha",
-			"chai"
-		]
+			"zone.js"
+		],
+		"lib": ["es5", "es2015.promise", "es2015.iterable", "es2015.collection", "dom"]
 	},
 	"include": [
-		"./index.ts"
+		"./app/bootstrap.ts"
 	],
 	"exclude": [
-		"../node_modules"
+		"./node_modules"
 	],
 	"compileOnSave": false,
 	"buildOnSave": false
