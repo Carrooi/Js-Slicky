@@ -4,12 +4,12 @@ import {Helpers} from './Util/Helpers';
 import {IterableDifferFactory} from './ChangeDetection/IterableDiffer';
 import {Dom} from './Util/Dom';
 import {DirectiveParser, DirectiveType} from './Entity/DirectiveParser';
-import {RootCompiler} from './Templating/Compilers/RootCompiler';
 import {ApplicationTemplate} from './Templating/Templates/ApplicationTemplate';
 import {ParamsList} from './Translations/Translator';
 import {FilterMetadataDefinition} from './Templating/Filters/Metadata';
 import {Annotations} from './Util/Annotations';
 import {TemplatesStorage} from './Templating/Templates/TemplatesStorage';
+import {CompilerFactory} from './Templating/Compilers/CompilerFactory';
 import {ExtensionsManager} from './Extensions/ExtensionsManager';
 import {AbstractExtension} from './Extensions/AbstractExtension';
 
@@ -89,12 +89,14 @@ export class Application
 			template.addFilter(metadata.name, template.createInstance(filter), metadata.injectTemplate);
 		}
 
+		let compilerFactory = new CompilerFactory(this.container, templatesStorage, this.extensions, template);
+
 		for (let i = 0; i < (<Array<any>>directives).length; i++) {
 			let definition = DirectiveParser.parse(directives[i]);
 			let found = Dom.querySelectorAll(definition.metadata.selector, options.parentElement);
 
 			if (found.length) {
-				let compiler = new RootCompiler(this.container, templatesStorage, this.extensions, template, directives[i], definition);
+				let compiler = compilerFactory.createRootCompiler(directives[i], definition);
 
 				for (let j = 0; j < found.length; j++) {
 					if (definition.type === DirectiveType.Directive) {
