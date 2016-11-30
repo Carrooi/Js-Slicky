@@ -91,6 +91,10 @@ export class Application
 
 		let compilerFactory = new CompilerFactory(this.container, templatesStorage, this.extensions, template);
 
+		this.container.provide(CompilerFactory, {
+			useFactory: () => compilerFactory,
+		});
+
 		for (let i = 0; i < (<Array<any>>directives).length; i++) {
 			let definition = DirectiveParser.parse(directives[i]);
 			let found = Dom.querySelectorAll(definition.metadata.selector, options.parentElement);

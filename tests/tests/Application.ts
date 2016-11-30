@@ -1,5 +1,7 @@
 import {Application, Component, Directive, Filter, OnInit, ElementRef} from '../../core';
 import {Container} from '../../di';
+import {CompilerFactory} from '../../src/Templating/Compilers/CompilerFactory';
+import {DirectiveParser} from '../../src/Entity/DirectiveParser';
 
 import chai = require('chai');
 
@@ -108,6 +110,40 @@ describe('#Application', () => {
 			});
 
 			expect(parent.innerHTML).to.be.equal('<component>5</component>');
+		});
+
+		it('should add dynamically new root component', () => {
+			@Component({
+				controllerAs: 'inner',
+				template: '{{ inner.count }}',
+			})
+			class TestDynamicComponent {
+				static counter = 0;
+				count = TestDynamicComponent.counter++;
+			}
+
+			@Component({
+				selector: 'component',
+				template: 'components:',
+			})
+			class TestComponent implements OnInit {
+				constructor(private compilerFactory: CompilerFactory) {}
+				onInit() {
+					let definition = DirectiveParser.parse(TestDynamicComponent);
+					let compiler = this.compilerFactory.createRootCompiler(TestDynamicComponent, definition);
+
+					compiler.processComponent(<HTMLDivElement>parent.querySelector('#first'));
+					compiler.processComponent(<HTMLDivElement>parent.querySelector('#second'));
+				}
+			}
+
+			parent.innerHTML = '<component></component> <div id="first"></div>, <div id="second"></div>';
+
+			application.run([TestComponent], {
+				parentElement: parent,
+			});
+
+			expect(parent.innerText).to.be.equal('components: 0, 1');
 		});
 		
 	});
