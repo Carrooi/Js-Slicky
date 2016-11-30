@@ -48,7 +48,12 @@ export class RootCompiler extends AbstractCompiler
 	public processDirective(el: HTMLElement): any
 	{
 		let elementRef = ElementRef.get(el);
-		let directive = this.template.attachDirective(this.directiveType, elementRef);
+		let directive = this.template.attachDirective(this.directiveType, [{
+			service: ElementRef,
+			options: {
+				useFactory: () => elementRef,
+			},
+		}]);
 
 		this.processInputs(el, directive);
 		this.processElements(elementRef, directive);

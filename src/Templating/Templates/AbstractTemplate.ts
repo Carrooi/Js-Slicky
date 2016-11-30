@@ -7,7 +7,6 @@ import {Container, CustomServiceDefinition} from '../../DI/Container';
 import {ElementRef} from '../ElementRef';
 import {Realm} from '../../Util/Realm';
 import {ChangeDetectionStrategy} from '../../constants';
-import {TemplateRef} from '../TemplateRef';
 
 
 export abstract class AbstractTemplate
@@ -117,26 +116,8 @@ export abstract class AbstractTemplate
 	}
 
 
-	public attachDirective(directiveType: any, elementRef: ElementRef, templateRef?: TemplateRef): any
+	public attachDirective(directiveType: any, use: Array<CustomServiceDefinition> = []): any
 	{
-		let use = [
-			{
-				service: ElementRef,
-				options: {
-					useFactory: () => elementRef,
-				},
-			},
-		];
-
-		if (templateRef) {
-			use.push(<any>{
-				service: TemplateRef,
-				options: {
-					useFactory: () => templateRef,
-				},
-			});
-		}
-
 		let directive = this.createInstance(directiveType, use);
 		this.directives.push(directive);
 

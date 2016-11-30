@@ -480,7 +480,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 				localName = '_r.component';
 			} else {
-				appendTo.append('var ' + localName + ' = _t.attachDirective(' + name + ', _er' + (hasTemplateRef ? ', _tr' : '') + ');');
+				appendTo.append('var ' + localName + ' = _t.attachDirective(' + name + ', [{service: ElementRef, options: {useFactory: function() {return _er;}}}' + (hasTemplateRef ? ', {service: TemplateRef, options: {useFactory: function() {return _tr;}}}' : '') + ']);');
 			}
 		}
 
