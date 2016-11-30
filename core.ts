@@ -2,6 +2,7 @@ export {Component, HostElement, HostEvent, Input, Required, Directive} from './s
 export {Filter} from './src/Templating/Filters/Metadata';
 export {Application} from './src/Application';
 export {ComponentCompiler} from './src/Templating/Compilers/ComponentCompiler';
+export {CompilerFactory} from './src/Templating/Compilers/CompilerFactory';
 export {Translator} from './src/Translations/Translator';
 export {ElementRef} from './src/Templating/ElementRef';
 export {TemplateRef} from './src/Templating/TemplateRef';
