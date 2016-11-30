@@ -278,6 +278,20 @@ describe('#Templating/Compilers/RootCompiler.Component', () => {
 			parent.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
 		});
 
+		it('should correctly parse multi line templates', () => {
+			@Component({
+				selector: 'component',
+				template: `first
+second
+third`,
+			})
+			class TestComponent {}
+
+			processComponent(parent, TestComponent);
+
+			expect(parent.innerText).to.be.equal('first\nsecond\nthird');
+		});
+
 	});
 
 });
