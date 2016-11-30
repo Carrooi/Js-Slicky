@@ -10,6 +10,9 @@ export class TemplateRef
 {
 
 
+	public static TEMPLATE_REF_STORAGE = '__slicky_template_ref';
+
+
 	private template: AbstractTemplate;
 
 	private factory: (parentTemplate: AbstractTemplate, parent: HTMLElement, before?: Node) => void;
@@ -23,14 +26,21 @@ export class TemplateRef
 	public dynamicScope: Scope;
 
 
-	constructor(template: AbstractTemplate, name: string, elementRef: ElementRef, factory: (parentTemplate: AbstractTemplate, parent: HTMLElement, before?: Node) => void)
+	constructor(template: AbstractTemplate, elementRef: ElementRef, factory: (parentTemplate: AbstractTemplate, parent: HTMLElement, before?: Node) => void)
 	{
 		this.template = template;
 		this.factory = factory;
-		this.name = name;
 		this.elementRef = elementRef;
 		this.scope = new Scope;
 		this.dynamicScope = new Scope;
+
+		elementRef.nativeElement[TemplateRef.TEMPLATE_REF_STORAGE] = this;
+	}
+
+
+	public static get(el: HTMLElement): TemplateRef
+	{
+		return el[TemplateRef.TEMPLATE_REF_STORAGE];
 	}
 
 

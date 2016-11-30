@@ -10,8 +10,6 @@ export class ElementRef
 
 	public nativeElement: HTMLElement;
 
-	private templateRef: TemplateRef;
-
 
 	constructor(nativeElement: HTMLElement)
 	{
@@ -26,20 +24,6 @@ export class ElementRef
 		}
 
 		return el[ElementRef.ELEMENT_REF_STORAGE];
-	}
-
-
-	public getTemplateRef(factory?: (elementRef: ElementRef) => TemplateRef): TemplateRef
-	{
-		if (this.nativeElement.nodeName.toLowerCase() !== 'template') {
-			throw new Error('ElementRef: can not create TemplateRef for element "' + this.nativeElement.nodeName.toLowerCase() + '".');
-		}
-
-		if (typeof this.templateRef === 'undefined' && factory) {
-			this.templateRef = factory(this);
-		}
-
-		return this.templateRef;
 	}
 
 }

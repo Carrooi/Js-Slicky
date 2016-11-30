@@ -1,5 +1,5 @@
 import {Directive} from '../../../../src/Entity/Metadata';
-import {ElementRef} from '../../../../src/Templating/ElementRef';
+import {TemplateRef} from '../../../../src/Templating/TemplateRef';
 
 import {createTemplate} from '../../_testHelpers';
 
@@ -93,7 +93,7 @@ describe('#Templating/Compilers/ComponentCompiler.exports', () => {
 
 			expect(scope).to.not.have.property('tmpl');
 
-			let embeddedTemplate = ElementRef.get(<HTMLElement>parent.childNodes[0]).getTemplateRef().createEmbeddedTemplate();
+			let embeddedTemplate = TemplateRef.get(<HTMLElement>parent.childNodes[0]).createEmbeddedTemplate();
 			let embeddedScope = embeddedTemplate.scope.getParameters();
 
 			expect(scope).to.not.have.property('tmpl');
@@ -109,7 +109,7 @@ describe('#Templating/Compilers/ComponentCompiler.exports', () => {
 			expect(scope).to.not.have.property('letterA');
 			expect(scope).to.not.have.property('letterB');
 
-			let embeddedTemplate = ElementRef.get(<HTMLElement>parent.childNodes[0]).getTemplateRef().createEmbeddedTemplate({
+			let embeddedTemplate = TemplateRef.get(<HTMLElement>parent.childNodes[0]).createEmbeddedTemplate({
 				a: 'A',
 				b: 'B',
 			});
@@ -128,7 +128,7 @@ describe('#Templating/Compilers/ComponentCompiler.exports', () => {
 			createTemplate(parent, '<template #letter-a="a"></template>');
 
 			expect(() => {
-				ElementRef.get(<HTMLElement>parent.childNodes[0]).getTemplateRef().createEmbeddedTemplate();
+				TemplateRef.get(<HTMLElement>parent.childNodes[0]).createEmbeddedTemplate();
 			}).to.throw(Error, 'Can not export dynamic parameter "letterA" into template. Parameter of type "a" is missing.');
 		});
 

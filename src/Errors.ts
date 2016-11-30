@@ -32,9 +32,9 @@ export class Errors
 	}
 
 
-	public static invalidIncludedTemplateSelector(selector: string): Error
+	public static templateNotFound(selector: string): Error
 	{
-		return new Error('Can not include template by selector "' + selector + '", only id selector is supported for now.');
+		return new Error('Can not include template by selector "' + selector + '". Template element does not exists.');
 	}
 
 

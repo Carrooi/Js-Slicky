@@ -2,6 +2,7 @@ import {OnInit, OnUpdate, OnDestroy} from '../../../../src/Interfaces';
 import {Directive, HostElement, Input, Required, HostEvent} from '../../../../src/Entity/Metadata';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {Dom} from '../../../../src/Util/Dom';
+import {TemplateRef} from '../../../../src/Templating/TemplateRef';
 
 import {createTemplate} from '../../_testHelpers';
 
@@ -280,7 +281,7 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 
 			createTemplate(parent, '<template><directive></directive></template>', {}, [TestDirective]);
 
-			let embeddedTemplate = ElementRef.get(<HTMLElement>parent.childNodes[0]).getTemplateRef().createEmbeddedTemplate();
+			let embeddedTemplate = TemplateRef.get(<HTMLElement>parent.childNodes[0]).createEmbeddedTemplate();
 
 			expect(calledInit).to.be.equal(true);
 			expect(calledDestroy).to.be.equal(false);

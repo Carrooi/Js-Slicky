@@ -74,6 +74,8 @@ export class ComponentCompiler extends AbstractCompiler
 
 	private templatesCount: number = 0;
 
+	private templates: Array<ElementToken> = [];
+
 	private directivesCount: number = 0;
 
 	private storage: TemplatesStorage;
@@ -438,32 +440,18 @@ export class ComponentCompiler extends AbstractCompiler
 
 	private compileTemplate(appendTo: Buffer<string>, node: ElementToken): void
 	{
-		let templateIdAttribute = node.attributes['id'];
-		let templateName = typeof templateIdAttribute !== 'undefined' ? templateIdAttribute.value : this.templatesCount++;
+		let templateName = this.templates.length;
 
-		let templateMethod = this.template.addMethod('template_' + templateName, ['_t', '_er'], [
-			'var _r, _t = _r = this;',
-			'return _er.getTemplateRef(function(_er) {',
-				'\treturn new TemplateRef(_t, "' + templateName + '", _er, function(_t, _n, _b) {',
-		]);
+		appendTo.append('var _tr = _r._template_' + templateName + ' = new TemplateRef(_t, _er, function(_t, _n, _b) {');
 
 		let buffer = new Buffer<string>();
+		this.compileBranch(buffer, node.children, true);
+		Strings.indent(buffer);
 
-		this.compileBranch(buffer, node.children, node.name === 'template');
+		appendTo.merge(buffer);
+		appendTo.append('});');
 
-		Strings.indent(buffer, 2);
-
-		templateMethod.getBody().merge(buffer);
-
-		templateMethod.appendBody([
-				'\t});',
-			'});'
-		]);
-
-		appendTo.append([
-			'var _tr = _r.template_' + templateName + '(_t, _er);',
-			'_r.registerTemplate(_tr, "' + templateName + '");',
-		]);
+		this.templates.push(node);
 	}
 
 
@@ -541,9 +529,10 @@ export class ComponentCompiler extends AbstractCompiler
 	private compileContent(appendTo: Buffer<string>, node: ElementToken): void
 	{
 		let selector = <string>node.attributes['selector'].value;
+		let template = this.findTemplate(selector);
 
-		if (!selector.match(/^#[a-zA-Z0-9-_]+$/)) {
-			throw Errors.invalidIncludedTemplateSelector(selector);
+		if (template === null) {
+			throw Errors.templateNotFound(selector);
 		}
 
 		let imports = node.attributes['import'];
@@ -554,7 +543,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 		appendTo.append([
 			'_t.appendComment(_n, "' + ComponentCompiler.PLACEHOLDER_COMMENT + '", null, function(_n) {',
-				'\t_r.getTemplate("' + selector.substr(1) + '").createEmbeddedTemplate(' + importsCode + ', _n);',
+				'\t_r._template_' + template + '.createEmbeddedTemplate(' + importsCode + ', _n);',
 			'});',
 		]);
 	}
@@ -700,6 +689,18 @@ export class ComponentCompiler extends AbstractCompiler
 		if (this.parent) {
 			this.parent.eachDirective(fn);
 		}
+	}
+
+
+	private findTemplate(selector: string): number
+	{
+		for (let i = 0; i < this.templates.length; i++) {
+			if (QuerySelector.match(selector, this.templates[i])) {
+				return i;
+			}
+		}
+
+		return null;
 	}
 
 

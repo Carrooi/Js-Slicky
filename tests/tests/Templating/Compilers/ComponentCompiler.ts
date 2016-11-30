@@ -1,6 +1,7 @@
 import {ComponentCompiler} from '../../../../src/Templating/Compilers/ComponentCompiler';
 import {Dom} from '../../../../src/Util/Dom';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
+import {TemplateRef} from '../../../../src/Templating/TemplateRef';
 
 import {createTemplate} from '../../_testHelpers';
 
@@ -144,11 +145,11 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 
 			expect(parent.innerHTML).to.be.equal('<template></template>');
 
-			ElementRef.get(<HTMLElement>parent.childNodes[0]).getTemplateRef().createEmbeddedTemplate();
+			TemplateRef.get(<HTMLElement>parent.childNodes[0]).createEmbeddedTemplate();
 
 			expect(parent.innerHTML).to.be.equal('<div><template></template></div><template></template>');
 
-			ElementRef.get(<HTMLElement>parent.querySelector('div template')).getTemplateRef().createEmbeddedTemplate();
+			TemplateRef.get(<HTMLElement>parent.querySelector('div template')).createEmbeddedTemplate();
 
 			expect(parent.innerHTML).to.be.equal('<div><div></div><template></template></div><template></template>');
 		});
@@ -158,7 +159,7 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 
 			expect(parent.innerHTML).to.be.equal('<template></template>');
 
-			let embeddedTemplate = ElementRef.get(<HTMLElement>parent.childNodes[0]).getTemplateRef().createEmbeddedTemplate();
+			let embeddedTemplate = TemplateRef.get(<HTMLElement>parent.childNodes[0]).createEmbeddedTemplate();
 
 			expect(parent.innerHTML).to.be.equal('hello<template></template>');
 			

@@ -11,8 +11,6 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 {
 
 
-	private templates: {[name: string]: TemplateRef} = {};
-
 	public extensions: ExtensionsManager;
 
 	public component: any;
@@ -76,22 +74,6 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 		if (typeof this.component.prototype.onDestroy === 'function') {
 			(<OnDestroy>this.component.prototype).onDestroy();
 		}
-	}
-
-
-	protected registerTemplate(templateRef: TemplateRef, name: string): void
-	{
-		this.templates[name] = templateRef;
-	}
-
-
-	protected getTemplate(name: string): TemplateRef
-	{
-		if (typeof this.templates[name] === 'undefined') {
-			throw new Error('Template "' + name + '" does not exists.');
-		}
-
-		return this.templates[name];
 	}
 
 }
