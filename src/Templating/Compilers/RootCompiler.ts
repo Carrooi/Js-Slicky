@@ -1,4 +1,4 @@
-import {Container} from '../../DI/Container';
+import {Container, CustomServiceDefinition} from '../../DI/Container';
 import {DirectiveDefinition} from '../../Entity/DirectiveParser';
 import {AbstractCompiler} from './AbstractCompiler';
 import {ComponentCompiler} from './ComponentCompiler';
@@ -67,7 +67,7 @@ export class RootCompiler extends AbstractCompiler
 	}
 
 
-	public processComponent(el: HTMLElement, parameters: ParametersList = {}): AbstractComponentTemplate
+	public processComponent(el: HTMLElement, parameters: ParametersList = {}, use: Array<CustomServiceDefinition> = []): AbstractComponentTemplate
 	{
 		let compiler = new ComponentCompiler(this.container, this.templatesStorage, this.directiveType);
 		let elementRef = ElementRef.get(el);
@@ -88,7 +88,7 @@ export class RootCompiler extends AbstractCompiler
 		});
 
 		let TemplateType = <any>compiler.compile();
-		let template: AbstractComponentTemplate = new TemplateType(this.template, this.directiveType, elementRef, this.container, this.extensions, parameters, null, this.definition.metadata.controllerAs);
+		let template: AbstractComponentTemplate = new TemplateType(this.template, this.directiveType, elementRef, this.container, this.extensions, parameters, null, this.definition.metadata.controllerAs, use);
 
 		this.processInputs(el, template.component);
 

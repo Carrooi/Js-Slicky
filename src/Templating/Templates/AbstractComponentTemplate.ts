@@ -1,6 +1,6 @@
 import {TemplateRef} from '../TemplateRef';
 import {AbstractTemplate} from './AbstractTemplate';
-import {Container} from '../../DI/Container';
+import {Container, CustomServiceDefinition} from '../../DI/Container';
 import {ParametersList, OnDestroy} from '../../Interfaces';
 import {ElementRef} from '../ElementRef';
 import {ChangeDetectorRef} from '../../ChangeDetection/ChangeDetectorRef';
@@ -20,7 +20,7 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 	public templateRef: TemplateRef;
 
 
-	constructor(parent: AbstractTemplate, componentType: any, elementRef: ElementRef, container: Container, extensions: ExtensionsManager, parameters: ParametersList = {}, templateRef?: TemplateRef, controllerAs?: string)
+	constructor(parent: AbstractTemplate, componentType: any, elementRef: ElementRef, container: Container, extensions: ExtensionsManager, parameters: ParametersList = {}, templateRef?: TemplateRef, controllerAs?: string, use: Array<CustomServiceDefinition> = [])
 	{
 		super(container, parameters, parent);
 
@@ -28,25 +28,24 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 		this.elementRef = elementRef;
 		this.templateRef = templateRef;
 
-		let use = [
-			{
-				service: ElementRef,
-				options: {
-					useFactory: () => elementRef,
-				},
+		use.push({
+			service: ElementRef,
+			options: {
+				useFactory: () => elementRef,
 			},
-			{
-				service: ChangeDetectorRef,
-				options: {
-					useFactory: () => new ChangeDetectorRef(() => {
-						this.changeDetector.check();
-					}),
-				},
+		});
+
+		use.push({
+			service: ChangeDetectorRef,
+			options: {
+				useFactory: () => new ChangeDetectorRef(() => {
+					this.changeDetector.check();
+				}),
 			},
-		];
+		});
 
 		if (templateRef) {
-			use.push(<any>{
+			use.push({
 				service: TemplateRef,
 				options: {
 					useFactory: () => templateRef,

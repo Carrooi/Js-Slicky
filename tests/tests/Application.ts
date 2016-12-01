@@ -1,5 +1,5 @@
 import {Application, Component, Directive, Filter, OnInit, ElementRef} from '../../core';
-import {Container} from '../../di';
+import {Container, Injectable} from '../../di';
 import {CompilerFactory} from '../../src/Templating/Compilers/CompilerFactory';
 import {DirectiveParser} from '../../src/Entity/DirectiveParser';
 
@@ -144,6 +144,51 @@ describe('#Application', () => {
 			});
 
 			expect(parent.innerText).to.be.equal('components: 0, 1');
+		});
+
+		it('should pass additional services into dynamic root component', () => {
+			let called = false;
+
+			@Injectable()
+			class TestService {}
+
+			@Component({
+				template: '',
+			})
+			class TestDynamicComponent implements OnInit {
+				constructor(private service: TestService) {}
+				onInit() {
+					expect(this.service).to.be.an.instanceOf(TestService);
+					called = true;
+				}
+			}
+
+			@Component({
+				selector: 'component',
+				template: '',
+			})
+			class TestComponent implements OnInit {
+				constructor(private compilerFactory: CompilerFactory) {}
+				onInit() {
+					let definition = DirectiveParser.parse(TestDynamicComponent);
+					let compiler = this.compilerFactory.createRootCompiler(TestDynamicComponent, definition);
+
+					compiler.processComponent(parent.querySelector('div'), {}, [{
+						service: TestService,
+						options: {
+							useFactory: () => new TestService,
+						},
+					}]);
+				}
+			}
+
+			parent.innerHTML = '<component></component><div></div>';
+
+			application.run([TestComponent], {
+				parentElement: parent,
+			});
+
+			expect(called).to.be.equal(true);
 		});
 		
 	});
