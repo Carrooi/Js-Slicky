@@ -38,7 +38,7 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 
 		it('should compile template with event attribute', (done) => {
 			createTemplate(parent, '<button (click)="click($this, $event, \'hello\')"></button>', {
-				click: (button: ElementRef, e: MouseEvent, message: string) => {
+				click: (button: ElementRef<HTMLElement>, e: MouseEvent, message: string) => {
 					expect(button).to.be.an.instanceOf(ElementRef);
 					expect(button.nativeElement).to.be.an.instanceOf(HTMLButtonElement);
 					expect(e).to.be.an.instanceOf(MouseEvent);

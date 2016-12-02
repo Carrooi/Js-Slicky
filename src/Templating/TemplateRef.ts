@@ -19,14 +19,14 @@ export class TemplateRef
 
 	public name: string;
 	
-	public elementRef: ElementRef;
+	public elementRef: ElementRef<HTMLTemplateElement>;
 
 	public scope: Scope;
 
 	public dynamicScope: Scope;
 
 
-	constructor(template: AbstractTemplate, elementRef: ElementRef, factory: (parentTemplate: AbstractTemplate, parent: HTMLElement, before?: Node) => void)
+	constructor(template: AbstractTemplate, elementRef: ElementRef<HTMLTemplateElement>, factory: (parentTemplate: AbstractTemplate, parent: HTMLElement, before?: Node) => void)
 	{
 		this.template = template;
 		this.factory = factory;

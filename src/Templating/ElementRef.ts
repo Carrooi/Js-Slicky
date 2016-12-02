@@ -1,23 +1,20 @@
-import {TemplateRef} from './TemplateRef';
-
-
-export class ElementRef
+export class ElementRef<T extends HTMLElement>
 {
 
 
 	public static ELEMENT_REF_STORAGE = '__slicky_element_ref';
 
 
-	public nativeElement: HTMLElement;
+	public nativeElement: T;
 
 
-	constructor(nativeElement: HTMLElement)
+	constructor(nativeElement: T)
 	{
 		this.nativeElement = nativeElement;
 	}
 
 
-	public static get(el: HTMLElement): ElementRef
+	public static get<T extends HTMLElement>(el: HTMLElement): ElementRef<T>
 	{
 		if (typeof el[ElementRef.ELEMENT_REF_STORAGE] === 'undefined') {
 			el[ElementRef.ELEMENT_REF_STORAGE] = new ElementRef(el);

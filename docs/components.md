@@ -98,16 +98,21 @@ If you want to have simple access to some elements inside of your component
 for them just like for `@Input`s. 
 
 ```ts
-import {Component, Element} from 'slicky/core';
+import {Component, HostElement, ElementRef, OnInit} from 'slicky/core';
 
 @Component({
 	selector: '[test]',
 })
-class Test
+class Test implements OnInit
 {
 
 	@HostElement('div > span')
-	public child: HTMLElement;
+	public child: ElementRef<HTMLSpanElement>;
+	
+	public onInit(): void
+	{
+		console.log(this.child.nativeElement instanceof HTMLSpanElement);
+	}
 
 }
 ```

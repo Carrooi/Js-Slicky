@@ -11,7 +11,7 @@ export class AttrDirective implements OnInit, OnUpdate
 {
 
 
-	private el: ElementRef;
+	private el: ElementRef<HTMLElement>;
 
 
 	@Required()
@@ -19,7 +19,7 @@ export class AttrDirective implements OnInit, OnUpdate
 	public attrs: {[name: string]: boolean};
 
 
-	constructor(el: ElementRef)
+	constructor(el: ElementRef<HTMLElement>)
 	{
 		this.el = el;
 	}

@@ -95,7 +95,7 @@ export class RootCompiler extends AbstractCompiler
 
 		Helpers.each(this.definition.events, (property: string, event: HostEventMetadataDefinition) => {
 			if (event.el === '@') {
-				this.template.addEventListener(elementRef, event.name, (e: Event, elementRef: ElementRef) => {
+				this.template.addEventListener(elementRef, event.name, (e: Event, elementRef: ElementRef<HTMLElement>) => {
 					template.component[property](e, elementRef);
 				});
 			}
@@ -142,7 +142,7 @@ export class RootCompiler extends AbstractCompiler
 	}
 
 
-	private processElements(el: ElementRef, directive: any): void
+	private processElements(el: ElementRef<HTMLElement>, directive: any): void
 	{
 		Helpers.each(this.definition.elements, (name: string, element: HostElementMetadataDefinition) => {
 			if (element.selector) {
@@ -160,10 +160,10 @@ export class RootCompiler extends AbstractCompiler
 	}
 
 
-	private processEvents(el: HTMLElement, elementRef: ElementRef, directive: any): void
+	private processEvents(el: HTMLElement, elementRef: ElementRef<HTMLElement>, directive: any): void
 	{
 		Helpers.each(this.definition.events, (name: string, event: HostEventMetadataDefinition) => {
-			let children: Array<ElementRef>;
+			let children: Array<ElementRef<HTMLElement>>;
 
 			if (event.el === '@') {
 				children = [elementRef];
@@ -184,7 +184,7 @@ export class RootCompiler extends AbstractCompiler
 			}
 
 			for (let i = 0; i < children.length; i++) {
-				this.template.addEventListener(children[i], event.name, (e: Event, elementRef: ElementRef) => {
+				this.template.addEventListener(children[i], event.name, (e: Event, elementRef: ElementRef<HTMLElement>) => {
 					directive[name](e, elementRef);
 				});
 			}

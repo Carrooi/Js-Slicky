@@ -29,7 +29,7 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 				selector: 'directive',
 			})
 			class TestDirective implements OnInit {
-				constructor(private el: ElementRef) {}
+				constructor(private el: ElementRef<HTMLElement>) {}
 				onInit() {
 					expect(this.el).to.be.an.instanceOf(ElementRef);
 					expect(this.el.nativeElement.outerHTML).to.be.equal('<directive></directive>');
@@ -76,8 +76,8 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 				selector: 'directive',
 			})
 			class TestDirective implements OnInit {
-				@HostElement('button') btn: ElementRef;
-				@HostElement('div > span') title: ElementRef;
+				@HostElement('button') btn: ElementRef<HTMLElement>;
+				@HostElement('div > span') title: ElementRef<HTMLElement>;
 				onInit() {
 					called = true;
 
@@ -164,9 +164,9 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 				selector: 'button',
 			})
 			class TestDirective {
-				constructor(private el: ElementRef) {}
+				constructor(private el: ElementRef<HTMLElement>) {}
 				@HostEvent('click')
-				onClick(e: Event, btn: ElementRef) {
+				onClick(e: Event, btn: ElementRef<HTMLElement>) {
 					expect(e).to.be.an.instanceOf(Event);
 					expect(btn).to.be.equal(this.el);
 
@@ -227,7 +227,7 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 			})
 			class TestDirective {
 				@HostEvent('div > button', 'click')
-				onClick(e: Event, btn: ElementRef) {
+				onClick(e: Event, btn: ElementRef<HTMLElement>) {
 					expect(e).to.be.an.instanceOf(Event);
 					expect(btn).to.be.an.instanceOf(ElementRef);
 					expect(btn.nativeElement).to.be.an.instanceOf(HTMLButtonElement);
@@ -249,7 +249,7 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 			})
 			class TestDirective {
 				@HostEvent('button', 'click')
-				onClick(e: Event, btn: ElementRef) {
+				onClick(e: Event, btn: ElementRef<HTMLElement>) {
 					expect(e).to.be.an.instanceOf(Event);
 					expect(btn).to.be.an.instanceOf(ElementRef);
 					expect(btn.nativeElement).to.be.an.instanceOf(HTMLButtonElement);
@@ -273,7 +273,7 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 			class TestDirective {
 				@HostElement('div > button') btn;
 				@HostEvent('@btn', 'click')
-				onClick(e: Event, btn: ElementRef) {
+				onClick(e: Event, btn: ElementRef<HTMLElement>) {
 					expect(e).to.be.an.instanceOf(Event);
 					expect(btn).to.be.equal(this.btn);
 					expect(btn).to.be.an.instanceOf(ElementRef);

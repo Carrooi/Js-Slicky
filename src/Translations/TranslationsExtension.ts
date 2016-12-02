@@ -54,7 +54,7 @@ export class TranslationsExtension extends AbstractExtension
 	}
 
 
-	public doUpdateComponentServices(template: AbstractComponentTemplate, el: ElementRef, services: Array<CustomServiceDefinition>): void
+	public doUpdateComponentServices(template: AbstractComponentTemplate, el: ElementRef<HTMLElement>, services: Array<CustomServiceDefinition>): void
 	{
 		services.push({
 			service: ComponentTranslator,

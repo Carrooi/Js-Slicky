@@ -29,7 +29,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 				template: 'hello world',
 			})
 			class TestComponent implements OnInit {
-				constructor(private el: ElementRef) {}
+				constructor(private el: ElementRef<HTMLElement>) {}
 				onInit() {
 					expect(this.el).to.be.an.instanceOf(ElementRef);
 					expect(this.el.nativeElement.outerHTML).to.be.equal('<component>hello world</component>');
@@ -79,8 +79,8 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 				template: '<button>Click</button><div><span>hello</span></div>',
 			})
 			class TestComponent implements OnInit {
-				@HostElement('button') btn: ElementRef;
-				@HostElement('div > span') title: ElementRef;
+				@HostElement('button') btn: ElementRef<HTMLElement>;
+				@HostElement('div > span') title: ElementRef<HTMLElement>;
 				onInit() {
 					called = true;
 
@@ -170,9 +170,9 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 				template: '',
 			})
 			class TestComponent {
-				constructor(private el: ElementRef) {}
+				constructor(private el: ElementRef<HTMLElement>) {}
 				@HostEvent('click')
-				onClick(e: Event, btn: ElementRef) {
+				onClick(e: Event, btn: ElementRef<HTMLElement>) {
 					expect(e).to.be.an.instanceOf(Event);
 					expect(btn).to.be.equal(this.el);
 
@@ -237,7 +237,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			})
 			class TestComponent {
 				@HostEvent('div > button', 'click')
-				onClick(e: Event, btn: ElementRef) {
+				onClick(e: Event, btn: ElementRef<HTMLElement>) {
 					expect(e).to.be.an.instanceOf(Event);
 					expect(btn).to.be.an.instanceOf(ElementRef);
 					expect(btn.nativeElement).to.be.an.instanceOf(HTMLButtonElement);
@@ -260,7 +260,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			})
 			class TestComponent {
 				@HostEvent('button', 'click')
-				onClick(e: Event, btn: ElementRef) {
+				onClick(e: Event, btn: ElementRef<HTMLElement>) {
 					expect(e).to.be.an.instanceOf(Event);
 					expect(btn).to.be.an.instanceOf(ElementRef);
 					expect(btn.nativeElement).to.be.an.instanceOf(HTMLButtonElement);
@@ -285,7 +285,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			class TestComponent {
 				@HostElement('div > button') btn;
 				@HostEvent('@btn', 'click')
-				onClick(e: Event, btn: ElementRef) {
+				onClick(e: Event, btn: ElementRef<HTMLElement>) {
 					expect(e).to.be.an.instanceOf(Event);
 					expect(btn).to.be.equal(this.btn);
 					expect(btn).to.be.an.instanceOf(ElementRef);

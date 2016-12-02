@@ -13,7 +13,7 @@ export abstract class AbstractTemplate
 {
 
 
-	private listeners: Array<{el: ElementRef, event: string, listener: Function}> = [];
+	private listeners: Array<{el: ElementRef<HTMLElement>, event: string, listener: Function}> = [];
 
 	private parent: AbstractTemplate;
 
@@ -25,7 +25,7 @@ export abstract class AbstractTemplate
 
 	public scope: Scope;
 
-	protected directives: Array<{el: ElementRef, directive: any}> = [];
+	protected directives: Array<{el: ElementRef<HTMLElement>, directive: any}> = [];
 
 	public filters: {[name: string]: {filter: any, injectTemplate: boolean}} = {};
 
@@ -117,7 +117,7 @@ export abstract class AbstractTemplate
 	}
 
 
-	public attachDirective(directiveType: any, elementRef: ElementRef, use: Array<CustomServiceDefinition> = []): any
+	public attachDirective(directiveType: any, elementRef: ElementRef<HTMLElement>, use: Array<CustomServiceDefinition> = []): any
 	{
 		use.push({
 			service: ElementRef,
@@ -217,7 +217,7 @@ export abstract class AbstractTemplate
 	}
 
 
-	public addEventListener(elementRef: ElementRef, event: string, call: string|((e: Event, el: ElementRef) => void)): void
+	public addEventListener(elementRef: ElementRef<HTMLElement>, event: string, call: string|((e: Event, el: ElementRef<HTMLElement>) => void)): void
 	{
 		this.listeners.push({
 			el: elementRef,

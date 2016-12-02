@@ -15,12 +15,12 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 
 	public component: any;
 
-	public elementRef: ElementRef;
+	public elementRef: ElementRef<HTMLElement>;
 
 	public templateRef: TemplateRef;
 
 
-	constructor(parent: AbstractTemplate, componentType: any, elementRef: ElementRef, container: Container, extensions: ExtensionsManager, parameters: ParametersList = {}, templateRef?: TemplateRef, controllerAs?: string, use: Array<CustomServiceDefinition> = [])
+	constructor(parent: AbstractTemplate, componentType: any, elementRef: ElementRef<HTMLElement>, container: Container, extensions: ExtensionsManager, parameters: ParametersList = {}, templateRef?: TemplateRef, controllerAs?: string, use: Array<CustomServiceDefinition> = [])
 	{
 		super(container, parameters, parent);
 

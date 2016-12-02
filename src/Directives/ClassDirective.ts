@@ -12,7 +12,7 @@ export class ClassDirective implements OnInit, OnUpdate
 {
 
 
-	private el: ElementRef;
+	private el: ElementRef<HTMLElement>;
 
 
 	@Required()
@@ -20,7 +20,7 @@ export class ClassDirective implements OnInit, OnUpdate
 	public classes: {[name: string]: boolean};
 
 
-	constructor(el: ElementRef)
+	constructor(el: ElementRef<HTMLElement>)
 	{
 		this.el = el;
 	}

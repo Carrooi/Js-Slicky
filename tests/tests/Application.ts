@@ -44,7 +44,7 @@ describe('#Application', () => {
 				selector: 'directive',
 			})
 			class TestDirective implements OnInit {
-				constructor(private el: ElementRef) {}
+				constructor(private el: ElementRef<HTMLElement>) {}
 				onInit() {
 					(<HTMLElement>this.el.nativeElement).innerText = 'Hello world';
 				}
@@ -70,7 +70,7 @@ describe('#Application', () => {
 				selector: 'directive',
 			})
 			class TestDirective implements OnInit {
-				constructor(private el: ElementRef) {}
+				constructor(private el: ElementRef<HTMLElement>) {}
 				onInit() {
 					this.el.nativeElement.innerText = 'Hello world';
 				}

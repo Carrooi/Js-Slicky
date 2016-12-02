@@ -41,7 +41,7 @@ export class ExtensionsManager
 	}
 
 
-	public doUpdateComponentServices(template: AbstractComponentTemplate, el: ElementRef, services: Array<CustomServiceDefinition>): void
+	public doUpdateComponentServices(template: AbstractComponentTemplate, el: ElementRef<HTMLElement>, services: Array<CustomServiceDefinition>): void
 	{
 		this.callHook('doUpdateComponentServices', [template, el, services]);
 	}
