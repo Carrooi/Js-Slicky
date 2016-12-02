@@ -163,26 +163,31 @@ export class RootCompiler extends AbstractCompiler
 	private processEvents(el: HTMLElement, elementRef: ElementRef, directive: any): void
 	{
 		Helpers.each(this.definition.events, (name: string, event: HostEventMetadataDefinition) => {
-			let child: ElementRef;
+			let children: Array<ElementRef>;
 
 			if (event.el === '@') {
-				child = elementRef;
+				children = [elementRef];
 			} else if (event.el.charAt(0) === '@') {
-				child = directive[event.el.substr(1)];
+				children = directive[event.el.substr(1)] ? [directive[event.el.substr(1)]] : null;
 			} else {
-				let childNode = <HTMLElement>Dom.querySelector(event.el, el);
-				if (childNode) {
-					child = ElementRef.get(childNode);
+				let found = Dom.querySelectorAll(event.el, el);
+				if (found.length) {
+					children = [];
+					for (let i = 0; i < found.length; i++) {
+						children.push(ElementRef.get(<HTMLElement>found[i]));
+					}
 				}
 			}
 
-			if (!child) {
+			if (!children) {
 				throw Errors.hostEventElementNotFound(this.definition.name, name, event.name, event.el);
 			}
 
-			this.template.addEventListener(child, event.name, (e: Event, elementRef: ElementRef) => {
-				directive[name](e, elementRef);
-			});
+			for (let i = 0; i < children.length; i++) {
+				this.template.addEventListener(children[i], event.name, (e: Event, elementRef: ElementRef) => {
+					directive[name](e, elementRef);
+				});
+			}
 		});
 	}
 

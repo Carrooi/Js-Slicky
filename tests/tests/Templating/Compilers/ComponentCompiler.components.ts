@@ -251,6 +251,32 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			parent.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
 		});
 
+		it('should call host event on all matching elements', () => {
+			let called = [];
+
+			@Component({
+				selector: 'component',
+				template: '<button>1</button><button>2</button>',
+			})
+			class TestComponent {
+				@HostEvent('button', 'click')
+				onClick(e: Event, btn: ElementRef) {
+					expect(e).to.be.an.instanceOf(Event);
+					expect(btn).to.be.an.instanceOf(ElementRef);
+					expect(btn.nativeElement).to.be.an.instanceOf(HTMLButtonElement);
+
+					called.push(btn.nativeElement.innerText);
+				}
+			}
+
+			createTemplate(parent, '<component></component>', {}, [TestComponent]);
+
+			parent.querySelector('button:first-of-type').dispatchEvent(Dom.createMouseEvent('click'));
+			parent.querySelector('button:last-of-type').dispatchEvent(Dom.createMouseEvent('click'));
+
+			expect(called).to.be.eql(['1', '2']);
+		});
+
 		it('should call host event on registered inner node', (done) => {
 			@Component({
 				selector: 'component',

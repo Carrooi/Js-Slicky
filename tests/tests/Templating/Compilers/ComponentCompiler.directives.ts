@@ -241,6 +241,31 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 			parent.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
 		});
 
+		it('should call host event on all matching elements', () => {
+			let called = [];
+
+			@Directive({
+				selector: 'directive',
+			})
+			class TestDirective {
+				@HostEvent('button', 'click')
+				onClick(e: Event, btn: ElementRef) {
+					expect(e).to.be.an.instanceOf(Event);
+					expect(btn).to.be.an.instanceOf(ElementRef);
+					expect(btn.nativeElement).to.be.an.instanceOf(HTMLButtonElement);
+
+					called.push(btn.nativeElement.innerText);
+				}
+			}
+
+			createTemplate(parent, '<directive><button>1</button><button>2</button></directive>', {}, [TestDirective]);
+
+			parent.querySelector('button:first-of-type').dispatchEvent(Dom.createMouseEvent('click'));
+			parent.querySelector('button:last-of-type').dispatchEvent(Dom.createMouseEvent('click'));
+
+			expect(called).to.be.eql(['1', '2']);
+		});
+
 		it('should call host event on registered inner node', (done) => {
 			@Directive({
 				selector: 'directive',
