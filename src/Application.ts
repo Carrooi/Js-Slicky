@@ -31,6 +31,14 @@ export class Application
 
 	private extensions: ExtensionsManager;
 
+	private compilerFactory: CompilerFactory;
+
+	private template: ApplicationTemplate;
+
+	private directives: Array<any>;
+
+	private el: HTMLElement;
+
 	private running: boolean = false;
 
 
@@ -50,22 +58,14 @@ export class Application
 	}
 
 
-	public run(directives: Array<any>|any, options: ApplicationOptions = {}): void
+	private prepare(directives: Array<any>, options: ApplicationOptions = {}): void
 	{
-		if (this.running) {
-			throw new Error('Application.run: can not run application more than once.');
-		}
-
 		if (typeof options.parentElement === 'undefined') {
 			options.parentElement = <any>document;
 		}
 
 		if (typeof options.filters === 'undefined') {
 			options.filters = [];
-		}
-		
-		if (!Helpers.isArray(directives)) {
-			directives = [directives];
 		}
 
 		let template = new ApplicationTemplate(this.container, options.parentElement, options.parameters);
@@ -89,13 +89,16 @@ export class Application
 			template.addFilter(metadata.name, template.createInstance(filter), metadata.injectTemplate);
 		}
 
-		let compilerFactory = new CompilerFactory(this.container, templatesStorage, this.extensions, template);
+		this.el = options.parentElement;
+		this.directives = directives;
+		this.template = template;
+		this.compilerFactory = new CompilerFactory(this.container, templatesStorage, this.extensions, template);
 
 		this.container.provide([
 			[
 				CompilerFactory,
 				{
-					useFactory: () => compilerFactory,
+					useFactory: () => this.compilerFactory,
 				},
 			],
 			[
@@ -105,13 +108,47 @@ export class Application
 				},
 			],
 		]);
+	}
 
-		for (let i = 0; i < (<Array<any>>directives).length; i++) {
-			let definition = DirectiveParser.parse(directives[i]);
-			let found = Dom.querySelectorAll(definition.metadata.selector, options.parentElement);
+
+	public run(directives: Array<any>|any, options: ApplicationOptions = {}): void
+	{
+		if (this.running) {
+			throw new Error('Application.run: can not run application more than once.');
+		}
+
+		if (!Helpers.isArray(directives)) {
+			directives = [directives];
+		}
+
+		this.prepare(directives, options);
+		this.compile(this.el);
+
+		this.running = true;
+	}
+
+
+	public attachElement(el: HTMLElement): void
+	{
+		this.compile(el);
+	}
+
+
+	public detachElement(el: HTMLElement): void
+	{
+		this.template.detachElement(el);
+	}
+
+
+	private compile(el: HTMLElement): void
+	{
+		for (let i = 0; i < this.directives.length; i++) {
+			let directive = this.directives[i];
+			let definition = DirectiveParser.parse(directive);
+			let found = Dom.querySelectorAll(definition.metadata.selector, el);
 
 			if (found.length) {
-				let compiler = compilerFactory.createRootCompiler(directives[i], definition);
+				let compiler = this.compilerFactory.createRootCompiler(directive, definition);
 
 				for (let j = 0; j < found.length; j++) {
 					if (definition.type === DirectiveType.Directive) {
@@ -122,8 +159,6 @@ export class Application
 				}
 			}
 		}
-
-		this.running = true;
 	}
 
 }

@@ -193,7 +193,7 @@ describe('#Application', () => {
 			expect(called).to.be.equal(true);
 		});
 
-		it('should detach root components and directives', () => {
+		it('should reattach root components and directives', () => {
 			let events = {
 				directive: {
 					init: [],
@@ -245,17 +245,25 @@ describe('#Application', () => {
 				parentElement: parent,
 			});
 
+			let el = <HTMLDivElement>parent.children[0];
+
 			expect(events.directive.init).to.be.eql(['da', 'db']);
 			expect(events.directive.destroy).to.be.eql([]);
 			expect(events.component.init).to.be.eql(['ca', 'cb']);
 			expect(events.component.destroy).to.be.eql([]);
 
-			let template: ApplicationTemplate = container.get(ApplicationTemplate);
-			template.detachElement(<HTMLDivElement>parent.children[0]);
+			application.detachElement(el);
 
 			expect(events.directive.init).to.be.eql(['da', 'db']);
 			expect(events.directive.destroy).to.be.eql(['da']);
 			expect(events.component.init).to.be.eql(['ca', 'cb']);
+			expect(events.component.destroy).to.be.eql(['ca']);
+
+			application.attachElement(el);
+
+			expect(events.directive.init).to.be.eql(['da', 'db', 'da']);
+			expect(events.directive.destroy).to.be.eql(['da']);
+			expect(events.component.init).to.be.eql(['ca', 'cb', 'ca']);
 			expect(events.component.destroy).to.be.eql(['ca']);
 		});
 		
