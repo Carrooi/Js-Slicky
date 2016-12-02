@@ -46,6 +46,9 @@ export class Application
 	{
 		this.container = container;
 		this.container.provide(IterableDifferFactory);
+		this.container.provide(Application, {
+			useFactory: () => this,
+		});
 
 		this.extensions = new ExtensionsManager;
 	}
