@@ -70,8 +70,8 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 	{
 		super.destroy();
 
-		if (typeof this.component.prototype.onDestroy === 'function') {
-			(<OnDestroy>this.component.prototype).onDestroy();
+		if (typeof this.component.__proto__.onDestroy === 'function') {
+			(<OnDestroy>this.component).onDestroy();
 		}
 	}
 

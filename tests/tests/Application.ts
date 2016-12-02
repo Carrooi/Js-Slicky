@@ -1,13 +1,15 @@
-import {Application, Component, Directive, Filter, OnInit, ElementRef} from '../../core';
+import {Application, Component, Directive, Filter, OnInit, OnDestroy, ElementRef, Input} from '../../core';
 import {Container, Injectable} from '../../di';
 import {CompilerFactory} from '../../src/Templating/Compilers/CompilerFactory';
 import {DirectiveParser} from '../../src/Entity/DirectiveParser';
+import {ApplicationTemplate} from '../../src/Templating/Templates/ApplicationTemplate';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 let parent: HTMLDivElement;
+let container: Container;
 let application: Application = null;
 
 
@@ -15,7 +17,7 @@ describe('#Application', () => {
 
 	beforeEach(() => {
 		parent = document.createElement('div');
-		let container = new Container;
+		container = new Container;
 		application = new Application(container);
 	});
 	
@@ -189,6 +191,72 @@ describe('#Application', () => {
 			});
 
 			expect(called).to.be.equal(true);
+		});
+
+		it('should detach root components and directives', () => {
+			let events = {
+				directive: {
+					init: [],
+					destroy: [],
+				},
+				component: {
+					init: [],
+					destroy: [],
+				},
+			};
+
+			@Directive({
+				selector: 'directive',
+			})
+			class TestDirective implements OnInit, OnDestroy {
+				@Input() name;
+				onInit() {
+					events.directive.init.push(this.name);
+				}
+				onDestroy() {
+					events.directive.destroy.push(this.name);
+				}
+			}
+
+			@Component({
+				selector: 'component',
+				template: '',
+			})
+			class TestComponent implements OnDestroy {
+				@Input() name;
+				onInit() {
+					events.component.init.push(this.name);
+				}
+				onDestroy() {
+					events.component.destroy.push(this.name);
+				}
+			}
+
+			parent.innerHTML =
+				'<div>' +
+					'<directive name="da"></directive>' +
+					'<component name="ca"></component>' +
+				'</div>' +
+				'<directive name="db"></directive>' +
+				'<component name="cb"></component>'
+			;
+
+			application.run([TestDirective, TestComponent], {
+				parentElement: parent,
+			});
+
+			expect(events.directive.init).to.be.eql(['da', 'db']);
+			expect(events.directive.destroy).to.be.eql([]);
+			expect(events.component.init).to.be.eql(['ca', 'cb']);
+			expect(events.component.destroy).to.be.eql([]);
+
+			let template: ApplicationTemplate = container.get(ApplicationTemplate);
+			template.detachElement(<HTMLDivElement>parent.children[0]);
+
+			expect(events.directive.init).to.be.eql(['da', 'db']);
+			expect(events.directive.destroy).to.be.eql(['da']);
+			expect(events.component.init).to.be.eql(['ca', 'cb']);
+			expect(events.component.destroy).to.be.eql(['ca']);
 		});
 		
 	});

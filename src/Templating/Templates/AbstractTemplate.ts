@@ -17,7 +17,7 @@ export abstract class AbstractTemplate
 
 	private parent: AbstractTemplate;
 
-	private children: Array<AbstractTemplate> = [];
+	protected children: Array<AbstractTemplate> = [];
 
 	protected realm: Realm;
 
@@ -25,7 +25,7 @@ export abstract class AbstractTemplate
 
 	public scope: Scope;
 
-	public directives: Array<any> = [];
+	protected directives: Array<{el: ElementRef, directive: any}> = [];
 
 	public filters: {[name: string]: {filter: any, injectTemplate: boolean}} = {};
 
@@ -83,8 +83,8 @@ export abstract class AbstractTemplate
 		}
 
 		for (let i = 0; i < this.directives.length; i++) {
-			if (typeof this.directives[i].onDestroy === 'function') {
-				(<OnDestroy>this.directives[i]).onDestroy();
+			if (typeof this.directives[i].directive.onDestroy === 'function') {
+				(<OnDestroy>this.directives[i].directive).onDestroy();
 			}
 		}
 
@@ -96,6 +96,7 @@ export abstract class AbstractTemplate
 			this.children[i].destroy();
 		}
 
+		this.directives = [];
 		this.listeners = [];
 		this.children = [];
 	}
@@ -116,10 +117,20 @@ export abstract class AbstractTemplate
 	}
 
 
-	public attachDirective(directiveType: any, use: Array<CustomServiceDefinition> = []): any
+	public attachDirective(directiveType: any, elementRef: ElementRef, use: Array<CustomServiceDefinition> = []): any
 	{
+		use.push({
+			service: ElementRef,
+			options: {
+				useFactory: () => elementRef,
+			},
+		});
+
 		let directive = this.createInstance(directiveType, use);
-		this.directives.push(directive);
+		this.directives.push({
+			el: elementRef,
+			directive: directive,
+		});
 
 		return directive;
 	}

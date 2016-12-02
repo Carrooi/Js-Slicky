@@ -53,6 +53,4 @@ export class EmbeddedTemplate extends AbstractTemplate
 		}
 	}
 
-
-
 }

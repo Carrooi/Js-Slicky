@@ -10,12 +10,12 @@ import {TemplatesStorage} from '../../src/Templating/Templates/TemplatesStorage'
 import {ExtensionsManager} from '../../src/Extensions/ExtensionsManager';
 
 
-let prepareCompiler = (directiveType: any, parameters: ParametersList = {}, container?: Container): RootCompiler => {
+let prepareCompiler = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}, container?: Container): RootCompiler => {
 	if (!container) {
 		container = new Container;
 	}
 
-	let applicationTemplate = new ApplicationTemplate(container, parameters);
+	let applicationTemplate = new ApplicationTemplate(container, parent, parameters);
 	let templatesStorage = new TemplatesStorage;
 	let extensions = new ExtensionsManager;
 
@@ -24,12 +24,12 @@ let prepareCompiler = (directiveType: any, parameters: ParametersList = {}, cont
 
 
 export let processDirective = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}): any => {
-	return prepareCompiler(directiveType, parameters).processDirective(parent);
+	return prepareCompiler(parent, directiveType, parameters).processDirective(parent);
 };
 
 
 export let processComponent = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}): any => {
-	return prepareCompiler(directiveType, parameters).processComponent(parent);
+	return prepareCompiler(parent, directiveType, parameters).processComponent(parent);
 };
 
 
@@ -55,7 +55,7 @@ export let createTemplate = (parent: HTMLElement, html: string, parameters: Para
 		},
 	});
 
-	let compiler = prepareCompiler(SuperTestComponent, parameters, container);
+	let compiler = prepareCompiler(parent, SuperTestComponent, parameters, container);
 	let template = compiler.processComponent(parent);
 
 	return template;

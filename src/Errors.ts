@@ -55,4 +55,10 @@ export class Errors
 		return new Error(definitionName + '.' + property + ': could not import host element "' + selector + '". Element does not exists.');
 	}
 
+
+	public static canNotDetachElementOutsideOfApplication(element: string): Error
+	{
+		return new Error('Can not detach root directives from "' + element + '", since it is not part of application.');
+	}
+
 }

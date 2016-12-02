@@ -16,7 +16,7 @@ import {AbstractExtension} from './Extensions/AbstractExtension';
 
 export declare interface ApplicationOptions
 {
-	parentElement?: Element,
+	parentElement?: HTMLElement,
 	filters?: Array<any>,
 	parameters?: ParamsList,
 }
@@ -68,7 +68,7 @@ export class Application
 			directives = [directives];
 		}
 
-		let template = new ApplicationTemplate(this.container, options.parameters);
+		let template = new ApplicationTemplate(this.container, options.parentElement, options.parameters);
 		let templatesStorage = new TemplatesStorage;
 
 		let extensionsFilters = this.extensions.getFilters();
@@ -91,9 +91,20 @@ export class Application
 
 		let compilerFactory = new CompilerFactory(this.container, templatesStorage, this.extensions, template);
 
-		this.container.provide(CompilerFactory, {
-			useFactory: () => compilerFactory,
-		});
+		this.container.provide([
+			[
+				CompilerFactory,
+				{
+					useFactory: () => compilerFactory,
+				},
+			],
+			[
+				ApplicationTemplate,
+				{
+					useFactory: () => template,
+				},
+			],
+		]);
 
 		for (let i = 0; i < (<Array<any>>directives).length; i++) {
 			let definition = DirectiveParser.parse(directives[i]);
