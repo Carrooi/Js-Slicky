@@ -6,7 +6,6 @@ import {ChangeDetectionStrategy} from '../constants';
 export declare interface DirectiveOptions
 {
 	selector: string,
-	compileInner?: boolean,
 }
 
 
@@ -29,13 +28,10 @@ export class DirectiveMetadataDefinition
 
 	public selector: string;
 
-	public compileInner: boolean;
-
 
 	constructor(options: DirectiveOptions)
 	{
 		this.selector = options.selector;
-		this.compileInner = options.compileInner ? true : false;
 	}
 
 }
@@ -61,8 +57,6 @@ export class ComponentMetadataDefinition extends DirectiveMetadataDefinition
 
 	constructor(options: ComponentOptions)
 	{
-		options.compileInner = true;
-
 		super(options);
 
 		this.controllerAs = typeof options.controllerAs !== 'undefined' ? options.controllerAs : null;
@@ -134,7 +128,21 @@ export class InputMetadataDefinition
 
 	public required: boolean = false;
 
-	public expression: string = null;
+
+	constructor(name?: string)
+	{
+		this.name = name ? name : null;
+	}
+
+}
+
+
+@CONST()
+export class OutputMetadataDefinition
+{
+
+
+	public name: string = null;
 
 
 	constructor(name?: string)
@@ -157,4 +165,5 @@ export var Component = makeDecorator(ComponentMetadataDefinition);
 export var HostEvent = makePropDecorator(HostEventMetadataDefinition);
 export var HostElement = makePropDecorator(HostElementMetadataDefinition);
 export var Input = makePropDecorator(InputMetadataDefinition);
+export var Output = makePropDecorator(OutputMetadataDefinition);
 export var Required = makePropDecorator(RequiredMetadataDefinition);

@@ -1,7 +1,8 @@
-import {Component, Input, HostElement, Required, HostEvent} from '../../../../src/Entity/Metadata';
+import {Component, Input, Output, HostElement, Required, HostEvent} from '../../../../src/Entity/Metadata';
 import {OnInit, OnUpdate} from '../../../../src/Interfaces';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {Dom} from '../../../../src/Util/Dom';
+import {EventEmitter} from '../../../../src/Util/EventEmitter';
 
 import {createTemplate} from '../../_testHelpers';
 
@@ -162,6 +163,74 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			expect(() => {
 				createTemplate(parent, '<component></component>', {}, [TestComponent]);
 			}).to.throw(Error, 'TestComponent.input: could not find any suitable input in "component" element.');
+		});
+
+		it('should call simple output', () => {
+			let called = false;
+
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '',
+			})
+			class TestComponent implements OnInit {
+				@Output() call = new EventEmitter<string>();
+				onInit() {
+					this.call.emit('lorem ipsum');
+				}
+			}
+
+			@Component({
+				selector: 'parent',
+				controllerAs: 'p',
+				template: '<component (call)="p.called($this, $value)"></component>',
+				directives: [TestComponent],
+			})
+			class TestParentComponent {
+				called(child: TestComponent, value: string) {
+					expect(child).to.be.an.instanceOf(TestComponent);
+					expect(value).to.be.equal('lorem ipsum');
+					called = true;
+				}
+			}
+
+			createTemplate(parent, '<parent></parent>', {}, [TestParentComponent]);
+
+			expect(called).to.be.equal(true);
+		});
+
+		it('should call output with custom name', () => {
+			let called = false;
+
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '',
+			})
+			class TestComponent implements OnInit {
+				@Output('call') onCall = new EventEmitter<string>();
+				onInit() {
+					this.onCall.emit('lorem ipsum');
+				}
+			}
+
+			@Component({
+				selector: 'parent',
+				controllerAs: 'p',
+				template: '<component (call)="p.called($this, $value)"></component>',
+				directives: [TestComponent],
+			})
+			class TestParentComponent {
+				called(child: TestComponent, value: string) {
+					expect(child).to.be.an.instanceOf(TestComponent);
+					expect(value).to.be.equal('lorem ipsum');
+					called = true;
+				}
+			}
+
+			createTemplate(parent, '<parent></parent>', {}, [TestParentComponent]);
+
+			expect(called).to.be.equal(true);
 		});
 
 		it('should call host event on itself', (done) => {

@@ -6,7 +6,10 @@ import {AbstractComponentTemplate} from '../Templates/AbstractComponentTemplate'
 import {ElementRef} from '../ElementRef';
 import {TemplateRef} from '../TemplateRef';
 import {Helpers} from '../../Util/Helpers';
-import {HostElementMetadataDefinition, InputMetadataDefinition, HostEventMetadataDefinition} from '../../Entity/Metadata';
+import {
+	HostElementMetadataDefinition, InputMetadataDefinition, HostEventMetadataDefinition,
+	OutputMetadataDefinition
+} from '../../Entity/Metadata';
 import {Annotations} from '../../Util/Annotations';
 import {HTMLParser, StringToken, ExpressionToken, ElementToken, HTMLTokenType, HTMLAttributeType, AttributeToken} from '../../Parsers/HTMLParser';
 import {QuerySelector} from '../QuerySelector';
@@ -48,6 +51,24 @@ declare interface ChildRequests
 	[directiveLocalName: string]: ChildRequestDirective
 }
 
+declare interface ElementDefinition
+{
+	elementRef: boolean,
+	init: Array<string>,
+	directives: Array<{
+		localName: string,
+		definition: DirectiveDefinition,
+		directiveType: any,
+		init: boolean,
+	}>,
+	component?: {
+		localName: string,
+		definition: DirectiveDefinition,
+		componentType: any,
+		outputs: {[eventName: string]: string},
+	}
+}
+
 
 /**
  * Compiles template class for given component
@@ -71,8 +92,6 @@ export class ComponentCompiler extends AbstractCompiler
 
 	public static GLOBAL_ROOT_REPLACEMENT = '_t.scope.findParameter("%root")';
 
-
-	private templatesCount: number = 0;
 
 	private templates: Array<ElementToken> = [];
 
@@ -246,16 +265,65 @@ export class ComponentCompiler extends AbstractCompiler
 	}
 
 
+	private analyzeElement(node: ElementToken): ElementDefinition
+	{
+		let data: ElementDefinition = {
+			elementRef: false,
+			init: [],
+			directives: [],
+		};
+
+		let components = [];
+
+		this.eachDirective((directive: any, definition: DirectiveDefinition) => {
+			if (QuerySelector.match(definition.metadata.selector, node)) {
+				let localName = '_d_' + (this.directivesCount++);
+
+				data.elementRef = true;
+
+				if (definition.type === DirectiveType.Component) {
+					components.push(definition.name);
+
+					data.component = {
+						localName: localName,
+						definition: definition,
+						componentType: directive,
+						outputs: {},
+					};
+
+					Helpers.each(definition.outputs, (propertyName: string, output: OutputMetadataDefinition) => {
+						data.component.outputs[output.name ? output.name : propertyName] = propertyName;
+					});
+				} else {
+					data.directives.push({
+						localName: localName,
+						definition: definition,
+						directiveType: directive,
+						init: typeof directive.prototype.onInit === 'function',
+					});
+				}
+			}
+		});
+
+		if (components.length > 1) {
+			throw Errors.tooManyComponentsPerElement(node.name, components);
+		}
+
+		return data;
+	}
+
+
 	private compileElementNode(appendTo: Buffer<string>, node: ElementToken, appendBefore: boolean = false): void
 	{
-		let includeElementRef = false;
+		let elementDefinition = this.analyzeElement(node);
+
 		let hasTemplateRef = false;
 
 		let localDirectives: {[localName: string]: string} = {};
 		let exports: {[name: string]: string} = {};
-		let callInit: Array<string> = [];
 
 		let buffer = new Buffer<string>();
+		let componentEvents: Array<{event: string, call: string}> = [];
 		let events;
 
 		Helpers.each(node.attributes, (name: string, attribute: AttributeToken) => {
@@ -285,10 +353,16 @@ export class ComponentCompiler extends AbstractCompiler
 					break;
 				case HTMLAttributeType.EVENT:
 					events = attribute.name.split('|');
-					includeElementRef = true;
+					elementDefinition.elementRef = true;
+
+					let call = this.fixCall((<Expression>attribute.value).code);
 
 					for (let j = 0; j < events.length; j++) {
-						buffer.append('_t.addEventListener(_er, "' + events[j] + '", "' + this.fixCall((<Expression>attribute.value).code) + '");');
+						if (elementDefinition.component && typeof elementDefinition.component.outputs[events[j]] !== 'undefined') {
+							componentEvents.push({event: elementDefinition.component.outputs[events[j]], call: call});
+						} else {
+							buffer.append('_t.addEventListener(_er, "' + events[j] + '", "' + call + '");');
+						}
 					}
 
 					break;
@@ -296,7 +370,7 @@ export class ComponentCompiler extends AbstractCompiler
 		});
 
 		if (node.name === 'template') {
-			includeElementRef = true;
+			elementDefinition.elementRef = true;
 			hasTemplateRef = true;
 
 			this.compileTemplate(buffer, node);
@@ -308,7 +382,7 @@ export class ComponentCompiler extends AbstractCompiler
 			}
 
 			if (QuerySelector.match(request.selector, node, parent)) {
-				includeElementRef = true;
+				elementDefinition.elementRef = true;
 
 				if (request.type === ChildRequestType.Element) {
 					buffer.append(directiveLocalName + '["' + request.property + '"] = _er;');
@@ -321,20 +395,17 @@ export class ComponentCompiler extends AbstractCompiler
 			}
 		});
 
-		this.eachDirective((directive: any, definition: DirectiveDefinition) => {
-			if (QuerySelector.match(definition.metadata.selector, node)) {
-				let localName = '_d_' + (this.directivesCount++);
+		if (elementDefinition.component) {
+			localDirectives[elementDefinition.component.localName] = elementDefinition.component.definition.name;
+			this.compileDirective(buffer, elementDefinition.component.localName, elementDefinition.component.definition, node, hasTemplateRef, elementDefinition.component.componentType, componentEvents);
+		}
 
-				includeElementRef = true;
-				localDirectives[localName] = definition.name;
+		for (let i = 0; i < elementDefinition.directives.length; i++) {
+			let directive = elementDefinition.directives[i];
 
-				if (definition.type === DirectiveType.Directive && typeof directive.prototype.onInit === 'function') {
-					callInit.push(localName);
-				}
-
-				this.compileDirective(buffer, localName, definition, node, hasTemplateRef, directive);
-			}
-		});
+			localDirectives[directive.localName] = directive.definition.name;
+			this.compileDirective(buffer, directive.localName, directive.definition, node, hasTemplateRef, directive.directiveType);
+		}
 
 		this.compileExports(buffer, node, exports, localDirectives);
 
@@ -344,11 +415,13 @@ export class ComponentCompiler extends AbstractCompiler
 
 		this.checkDirectiveRequests(buffer, Object.keys(localDirectives));
 
-		for (let i = 0; i < callInit.length; i++) {
-			buffer.append('_t.run(function() {' + callInit[i] + '.onInit();});');
+		for (let i = 0; i < elementDefinition.directives.length; i++) {
+			if (elementDefinition.directives[i].init) {
+				buffer.append('_t.run(function() {' + elementDefinition.directives[i].localName + '.onInit();});');
+			}
 		}
 
-		if (includeElementRef) {
+		if (elementDefinition.elementRef) {
 			buffer.prepend('var _er = ElementRef.get(_n);');
 		}
 
@@ -455,7 +528,7 @@ export class ComponentCompiler extends AbstractCompiler
 	}
 
 
-	private compileDirective(appendTo: Buffer<string>, localName: string, definition: DirectiveDefinition, node: ElementToken, hasTemplateRef: boolean, directive?: any): void
+	private compileDirective(appendTo: Buffer<string>, localName: string, definition: DirectiveDefinition, node: ElementToken, hasTemplateRef: boolean, directive?: any, componentEvents: Array<{event: string, call: string}> = []): void
 	{
 		let requestsStorage: ComponentCompiler = this;
 		let componentCompiler: ComponentCompiler = null;
@@ -508,6 +581,14 @@ export class ComponentCompiler extends AbstractCompiler
 				requestsStorage.storeEventDirectiveRequest(localName, definition, node, <string>event.el, name, event.name);
 			}
 		});
+
+		// process component's outputs + events
+
+		for (let i = 0; i < componentEvents.length; i++) {
+			directiveAppendTo.append('_r.parent.addComponentEventListener(' + localName + ', "' + componentEvents[i].event + '", "' + componentEvents[i].call + '");');
+		}
+
+		// finish
 
 		if (directiveAppendTo !== appendTo) {
 			Strings.indent(directiveAppendTo);

@@ -4,7 +4,7 @@ import {global} from '../Facade/Lang';
 import {ChangeDetectionStrategy} from '../constants';
 import {
 	DirectiveMetadataDefinition, HostEventMetadataDefinition, HostElementMetadataDefinition, InputMetadataDefinition,
-	RequiredMetadataDefinition, ComponentMetadataDefinition
+	RequiredMetadataDefinition, ComponentMetadataDefinition, OutputMetadataDefinition
 } from './Metadata';
 
 
@@ -33,6 +33,12 @@ export declare interface InputsList
 }
 
 
+export declare interface OutputList
+{
+	[name: string]: OutputMetadataDefinition;
+}
+
+
 export declare interface DirectiveDefinitionMetadata
 {
 	selector: string,
@@ -53,6 +59,7 @@ export declare interface DirectiveDefinition
 	events: EventsList,
 	elements: ElementsList,
 	inputs: InputsList,
+	outputs?: OutputList,
 }
 
 
@@ -69,6 +76,7 @@ export class DirectiveParser
 		let propMetadata = Reflect.getMetadata('propMetadata', directive);
 
 		let inputs: InputsList = {};
+		let outputs: OutputList = {};
 		let events: EventsList = {};
 		let elements: ElementsList = {};
 
@@ -95,6 +103,10 @@ export class DirectiveParser
 						elements[propName] = propMetadata[propName][i];
 						break;
 					}
+
+					if (metadata.type === DirectiveType.Component && propMetadata[propName][i] instanceof OutputMetadataDefinition) {
+						outputs[propName] = propMetadata[propName][i];
+					}
 				}
 
 				if (inputMetadata !== null) {
@@ -107,7 +119,7 @@ export class DirectiveParser
 			}
 		}
 
-		return {
+		let definition: DirectiveDefinition = {
 			name: Functions.getName(directive),
 			type: metadata.type,
 			metadata: metadata.metadata,
@@ -115,6 +127,12 @@ export class DirectiveParser
 			elements: elements,
 			inputs: inputs,
 		};
+
+		if (metadata.type === DirectiveType.Component) {
+			definition.outputs = outputs;
+		}
+
+		return definition;
 	}
 
 

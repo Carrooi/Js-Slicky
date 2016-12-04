@@ -61,4 +61,10 @@ export class Errors
 		return new Error('Can not detach root directives from "' + element + '", since it is not part of application.');
 	}
 
+
+	public static tooManyComponentsPerElement(element: string, components: Array<string>): Error
+	{
+		return new Error('Can not include more than one component (' + components.join(', ') + ' to element "' + element + '".');
+	}
+
 }
