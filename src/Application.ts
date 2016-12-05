@@ -12,6 +12,7 @@ import {TemplatesStorage} from './Templating/Templates/TemplatesStorage';
 import {CompilerFactory} from './Templating/Compilers/CompilerFactory';
 import {ExtensionsManager} from './Extensions/ExtensionsManager';
 import {AbstractExtension} from './Extensions/AbstractExtension';
+import {DefaultFilters} from './Templating/Filters/DefaultFilters';
 
 
 export declare interface ApplicationOptions
@@ -79,6 +80,10 @@ export class Application
 
 		for (let i = 0; i < extensionsFilters.length; i++) {
 			options.filters.push(extensionsFilters[i]);
+		}
+
+		for (let i = 0; i < DefaultFilters.length; i++) {
+			options.filters.push(DefaultFilters[i]);
 		}
 
 		for (let i = 0; i < extensionsDirectives.length; i++) {

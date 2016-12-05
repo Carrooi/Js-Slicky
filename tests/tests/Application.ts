@@ -85,6 +85,22 @@ describe('#Application', () => {
 			expect(parent.innerHTML).to.be.equal('<component>Hello world</component><directive>Hello world</directive>');
 		});
 
+		it('should use default filter', () => {
+			@Component({
+				selector: 'component',
+				template: '{{ "lorem ipsum" | length }}',
+			})
+			class TestComponent {}
+
+			parent.innerHTML = '<component></component>';
+
+			application.run([TestComponent], {
+				parentElement: parent,
+			});
+
+			expect(parent.innerText).to.be.equal('11');
+		});
+
 		it('should register custom filters for all root directives', () => {
 			@Filter({
 				name: 'plus',
