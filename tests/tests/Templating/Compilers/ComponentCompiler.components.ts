@@ -1,5 +1,6 @@
 import {Component, Input, Output, HostElement, Required, HostEvent} from '../../../../src/Entity/Metadata';
 import {OnInit, OnUpdate} from '../../../../src/Interfaces';
+import {ChangeDetectionStrategy} from '../../../../src/constants';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {Dom} from '../../../../src/Util/Dom';
 import {EventEmitter} from '../../../../src/Util/EventEmitter';
@@ -498,6 +499,22 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 				expect(parent.innerText).to.be.equal('1');
 				done();
 			}, 50);
+		});
+
+		it('should import inputs before compiling template', () => {
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '{{ typeof c.input }}',
+				changeDetection: ChangeDetectionStrategy.OnPush,
+			})
+			class TestComponent {
+				@Required() @Input() input;
+			}
+
+			createTemplate(parent, '<component input="lorem ipsum"></component>', {}, [TestComponent]);
+
+			expect(parent.innerText).to.be.equal('string');
 		});
 
 	});

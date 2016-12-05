@@ -63,7 +63,10 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 	}
 
 
-	public abstract main(onReady: (rootTemplate: AbstractComponentTemplate, template: AbstractComponentTemplate) => void): void;
+	public abstract main(
+		onBeforeRender: (rootTemplate: AbstractComponentTemplate, template: AbstractComponentTemplate) => void,
+		onReady: (rootTemplate: AbstractComponentTemplate, template: AbstractComponentTemplate) => void
+	): void;
 
 
 	public destroy(): void

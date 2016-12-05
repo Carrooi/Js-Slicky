@@ -101,7 +101,7 @@ export class RootCompiler extends AbstractCompiler
 			}
 		});
 
-		template.main(() => {
+		template.main(() => {}, () => {
 			if (typeof template.component['onInit'] === 'function') {
 				template.run(() => (<OnInit>template.component).onInit());
 			}
