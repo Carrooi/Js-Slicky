@@ -292,10 +292,6 @@ export abstract class AbstractTemplate
 
 	private setProperty(el: HTMLElement, prop: string, expression: string): void
 	{
-		if (!Dom.propertyExists(el, prop)) {
-			return;		// todo
-		}
-
 		let parts = prop.split('.');
 		if (parts.length < 1 || parts.length > 2) {
 			throw new Error('Invalid property binding "' + prop + '" on element "' + Dom.getReadableName(el) + '".');

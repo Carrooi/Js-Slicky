@@ -337,14 +337,13 @@ export class ComponentCompiler extends AbstractCompiler
 
 					break;
 				case HTMLAttributeType.PROPERTY:
-					if (!Dom.propertyAllowed(node.name, attribute.name)) {
+					let property = attribute.name.split('.');
+
+					if (!Dom.propertyAllowed(node.name, property[0])) {
 						return;
 					}
 
-					buffer.append([
-						'_n.setAttribute("' + attribute.name + '", "");',
-						'_t.watchProperty(_n, "' + attribute.name + '", ' + JSON.stringify(attribute.value) + ');',
-					]);
+					buffer.append('_t.watchProperty(_n, "' + attribute.name + '", ' + JSON.stringify(attribute.value) + ');');
 
 					break;
 				case HTMLAttributeType.EXPORT:

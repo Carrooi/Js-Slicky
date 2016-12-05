@@ -293,6 +293,10 @@ export class Dom
 
 	public static propertyAllowed(nodeName: string, prop: string): boolean
 	{
+		if (/^data-/.test(prop)) {
+			return true;
+		}
+
 		if (typeof attributes[prop] === 'undefined') {
 			return false;
 		}
@@ -304,18 +308,8 @@ export class Dom
 		if (attributes[prop].indexOf(nodeName.toLowerCase()) >= 0) {
 			return true;
 		}
-	}
 
-
-	public static propertyExists(el: Node, prop: string): boolean
-	{
-		let main = prop.split('.')[0];
-
-		if (Dom.propertyAllowed(el.nodeName, main)) {
-			return true;
-		}
-
-		return /^data-/.test(main);
+		return false;
 	}
 
 

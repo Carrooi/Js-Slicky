@@ -118,6 +118,40 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 			expect(parent.innerHTML).to.be.equal('<div class="alert-success"></div>');
 		});
 
+		it('should compile template with style', () => {
+			let scope = {
+				display: 'none',
+				color: 'black',
+			};
+
+			let template = createTemplate(parent, '<div [style.display]="display" [style.color]="color"></div>', scope);
+
+			expect(parent.innerHTML).to.be.equal('<div style="display: none; color: black;"></div>');
+
+			scope.display = 'block';
+			scope.color = 'white';
+			template.changeDetector.check();
+
+			expect(parent.innerHTML).to.be.equal('<div style="display: block; color: white;"></div>');
+		});
+
+		it('should compile template with dot classes', () => {
+			let scope = {
+				alert: false,
+				info: false,
+			};
+
+			let template = createTemplate(parent, '<div [class.alert]="alert" [class.info]="info"></div>', scope);
+
+			expect(parent.innerHTML).to.be.equal('<div></div>');
+
+			scope.alert = true;
+			scope.info = true;
+			template.changeDetector.check();
+
+			expect(parent.innerHTML).to.be.equal('<div class="alert info"></div>');
+		});
+
 		it('should compile text expression', () => {
 			let scope = {
 				beginning: 'hello',
