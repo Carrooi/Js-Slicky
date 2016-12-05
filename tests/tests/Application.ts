@@ -2,6 +2,8 @@ import {Application, Component, Directive, Filter, OnInit, OnDestroy, ElementRef
 import {Container, Injectable} from '../../di';
 import {CompilerFactory} from '../../src/Templating/Compilers/CompilerFactory';
 import {DirectiveParser} from '../../src/Entity/DirectiveParser';
+import {TranslationsExtension} from '../../src/Translations/TranslationsExtension';
+import {ComponentTranslator} from '../../src/Translations/ComponentTranslator';
 
 import chai = require('chai');
 
@@ -280,6 +282,82 @@ describe('#Application', () => {
 			expect(events.directive.destroy).to.be.eql(['da']);
 			expect(events.component.init).to.be.eql(['ca', 'cb', 'ca']);
 			expect(events.component.destroy).to.be.eql(['ca']);
+		});
+
+		it('should translate messages', () => {
+			let called = {
+				child: false,
+				parent: false,
+			};
+
+			@Component({
+				selector: 'child',
+				template: '{{ "color" | translate }} {{ "vehicle" | translate }}',
+				translations: {
+					en: {color: 'blue'},
+				}
+			})
+			class TestChildComponent implements OnInit {
+				constructor(private translator: ComponentTranslator) {}
+				onInit() {
+					expect(this.translator.translate('color')).to.be.equal('blue');
+					expect(this.translator.translate('vehicle')).to.be.equal('car');
+					called.child = true;
+				}
+			}
+
+			@Component({
+				selector: 'parent',
+				template: '{{ "vehicle" | translate }}, <child></child>',
+				translations: {
+					en: {vehicle: 'car'},
+				},
+				directives: [TestChildComponent],
+			})
+			class TestParentComponent implements OnInit {
+				constructor(private translator: ComponentTranslator) {}
+				onInit() {
+					expect(this.translator.translate('vehicle')).to.be.equal('car');
+					called.parent = true;
+				}
+			}
+
+			parent.innerHTML = '<parent></parent>';
+
+			application.addExtension(new TranslationsExtension({
+				locale: 'en',
+			}));
+
+			application.run([TestParentComponent], {
+				parentElement: parent,
+			});
+
+			expect(called.child).to.be.equal(true);
+			expect(called.parent).to.be.equal(true);
+			expect(parent.innerText).to.be.equal('car, blue car');
+		});
+
+		it('should translate message inside of embedded template', () => {
+			@Component({
+				selector: 'component',
+				template: '<template>{{ "vehicle" | translate }}</template><content selector="template"></content>',
+				translations: {
+					en: {vehicle: 'car'},
+				},
+			})
+			class TestComponent {}
+
+			parent.innerHTML = '<component></component>';
+
+			application.addExtension(new TranslationsExtension({
+				locale: 'en',
+			}));
+
+			application.run([TestComponent], {
+				parentElement: parent,
+			});
+
+			expect(parent.innerText).to.be.equal('car');
 		});
 		
 	});

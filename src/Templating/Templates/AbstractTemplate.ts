@@ -353,7 +353,11 @@ export abstract class AbstractTemplate
 	public findTranslation(locale: string, message: string): any
 	{
 		if (typeof this.translations[locale] === 'undefined') {
-			return null;
+			if (this.parent) {
+				return this.parent.findTranslation(locale, message);
+			} else {
+				return null;
+			}
 		}
 
 		let parts = message.split('.');

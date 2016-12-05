@@ -48,11 +48,7 @@ export let createTemplate = (parent: HTMLElement, html: string, parameters: Para
 	let container = new Container;
 	container.provide(services);
 	container.provide(Translator, {
-		useFactory: () => {
-			let translator = new Translator;
-			translator.locale = 'en';
-			return translator;
-		},
+		useFactory: () => new Translator('en'),
 	});
 
 	let compiler = prepareCompiler(parent, SuperTestComponent, parameters, container);

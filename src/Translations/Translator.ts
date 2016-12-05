@@ -20,6 +20,12 @@ export class Translator
 	private pluralForms = PluralForms;
 
 
+	constructor(locale?: string)
+	{
+		this.locale = locale;
+	}
+
+
 	public translate(template: AbstractTemplate, msg: string, count: number = null, params: ParamsList = {}): string
 	{
 		if (typeof msg !== 'string') {
