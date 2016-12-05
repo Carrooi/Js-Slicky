@@ -6,6 +6,7 @@ import {ParametersList, Expression, OnDestroy} from '../../Interfaces';
 import {Container, CustomServiceDefinition} from '../../DI/Container';
 import {ElementRef} from '../ElementRef';
 import {Realm} from '../../Util/Realm';
+import {EventEmitter} from '../../Util/EventEmitter';
 import {ChangeDetectionStrategy} from '../../constants';
 
 
@@ -232,6 +233,21 @@ export abstract class AbstractTemplate
 					call(e, elementRef);
 				}
 			})),
+		});
+	}
+
+
+	public addComponentEventListener(component: any, event: string, call: string|((value: any, component: any) => void)): void
+	{
+		(<EventEmitter<any>>component[event]).subscribe((value: any) => {
+			if (typeof call === 'string') {
+				this.eval(<string>call, {
+					'$value': value,
+					'$this': component,
+				});
+			} else {
+				call(value, component);
+			}
 		});
 	}
 

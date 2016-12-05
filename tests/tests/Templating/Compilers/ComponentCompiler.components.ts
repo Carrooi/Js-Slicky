@@ -234,6 +234,45 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			expect(called).to.be.equal(true);
 		});
 
+		it('should call output from within embedded template', () => {
+			let called = false;
+
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '',
+			})
+			class TestComponent implements OnInit {
+				@Output('call') onCall = new EventEmitter<string>();
+				onInit() {
+					this.onCall.emit('lorem ipsum');
+				}
+			}
+
+			@Component({
+				selector: 'parent',
+				controllerAs: 'p',
+				template:
+					'<template>' +
+						'<component (call)="p.called($this, $value)"></component>' +
+					'</template>' +
+					'<content selector="template"></content>'
+				,
+				directives: [TestComponent],
+			})
+			class TestParentComponent {
+				called(child: TestComponent, value: string) {
+					expect(child).to.be.an.instanceOf(TestComponent);
+					expect(value).to.be.equal('lorem ipsum');
+					called = true;
+				}
+			}
+
+			createTemplate(parent, '<parent></parent>', {}, [TestParentComponent]);
+
+			expect(called).to.be.equal(true);
+		});
+
 		it('should call host event on itself', (done) => {
 			@Component({
 				selector: 'button',

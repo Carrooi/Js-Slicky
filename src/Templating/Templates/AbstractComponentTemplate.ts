@@ -5,7 +5,6 @@ import {ParametersList, OnDestroy} from '../../Interfaces';
 import {ElementRef} from '../ElementRef';
 import {ChangeDetectorRef} from '../../ChangeDetection/ChangeDetectorRef';
 import {ExtensionsManager} from '../../Extensions/ExtensionsManager';
-import {EventEmitter} from '../../Util/EventEmitter';
 
 
 export abstract class AbstractComponentTemplate extends AbstractTemplate
@@ -74,21 +73,6 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 		if (typeof this.component.__proto__.onDestroy === 'function') {
 			(<OnDestroy>this.component).onDestroy();
 		}
-	}
-
-
-	public addComponentEventListener(component: any, event: string, call: string|((value: any, component: any) => void)): void
-	{
-		(<EventEmitter<any>>component[event]).subscribe((value: any) => {
-			if (typeof call === 'string') {
-				this.eval(<string>call, {
-					'$value': value,
-					'$this': component,
-				});
-			} else {
-				call(value, component);
-			}
-		});
 	}
 
 }
