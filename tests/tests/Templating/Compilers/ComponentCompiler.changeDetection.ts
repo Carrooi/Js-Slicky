@@ -155,6 +155,35 @@ describe('#Templating/Compilers/ComponentCompiler.changeDetection', () => {
 			expect(parent.innerText).to.be.equal('1');
 		});
 
+		it('should update template from event after a while', (done) => {
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '<button (click)="c.increase()"></button>{{ c.count }}',
+			})
+			class TestComponent {
+				count = 0;
+				increase() {
+					setTimeout(() => {
+						this.count++;
+					}, 20);
+				}
+			}
+
+			createTemplate(parent, '<component></component>', {}, [TestComponent]);
+
+			expect(parent.innerText).to.be.equal('0');
+
+			parent.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
+
+			expect(parent.innerText).to.be.equal('0');
+
+			setTimeout(() => {
+				expect(parent.innerText).to.be.equal('1');
+				done();
+			}, 50);
+		});
+
 	});
 
 });
