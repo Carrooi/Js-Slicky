@@ -55,7 +55,7 @@ export class RootCompiler extends AbstractCompiler
 		this.processEvents(el, elementRef, directive);
 
 		if (typeof directive['onInit'] === 'function') {
-			(<OnInit>directive).onInit();
+			this.template.run(() => (<OnInit>directive).onInit());
 		}
 
 		return directive;
@@ -103,7 +103,7 @@ export class RootCompiler extends AbstractCompiler
 
 		template.main(() => {
 			if (typeof template.component['onInit'] === 'function') {
-				(<OnInit>template.component).onInit();
+				template.run(() => (<OnInit>template.component).onInit());
 			}
 		});
 

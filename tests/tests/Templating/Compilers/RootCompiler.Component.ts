@@ -320,6 +320,31 @@ third`,
 			expect(parent.innerText).to.be.equal('first\nsecond\nthird');
 		});
 
+		it('should refresh template after timeout in onInit', (done) => {
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '{{ c.count }}',
+			})
+			class TestComponent implements OnInit {
+				count = 0;
+				onInit() {
+					setTimeout(() => {
+						this.count++;
+					}, 20);
+				}
+			}
+
+			parent.innerHTML = '<component></component>';
+
+			processComponent(parent, TestComponent);
+
+			setTimeout(() => {
+				expect(parent.innerText).to.be.equal('1');
+				done();
+			}, 50);
+		});
+
 	});
 
 });
