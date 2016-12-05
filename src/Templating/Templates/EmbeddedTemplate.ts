@@ -22,6 +22,7 @@ export class EmbeddedTemplate extends AbstractTemplate
 		super(container, parameters, parent);
 
 		this.templateRef = templateRef;
+		this.realm = parent.realm;
 	}
 
 

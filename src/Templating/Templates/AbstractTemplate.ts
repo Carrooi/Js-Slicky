@@ -20,7 +20,7 @@ export abstract class AbstractTemplate
 
 	protected children: Array<AbstractTemplate> = [];
 
-	protected realm: Realm;
+	public realm: Realm;
 
 	public container: Container;
 

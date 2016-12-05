@@ -4,6 +4,7 @@ import {CompilerFactory} from '../../src/Templating/Compilers/CompilerFactory';
 import {DirectiveParser} from '../../src/Entity/DirectiveParser';
 import {TranslationsExtension} from '../../src/Translations/TranslationsExtension';
 import {ComponentTranslator} from '../../src/Translations/ComponentTranslator';
+import {Dom} from '../../src/Util/Dom';
 
 import chai = require('chai');
 
@@ -358,6 +359,45 @@ describe('#Application', () => {
 			});
 
 			expect(parent.innerText).to.be.equal('car');
+		});
+
+		it('should call event from embedded template', (done) => {
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template:
+					'<template>' +
+						'<button (click)="c.increase()"></button>' +
+					'</template>' +
+					'<content selector="template"></content>' +
+					'{{ c.count }}'
+				,
+			})
+			class TestComponent {
+				count = 0;
+				increase() {
+					setTimeout(() => {
+						this.count++;
+					}, 20);
+				}
+			}
+
+			parent.innerHTML = '<component></component>';
+
+			application.run([TestComponent], {
+				parentElement: parent,
+			});
+
+			expect(parent.innerText).to.be.equal('0');
+
+			parent.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
+
+			expect(parent.innerText).to.be.equal('0');
+
+			setTimeout(() => {
+				expect(parent.innerText).to.be.equal('1');
+				done();
+			}, 50);
 		});
 		
 	});
