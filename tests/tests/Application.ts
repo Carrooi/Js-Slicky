@@ -2,7 +2,6 @@ import {Application, Component, Directive, Filter, OnInit, OnDestroy, ElementRef
 import {Container, Injectable} from '../../di';
 import {CompilerFactory} from '../../src/Templating/Compilers/CompilerFactory';
 import {DirectiveParser} from '../../src/Entity/DirectiveParser';
-import {ApplicationTemplate} from '../../src/Templating/Templates/ApplicationTemplate';
 
 import chai = require('chai');
 

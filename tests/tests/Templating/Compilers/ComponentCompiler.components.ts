@@ -3,6 +3,7 @@ import {OnInit, OnUpdate} from '../../../../src/Interfaces';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {Dom} from '../../../../src/Util/Dom';
 import {EventEmitter} from '../../../../src/Util/EventEmitter';
+import {IfDirective} from '../../../../src/Directives/IfDirective';
 
 import {createTemplate} from '../../_testHelpers';
 
@@ -414,6 +415,27 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			createTemplate(parent, '<parent></parent>', {}, [TestComponentParent]);
 
 			expect(parent.innerText).to.be.equal('test');
+		});
+
+		it('should not parse same directive more times in child component', () => {
+			@Component({
+				selector: 'child',
+				template: '<template [s:if]="true">lorem ipsum</template>',
+				directives: [IfDirective, IfDirective],
+			})
+			class TestChildComponent {}
+
+			@Component({
+				selector: 'parent',
+				controllerAs: 'p',
+				template: '<child></child>',
+				directives: [IfDirective, TestChildComponent],
+			})
+			class TestParentComponent {}
+
+			createTemplate(parent, '<parent></parent>', {}, [TestParentComponent]);
+
+			expect(parent.innerText).to.be.equal('lorem ipsum');
 		});
 
 	});

@@ -752,23 +752,42 @@ export class ComponentCompiler extends AbstractCompiler
 	protected eachDirective(fn: (directive: any, definition: DirectiveDefinition) => void): void
 	{
 		if (this.directives === null) {
+			let exists = (directive: any): boolean => {
+				for (let i = 0; i < this.directives.length; i++) {
+					if (this.directives[i].directive === directive) {
+						return true;
+					}
+				}
+
+				return false;
+			};
+
 			this.directives = [];
 
-			Helpers.each(this.getDefinition().metadata.directives, (i: number, directive: any) => {
-				this.directives.push({
-					directive: directive,
-					definition: DirectiveParser.parse(directive),
+			if (this.parent) {
+				this.parent.eachDirective((directive: any, definition: DirectiveDefinition) => {
+					if (!exists(directive)) {
+						this.directives.push({
+							directive: directive,
+							definition: definition,
+						});
+					}
 				});
+			}
+
+			Helpers.each(this.getDefinition().metadata.directives, (i: number, directive: any) => {
+				if (!exists(directive)) {
+					this.directives.push({
+						directive: directive,
+						definition: DirectiveParser.parse(directive),
+					});
+				}
 			});
 		}
 
 		Helpers.each(this.directives, (i: number, item: {directive: any, definition: DirectiveDefinition}) => {
 			fn(item.directive, item.definition);
 		});
-
-		if (this.parent) {
-			this.parent.eachDirective(fn);
-		}
 	}
 
 
