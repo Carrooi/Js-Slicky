@@ -596,6 +596,49 @@ describe('#Tokenizer/HTMLParser', () => {
 			]);
 		});
 
+		it('should expand events', () => {
+			expect(parse('<input (keydown|keypress)="press()">')).to.be.eql([
+				{
+					type: HTMLTokenType.T_ELEMENT,
+					name: 'input',
+					attributes: {
+						keydown: {
+							name: 'keydown',
+							type: HTMLAttributeType.EVENT,
+							value: {
+								code: 'press()',
+								dependencies: [
+									{
+										code: 'press()',
+										type: ExpressionDependencyType.Call,
+										root: 'press',
+									},
+								],
+								filters: [],
+							},
+						},
+						keypress: {
+							name: 'keypress',
+							type: HTMLAttributeType.EVENT,
+							value: {
+								code: 'press()',
+								dependencies: [
+									{
+										code: 'press()',
+										type: ExpressionDependencyType.Call,
+										root: 'press',
+									},
+								],
+								filters: [],
+							},
+						},
+					},
+					parent: null,
+					children: [],
+				},
+			]);
+		});
+
 	});
 
 });

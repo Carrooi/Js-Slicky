@@ -327,7 +327,6 @@ export class ComponentCompiler extends AbstractCompiler
 
 		let buffer = new Buffer<string>();
 		let componentEvents: Array<{event: string, call: string}> = [];
-		let events;
 
 		Helpers.each(node.attributes, (name: string, attribute: AttributeToken) => {
 			switch (attribute.type) {
@@ -354,17 +353,14 @@ export class ComponentCompiler extends AbstractCompiler
 
 					break;
 				case HTMLAttributeType.EVENT:
-					events = attribute.name.split('|');
 					elementDefinition.elementRef = true;
 
 					let call = this.fixCall((<Expression>attribute.value).code);
 
-					for (let j = 0; j < events.length; j++) {
-						if (elementDefinition.component && typeof elementDefinition.component.outputs[events[j]] !== 'undefined') {
-							componentEvents.push({event: elementDefinition.component.outputs[events[j]], call: call});
-						} else {
-							buffer.append('_t.addEventListener(_er, "' + events[j] + '", "' + call + '");');
-						}
+					if (elementDefinition.component && typeof elementDefinition.component.outputs[attribute.name] !== 'undefined') {
+						componentEvents.push({event: elementDefinition.component.outputs[attribute.name], call: call});
+					} else {
+						buffer.append('_t.addEventListener(_er, "' + attribute.name + '", "' + call + '");');
 					}
 
 					break;

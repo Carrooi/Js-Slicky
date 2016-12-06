@@ -190,10 +190,12 @@ export class HTMLParser
 				children: [],
 			};
 
-			let templateAttribute, templateAttributes = TemplateAttributeParser.parse('*' + attribute.name, <string>attribute.value);
-			for (let j = 0; j < templateAttributes.length; j++) {
-				templateAttribute = HTMLParser.parseAttribute(templateAttributes[j].name, templateAttributes[j].value, options);
-				template.attributes[templateAttribute.name] = templateAttribute;
+			let templateAttributes = TemplateAttributeParser.parse('*' + attribute.name, <string>attribute.value);
+			for (let i = 0; i < templateAttributes.length; i++) {
+				let appendTemplateAttributes = HTMLParser.parseAttribute(templateAttributes[i].name, templateAttributes[i].value, options);
+				for (let j = 0; j < appendTemplateAttributes.length; j++) {
+					template.attributes[appendTemplateAttributes[j].name] = appendTemplateAttributes[j];
+				}
 			}
 
 			if (parentTemplate) {
@@ -216,18 +218,20 @@ export class HTMLParser
 
 	public static parseAttributes(node: Element, options: ExpressionParserOptions = {}): {[name: string]: AttributeToken}
 	{
-		let attr, attributes = {};
+		let attributes = {};
 
 		for (let i = 0; i < node.attributes.length; i++) {
-			attr = HTMLParser.parseAttribute(node.attributes[i].name, node.attributes[i].value, options);
-			attributes[attr.name] = attr;
+			let append = HTMLParser.parseAttribute(node.attributes[i].name, node.attributes[i].value, options);
+			for (let j = 0; j < append.length; j++) {
+				attributes[append[j].name] = append[j];
+			}
 		}
 
 		return <any>attributes;
 	}
 
 
-	private static parseAttribute(name: string, value: string, options: ExpressionParserOptions): AttributeToken
+	private static parseAttribute(name: string, value: string, options: ExpressionParserOptions): Array<AttributeToken>
 	{
 		let type = HTMLAttributeType.NATIVE;
 		let match;
@@ -258,11 +262,27 @@ export class HTMLParser
 			value = <any>ExpressionParser.parse(value, options);
 		}
 
-		return {
-			type: type,
-			name: name,
-			value: value,
-		};
+		let attributes = [];
+
+		if (type === HTMLAttributeType.EVENT) {
+			let events = name.split('|');
+			for (let i = 0; i < events.length; i++) {
+				attributes.push({
+					type: type,
+					name: events[i],
+					value: value,
+				});
+			}
+
+		} else {
+			attributes.push({
+				type: type,
+				name: name,
+				value: value,
+			})
+		}
+
+		return attributes;
 	}
 
 
