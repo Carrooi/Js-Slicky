@@ -254,7 +254,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 	private compileStringNode(appendTo: Buffer<string>, node: StringToken, dynamic: boolean = true): void
 	{
-		appendTo.append('_t.appendText(_n, "' + node.value + '"' + (dynamic ? ', _b' : '') + ');');
+		appendTo.append('_t.appendText(_n, "' + this.escape(node.value) + '"' + (dynamic ? ', _b' : '') + ');');
 	}
 
 
@@ -803,6 +803,12 @@ export class ComponentCompiler extends AbstractCompiler
 		}
 
 		return null;
+	}
+
+
+	private escape(str: string): string
+	{
+		return str.replace(/\n/g, '\\n');
 	}
 
 

@@ -578,6 +578,24 @@ describe('#Tokenizer/HTMLParser', () => {
 			]);
 		});
 
+		it('should parse multi-line element', () => {
+			expect(parse('<div\nid="some-id"\n></div>')).to.be.eql([
+				{
+					type: HTMLTokenType.T_ELEMENT,
+					name: 'div',
+					attributes: {
+						id: {
+							name: 'id',
+							type: HTMLAttributeType.NATIVE,
+							value: 'some-id',
+						},
+					},
+					parent: null,
+					children: [],
+				},
+			]);
+		});
+
 	});
 
 });

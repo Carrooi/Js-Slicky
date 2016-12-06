@@ -158,7 +158,7 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 				ending: 'world',
 			};
 
-			var template = createTemplate(parent, '{{ beginning }}, {{ ending }}!', scope);
+			let template = createTemplate(parent, '{{ beginning }}, {{ ending }}!', scope);
 
 			expect(parent.innerHTML).to.be.equal('hello, world!');
 
@@ -228,6 +228,12 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 			let comment = '<!--' + ComponentCompiler.PLACEHOLDER_COMMENT + '-->';
 
 			expect(parent.innerHTML).to.be.equal('<template id="tmpl"></template>1/a-first-a, ' + comment + '2/a-second-a, ' + comment + '3/a-third-a' + comment);
+		});
+
+		it('should parse multi-line element', () => {
+			createTemplate(parent, '<div\nid="some-id"\n></div>');
+
+			expect(parent.innerHTML).to.be.equal('<div id="some-id"></div>');
 		});
 
 	});

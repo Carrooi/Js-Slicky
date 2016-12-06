@@ -61,16 +61,10 @@ export class ComponentMetadataDefinition extends DirectiveMetadataDefinition
 
 		this.controllerAs = typeof options.controllerAs !== 'undefined' ? options.controllerAs : null;
 		this.changeDetection = typeof options.changeDetection !== 'undefined' ? options.changeDetection : null;
-		this.template = typeof options.template !== 'undefined' ? this.parseTemplate(options.template) : null;
+		this.template = typeof options.template !== 'undefined' ? options.template : null;
 		this.directives = typeof options.directives !== 'undefined' ? options.directives : [];
 		this.filters = typeof options.filters !== 'undefined' ? options.filters : [];
 		this.translations = typeof options.translations !== 'undefined' ? options.translations : {};
-	}
-
-
-	private parseTemplate(template: string): string
-	{
-		return template.replace(/\n/g, '\\n');
 	}
 
 }
