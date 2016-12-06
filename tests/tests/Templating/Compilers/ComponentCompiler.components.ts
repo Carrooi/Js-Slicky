@@ -5,6 +5,8 @@ import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {Dom} from '../../../../src/Util/Dom';
 import {EventEmitter} from '../../../../src/Util/EventEmitter';
 import {IfDirective} from '../../../../src/Directives/IfDirective';
+import {ForDirective} from '../../../../src/Directives/ForDirective';
+import {IterableDifferFactory} from '../../../../src/ChangeDetection/IterableDiffer';
 
 import {createTemplate} from '../../_testHelpers';
 
@@ -515,6 +517,36 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			createTemplate(parent, '<component input="lorem ipsum"></component>', {}, [TestComponent]);
 
 			expect(parent.innerText).to.be.equal('string');
+		});
+
+		it('should import input from ForDirective', () => {
+			@Component({
+				selector: 'component',
+				controllerAs: 'cmp',
+				template: '{{ cmp.data }}',
+			})
+			class TestComponent {
+				@Input() data;
+			}
+
+			createTemplate(parent, '<component *s:for="#item of items" [data]="item"></component>', {items: [1]}, [ForDirective, TestComponent], [IterableDifferFactory]);
+
+			expect(parent.innerText).to.be.equal('1');
+		});
+
+		it('exported component should overwrite local parameter', () => {
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '{{ c.item }}',
+			})
+			class TestComponent {
+				@Input() item;
+			}
+
+			createTemplate(parent, '<component *s:for="#c of items" [item]="c"></component>', {items: [1]}, [ForDirective, TestComponent], [IterableDifferFactory]);
+
+			expect(parent.innerText).to.be.equal('1');
 		});
 
 	});

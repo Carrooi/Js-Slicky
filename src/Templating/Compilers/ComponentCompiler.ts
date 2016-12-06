@@ -486,7 +486,7 @@ export class ComponentCompiler extends AbstractCompiler
 	}
 
 
-	private compileInputs(appendTo: Buffer<string>, node: ElementToken, definition: DirectiveDefinition, directiveLocalName: string = '_d'): void
+	private compileInputs(appendTo: Buffer<string>, node: ElementToken, definition: DirectiveDefinition, directiveLocalName: string): void
 	{
 		Helpers.each(definition.inputs, (name: string, input: InputMetadataDefinition) => {
 			let attributeName = input.name === null ? name : input.name;
@@ -506,7 +506,7 @@ export class ComponentCompiler extends AbstractCompiler
 					break;
 				case HTMLAttributeType.PROPERTY:
 				case HTMLAttributeType.EXPRESSION:
-					appendTo.append('_t.watchInput(' + directiveLocalName + ', "' + name + '", ' + JSON.stringify(attribute.value) + ');');
+					appendTo.append('_t' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.watchInput(' + directiveLocalName + ', "' + name + '", ' + JSON.stringify(attribute.value) + ');');
 					break;
 			}
 		});
@@ -545,7 +545,7 @@ export class ComponentCompiler extends AbstractCompiler
 			componentCompiler = new ComponentCompiler(this.container, this.storage, directiveType, this);
 
 			let innerTemplateName = componentCompiler.getName();
-			let controllerAs = definition.metadata['controllerAs'] ? definition.metadata['controllerAs'] : null;
+			let controllerAs = definition.metadata.controllerAs ? definition.metadata.controllerAs : null;
 
 			requestsStorage = componentCompiler;
 			onBeforeRenderBuffer = new Buffer<string>();
