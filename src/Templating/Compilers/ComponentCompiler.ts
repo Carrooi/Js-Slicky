@@ -331,21 +331,21 @@ export class ComponentCompiler extends AbstractCompiler
 		Helpers.each(node.attributes, (name: string, attribute: AttributeToken) => {
 			switch (attribute.type) {
 				case HTMLAttributeType.NATIVE:
-					buffer.append('_n.setAttribute("' + attribute.name + '", "' + attribute.value + '");');
+					buffer.append('_n.setAttribute("' + attribute.originalName + '", "' + attribute.value + '");');
 
 					break;
 				case HTMLAttributeType.EXPRESSION:
-					buffer.append('_t.watchAttribute(_n, "' + attribute.name + '", ' + JSON.stringify(attribute.value) + ');');
+					buffer.append('_t.watchAttribute(_n, "' + attribute.originalName + '", ' + JSON.stringify(attribute.value) + ');');
 
 					break;
 				case HTMLAttributeType.PROPERTY:
-					let property = attribute.name.split('.');
+					let property = attribute.originalName.split('.');
 
 					if (!Dom.propertyAllowed(node.name, property[0])) {
 						return;
 					}
 
-					buffer.append('_t.watchProperty(_n, "' + attribute.name + '", ' + JSON.stringify(attribute.value) + ');');
+					buffer.append('_t.watchProperty(_n, "' + attribute.originalName + '", ' + JSON.stringify(attribute.value) + ');');
 
 					break;
 				case HTMLAttributeType.EXPORT:

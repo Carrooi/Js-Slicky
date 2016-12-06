@@ -201,21 +201,25 @@ describe('#Tokenizer/HTMLParser', () => {
 						hidden: {
 							type: HTMLAttributeType.NATIVE,
 							name: 'hidden',
+							originalName: 'hidden',
 							value: '',
 						},
 						'class': {
 							type: HTMLAttributeType.NATIVE,
 							name: 'class',
+							originalName: 'class',
 							value: 'alert',
 						},
 						id: {
 							type: HTMLAttributeType.NATIVE,
 							name: 'id',
+							originalName: 'id',
 							value: 'div',
 						},
 						data: {
 							type: HTMLAttributeType.PROPERTY,
 							name: 'data',
+							originalName: 'data',
 							value: {
 								code: 'data',
 								dependencies: [
@@ -231,11 +235,13 @@ describe('#Tokenizer/HTMLParser', () => {
 						div: {
 							type: HTMLAttributeType.EXPORT,
 							name: 'div',
+							originalName: 'div',
 							value: '',
 						},
 						click: {
 							type: HTMLAttributeType.EVENT,
 							name: 'click',
+							originalName: 'click',
 							preventDefault: false,
 							value: {
 								code: 'click()',
@@ -265,6 +271,7 @@ describe('#Tokenizer/HTMLParser', () => {
 						dataAttr: {
 							type: HTMLAttributeType.NATIVE,
 							name: 'dataAttr',
+							originalName: 'data-attr',
 							value: 'data',
 						},
 					},
@@ -284,6 +291,7 @@ describe('#Tokenizer/HTMLParser', () => {
 						'class': {
 							type: HTMLAttributeType.EXPRESSION,
 							name: 'class',
+							originalName: 'class',
 							value: {
 								code: 'type',
 								dependencies: [
@@ -312,6 +320,7 @@ describe('#Tokenizer/HTMLParser', () => {
 						'class': {
 							type: HTMLAttributeType.EXPRESSION,
 							name: 'class',
+							originalName: 'class',
 							value: {
 								code: '"alert alert-"+(type)',
 								dependencies: [
@@ -340,6 +349,7 @@ describe('#Tokenizer/HTMLParser', () => {
 						'if': {
 							type: HTMLAttributeType.PROPERTY,
 							name: 'if',
+							originalName: 'if',
 							value: {
 								code: 'true',
 								dependencies: [],
@@ -356,6 +366,7 @@ describe('#Tokenizer/HTMLParser', () => {
 								'for': {
 									type: HTMLAttributeType.PROPERTY,
 									name: 'for',
+									originalName: 'for',
 									value: {
 										code: 'false',
 										dependencies: [],
@@ -372,6 +383,7 @@ describe('#Tokenizer/HTMLParser', () => {
 										'class': {
 											type: HTMLAttributeType.NATIVE,
 											name: 'class',
+											originalName: 'class',
 											value: 'alert',
 										},
 									},
@@ -387,6 +399,7 @@ describe('#Tokenizer/HTMLParser', () => {
 													'class': {
 														type: HTMLAttributeType.NATIVE,
 														name: 'class',
+														originalName: 'class',
 														value: 'alert',
 													},
 												},
@@ -412,6 +425,7 @@ describe('#Tokenizer/HTMLParser', () => {
 						's:for': {
 							type: HTMLAttributeType.PROPERTY,
 							name: 's:for',
+							originalName: 's:for',
 							value: {
 								code: '',
 								dependencies: [],
@@ -421,11 +435,13 @@ describe('#Tokenizer/HTMLParser', () => {
 						item: {
 							type: HTMLAttributeType.EXPORT,
 							name: 'item',
+							originalName: 'item',
 							value: '',
 						},
 						's:forOf': {
 							type: HTMLAttributeType.PROPERTY,
 							name: 's:forOf',
+							originalName: 's:forOf',
 							value: {
 								code: 'items',
 								dependencies: [
@@ -441,6 +457,7 @@ describe('#Tokenizer/HTMLParser', () => {
 						's:forTrackBy': {
 							type: HTMLAttributeType.PROPERTY,
 							name: 's:forTrackBy',
+							originalName: 's:forTrackBy',
 							value: {
 								code: 'trackByFn',
 								dependencies: [
@@ -456,6 +473,7 @@ describe('#Tokenizer/HTMLParser', () => {
 						i: {
 							type: HTMLAttributeType.EXPORT,
 							name: 'i',
+							originalName: 'i',
 							value: 'index',
 						},
 					},
@@ -587,6 +605,7 @@ describe('#Tokenizer/HTMLParser', () => {
 					attributes: {
 						id: {
 							name: 'id',
+							originalName: 'id',
 							type: HTMLAttributeType.NATIVE,
 							value: 'some-id',
 						},
@@ -605,6 +624,7 @@ describe('#Tokenizer/HTMLParser', () => {
 					attributes: {
 						keydown: {
 							name: 'keydown',
+							originalName: 'keydown',
 							type: HTMLAttributeType.EVENT,
 							preventDefault: false,
 							value: {
@@ -621,6 +641,7 @@ describe('#Tokenizer/HTMLParser', () => {
 						},
 						keypress: {
 							name: 'keypress',
+							originalName: 'keypress',
 							type: HTMLAttributeType.EVENT,
 							preventDefault: false,
 							value: {
@@ -650,6 +671,7 @@ describe('#Tokenizer/HTMLParser', () => {
 					attributes: {
 						keydown: {
 							name: 'keydown',
+							originalName: 'keydown',
 							type: HTMLAttributeType.EVENT,
 							preventDefault: true,
 							value: {
@@ -666,6 +688,7 @@ describe('#Tokenizer/HTMLParser', () => {
 						},
 						keypress: {
 							name: 'keypress',
+							originalName: 'keypress',
 							type: HTMLAttributeType.EVENT,
 							preventDefault: true,
 							value: {

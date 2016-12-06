@@ -36,6 +36,16 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 			expect(parent.innerHTML).to.be.equal('<div class="alert"></div>');
 		});
 
+		it('should correctly compile multi-words native attributes', () => {
+			let scope = {
+				color: 'black',
+				hidden: 'no',
+			};
+
+			createTemplate(parent, '<div data-title="Some title" data-content="Some content" data-color="{{ color }}" [data-hidden]="hidden"></div>', scope);
+			expect(parent.innerHTML).to.be.equal('<div data-title="Some title" data-content="Some content" data-color="black" data-hidden="no"></div>');
+		});
+
 		it('should compile template with event attribute', (done) => {
 			createTemplate(parent, '<button (click)="click($this, $event, \'hello\')"></button>', {
 				click: (button: ElementRef<HTMLElement>, e: MouseEvent, message: string) => {

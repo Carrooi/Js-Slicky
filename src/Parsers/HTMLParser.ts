@@ -30,6 +30,7 @@ export declare interface AttributeToken
 {
 	type: HTMLAttributeType,
 	name: string,
+	originalName: string,
 	value: string|Expression,
 	preventDefault?: boolean,
 }
@@ -237,6 +238,7 @@ export class HTMLParser
 		let type = HTMLAttributeType.NATIVE;
 		let preventDefault = false;
 		let match;
+		let originalName;
 
 		if (match = name.match(/^\*(.+)/)) {
 			type = HTMLAttributeType.TEMPLATE;
@@ -259,6 +261,7 @@ export class HTMLParser
 			value = attr.value;
 		}
 
+		originalName = name;
 		name = Strings.hyphensToCamelCase(name);
 
 		if ([HTMLAttributeType.EXPRESSION, HTMLAttributeType.PROPERTY, HTMLAttributeType.EVENT].indexOf(type) > -1) {
@@ -273,6 +276,7 @@ export class HTMLParser
 				attributes.push({
 					type: type,
 					name: events[i],
+					originalName: events[i],
 					value: value,
 					preventDefault: preventDefault,
 				});
@@ -282,6 +286,7 @@ export class HTMLParser
 			attributes.push({
 				type: type,
 				name: name,
+				originalName: originalName,
 				value: value,
 			})
 		}

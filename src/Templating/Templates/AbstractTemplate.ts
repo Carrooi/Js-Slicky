@@ -321,7 +321,7 @@ export abstract class AbstractTemplate
 			el.className = value;
 
 		} else if (parts.length === 1) {
-			el[prop] = value
+			el.setAttribute(prop, value);
 
 		} else if (parts[0] === 'style') {
 			el.style[parts[1]] = !value ?
