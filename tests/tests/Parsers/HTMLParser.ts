@@ -236,6 +236,7 @@ describe('#Tokenizer/HTMLParser', () => {
 						click: {
 							type: HTMLAttributeType.EVENT,
 							name: 'click',
+							preventDefault: false,
 							value: {
 								code: 'click()',
 								dependencies: [
@@ -605,6 +606,7 @@ describe('#Tokenizer/HTMLParser', () => {
 						keydown: {
 							name: 'keydown',
 							type: HTMLAttributeType.EVENT,
+							preventDefault: false,
 							value: {
 								code: 'press()',
 								dependencies: [
@@ -620,6 +622,52 @@ describe('#Tokenizer/HTMLParser', () => {
 						keypress: {
 							name: 'keypress',
 							type: HTMLAttributeType.EVENT,
+							preventDefault: false,
+							value: {
+								code: 'press()',
+								dependencies: [
+									{
+										code: 'press()',
+										type: ExpressionDependencyType.Call,
+										root: 'press',
+									},
+								],
+								filters: [],
+							},
+						},
+					},
+					parent: null,
+					children: [],
+				},
+			]);
+		});
+
+		it('should parse events with preventDefault option', () => {
+			expect(parse('<input (keydown|keypress)!="press()">')).to.be.eql([
+				{
+					type: HTMLTokenType.T_ELEMENT,
+					name: 'input',
+					attributes: {
+						keydown: {
+							name: 'keydown',
+							type: HTMLAttributeType.EVENT,
+							preventDefault: true,
+							value: {
+								code: 'press()',
+								dependencies: [
+									{
+										code: 'press()',
+										type: ExpressionDependencyType.Call,
+										root: 'press',
+									},
+								],
+								filters: [],
+							},
+						},
+						keypress: {
+							name: 'keypress',
+							type: HTMLAttributeType.EVENT,
+							preventDefault: true,
 							value: {
 								code: 'press()',
 								dependencies: [

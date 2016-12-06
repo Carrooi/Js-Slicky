@@ -360,7 +360,7 @@ export class ComponentCompiler extends AbstractCompiler
 					if (elementDefinition.component && typeof elementDefinition.component.outputs[attribute.name] !== 'undefined') {
 						componentEvents.push({event: elementDefinition.component.outputs[attribute.name], call: call});
 					} else {
-						buffer.append('_t.addEventListener(_er, "' + attribute.name + '", "' + call + '");');
+						buffer.append('_t.addEventListener(_er, "' + attribute.name + '", "' + (attribute.preventDefault ? '$event.preventDefault(); ' : '') + call + '");');
 					}
 
 					break;

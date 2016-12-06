@@ -31,6 +31,7 @@ export declare interface AttributeToken
 	type: HTMLAttributeType,
 	name: string,
 	value: string|Expression,
+	preventDefault?: boolean,
 }
 
 
@@ -234,6 +235,7 @@ export class HTMLParser
 	private static parseAttribute(name: string, value: string, options: ExpressionParserOptions): Array<AttributeToken>
 	{
 		let type = HTMLAttributeType.NATIVE;
+		let preventDefault = false;
 		let match;
 
 		if (match = name.match(/^\*(.+)/)) {
@@ -245,7 +247,8 @@ export class HTMLParser
 		} else if (match = name.match(/^\[(.+)]$/)) {
 			type = HTMLAttributeType.PROPERTY;
 			name = match[1];
-		} else if (match = name.match(/^\((.+)\)$/)) {
+		} else if (match = name.match(/^\((.+)\)!?$/)) {
+			preventDefault = name.slice(-1) === '!';
 			type = HTMLAttributeType.EVENT;
 			name = match[1];
 		}
@@ -271,6 +274,7 @@ export class HTMLParser
 					type: type,
 					name: events[i],
 					value: value,
+					preventDefault: preventDefault,
 				});
 			}
 

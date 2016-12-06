@@ -345,6 +345,27 @@ third`,
 			}, 50);
 		});
 
+		it('should preventDefault on template event', () => {
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '<input type="checkbox" (click)!="c.doNothing()">'
+			})
+			class TestComponent {
+				doNothing() {}
+			}
+
+			parent.innerHTML = '<component></component>';
+
+			processComponent(parent, TestComponent);
+
+			let checkbox = parent.querySelector('input');
+
+			checkbox.dispatchEvent(Dom.createMouseEvent('click'));
+
+			expect(checkbox.checked).to.be.equal(false);
+		});
+
 	});
 
 });

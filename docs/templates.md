@@ -38,8 +38,7 @@ which is really good for setting images' sources or passing data from parent
 
 ## Event binding
 
-You can also listen for some events directly from templates just like in angular 
-2.
+You can also listen for some events directly from templates just like in angular 2.
 
 ```html
 <a href="#" (click)="callMe($event)">click</a>
@@ -48,7 +47,14 @@ You can also listen for some events directly from templates just like in angular
 or listening to multiple events from one definition:
 
 ```html
-<input type="text" (change|keyup|paste)="onInputChanged($event)">
+<input type="text" (change|keyup|paste)="cmp.onInputChanged($event)">
+```
+
+it is also possible to automatically call `$event.preventDefault()` without the 
+need to always pass `$event` object into your listeners:
+
+```html
+<input type="text" (change|keyup|paste)!="cmp.updateValue($this.value)">
 ```
 
 ## Template element
