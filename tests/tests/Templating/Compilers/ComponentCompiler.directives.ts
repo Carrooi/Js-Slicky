@@ -1,8 +1,9 @@
 import {OnInit, OnUpdate, OnDestroy} from '../../../../src/Interfaces';
-import {Directive, HostElement, Input, Required, HostEvent} from '../../../../src/Entity/Metadata';
+import {Directive, HostElement, Input, Required, HostEvent, Output, Component} from '../../../../src/Entity/Metadata';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {Dom} from '../../../../src/Util/Dom';
 import {TemplateRef} from '../../../../src/Templating/TemplateRef';
+import {EventEmitter} from '../../../../src/Util/EventEmitter';
 
 import {createTemplate} from '../../_testHelpers';
 
@@ -157,6 +158,70 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 			expect(() => {
 				createTemplate(parent, '<directive></directive>', {}, [TestDirective]);
 			}).to.throw(Error, 'TestDirective.input: could not find any suitable input in "directive" element.');
+		});
+
+		it('should call simple output', () => {
+			let called = false;
+
+			@Directive({
+				selector: 'directive',
+			})
+			class TestDirective implements OnInit {
+				@Output() call = new EventEmitter<string>();
+				onInit() {
+					this.call.emit('lorem ipsum');
+				}
+			}
+
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '<directive (call)="c.called($this, $value)"></directive>',
+				directives: [TestDirective],
+			})
+			class TestComponent {
+				called(child: TestDirective, value: string) {
+					expect(child).to.be.an.instanceOf(TestDirective);
+					expect(value).to.be.equal('lorem ipsum');
+					called = true;
+				}
+			}
+
+			createTemplate(parent, '<component></component>', {}, [TestComponent]);
+
+			expect(called).to.be.equal(true);
+		});
+
+		it('should call output with custom name', () => {
+			let called = false;
+
+			@Directive({
+				selector: 'directive',
+			})
+			class TestDirective implements OnInit {
+				@Output('call') onCall = new EventEmitter<string>();
+				onInit() {
+					this.onCall.emit('lorem ipsum');
+				}
+			}
+
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '<directive (call)="c.called($this, $value)"></directive>',
+				directives: [TestDirective],
+			})
+			class TestComponent {
+				called(child: TestDirective, value: string) {
+					expect(child).to.be.an.instanceOf(TestDirective);
+					expect(value).to.be.equal('lorem ipsum');
+					called = true;
+				}
+			}
+
+			createTemplate(parent, '<component></component>', {}, [TestComponent]);
+
+			expect(called).to.be.equal(true);
 		});
 
 		it('should call host event on itself', (done) => {

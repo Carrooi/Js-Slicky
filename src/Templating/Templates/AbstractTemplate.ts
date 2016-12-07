@@ -237,16 +237,16 @@ export abstract class AbstractTemplate
 	}
 
 
-	public addComponentEventListener(component: any, event: string, call: string|((value: any, component: any) => void)): void
+	public addDirectiveEventListener(directive: any, event: string, call: string|((value: any, directive: any) => void)): void
 	{
-		(<EventEmitter<any>>component[event]).subscribe((value: any) => {
+		(<EventEmitter<any>>directive[event]).subscribe((value: any) => {
 			if (typeof call === 'string') {
 				this.eval(<string>call, {
 					'$value': value,
-					'$this': component,
+					'$this': directive,
 				});
 			} else {
-				call(value, component);
+				call(value, directive);
 			}
 		});
 	}

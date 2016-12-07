@@ -59,7 +59,7 @@ export declare interface DirectiveDefinition
 	events: EventsList,
 	elements: ElementsList,
 	inputs: InputsList,
-	outputs?: OutputList,
+	outputs: OutputList,
 }
 
 
@@ -104,7 +104,7 @@ export class DirectiveParser
 						break;
 					}
 
-					if (metadata.type === DirectiveType.Component && propMetadata[propName][i] instanceof OutputMetadataDefinition) {
+					if (propMetadata[propName][i] instanceof OutputMetadataDefinition) {
 						outputs[propName] = propMetadata[propName][i];
 					}
 				}
@@ -119,20 +119,15 @@ export class DirectiveParser
 			}
 		}
 
-		let definition: DirectiveDefinition = {
+		return {
 			name: Functions.getName(directive),
 			type: metadata.type,
 			metadata: metadata.metadata,
 			events: events,
 			elements: elements,
 			inputs: inputs,
+			outputs: outputs,
 		};
-
-		if (metadata.type === DirectiveType.Component) {
-			definition.outputs = outputs;
-		}
-
-		return definition;
 	}
 
 
