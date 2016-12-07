@@ -29,6 +29,13 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 		this.templateRef = templateRef;
 
 		use.push({
+			service: AbstractComponentTemplate,
+			options: {
+				useFactory: () => this,
+			},
+		});
+
+		use.push({
 			service: ElementRef,
 			options: {
 				useFactory: () => elementRef,
