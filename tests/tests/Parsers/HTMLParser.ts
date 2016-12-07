@@ -710,6 +710,57 @@ describe('#Tokenizer/HTMLParser', () => {
 			]);
 		});
 
+		it('should parse two way data binding', () => {
+			expect(parse('<div [(article-title)]="title"></div>')).to.be.eql([
+				{
+					type: HTMLTokenType.T_ELEMENT,
+					name: 'div',
+					attributes: {
+						articleTitle: {
+							name: 'articleTitle',
+							originalName: 'article-title',
+							type: HTMLAttributeType.PROPERTY,
+							value: {
+								code: 'title',
+								dependencies: [
+									{
+										code: 'title',
+										type: ExpressionDependencyType.Object,
+										root: 'title',
+									},
+								],
+								filters: [],
+							},
+						},
+						articleTitleChange: {
+							name: 'articleTitleChange',
+							originalName: 'article-title-change',
+							preventDefault: true,
+							type: HTMLAttributeType.EVENT,
+							value: {
+								code: 'title=$value',
+								dependencies: [
+									{
+										code: 'title',
+										type: ExpressionDependencyType.Object,
+										root: 'title',
+									},
+									{
+										code: '$value',
+										type: ExpressionDependencyType.Object,
+										root: '$value',
+									},
+								],
+								filters: [],
+							},
+						},
+					},
+					parent: null,
+					children: [],
+				},
+			]);
+		});
+
 	});
 
 });

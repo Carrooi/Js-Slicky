@@ -549,6 +549,35 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			expect(parent.innerText).to.be.equal('1');
 		});
 
+		it('should add two way data binding', () => {
+			@Component({
+				selector: 'child',
+				template: '',
+			})
+			class TestChildComponent {
+				@Input() data;
+				@Output() dataChange = new EventEmitter<number>();
+				onInit() {
+					this.data++;
+					this.dataChange.emit(this.data);
+				}
+			}
+
+			@Component({
+				selector: 'parent',
+				controllerAs: 'parent',
+				template: '<child [(data)]="parent.childData"></child>{{ parent.childData }}',
+				directives: [TestChildComponent],
+			})
+			class TestParentComponent {
+				childData = 0;
+			}
+
+			createTemplate(parent, '<parent></parent>', {}, [TestParentComponent]);
+
+			expect(parent.innerText).to.be.equal('1');
+		});
+
 	});
 
 });

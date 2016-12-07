@@ -32,7 +32,7 @@ which is really good for setting images' sources or passing data from parent
 
 ```html
 <div>
-	<a *s:for="#item in links.list" [href]="item" [target]="item"></a>
+	<a *s:for="#item of links.list" [href]="item" [target]="item"></a>
 </div>
 ```
 
@@ -55,6 +55,43 @@ need to always pass `$event` object into your listeners:
 
 ```html
 <input type="text" (change|keyup|paste)!="cmp.updateValue($this.value)">
+```
+
+## Two way data binding
+
+Two way data binding between [components](./components.md) is also possible just like in angular 2.
+
+```ts
+@Component({
+	selector: 'child',
+	template: '',
+})
+class Child
+{
+
+	@Input() data;
+	@Output() dataChange = new EventEmitter<any>();
+
+}
+
+@Component({
+	selector: 'parent',
+	controllerAs: 'p',
+	template: '<child [(data)]="p.childData"></child>',
+	directives: [Child],
+})
+class Parent
+{
+	
+	childData = 'lorem ipsum';
+	
+}
+```
+
+Parent's template is equivalent to:
+ 
+```html
+<child [data]="p.childData" (data-change)="p.childData=$value"></child>
 ```
 
 ## Template element

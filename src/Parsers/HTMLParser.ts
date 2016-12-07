@@ -66,6 +66,9 @@ export class HTMLParser
 {
 
 
+	private static TWO_WAY_BINDING_CHANGE = 'change';
+
+
 	public static parse(html: string, options: ExpressionParserOptions = {}): Array<StringToken|ElementToken>
 	{
 		let parent = document.createElement('div');
@@ -238,7 +241,13 @@ export class HTMLParser
 		let type = HTMLAttributeType.NATIVE;
 		let preventDefault = false;
 		let match;
-		let originalName;
+
+		if (match = name.match(/^\[\((.+)\)]$/)) {
+			return [
+				HTMLParser.parseAttribute('[' + match[1] + ']', value, options)[0],
+				HTMLParser.parseAttribute('(' + match[1] + '-' + HTMLParser.TWO_WAY_BINDING_CHANGE + ')!', value + '=$value', options)[0],
+			];
+		}
 
 		if (match = name.match(/^\*(.+)/)) {
 			type = HTMLAttributeType.TEMPLATE;
@@ -261,9 +270,6 @@ export class HTMLParser
 			value = attr.value;
 		}
 
-		originalName = name;
-		name = Strings.hyphensToCamelCase(name);
-
 		if ([HTMLAttributeType.EXPRESSION, HTMLAttributeType.PROPERTY, HTMLAttributeType.EVENT].indexOf(type) > -1) {
 			value = <any>ExpressionParser.parse(value, options);
 		}
@@ -275,7 +281,7 @@ export class HTMLParser
 			for (let i = 0; i < events.length; i++) {
 				attributes.push({
 					type: type,
-					name: events[i],
+					name: Strings.hyphensToCamelCase(events[i]),
 					originalName: events[i],
 					value: value,
 					preventDefault: preventDefault,
@@ -285,8 +291,8 @@ export class HTMLParser
 		} else {
 			attributes.push({
 				type: type,
-				name: name,
-				originalName: originalName,
+				name: Strings.hyphensToCamelCase(name),
+				originalName: name,
 				value: value,
 			})
 		}
