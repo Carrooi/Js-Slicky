@@ -73,6 +73,11 @@ describe('#Templating/QuerySelector', () => {
 			match('[title="hello"]', '<div title="lorem"></div>', false);
 		});
 
+		it('should match multi word attribute', () => {
+			match('[data-title="title"]', '<div data-title="title"></div>', true);
+			match('[dataTitle="title"]', '<div data-title="title"></div>', true);
+		});
+
 		it('should match nested selector', () => {
 			match(
 				'div#flashes ul li.flash i[close]',

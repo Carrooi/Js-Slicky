@@ -399,6 +399,19 @@ describe('#Application', () => {
 				done();
 			}, 50);
 		});
+
+		it('component should have access to other root directives', () => {
+			@Directive({
+				selector: 'directive',
+			})
+			class TestDirective {}
+
+			@Component({
+				selector: 'component',
+				template: '<directive></directive>',
+			})
+			class TestComponent {}
+		});
 		
 	});
 

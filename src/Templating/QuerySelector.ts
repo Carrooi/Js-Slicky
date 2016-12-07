@@ -1,5 +1,5 @@
 import {SelectorParser, SelectorType, SelectorItem, ChildType, ElementSelector} from '../Parsers/SelectorParser';
-import {ElementToken} from '../Parsers/HTMLParser';
+import {ElementToken, AttributeToken} from '../Parsers/HTMLParser';
 
 
 export class QuerySelector
@@ -53,6 +53,18 @@ export class QuerySelector
 
 	private static compareNodeWithSelector(node: ElementToken, selector: SelectorItem): boolean
 	{
+		let findAttribute = (name: string): AttributeToken => {
+			for (let attribute in node.attributes) {
+				if (node.attributes.hasOwnProperty(attribute)) {
+					if (node.attributes[attribute].name === name || node.attributes[attribute].originalName === name) {
+						return node.attributes[attribute];
+					}
+				}
+			}
+
+			return null
+		};
+
 		switch (selector.type) {
 			case SelectorType.Element:
 				if (selector.value !== node.name) {
@@ -74,9 +86,9 @@ export class QuerySelector
 				break;
 			case SelectorType.Attribute:
 				let selectorValue = (<any>selector.value).value;
-				let attribute = node.attributes[(<any>selector.value).name];
+				let attribute = findAttribute((<any>selector.value).name);
 
-				if (typeof attribute === 'undefined') {
+				if (attribute === null) {
 					return false;
 				}
 
