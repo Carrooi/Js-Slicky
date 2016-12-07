@@ -1,5 +1,6 @@
-import {Component} from '../../../../src/Entity/Metadata';
+import {Component, Output} from '../../../../src/Entity/Metadata';
 import {Dom} from '../../../../src/Util/Dom';
+import {EventEmitter} from '../../../../src/Util/EventEmitter';
 import {OnInit} from '../../../../src/Interfaces';
 import {ChangeDetectionStrategy} from '../../../../src/constants';
 import {ChangeDetectorRef} from '../../../../src/ChangeDetection/ChangeDetectorRef';
@@ -182,6 +183,33 @@ describe('#Templating/Compilers/ComponentCompiler.changeDetection', () => {
 				expect(parent.innerText).to.be.equal('1');
 				done();
 			}, 50);
+		});
+
+		it('should update template from directive output', () => {
+			@Component({
+				selector: 'child',
+				controllerAs: 'child',
+				template: '<button (click)="child.call.emit(\'hello\')"></button>',
+			})
+			class TestChildComponent {
+				@Output() call = new EventEmitter<string>();
+			}
+
+			@Component({
+				selector: 'parent',
+				controllerAs: 'parent',
+				template: '<child (call)="parent.message = $value"></child>{{ parent.message }}',
+				directives: [TestChildComponent],
+			})
+			class TestParentComponent {
+				message;
+			}
+
+			createTemplate(parent, '<parent></parent>', {}, [TestParentComponent]);
+
+			parent.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
+
+			expect(parent.innerText).to.be.equal('hello');
 		});
 
 	});

@@ -239,7 +239,7 @@ export abstract class AbstractTemplate
 
 	public addDirectiveEventListener(directive: any, event: string, call: string|((value: any, directive: any) => void)): void
 	{
-		(<EventEmitter<any>>directive[event]).subscribe((value: any) => {
+		(<EventEmitter<any>>directive[event]).subscribe((value: any) => this.run(() => {
 			if (typeof call === 'string') {
 				this.eval(<string>call, {
 					'$value': value,
@@ -248,7 +248,7 @@ export abstract class AbstractTemplate
 			} else {
 				call(value, directive);
 			}
-		});
+		}));
 	}
 
 
