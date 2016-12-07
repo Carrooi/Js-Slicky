@@ -96,6 +96,11 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 			template.changeDetector.check();
 
 			expect(parent.innerHTML).to.be.equal('<div class="success"></div>');
+
+			scope.type = null;
+			template.changeDetector.check();
+
+			expect(parent.innerHTML).to.be.equal('<div></div>');
 		});
 
 		it('should compile template with expression in attribute', () => {

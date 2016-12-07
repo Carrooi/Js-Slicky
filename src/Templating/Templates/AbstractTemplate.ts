@@ -300,9 +300,15 @@ export abstract class AbstractTemplate
 
 	private setAttribute(el: HTMLElement, attr: string, expression: Expression): void
 	{
-		el.setAttribute(attr, this.evalExpression(expression, {
+		let value = this.evalExpression(expression, {
 			'$this': el,
-		}, true));
+		}, true);
+
+		if (value === false || value == null) {
+			el.removeAttribute(attr);
+		} else {
+			el.setAttribute(attr, value);
+		}
 	}
 
 
@@ -321,7 +327,15 @@ export abstract class AbstractTemplate
 			el.className = value;
 
 		} else if (parts.length === 1) {
-			el.setAttribute(prop, value);
+			if (value === false || value == null) {
+				el.removeAttribute(prop);
+			} else {
+				if (value === true) {
+					value = prop;
+				}
+
+				el.setAttribute(prop, value);
+			}
 
 		} else if (parts[0] === 'style') {
 			el.style[parts[1]] = !value ?
