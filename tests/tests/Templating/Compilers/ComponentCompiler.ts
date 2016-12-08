@@ -251,6 +251,37 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 			expect(parent.innerHTML).to.be.equal('<div id="some-id"></div>');
 		});
 
+		it('should compile template with functions calls', () => {
+			let id = 'container';
+			let classes = 'alert alert-info';
+			let name = 'main';
+			let content = 'lorem';
+
+			let scope = {
+				getId: () => id,
+				getClasses: () => classes,
+				getName: () => name,
+				getContent: () => content,
+			};
+
+			let template = createTemplate(
+				parent,
+				'<div id="{{ getId() }}" [class]="getClasses()" data-name="div-{{ getName() }}">{{ getContent() }}</div>',
+				scope
+			);
+
+			expect(parent.innerHTML).to.be.equal('<div id="container" class="alert alert-info" data-name="div-main">lorem</div>');
+
+			id = 'wrapper';
+			classes = 'alert alert-danger';
+			name = 'child';
+			content = 'lorem ipsum';
+
+			template.changeDetector.check();
+
+			expect(parent.innerHTML).to.be.equal('<div id="wrapper" class="alert alert-danger" data-name="div-child">lorem ipsum</div>');
+		});
+
 	});
 
 });

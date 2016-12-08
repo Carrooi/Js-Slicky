@@ -1,5 +1,4 @@
 import {HTMLParser, HTMLTokenType, HTMLAttributeType, StringToken, ElementToken} from '../../../src/Parsers/HTMLParser';
-import {ExpressionDependencyType} from '../../../src/constants';
 
 import chai = require('chai');
 
@@ -63,7 +62,6 @@ describe('#Tokenizer/HTMLParser', () => {
 						dependencies: [
 							{
 								code: 'name',
-								type: ExpressionDependencyType.Object,
 								root: 'name',
 							},
 						],
@@ -225,7 +223,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'data',
-										type: ExpressionDependencyType.Object,
 										root: 'data',
 									},
 								],
@@ -248,7 +245,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'click()',
-										type: ExpressionDependencyType.Call,
 										root: 'click',
 									},
 								],
@@ -297,7 +293,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'type',
-										type: ExpressionDependencyType.Object,
 										root: 'type',
 									},
 								],
@@ -326,7 +321,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'type',
-										type: ExpressionDependencyType.Object,
 										root: 'type',
 									},
 								],
@@ -447,7 +441,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'items',
-										type: ExpressionDependencyType.Object,
 										root: 'items',
 									},
 								],
@@ -463,7 +456,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'trackByFn',
-										type: ExpressionDependencyType.Object,
 										root: 'trackByFn',
 									},
 								],
@@ -500,7 +492,6 @@ describe('#Tokenizer/HTMLParser', () => {
 						dependencies: [
 							{
 								code: 'name',
-								type: ExpressionDependencyType.Object,
 								root: 'name',
 							},
 						],
@@ -632,7 +623,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'press()',
-										type: ExpressionDependencyType.Call,
 										root: 'press',
 									},
 								],
@@ -649,7 +639,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'press()',
-										type: ExpressionDependencyType.Call,
 										root: 'press',
 									},
 								],
@@ -679,7 +668,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'press()',
-										type: ExpressionDependencyType.Call,
 										root: 'press',
 									},
 								],
@@ -696,7 +684,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'press()',
-										type: ExpressionDependencyType.Call,
 										root: 'press',
 									},
 								],
@@ -725,7 +712,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'title',
-										type: ExpressionDependencyType.Object,
 										root: 'title',
 									},
 								],
@@ -742,12 +728,10 @@ describe('#Tokenizer/HTMLParser', () => {
 								dependencies: [
 									{
 										code: 'title',
-										type: ExpressionDependencyType.Object,
 										root: 'title',
 									},
 									{
 										code: '$value',
-										type: ExpressionDependencyType.Object,
 										root: '$value',
 									},
 								],

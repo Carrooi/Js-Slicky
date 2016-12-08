@@ -1,5 +1,4 @@
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
-import {ExpressionDependencyType} from '../../../src/constants';
 
 import chai = require('chai');
 
@@ -30,7 +29,6 @@ describe('#ExpressionParser.squareBrackets', () => {
 					{
 						code: 'a["b"]',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [],
@@ -46,7 +44,6 @@ describe('#ExpressionParser.squareBrackets', () => {
 					{
 						code: 'a["b"]["c"]',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [],
@@ -62,7 +59,6 @@ describe('#ExpressionParser.squareBrackets', () => {
 					{
 						code: 'a("b")["c"]',
 						root: 'a',
-						type: ExpressionDependencyType.Call,
 					},
 				],
 				filters: [],
@@ -78,7 +74,6 @@ describe('#ExpressionParser.squareBrackets', () => {
 					{
 						code: 'a["b"].c',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [],

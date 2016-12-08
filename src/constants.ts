@@ -12,10 +12,3 @@ export enum ChangeDetectionAction
 	Remove,
 	UpdateKey,
 }
-
-
-export enum ExpressionDependencyType
-{
-	Object,
-	Call,
-}

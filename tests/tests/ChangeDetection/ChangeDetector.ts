@@ -19,7 +19,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let called = 0;
 
-			detector.watch(ExpressionParser.parse('a'), true, () => {
+			detector.watch(ExpressionParser.parse('a'), () => {
 				called++;
 			});
 
@@ -38,7 +38,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(new Scope(parameters));
 
-			detector.watch(ExpressionParser.parse('a'), true, () => {
+			detector.watch(ExpressionParser.parse('a'), () => {
 				done();
 			});
 
@@ -54,7 +54,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let called = 0;
 
-			detector.watch(ExpressionParser.parse('a.b.c'), true, () => {
+			detector.watch(ExpressionParser.parse('a.b.c'), () => {
 				called++;
 			});
 
@@ -73,7 +73,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(new Scope(parameters));
 
-			detector.watch(ExpressionParser.parse('a.b.c'), true, () => {
+			detector.watch(ExpressionParser.parse('a.b.c'), () => {
 				done();
 			});
 
@@ -90,7 +90,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let called = 0;
 
-			detector.watch(ExpressionParser.parse('a + " " + b'), true, () => {
+			detector.watch(ExpressionParser.parse('a + " " + b'), () => {
 				called++;
 			});
 
@@ -110,7 +110,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(new Scope(parameters));
 
-			detector.watch(ExpressionParser.parse('a + " " + b'), true, () => {
+			detector.watch(ExpressionParser.parse('a + " " + b'), () => {
 				done();
 			});
 
@@ -131,7 +131,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 			let detector = new ChangeDetector(new Scope(parameters));
 			let called = 0;
 
-			detector.watch(ExpressionParser.parse('a'), true, () => {
+			detector.watch(ExpressionParser.parse('a'), () => {
 				called++;
 			});
 
@@ -159,7 +159,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(new Scope(parameters));
 
-			let id = detector.watch(ExpressionParser.parse('a'), true, () => {
+			let id = detector.watch(ExpressionParser.parse('a'), () => {
 				called++;
 			});
 

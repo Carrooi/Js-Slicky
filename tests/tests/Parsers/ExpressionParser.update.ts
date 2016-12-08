@@ -1,5 +1,4 @@
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
-import {ExpressionDependencyType} from '../../../src/constants';
 
 import chai = require('chai');
 
@@ -22,7 +21,6 @@ describe('#ExpressionParser.update', () => {
 					{
 						code: 'a',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [],
@@ -40,12 +38,10 @@ describe('#ExpressionParser.update', () => {
 					{
 						code: 'a',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 					{
 						code: '$local',
 						root: '$local',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [],
@@ -65,12 +61,10 @@ describe('#ExpressionParser.update', () => {
 					{
 						code: 'first',
 						root: 'first',
-						type: ExpressionDependencyType.Object,
 					},
 					{
 						code: 'second',
 						root: 'second',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [],
@@ -88,7 +82,6 @@ describe('#ExpressionParser.update', () => {
 					{
 						code: 's',
 						root: 's',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [],
@@ -106,7 +99,6 @@ describe('#ExpressionParser.update', () => {
 					{
 						code: 'a.b',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [],
@@ -124,22 +116,18 @@ describe('#ExpressionParser.update', () => {
 					{
 						code: 'c["d"]',
 						root: 'c',
-						type: ExpressionDependencyType.Object,
 					},
 					{
 						code: 'h["i"]',
 						root: 'h',
-						type: ExpressionDependencyType.Object,
 					},
 					{
 						code: 'g(this.scope.h["i"])',
 						root: 'g',
-						type: ExpressionDependencyType.Call,
 					},
 					{
 						code: 'a.b(this.scope.c["d"])("e").f[5](this.scope.g(this.scope.h["i"]))',
 						root: 'a',
-						type: ExpressionDependencyType.Call,
 					},
 				],
 				filters: [],
@@ -157,7 +145,6 @@ describe('#ExpressionParser.update', () => {
 					{
 						code: 'a',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [
@@ -184,12 +171,10 @@ describe('#ExpressionParser.update', () => {
 					{
 						code: 'a',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 					{
 						code: 'd',
 						root: 'd',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [
@@ -227,7 +212,6 @@ describe('#ExpressionParser.update', () => {
 									{
 										code: 'd',
 										root: 'd',
-										type: ExpressionDependencyType.Object,
 									},
 								],
 								filters: [],

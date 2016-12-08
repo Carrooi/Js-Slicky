@@ -1,5 +1,5 @@
 import {Helpers} from '../Util/Helpers';
-import {ChangeDetectionStrategy, ExpressionDependencyType} from '../constants';
+import {ChangeDetectionStrategy} from '../constants';
 import {Expression, ExpressionDependency} from '../Interfaces';
 import {SafeEval} from '../Util/SafeEval';
 import {Scope} from '../Util/Scope';
@@ -51,15 +51,11 @@ export class ChangeDetector
 	}
 
 
-	public watch(expr: Expression, allowCalls: boolean, listener: () => void): number
+	public watch(expr: Expression, listener: () => void): number
 	{
 		let dependencies = [];
 
 		for (let i = 0; i < expr.dependencies.length; i++) {
-			if (expr.dependencies[i].type === ExpressionDependencyType.Call && !allowCalls) {
-				continue;
-			}
-
 			let previous = this.process(expr.dependencies[i]);
 			let clone = Helpers.clone(previous);
 

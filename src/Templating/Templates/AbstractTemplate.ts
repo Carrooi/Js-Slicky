@@ -214,7 +214,7 @@ export abstract class AbstractTemplate
 
 	protected watch(expression: Expression, listener: () => void): void
 	{
-		this.changeDetector.watch(expression, true, listener);
+		this.changeDetector.watch(expression, listener);
 	}
 
 

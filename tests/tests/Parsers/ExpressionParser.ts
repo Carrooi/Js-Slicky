@@ -1,5 +1,4 @@
 import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
-import {ExpressionDependencyType} from '../../../src/constants';
 
 import chai = require('chai');
 
@@ -20,7 +19,6 @@ describe('#ExpressionParser', () => {
 					{
 						code: 'a',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [],
@@ -36,7 +34,6 @@ describe('#ExpressionParser', () => {
 					{
 						code: 's',
 						root: 's',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [],
@@ -52,7 +49,6 @@ describe('#ExpressionParser', () => {
 					{
 						code: 'a.b',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [],
@@ -68,22 +64,18 @@ describe('#ExpressionParser', () => {
 					{
 						code: 'c["d"]',
 						root: 'c',
-						type: ExpressionDependencyType.Object,
 					},
 					{
 						code: 'h["i"]',
 						root: 'h',
-						type: ExpressionDependencyType.Object,
 					},
 					{
 						code: 'g(h["i"])',
 						root: 'g',
-						type: ExpressionDependencyType.Call,
 					},
 					{
 						code: 'a.b(c["d"])("e").f[5](g(h["i"]))',
 						root: 'a',
-						type: ExpressionDependencyType.Call,
 					},
 				],
 				filters: [],
@@ -99,7 +91,6 @@ describe('#ExpressionParser', () => {
 					{
 						code: 'a',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [
@@ -124,12 +115,10 @@ describe('#ExpressionParser', () => {
 					{
 						code: 'a',
 						root: 'a',
-						type: ExpressionDependencyType.Object,
 					},
 					{
 						code: 'd',
 						root: 'd',
-						type: ExpressionDependencyType.Object,
 					},
 				],
 				filters: [
@@ -167,7 +156,6 @@ describe('#ExpressionParser', () => {
 									{
 										code: 'd',
 										root: 'd',
-										type: ExpressionDependencyType.Object,
 									},
 								],
 								filters: [],

@@ -2,7 +2,6 @@ import {Parser} from '../Tokenizer/Parser';
 import {TokensIterator} from '../Tokenizer/TokensIterator';
 import {Token} from '../Tokenizer/Tokenizer';
 import {TokenType} from '../Tokenizer/Tokens';
-import {ExpressionDependencyType} from '../constants';
 import {Expression, ExpressionDependency, ExpressionFilter} from '../Interfaces';
 
 
@@ -69,7 +68,6 @@ export class ExpressionParser
 				currentDependency = {
 					code: '',
 					root: token.value,
-					type: ExpressionDependencyType.Object,
 				};
 
 				if (options.replaceGlobalRoot && token.value.charAt(0) !== '$') {
@@ -96,7 +94,6 @@ export class ExpressionParser
 					token.type === TokenType.T_OPEN_PARENTHESIS &&
 					([TokenType.T_NAME, TokenType.T_CLOSE_PARENTHESIS, TokenType.T_CLOSE_SQUARE_BRACKET].indexOf(previousToken.type) > -1)
 				) {
-					currentDependency.type = ExpressionDependencyType.Call;
 					exitInnerExpressionWith = TokenType.T_CLOSE_PARENTHESIS;
 
 				} else if (

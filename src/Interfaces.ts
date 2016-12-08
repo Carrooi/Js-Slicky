@@ -1,4 +1,4 @@
-import {ChangeDetectionAction, ExpressionDependencyType} from './constants';
+import {ChangeDetectionAction} from './constants';
 
 
 // ------------ PARAMETERS
@@ -24,7 +24,6 @@ export declare interface ExpressionDependency
 {
 	code: string,
 	root: string,
-	type: ExpressionDependencyType,
 }
 
 
