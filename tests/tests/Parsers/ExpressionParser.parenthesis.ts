@@ -21,7 +21,6 @@ describe('#ExpressionParser.parenthesis', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -36,7 +35,6 @@ describe('#ExpressionParser.parenthesis', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -51,7 +49,6 @@ describe('#ExpressionParser.parenthesis', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -66,7 +63,6 @@ describe('#ExpressionParser.parenthesis', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -81,7 +77,6 @@ describe('#ExpressionParser.parenthesis', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 

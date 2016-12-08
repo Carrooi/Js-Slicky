@@ -1,4 +1,5 @@
 import {HTMLParser, HTMLTokenType, HTMLAttributeType, StringToken, ElementToken} from '../../../src/Parsers/HTMLParser';
+import {ExpressionParserOptions} from '../../../src/Parsers/ExpressionParser';
 
 import chai = require('chai');
 
@@ -6,7 +7,7 @@ import chai = require('chai');
 let expect = chai.expect;
 
 
-let parse = (html: string): Array<StringToken|ElementToken> => {
+let parse = (html: string, options: ExpressionParserOptions = {}): Array<StringToken|ElementToken> => {
 	function process(branch: Array<StringToken|ElementToken>) {
 		for (let i = 0; i < branch.length; i++) {
 			let node = branch[i];
@@ -29,7 +30,7 @@ let parse = (html: string): Array<StringToken|ElementToken> => {
 		return branch;
 	}
 
-	return process(HTMLParser.parse(html));
+	return process(HTMLParser.parse(html, options));
 };
 
 
@@ -65,7 +66,6 @@ describe('#Tokenizer/HTMLParser', () => {
 								root: 'name',
 							},
 						],
-						filters: [],
 					},
 				},
 				{
@@ -226,7 +226,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: 'data',
 									},
 								],
-								filters: [],
 							},
 						},
 						div: {
@@ -248,7 +247,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: 'click',
 									},
 								],
-								filters: [],
 							},
 						},
 					},
@@ -296,7 +294,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: 'type',
 									},
 								],
-								filters: [],
 							},
 						},
 					},
@@ -324,7 +321,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: 'type',
 									},
 								],
-								filters: [],
 							},
 						},
 					},
@@ -347,7 +343,6 @@ describe('#Tokenizer/HTMLParser', () => {
 							value: {
 								code: 'true',
 								dependencies: [],
-								filters: [],
 							},
 						},
 					},
@@ -364,7 +359,6 @@ describe('#Tokenizer/HTMLParser', () => {
 									value: {
 										code: 'false',
 										dependencies: [],
-										filters: [],
 									},
 								},
 							},
@@ -423,7 +417,6 @@ describe('#Tokenizer/HTMLParser', () => {
 							value: {
 								code: '',
 								dependencies: [],
-								filters: [],
 							},
 						},
 						item: {
@@ -444,7 +437,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: 'items',
 									},
 								],
-								filters: [],
 							},
 						},
 						's:forTrackBy': {
@@ -459,7 +451,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: 'trackByFn',
 									},
 								],
-								filters: [],
 							},
 						},
 						i: {
@@ -484,36 +475,19 @@ describe('#Tokenizer/HTMLParser', () => {
 		});
 
 		it('should parse text expression with filters', () => {
-			expect(parse('{{ name | lower | truncate : 33 : "..." }}')).to.be.eql([
+			let html = parse('{{ name | lower | truncate : 33 : "..." }}', {
+				filterProvider: 'filter(%value, "%filter", [%args])',
+			});
+
+			expect(html).to.be.eql([
 				{
 					type: HTMLTokenType.T_EXPRESSION,
 					expression: {
-						code: 'name',
+						code: 'filter(filter(name, "lower", []), "truncate", [33, "..."])',
 						dependencies: [
 							{
 								code: 'name',
 								root: 'name',
-							},
-						],
-						filters: [
-							{
-								name: 'lower',
-								arguments: [],
-							},
-							{
-								name: 'truncate',
-								arguments: [
-									{
-										code: '33',
-										dependencies: [],
-										filters: [],
-									},
-									{
-										code: '"..."',
-										dependencies: [],
-										filters: [],
-									},
-								],
 							},
 						],
 					},
@@ -626,7 +600,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: 'press',
 									},
 								],
-								filters: [],
 							},
 						},
 						keypress: {
@@ -642,7 +615,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: 'press',
 									},
 								],
-								filters: [],
 							},
 						},
 					},
@@ -671,7 +643,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: 'press',
 									},
 								],
-								filters: [],
 							},
 						},
 						keypress: {
@@ -687,7 +658,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: 'press',
 									},
 								],
-								filters: [],
 							},
 						},
 					},
@@ -715,7 +685,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: 'title',
 									},
 								],
-								filters: [],
 							},
 						},
 						articleTitleChange: {
@@ -735,7 +704,6 @@ describe('#Tokenizer/HTMLParser', () => {
 										root: '$value',
 									},
 								],
-								filters: [],
 							},
 						},
 					},

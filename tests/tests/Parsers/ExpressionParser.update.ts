@@ -23,7 +23,6 @@ describe('#ExpressionParser.update', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -44,7 +43,6 @@ describe('#ExpressionParser.update', () => {
 						root: '$local',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -67,7 +65,6 @@ describe('#ExpressionParser.update', () => {
 						root: 'second',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -84,7 +81,6 @@ describe('#ExpressionParser.update', () => {
 						root: 's',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -101,7 +97,6 @@ describe('#ExpressionParser.update', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -130,31 +125,21 @@ describe('#ExpressionParser.update', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
 		it('should include filters', () => {
 			let expr = ExpressionParser.parse('a | b | c', {
-				replaceGlobalRoot: 'this.scope.%root',
+				replaceGlobalRoot: 'param("%root")',
+				filterProvider: 'filter(%value, "%filter", [%args])',
 			});
 
 			expect(expr).to.be.eql({
-				code: 'this.scope.a',
+				code: 'filter(filter(param("a"), "b", []), "c", [])',
 				dependencies: [
 					{
 						code: 'a',
 						root: 'a',
-					},
-				],
-				filters: [
-					{
-						name: 'b',
-						arguments: [],
-					},
-					{
-						name: 'c',
-						arguments: [],
 					},
 				],
 			});
@@ -162,11 +147,12 @@ describe('#ExpressionParser.update', () => {
 
 		it('should include filters with arguments', () => {
 			let expr = ExpressionParser.parse('a | b : "test" : 5 | c : 5 : "hello" + " " + "world" : d', {
-				replaceGlobalRoot: 'this.scope.%root',
+				replaceGlobalRoot: 'param("%root")',
+				filterProvider: 'filter(%value, "%filter", [%args])',
 			});
 
 			expect(expr).to.be.eql({
-				code: 'this.scope.a',
+				code: 'filter(filter(param("a"), "b", ["test", 5]), "c", [5, "hello" + " " + "world", param("d")])',
 				dependencies: [
 					{
 						code: 'a',
@@ -175,48 +161,6 @@ describe('#ExpressionParser.update', () => {
 					{
 						code: 'd',
 						root: 'd',
-					},
-				],
-				filters: [
-					{
-						name: 'b',
-						arguments: [
-							{
-								code: '"test"',
-								dependencies: [],
-								filters: [],
-							},
-							{
-								code: '5',
-								dependencies: [],
-								filters: [],
-							},
-						],
-					},
-					{
-						name: 'c',
-						arguments: [
-							{
-								code: '5',
-								dependencies: [],
-								filters: [],
-							},
-							{
-								code: '"hello" + " " + "world"',
-								dependencies: [],
-								filters: [],
-							},
-							{
-								code: 'this.scope.d',
-								dependencies: [
-									{
-										code: 'd',
-										root: 'd',
-									},
-								],
-								filters: [],
-							},
-						],
 					},
 				],
 			});

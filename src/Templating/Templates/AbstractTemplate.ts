@@ -171,6 +171,24 @@ export abstract class AbstractTemplate
 	}
 
 
+	public filter(value: string, filterName: string, args: Array<any> = []): string
+	{
+		let filter = this.findFilter(filterName);
+
+		if (!filter) {
+			throw new Error('Could not parse "' + value + '", filter "' + filterName + '" does not exists.');
+		}
+
+		args.unshift(value);
+
+		if (filter.injectTemplate) {
+			args.unshift(this);
+		}
+
+		return filter.filter.transform.apply(filter.filter, args);
+	}
+
+
 	protected eval(code: string, parameters: {[name: string]: any} = {}, provider: boolean = false): any
 	{
 		parameters['_t'] = this;
@@ -178,37 +196,6 @@ export abstract class AbstractTemplate
 		return SafeEval.run((provider ? 'return ' : '') + code, parameters, {
 			bindTo: this,
 		});
-	}
-
-
-	protected evalExpression(expression: Expression, parameters: {[name: string]: any} = {}, provider: boolean = false): any
-	{
-		let value = this.eval(expression.code, parameters, provider);
-
-		for (let i = 0; i < expression.filters.length; i++) {
-			let data = expression.filters[i];
-			let filter = this.findFilter(data.name);
-
-			if (!filter) {
-				throw new Error('Could not parse "' + expression.code + '", filter "' + data.name + '" does not exists.');
-			}
-
-			let args = [];
-
-			if (filter.injectTemplate) {
-				args.push(this);
-			}
-
-			args.push(value);
-
-			for (let j = 0; j < data.arguments.length; j++) {
-				args.push(this.evalExpression(data.arguments[j], {}, true));
-			}
-
-			value = filter.filter.transform.apply(filter.filter, args);
-		}
-
-		return value;
 	}
 
 
@@ -294,13 +281,13 @@ export abstract class AbstractTemplate
 
 	private setText(text: Text, expression: Expression): void
 	{
-		text.nodeValue = this.evalExpression(expression, {}, true);
+		text.nodeValue = this.eval(expression.code, {}, true);
 	}
 
 
 	private setAttribute(el: HTMLElement, attr: string, expression: Expression): void
 	{
-		let value = this.evalExpression(expression, {
+		let value = this.eval(expression.code, {
 			'$this': el,
 		}, true);
 

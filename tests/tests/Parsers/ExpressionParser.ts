@@ -21,7 +21,6 @@ describe('#ExpressionParser', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -36,7 +35,6 @@ describe('#ExpressionParser', () => {
 						root: 's',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -51,7 +49,6 @@ describe('#ExpressionParser', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -78,39 +75,32 @@ describe('#ExpressionParser', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
 		it('should include filters', () => {
-			let expr = ExpressionParser.parse('a | b | c');
+			let expr = ExpressionParser.parse('a | b | c', {
+				filterProvider: 'filter(%value, "%filter", [%args])',
+			});
 
 			expect(expr).to.be.eql({
-				code: 'a',
+				code: 'filter(filter(a, "b", []), "c", [])',
 				dependencies: [
 					{
 						code: 'a',
 						root: 'a',
 					},
 				],
-				filters: [
-					{
-						name: 'b',
-						arguments: [],
-					},
-					{
-						name: 'c',
-						arguments: [],
-					},
-				],
 			});
 		});
 
 		it('should include filters with arguments', () => {
-			let expr = ExpressionParser.parse('a | b : "test" : 5 | c : 5 : "hello" + " " + "world" : d');
+			let expr = ExpressionParser.parse('a | b : "test" : 5 | c : 5 : "hello" + " " + "world" : d', {
+				filterProvider: 'filter(%value, "%filter", [%args])',
+			});
 
 			expect(expr).to.be.eql({
-				code: 'a',
+				code: 'filter(filter(a, "b", ["test", 5]), "c", [5, "hello" + " " + "world", d])',
 				dependencies: [
 					{
 						code: 'a',
@@ -119,49 +109,7 @@ describe('#ExpressionParser', () => {
 					{
 						code: 'd',
 						root: 'd',
-					},
-				],
-				filters: [
-					{
-						name: 'b',
-						arguments: [
-							{
-								code: '"test"',
-								dependencies: [],
-								filters: [],
-							},
-							{
-								code: '5',
-								dependencies: [],
-								filters: [],
-							},
-						],
-					},
-					{
-						name: 'c',
-						arguments: [
-							{
-								code: '5',
-								dependencies: [],
-								filters: [],
-							},
-							{
-								code: '"hello" + " " + "world"',
-								dependencies: [],
-								filters: [],
-							},
-							{
-								code: 'd',
-								dependencies: [
-									{
-										code: 'd',
-										root: 'd',
-									},
-								],
-								filters: [],
-							},
-						],
-					},
+					}
 				],
 			});
 		});
@@ -172,7 +120,6 @@ describe('#ExpressionParser', () => {
 			expect(expr).to.be.eql({
 				code: '{key: "value"}',
 				dependencies: [],
-				filters: [],
 			});
 		});
 
@@ -182,7 +129,6 @@ describe('#ExpressionParser', () => {
 			expect(expr).to.be.eql({
 				code: '{key : "value"}',
 				dependencies: [],
-				filters: [],
 			});
 		});
 

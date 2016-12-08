@@ -8,6 +8,7 @@ import {Expression, ExpressionDependency, ExpressionFilter} from '../Interfaces'
 export declare interface ExpressionParserOptions
 {
 	replaceGlobalRoot?: string,
+	filterProvider?: string,
 }
 
 
@@ -34,7 +35,6 @@ export class ExpressionParser
 		let currentExpression: Expression = {
 			code: '',
 			dependencies: [],
-			filters: [],
 		};
 
 		let next = () => {
@@ -108,7 +108,7 @@ export class ExpressionParser
 					token = parser.token;
 					currentDependency.code += innerExpression.code;
 					currentExpression.code += innerExpression.code;
-					ExpressionParser.addDependencies(currentExpression, innerExpression.dependencies);
+					ExpressionParser.addDependencies(currentExpression.dependencies, innerExpression.dependencies);
 
 					next();
 					continue;
@@ -120,7 +120,7 @@ export class ExpressionParser
 			}
 
 			if (!isDependency && currentDependency !== null) {
-				ExpressionParser.addDependencies(currentExpression, [currentDependency]);
+				ExpressionParser.addDependencies(currentExpression.dependencies, [currentDependency]);
 				currentDependency = null;
 			}
 
@@ -134,17 +134,19 @@ export class ExpressionParser
 		}
 
 		if (currentDependency) {
-			ExpressionParser.addDependencies(currentExpression, [currentDependency]);
+			ExpressionParser.addDependencies(currentExpression.dependencies, [currentDependency]);
 		}
 
-		if (allowFilters) {
+		if (allowFilters && options.filterProvider) {
 			for (let i = 0; i < parts.length; i++) {
 				let filter = ExpressionParser.parseFilter(parts[i], options);
-				for (let j = 0; j < filter.arguments.length; j++) {
-					ExpressionParser.addDependencies(currentExpression, filter.arguments[j].dependencies);
-				}
 
-				currentExpression.filters.push(filter);
+				ExpressionParser.addDependencies(currentExpression.dependencies, filter.dependencies);
+
+				currentExpression.code = options.filterProvider
+					.replace(/%value/g, currentExpression.code.trim())
+					.replace(/%filter/g, filter.name)
+					.replace(/%args/g, filter.arguments.join(', '));
 			}
 		}
 
@@ -157,6 +159,7 @@ export class ExpressionParser
 	private static parseFilter(tokens: Array<Token>, options: ExpressionParserOptions): ExpressionFilter
 	{
 		let parts = ExpressionParser.split(tokens, ':');
+		let dependencies = [];
 
 		tokens = parts.shift();
 
@@ -167,11 +170,15 @@ export class ExpressionParser
 
 		let args = [];
 		for (let i = 0; i < parts.length; i++) {
-			args.push(ExpressionParser.parseGroup(new TokensIterator(parts[i]), options));
+			let arg = ExpressionParser.parseGroup(new TokensIterator(parts[i]), options);
+
+			ExpressionParser.addDependencies(dependencies, arg.dependencies);
+			args.push(arg.code);
 		}
 
 		return {
 			name: name[0].value.trim(),
+			dependencies: dependencies,
 			arguments: args,
 		};
 	}
@@ -240,11 +247,11 @@ export class ExpressionParser
 	}
 
 
-	private static findDependency(expression: Expression, code: string): ExpressionDependency
+	private static findDependency(dependencies: Array<ExpressionDependency>, code: string): ExpressionDependency
 	{
-		for (let i = 0; i < expression.dependencies.length; i++) {
-			if (expression.dependencies[i].code === code) {
-				return expression.dependencies[i];
+		for (let i = 0; i < dependencies.length; i++) {
+			if (dependencies[i].code === code) {
+				return dependencies[i];
 			}
 		}
 
@@ -252,11 +259,11 @@ export class ExpressionParser
 	}
 
 
-	private static addDependencies(expression: Expression, dependencies: Array<ExpressionDependency>): void
+	private static addDependencies(dependencies: Array<ExpressionDependency>, append: Array<ExpressionDependency>): void
 	{
-		for (let i = 0; i < dependencies.length; i++) {
-			if (!ExpressionParser.findDependency(expression, dependencies[i].code)) {
-				expression.dependencies.push(dependencies[i]);
+		for (let i = 0; i < append.length; i++) {
+			if (!ExpressionParser.findDependency(dependencies, append[i].code)) {
+				dependencies.push(append[i]);
 			}
 		}
 	}

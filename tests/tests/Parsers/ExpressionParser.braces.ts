@@ -21,7 +21,6 @@ describe('#ExpressionParser.braces', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -36,7 +35,6 @@ describe('#ExpressionParser.braces', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 

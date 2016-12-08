@@ -16,7 +16,6 @@ describe('#ExpressionParser.squareBrackets', () => {
 			expect(expr).to.be.eql({
 				code: '["a", 1]',
 				dependencies: [],
-				filters: [],
 			});
 		});
 
@@ -31,7 +30,6 @@ describe('#ExpressionParser.squareBrackets', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -46,7 +44,6 @@ describe('#ExpressionParser.squareBrackets', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -61,7 +58,6 @@ describe('#ExpressionParser.squareBrackets', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 
@@ -76,7 +72,6 @@ describe('#ExpressionParser.squareBrackets', () => {
 						root: 'a',
 					},
 				],
-				filters: [],
 			});
 		});
 		

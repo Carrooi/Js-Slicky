@@ -16,7 +16,8 @@ export declare interface ParametersList
 export declare interface ExpressionFilter
 {
 	name: string,
-	arguments: Array<Expression>,
+	dependencies: Array<ExpressionDependency>,
+	arguments: Array<string>,
 }
 
 
@@ -31,7 +32,6 @@ export declare interface Expression
 {
 	code: string,
 	dependencies: Array<ExpressionDependency>,
-	filters: Array<ExpressionFilter>,
 }
 
 

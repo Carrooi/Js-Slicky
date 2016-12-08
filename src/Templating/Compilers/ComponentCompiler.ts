@@ -93,6 +93,8 @@ export class ComponentCompiler extends AbstractCompiler
 
 	public static GLOBAL_ROOT_REPLACEMENT = '_t.scope.findParameter("%root")';
 
+	public static FILTER_PROVIDER = '_t.filter(%value, "%filter", [%args])';
+
 
 	private templates: Array<ElementToken> = [];
 
@@ -162,6 +164,7 @@ export class ComponentCompiler extends AbstractCompiler
 		let definition = this.getDefinition();
 		let html = HTMLParser.parse(definition.metadata.template, {
 			replaceGlobalRoot: ComponentCompiler.GLOBAL_ROOT_REPLACEMENT,
+			filterProvider: ComponentCompiler.FILTER_PROVIDER,
 		});
 
 		let main = this.template.addMethod('main', ['onBeforeRender', 'onReady'], [
