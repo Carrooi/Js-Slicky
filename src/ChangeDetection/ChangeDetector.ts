@@ -1,6 +1,6 @@
 import {Helpers} from '../Util/Helpers';
 import {ChangeDetectionStrategy} from '../constants';
-import {Expression, ExpressionDependency} from '../Interfaces';
+import {ExpressionDependency} from '../Interfaces';
 import {SafeEval} from '../Util/SafeEval';
 import {Scope} from '../Util/Scope';
 
@@ -51,16 +51,16 @@ export class ChangeDetector
 	}
 
 
-	public watch(expr: Expression, listener: () => void): number
+	public watch(dependencies: Array<ExpressionDependency>, listener: () => void): number
 	{
-		let dependencies = [];
+		let watchDependencies = [];
 
-		for (let i = 0; i < expr.dependencies.length; i++) {
-			let previous = this.process(expr.dependencies[i]);
+		for (let i = 0; i < dependencies.length; i++) {
+			let previous = this.process(dependencies[i]);
 			let clone = Helpers.clone(previous);
 
-			dependencies.push({
-				expr: expr.dependencies[i],
+			watchDependencies.push({
+				expr: dependencies[i],
 				previous: previous,
 				clone: clone,
 			});
@@ -68,7 +68,7 @@ export class ChangeDetector
 
 		this.watchers[this.watcherCounter] = {
 			listener: listener,
-			dependencies: dependencies,
+			dependencies: watchDependencies,
 		};
 
 		this.watcherCounter++;

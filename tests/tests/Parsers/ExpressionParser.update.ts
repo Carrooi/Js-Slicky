@@ -51,8 +51,6 @@ describe('#ExpressionParser.update', () => {
 				replaceGlobalRoot: 'this.scope.%root',
 			});
 
-			console.log(expr);
-
 			expect(expr).to.be.eql({
 				code: '{one: this.scope.first, two: this.scope.second}',
 				dependencies: [

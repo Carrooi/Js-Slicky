@@ -13,6 +13,7 @@ import {Dom} from '../../Util/Dom';
 import {TemplatesStorage} from '../Templates/TemplatesStorage';
 import {Errors} from '../../Errors';
 import {ExtensionsManager} from '../../Extensions/ExtensionsManager';
+import {SafeEval} from '../../Util/SafeEval';
 
 
 export class RootCompiler extends AbstractCompiler
@@ -135,7 +136,11 @@ export class RootCompiler extends AbstractCompiler
 					break;
 				case HTMLAttributeType.PROPERTY:
 				case HTMLAttributeType.EXPRESSION:
-					this.template.watchInput(directive, name, <Expression>attribute.value);
+					this.template.watchInput(attribute.expression.dependencies, directive, name, (_t) => {
+						return SafeEval.run('return ' + attribute.expression.code, {
+							_t: _t,
+						});
+					});
 					break;
 			}
 		});

@@ -33,7 +33,6 @@ describe('#Templating/Compilers/RootCompiler.Component', () => {
 				constructor(private el: ElementRef<HTMLElement>) {}
 				onInit() {
 					expect(this.el).to.be.an.instanceOf(ElementRef);
-					console.log(this.el);
 
 					called = true;
 				}

@@ -1,8 +1,7 @@
 import {Scope} from '../../Util/Scope';
-import {SafeEval} from '../../Util/SafeEval';
 import {Dom} from '../../Util/Dom';
 import {ChangeDetector} from '../../ChangeDetection/ChangeDetector';
-import {ParametersList, Expression, OnDestroy} from '../../Interfaces';
+import {ParametersList, OnDestroy, ExpressionDependency} from '../../Interfaces';
 import {Container, CustomServiceDefinition} from '../../DI/Container';
 import {ElementRef} from '../ElementRef';
 import {Realm} from '../../Util/Realm';
@@ -189,108 +188,46 @@ export abstract class AbstractTemplate
 	}
 
 
-	protected eval(code: string, parameters: {[name: string]: any} = {}, provider: boolean = false): any
+	public watch(dependencies: Array<ExpressionDependency>, listener: () => void): void
 	{
-		parameters['_t'] = this;
-
-		return SafeEval.run((provider ? 'return ' : '') + code, parameters, {
-			bindTo: this,
-		});
+		this.changeDetector.watch(dependencies, listener);
 	}
 
 
-	protected watch(expression: Expression, listener: () => void): void
-	{
-		this.changeDetector.watch(expression, listener);
-	}
-
-
-	public addEventListener(elementRef: ElementRef<HTMLElement>, event: string, call: string|((e: Event, el: ElementRef<HTMLElement>) => void)): void
+	public addEventListener(elementRef: ElementRef<HTMLElement>, event: string, call: (e: Event, el: ElementRef<HTMLElement>, template: AbstractTemplate) => void): void
 	{
 		this.listeners.push({
 			el: elementRef,
 			event: event,
-			listener: this.run(() => Dom.addEventListener(elementRef.nativeElement, event, this, (e: Event) => {
-				if (typeof call === 'string') {
-					this.eval(<string>call, {
-						'$event': e,
-						'$this': elementRef,
-					});
-				} else {
-					call(e, elementRef);
-				}
-			})),
+			listener: this.run(() => Dom.addEventListener(elementRef.nativeElement, event, this, (e: Event) => call(e, elementRef, this))),
 		});
 	}
 
 
-	public addDirectiveEventListener(directive: any, event: string, call: string|((value: any, directive: any) => void)): void
+	public addDirectiveEventListener(directive: any, event: string, call: ((value: any, directive: any, template: AbstractTemplate) => void)): void
 	{
-		(<EventEmitter<any>>directive[event]).subscribe((value: any) => this.run(() => {
-			if (typeof call === 'string') {
-				this.eval(<string>call, {
-					'$value': value,
-					'$this': directive,
-				});
-			} else {
-				call(value, directive);
-			}
-		}));
+		(<EventEmitter<any>>directive[event]).subscribe((value: any) => this.run(() => call(value, directive, this)));
 	}
 
 
-	protected watchAttribute(el: HTMLElement, attr: string, expression: Expression): void
+	public setText(el: Text, text: string): void
 	{
-		this.setAttribute(el, attr, expression);
-
-		this.watch(expression, () => {
-			this.setAttribute(el, attr, expression);
-		});
+		el.nodeValue = text;
 	}
 
 
-	protected watchProperty(el: HTMLElement, prop: string, expression: Expression): void
+	public watchText(dependencies: Array<ExpressionDependency>, el: Text, getter: (template: AbstractTemplate) => string): void
 	{
-		this.setProperty(el, prop, expression.code);
+		this.setText(el, getter(this));
 
-		this.watch(expression, () => {
-			this.setProperty(el, prop, expression.code);
-		});
+		this.watch(dependencies, () => {
+			this.setText(el, getter(this));
+		})
 	}
 
 
-	protected watchExpression(text: Text, expression: Expression): void
+	public setAttribute(el: HTMLElement, attr: string, value: any): void
 	{
-		this.setText(text, expression);
-
-		this.watch(expression, () => {
-			this.setText(text, expression);
-		});
-	}
-
-
-	public watchInput(directive: any, prop: string, expression: Expression): void
-	{
-		this.setInput(directive, prop, expression.code, false);
-
-		this.watch(expression, () => {
-			this.setInput(directive, prop, expression.code);
-		});
-	}
-
-
-	private setText(text: Text, expression: Expression): void
-	{
-		text.nodeValue = this.eval(expression.code, {}, true);
-	}
-
-
-	private setAttribute(el: HTMLElement, attr: string, expression: Expression): void
-	{
-		let value = this.eval(expression.code, {
-			'$this': el,
-		}, true);
-
 		if (value === false || value == null) {
 			el.removeAttribute(attr);
 		} else {
@@ -299,29 +236,35 @@ export abstract class AbstractTemplate
 	}
 
 
-	private setProperty(el: HTMLElement, prop: string, expression: string): void
+	public watchAttribute(el: HTMLElement, dependencies: Array<ExpressionDependency>, attr: string, getter: (template: AbstractTemplate) => any): void
 	{
-		let parts = prop.split('.');
+		this.setAttribute(el, attr, getter(this));
+
+		this.watch(dependencies, () => {
+			this.setAttribute(el, attr, getter(this));
+		});
+	}
+
+
+	private setProperty(el: HTMLElement, property: string, value: any): void
+	{
+		let parts = property.split('.');
 		if (parts.length < 1 || parts.length > 2) {
-			throw new Error('Invalid property binding "' + prop + '" on element "' + Dom.getReadableName(el) + '".');
+			throw new Error('Invalid property binding "' + property + '" on element "' + Dom.getReadableName(el) + '".');
 		}
 
-		let value = this.eval('return ' + expression, {
-			'$this': el,
-		});
-
-		if (prop === 'class') {
+		if (property === 'class') {
 			el.className = value;
 
 		} else if (parts.length === 1) {
 			if (value === false || value == null) {
-				el.removeAttribute(prop);
+				el.removeAttribute(property);
 			} else {
 				if (value === true) {
-					value = prop;
+					value = property;
 				}
 
-				el.setAttribute(prop, value);
+				el.setAttribute(property, value);
 			}
 
 		} else if (parts[0] === 'style') {
@@ -338,18 +281,38 @@ export abstract class AbstractTemplate
 			}
 
 		} else {
-			throw new Error('Invalid property binding "' + prop + '" on element "' + Dom.getReadableName(el) + '".');
+			throw new Error('Invalid property binding "' + property + '" on element "' + Dom.getReadableName(el) + '".');
 		}
 	}
 
 
-	private setInput(directive: any, prop: string, expression: string, callListener: boolean = true): void
+	public watchProperty(el: HTMLElement, dependencies: Array<ExpressionDependency>, property: string, getter: (template: AbstractTemplate) => any): void
 	{
-		directive[prop] = this.eval('return ' + expression);
+		this.setProperty(el, property, getter(this));
+
+		this.watch(dependencies, () => {
+			this.setProperty(el, property, getter(this));
+		});
+	}
+
+
+	private setInput(directive: any, property: string, value: any, callListener: boolean = true): void
+	{
+		directive[property] = value;
 
 		if (callListener && typeof directive.onUpdate === 'function') {
-			directive.onUpdate(prop, directive[prop]);
+			directive.onUpdate(property, value);
 		}
+	}
+
+
+	public watchInput(dependencies: Array<ExpressionDependency>, directive: any, property: string, getter: (template: AbstractTemplate) => any): void
+	{
+		this.setInput(directive, property, getter(this), false);
+
+		this.watch(dependencies, () => {
+			this.setInput(directive, property, getter(this));
+		});
 	}
 
 

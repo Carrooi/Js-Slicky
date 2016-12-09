@@ -1,5 +1,4 @@
 import {ChangeDetector} from '../../../src/ChangeDetection/ChangeDetector';
-import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
 import {Scope} from '../../../src/Util/Scope';
 
 import chai = require('chai');
@@ -19,7 +18,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let called = 0;
 
-			detector.watch(ExpressionParser.parse('a'), () => {
+			detector.watch([{root: 'a', code: 'a'}], () => {
 				called++;
 			});
 
@@ -38,7 +37,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(new Scope(parameters));
 
-			detector.watch(ExpressionParser.parse('a'), () => {
+			detector.watch([{root: 'a', code: 'a'}], () => {
 				done();
 			});
 
@@ -54,7 +53,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let called = 0;
 
-			detector.watch(ExpressionParser.parse('a.b.c'), () => {
+			detector.watch([{root: 'a', code: 'a.b.c'}], () => {
 				called++;
 			});
 
@@ -73,7 +72,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(new Scope(parameters));
 
-			detector.watch(ExpressionParser.parse('a.b.c'), () => {
+			detector.watch([{root: 'a', code: 'a.b.c'}], () => {
 				done();
 			});
 
@@ -90,7 +89,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let called = 0;
 
-			detector.watch(ExpressionParser.parse('a + " " + b'), () => {
+			detector.watch([{root: 'a', code: 'a'}, {root: 'b', code: 'b'}], () => {
 				called++;
 			});
 
@@ -103,14 +102,14 @@ describe('#ChangeDetection/ChangeDetector', () => {
 		});
 
 		it('should notify about changes in multi expression', (done) => {
-			var parameters = {
+			let parameters = {
 				a: 'hello',
 				b: 'moon',
 			};
 
 			let detector = new ChangeDetector(new Scope(parameters));
 
-			detector.watch(ExpressionParser.parse('a + " " + b'), () => {
+			detector.watch([{root: 'a', code: 'a'}, {root: 'b', code: 'b'}], () => {
 				done();
 			});
 
@@ -131,7 +130,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 			let detector = new ChangeDetector(new Scope(parameters));
 			let called = 0;
 
-			detector.watch(ExpressionParser.parse('a'), () => {
+			detector.watch([{root: 'a', code: 'a'}], () => {
 				called++;
 			});
 
@@ -159,7 +158,7 @@ describe('#ChangeDetection/ChangeDetector', () => {
 
 			let detector = new ChangeDetector(new Scope(parameters));
 
-			let id = detector.watch(ExpressionParser.parse('a'), () => {
+			let id = detector.watch([{root: 'a', code: 'a'}], () => {
 				called++;
 			});
 

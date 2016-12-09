@@ -31,7 +31,8 @@ export declare interface AttributeToken
 	type: HTMLAttributeType,
 	name: string,
 	originalName: string,
-	value: string|Expression,
+	value: string,
+	expression?: Expression,
 	preventDefault?: boolean,
 }
 
@@ -195,7 +196,7 @@ export class HTMLParser
 				children: [],
 			};
 
-			let templateAttributes = TemplateAttributeParser.parse('*' + attribute.name, <string>attribute.value);
+			let templateAttributes = TemplateAttributeParser.parse('*' + attribute.name, attribute.value);
 			for (let i = 0; i < templateAttributes.length; i++) {
 				let appendTemplateAttributes = HTMLParser.parseAttribute(templateAttributes[i].name, templateAttributes[i].value, options);
 				for (let j = 0; j < appendTemplateAttributes.length; j++) {
@@ -240,6 +241,7 @@ export class HTMLParser
 	{
 		let type = HTMLAttributeType.NATIVE;
 		let preventDefault = false;
+		let expression: Expression = null;
 		let match;
 
 		if (match = name.match(/^\[\((.+)\)]$/)) {
@@ -271,7 +273,7 @@ export class HTMLParser
 		}
 
 		if ([HTMLAttributeType.EXPRESSION, HTMLAttributeType.PROPERTY, HTMLAttributeType.EVENT].indexOf(type) > -1) {
-			value = <any>ExpressionParser.parse(value, options);
+			expression = ExpressionParser.parse(value, options);
 		}
 
 		let attributes = [];
@@ -284,17 +286,24 @@ export class HTMLParser
 					name: Strings.hyphensToCamelCase(events[i]),
 					originalName: events[i],
 					value: value,
+					expression: expression,
 					preventDefault: preventDefault,
 				});
 			}
 
 		} else {
-			attributes.push({
+			let attribute: AttributeToken = {
 				type: type,
 				name: Strings.hyphensToCamelCase(name),
 				originalName: name,
 				value: value,
-			})
+			};
+
+			if (expression !== null) {
+				attribute.expression = expression;
+			}
+
+			attributes.push(attribute)
 		}
 
 		return attributes;

@@ -266,7 +266,9 @@ export class ComponentCompiler extends AbstractCompiler
 	{
 		appendTo.append([
 			'_t.appendText(_n, "", ' + (dynamic ? '_b' : 'null') + ', function(_n) {',
-				'\t_t.watchExpression(_n, ' + JSON.stringify(node.expression) + ');',
+				'\t_t.watchText(' + JSON.stringify(node.expression.dependencies) + ', _n, function(_t) {' +
+					'return (' + node.expression.code + ');' +
+				'});',
 			'});',
 		]);
 	}
@@ -355,33 +357,42 @@ export class ComponentCompiler extends AbstractCompiler
 		let directiveEvents: {[directiveName: string]: Array<{event: string, call: string}>} = {};
 
 		Helpers.each(node.attributes, (name: string, attribute: AttributeToken) => {
+			let originalName = attribute.originalName;
+
 			switch (attribute.type) {
 				case HTMLAttributeType.NATIVE:
-					buffer.append('_n.setAttribute("' + attribute.originalName + '", "' + attribute.value + '");');
+					buffer.append('_t.setAttribute(_n, "' + originalName + '", "' + attribute.value + '");');
 
 					break;
 				case HTMLAttributeType.EXPRESSION:
-					buffer.append('_t.watchAttribute(_n, "' + attribute.originalName + '", ' + JSON.stringify(attribute.value) + ');');
+					buffer.append(
+						'_t.watchAttribute(_n, ' + JSON.stringify(attribute.expression.dependencies) + ', "' + originalName + '", function(_t) {' +
+							'return (' + (attribute.expression.code !== '' ? attribute.expression.code : 'null') + ');' +
+						'});'
+					);
 
 					break;
 				case HTMLAttributeType.PROPERTY:
-					let property = attribute.originalName.split('.');
+					let property = originalName.split('.');
 
 					if (!Dom.propertyAllowed(node.name, property[0])) {
 						return;
 					}
 
-					buffer.append('_t.watchProperty(_n, "' + attribute.originalName + '", ' + JSON.stringify(attribute.value) + ');');
+					buffer.append(
+						'_t.watchProperty(_n, ' + JSON.stringify(attribute.expression.dependencies) + ', "' + originalName + '", function(_t) {' +
+							'return (' + (attribute.expression.code !== '' ? attribute.expression.code : 'null') + ');' +
+						'});'
+					);
 
 					break;
 				case HTMLAttributeType.EXPORT:
-					exports[attribute.name] = <string>attribute.value;
+					exports[attribute.name] = attribute.value;
 
 					break;
 				case HTMLAttributeType.EVENT:
 					elementDefinition.elementRef = true;
 
-					let call = this.fixCall((<Expression>attribute.value).code);
 					let directiveOutput = findDirectiveOutput(attribute.name);
 
 					if (directiveOutput) {
@@ -389,9 +400,14 @@ export class ComponentCompiler extends AbstractCompiler
 							directiveEvents[directiveOutput.directiveLocalName] = [];
 						}
 
-						directiveEvents[directiveOutput.directiveLocalName].push({event: directiveOutput.property, call: call});
+						directiveEvents[directiveOutput.directiveLocalName].push({event: directiveOutput.property, call: attribute.expression.code});
 					} else {
-						buffer.append('_t.addEventListener(_er, "' + attribute.name + '", "' + (attribute.preventDefault ? '$event.preventDefault(); ' : '') + call + '");');
+						buffer.append(
+							'_t.addEventListener(_er, "' + attribute.name + '", function($event, $this, _t) {' +
+								(attribute.preventDefault ? '$event.preventDefault(); ' : '') +
+								attribute.expression.code +
+							'});'
+						);
 					}
 
 					break;
@@ -533,11 +549,15 @@ export class ComponentCompiler extends AbstractCompiler
 
 			switch (attribute.type) {
 				case HTMLAttributeType.NATIVE:
-					appendTo.append(directiveLocalName + '["' + name + '"] = "' + Strings.addSlashes(<string>attribute.value) + '";');
+					appendTo.append(directiveLocalName + '["' + name + '"] = "' + Strings.addSlashes(attribute.value) + '";');
 					break;
 				case HTMLAttributeType.PROPERTY:
 				case HTMLAttributeType.EXPRESSION:
-					appendTo.append('_t' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.watchInput(' + directiveLocalName + ', "' + name + '", ' + JSON.stringify(attribute.value) + ');');
+					appendTo.append(
+						'_t' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.watchInput(' + JSON.stringify(attribute.expression.dependencies) + ', ' + directiveLocalName + ', "' + name + '", function(_t) {' +
+							'return (' + (attribute.expression.code !== '' ? attribute.expression.code : 'null' ) + ');' +
+						'});'
+					);
 					break;
 			}
 		});
@@ -616,7 +636,12 @@ export class ComponentCompiler extends AbstractCompiler
 		// process component's outputs + events
 
 		for (let i = 0; i < directiveEvents.length; i++) {
-			onBeforeRenderBuffer.append('_r' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.addDirectiveEventListener(' + localName + ', "' + directiveEvents[i].event + '", "' + directiveEvents[i].call + '");');
+			onBeforeRenderBuffer.append(
+				//'_r' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.addDirectiveEventListener(' + localName + ', "' + directiveEvents[i].event + '", "' + directiveEvents[i].call + '");' +
+				'_r' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.addDirectiveEventListener(' + localName + ', "' + directiveEvents[i].event + '", function($value, $this, _t) {' +
+					directiveEvents[i].call +
+				'});'
+			);
 		}
 
 		// finish
@@ -642,7 +667,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 	private compileContent(appendTo: Buffer<string>, node: ElementToken): void
 	{
-		let selector = <string>node.attributes['selector'].value;
+		let selector = node.attributes['selector'].value;
 		let template = this.findTemplate(selector);
 
 		if (template === null) {
@@ -652,7 +677,7 @@ export class ComponentCompiler extends AbstractCompiler
 		let imports = node.attributes['import'];
 		let importsCode = '{}';
 		if (typeof imports !== 'undefined') {
-			importsCode = (<Expression>imports.value).code;
+			importsCode = imports.expression.code;
 		}
 
 		appendTo.append([

@@ -73,13 +73,13 @@ export class QuerySelector
 
 				break;
 			case SelectorType.Id:
-				if (typeof node.attributes['id'] === 'undefined' || (<string>node.attributes['id'].value) !== selector.value) {
+				if (typeof node.attributes['id'] === 'undefined' || node.attributes['id'].value !== selector.value) {
 					return false;
 				}
 
 				break;
 			case SelectorType.Class:
-				if (typeof node.attributes['class'] === 'undefined' || (<string>node.attributes['class'].value).split(' ').indexOf(<string>selector.value) === -1) {
+				if (typeof node.attributes['class'] === 'undefined' || node.attributes['class'].value.split(' ').indexOf(<string>selector.value) === -1) {
 					return false;
 				}
 
