@@ -36,13 +36,13 @@ describe('#Directives/ForDirective.trackBy', () => {
 			expect(parent.innerText).to.be.equal('- David -- John -- Clare -');
 
 			scope.users.push({id: 4, name: 'Luke'});
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerText).to.be.equal('- David -- John -- Clare -- Luke -');
 
 			scope.users.splice(1, 1);
 			scope.users[2].name = 'John';
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerText).to.be.equal('- David -- Clare -- John -');
 		});
@@ -62,13 +62,13 @@ describe('#Directives/ForDirective.trackBy', () => {
 			expect(parent.innerText).to.be.equal('- 0: David -- 1: John -- 2: Clare -');
 
 			scope.users.push({id: 4, name: 'Luke'});
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerText).to.be.equal('- 0: David -- 1: John -- 2: Clare -- 3: Luke -');
 
 			scope.users.splice(1, 1);
 			scope.users[2].name = 'John';
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerText).to.be.equal('- 0: David -- 1: Clare -- 2: John -');
 		});
@@ -88,13 +88,13 @@ describe('#Directives/ForDirective.trackBy', () => {
 			expect(parent.innerText).to.be.equal('- foo -- bar -- baz -');
 
 			scope.options['four'] = {id: 4, name: 'qux'};
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerText).to.be.equal('- foo -- bar -- baz -- qux -');
 
 			delete scope.options['two'];
 			scope.options.three.name = 'bar';
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerText).to.be.equal('- foo -- bar -- qux -');
 		});
@@ -114,13 +114,13 @@ describe('#Directives/ForDirective.trackBy', () => {
 			expect(parent.innerText).to.be.equal('- one: foo -- two: bar -- three: baz -');
 
 			scope.options['four'] = {id: 4, name: 'qux'};
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerText).to.be.equal('- one: foo -- two: bar -- three: baz -- four: qux -');
 
 			delete scope.options['two'];
 			scope.options.three.name = 'bar';
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerText).to.be.equal('- one: foo -- three: bar -- four: qux -');
 		});
@@ -138,7 +138,7 @@ describe('#Directives/ForDirective.trackBy', () => {
 			expect(parent.innerText).to.be.equal('- David -');
 
 			scope.users = [{id: 1, name: 'Clare'}];
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerText).to.be.equal('- Clare -');
 		});
@@ -168,13 +168,13 @@ describe('#Directives/ForDirective.trackBy', () => {
 			let template = createTemplate(parent, '<template [s:for] [s:for-of]="numbers" [s:for-track-by]="trackBy"><directive></directive></template>', scope, [TestDirective, ForDirective], [IterableDifferFactory]);
 
 			scope.numbers = [];
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(calledInit).to.be.equal(1);
 			expect(calledDestroy).to.be.equal(1);
 
 			scope.numbers = [{id: 1, number: 1}];
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(calledInit).to.be.equal(2);
 			expect(calledDestroy).to.be.equal(1);

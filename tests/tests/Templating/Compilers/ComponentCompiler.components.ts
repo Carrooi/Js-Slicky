@@ -150,7 +150,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			scope.prop = 'property updated';
 			scope.attr = 'attribute updated';
 
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(calledUpdate).to.be.equal(2);
 		});

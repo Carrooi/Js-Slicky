@@ -16,22 +16,7 @@ export declare interface ParametersList
 export declare interface ExpressionFilter
 {
 	name: string,
-	dependencies: Array<ExpressionDependency>,
 	arguments: Array<string>,
-}
-
-
-export declare interface ExpressionDependency
-{
-	code: string,
-	root: string,
-}
-
-
-export declare interface Expression
-{
-	code: string,
-	dependencies: Array<ExpressionDependency>,
 }
 
 

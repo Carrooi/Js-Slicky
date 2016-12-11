@@ -2,7 +2,6 @@ import {TextParser} from '../Parsers/TextParser';
 import {Strings} from '../Util/Strings';
 import {TemplateAttributeParser} from '../Parsers/TemplateAttributeParser';
 import {ExpressionParser, ExpressionParserOptions} from './ExpressionParser';
-import {Expression} from '../Interfaces';
 import {Helpers} from '../Util/Helpers';
 
 
@@ -32,7 +31,7 @@ export declare interface AttributeToken
 	name: string,
 	originalName: string,
 	value: string,
-	expression?: Expression,
+	expression?: string,
 	preventDefault?: boolean,
 }
 
@@ -48,7 +47,7 @@ export declare interface StringToken
 export declare interface ExpressionToken
 {
 	type: HTMLTokenType,
-	expression: Expression,
+	expression: string,
 	parent: ElementToken,
 }
 
@@ -241,7 +240,7 @@ export class HTMLParser
 	{
 		let type = HTMLAttributeType.NATIVE;
 		let preventDefault = false;
-		let expression: Expression = null;
+		let expression: string = null;
 		let match;
 
 		if (match = name.match(/^\[\((.+)\)]$/)) {

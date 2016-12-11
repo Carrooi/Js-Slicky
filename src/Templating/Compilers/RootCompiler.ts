@@ -5,7 +5,7 @@ import {ComponentCompiler} from './ComponentCompiler';
 import {HTMLParser, HTMLAttributeType} from '../../Parsers/HTMLParser';
 import {ElementRef} from '../ElementRef';
 import {AbstractComponentTemplate} from '../Templates/AbstractComponentTemplate';
-import {ParametersList, Expression, OnInit} from '../../Interfaces';
+import {ParametersList, OnInit} from '../../Interfaces';
 import {ApplicationTemplate} from '../Templates/ApplicationTemplate';
 import {Helpers} from '../../Util/Helpers';
 import {InputMetadataDefinition, HostElementMetadataDefinition, HostEventMetadataDefinition} from '../../Entity/Metadata';
@@ -136,8 +136,8 @@ export class RootCompiler extends AbstractCompiler
 					break;
 				case HTMLAttributeType.PROPERTY:
 				case HTMLAttributeType.EXPRESSION:
-					this.template.watchInput(attribute.expression.dependencies, directive, name, (_t) => {
-						return SafeEval.run('return ' + attribute.expression.code, {
+					this.template.watchInput(directive, name, (_t) => {
+						return SafeEval.run('return ' + attribute.expression, {
 							_t: _t,
 						});
 					});

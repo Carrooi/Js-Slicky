@@ -26,7 +26,7 @@ describe('#Directives/ClassDirective', () => {
 		expect(parent.children[0].classList.contains('icon')).to.be.equal(true);
 
 		scope.show = false;
-		template.changeDetector.check();
+		template.checkWatchers();
 
 		expect(parent.children[0].classList.contains('icon')).to.be.equal(false);
 	});

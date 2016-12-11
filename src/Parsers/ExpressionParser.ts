@@ -2,7 +2,7 @@ import {Parser} from '../Tokenizer/Parser';
 import {TokensIterator} from '../Tokenizer/TokensIterator';
 import {Token} from '../Tokenizer/Tokenizer';
 import {TokenType} from '../Tokenizer/Tokens';
-import {Expression, ExpressionDependency, ExpressionFilter} from '../Interfaces';
+import {ExpressionFilter} from '../Interfaces';
 
 
 export declare interface ExpressionParserOptions
@@ -16,13 +16,13 @@ export class ExpressionParser
 {
 
 
-	public static parse(code: string, options: ExpressionParserOptions = {}): Expression
+	public static parse(code: string, options: ExpressionParserOptions = {}): string
 	{
 		return ExpressionParser.parseGroup(new Parser(code), options, true);
 	}
 
 
-	private static parseGroup(parser: TokensIterator, options: ExpressionParserOptions, allowFilters: boolean = false, exitToken?: string): Expression
+	private static parseGroup(parser: TokensIterator, options: ExpressionParserOptions, allowFilters: boolean = false, exitToken?: string): string
 	{
 		let parts = ExpressionParser.split(parser.tokens, '|');
 		parser.tokens = parts.shift();
@@ -31,10 +31,9 @@ export class ExpressionParser
 		let previousToken: Token;
 		let position = 0;
 
-		let currentDependency: ExpressionDependency = null;
-		let currentExpression: Expression = {
+		let currentDependency = null;
+		let currentExpression = {
 			code: '',
-			dependencies: [],
 		};
 
 		let next = () => {
@@ -106,9 +105,8 @@ export class ExpressionParser
 				if (exitInnerExpressionWith !== null) {
 					let innerExpression = ExpressionParser.parseGroup(parser, options, false, exitInnerExpressionWith);
 					token = parser.token;
-					currentDependency.code += innerExpression.code;
-					currentExpression.code += innerExpression.code;
-					ExpressionParser.addDependencies(currentExpression.dependencies, innerExpression.dependencies);
+					currentDependency.code += innerExpression;
+					currentExpression.code += innerExpression;
 
 					next();
 					continue;
@@ -120,7 +118,6 @@ export class ExpressionParser
 			}
 
 			if (!isDependency && currentDependency !== null) {
-				ExpressionParser.addDependencies(currentExpression.dependencies, [currentDependency]);
 				currentDependency = null;
 			}
 
@@ -133,15 +130,9 @@ export class ExpressionParser
 			next();
 		}
 
-		if (currentDependency) {
-			ExpressionParser.addDependencies(currentExpression.dependencies, [currentDependency]);
-		}
-
 		if (allowFilters && options.filterProvider) {
 			for (let i = 0; i < parts.length; i++) {
 				let filter = ExpressionParser.parseFilter(parts[i], options);
-
-				ExpressionParser.addDependencies(currentExpression.dependencies, filter.dependencies);
 
 				currentExpression.code = options.filterProvider
 					.replace(/%value/g, currentExpression.code.trim())
@@ -152,14 +143,13 @@ export class ExpressionParser
 
 		currentExpression.code = currentExpression.code.trim();
 
-		return currentExpression;
+		return currentExpression.code;
 	}
 
 
 	private static parseFilter(tokens: Array<Token>, options: ExpressionParserOptions): ExpressionFilter
 	{
 		let parts = ExpressionParser.split(tokens, ':');
-		let dependencies = [];
 
 		tokens = parts.shift();
 
@@ -172,13 +162,11 @@ export class ExpressionParser
 		for (let i = 0; i < parts.length; i++) {
 			let arg = ExpressionParser.parseGroup(new TokensIterator(parts[i]), options);
 
-			ExpressionParser.addDependencies(dependencies, arg.dependencies);
-			args.push(arg.code);
+			args.push(arg);
 		}
 
 		return {
 			name: name[0].value.trim(),
-			dependencies: dependencies,
 			arguments: args,
 		};
 	}
@@ -244,28 +232,6 @@ export class ExpressionParser
 		}
 
 		return tokens;
-	}
-
-
-	private static findDependency(dependencies: Array<ExpressionDependency>, code: string): ExpressionDependency
-	{
-		for (let i = 0; i < dependencies.length; i++) {
-			if (dependencies[i].code === code) {
-				return dependencies[i];
-			}
-		}
-
-		return null;
-	}
-
-
-	private static addDependencies(dependencies: Array<ExpressionDependency>, append: Array<ExpressionDependency>): void
-	{
-		for (let i = 0; i < append.length; i++) {
-			if (!ExpressionParser.findDependency(dependencies, append[i].code)) {
-				dependencies.push(append[i]);
-			}
-		}
 	}
 
 }

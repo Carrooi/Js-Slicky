@@ -19,7 +19,6 @@ export class ApplicationTemplate extends AbstractTemplate
 		super(container, parameters);
 
 		this.el = el;
-		this.changeDetector.disable();
 	}
 
 

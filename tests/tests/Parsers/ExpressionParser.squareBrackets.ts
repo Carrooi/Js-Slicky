@@ -13,66 +13,31 @@ describe('#ExpressionParser.squareBrackets', () => {
 		it('should parse expression inside of square parenthesis', () => {
 			let expr = ExpressionParser.parse('["a", 1]');
 
-			expect(expr).to.be.eql({
-				code: '["a", 1]',
-				dependencies: [],
-			});
+			expect(expr).to.be.eql('["a", 1]');
 		});
 
 		it('should parse expression with square parenthesis', () => {
 			let expr = ExpressionParser.parse('a["b"]');
 
-			expect(expr).to.be.eql({
-				code: 'a["b"]',
-				dependencies: [
-					{
-						code: 'a["b"]',
-						root: 'a',
-					},
-				],
-			});
+			expect(expr).to.be.eql('a["b"]');
 		});
 
 		it('should parse expression with more square parenthesis', () => {
 			let expr = ExpressionParser.parse('a["b"]["c"]');
 
-			expect(expr).to.be.eql({
-				code: 'a["b"]["c"]',
-				dependencies: [
-					{
-						code: 'a["b"]["c"]',
-						root: 'a',
-					},
-				],
-			});
+			expect(expr).to.be.eql('a["b"]["c"]');
 		});
 
 		it('should parse expression with square brackets after parenthesis', () => {
 			let expr = ExpressionParser.parse('a("b")["c"]');
 
-			expect(expr).to.be.eql({
-				code: 'a("b")["c"]',
-				dependencies: [
-					{
-						code: 'a("b")["c"]',
-						root: 'a',
-					},
-				],
-			});
+			expect(expr).to.be.eql('a("b")["c"]');
 		});
 
 		it('should parse expression with square brackets and object access', () => {
 			let expr = ExpressionParser.parse('a["b"].c');
 
-			expect(expr).to.be.eql({
-				code: 'a["b"].c',
-				dependencies: [
-					{
-						code: 'a["b"].c',
-						root: 'a',
-					},
-				],
-			});
+			expect(expr).to.be.eql('a["b"].c');
 		});
 		
 	});

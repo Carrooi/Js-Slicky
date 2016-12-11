@@ -93,12 +93,12 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 			expect(parent.innerHTML).to.be.equal('<div class="danger"></div>');
 
 			scope.type = 'success';
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerHTML).to.be.equal('<div class="success"></div>');
 
 			scope.type = null;
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerHTML).to.be.equal('<div></div>');
 		});
@@ -113,7 +113,7 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 			expect(parent.innerHTML).to.be.equal('<div class="alert-danger"></div>');
 
 			scope.type = 'success';
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerHTML).to.be.equal('<div class="alert-success"></div>');
 		});
@@ -128,7 +128,7 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 			expect(parent.innerHTML).to.be.equal('<div class="alert-danger"></div>');
 
 			scope.type = 'success';
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerHTML).to.be.equal('<div class="alert-success"></div>');
 		});
@@ -145,7 +145,7 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 
 			scope.display = 'block';
 			scope.color = 'white';
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerHTML).to.be.equal('<div style="display: block; color: white;"></div>');
 		});
@@ -162,7 +162,7 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 
 			scope.alert = true;
 			scope.info = true;
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerHTML).to.be.equal('<div class="alert info"></div>');
 		});
@@ -179,7 +179,7 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 
 			scope.beginning = 'lorem';
 			scope.ending = 'ipsum';
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerHTML).to.be.equal('lorem, ipsum!');
 		});
@@ -277,7 +277,7 @@ describe('#Templating/Compilers/ComponentCompiler', () => {
 			name = 'child';
 			content = 'lorem ipsum';
 
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerHTML).to.be.equal('<div id="wrapper" class="alert alert-danger" data-name="div-child">lorem ipsum</div>');
 		});

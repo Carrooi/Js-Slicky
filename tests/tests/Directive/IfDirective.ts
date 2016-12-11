@@ -28,12 +28,12 @@ describe('#Directives/IfDirective', () => {
 		expect(parent.innerHTML).to.be.equal('hello<template></template>');
 
 		scope.a = true;
-		template.changeDetector.check();
+		template.checkWatchers();
 
 		expect(parent.innerHTML).to.be.equal('<template></template>');
 
 		scope.a = false;
-		template.changeDetector.check();
+		template.checkWatchers();
 
 		expect(parent.innerHTML).to.be.equal('hello<template></template>');
 	});
@@ -64,13 +64,13 @@ describe('#Directives/IfDirective', () => {
 		expect(calledDestroy).to.be.equal(0);
 
 		scope.a = false;
-		template.changeDetector.check();
+		template.checkWatchers();
 
 		expect(calledInit).to.be.equal(1);
 		expect(calledDestroy).to.be.equal(0);
 
 		scope.a = true;
-		template.changeDetector.check();
+		template.checkWatchers();
 
 		expect(calledInit).to.be.equal(1);
 		expect(calledDestroy).to.be.equal(1);

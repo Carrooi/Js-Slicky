@@ -58,15 +58,7 @@ describe('#Tokenizer/HTMLParser', () => {
 				{
 					type: HTMLTokenType.T_EXPRESSION,
 					parent: null,
-					expression: {
-						code: 'name',
-						dependencies: [
-							{
-								code: 'name',
-								root: 'name',
-							},
-						],
-					},
+					expression: 'name',
 				},
 				{
 					type: HTMLTokenType.T_STRING,
@@ -219,15 +211,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 'data',
 							originalName: 'data',
 							value: 'data',
-							expression: {
-								code: 'data',
-								dependencies: [
-									{
-										code: 'data',
-										root: 'data',
-									},
-								],
-							},
+							expression: 'data',
 						},
 						div: {
 							type: HTMLAttributeType.EXPORT,
@@ -241,15 +225,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							originalName: 'click',
 							preventDefault: false,
 							value: 'click()',
-							expression: {
-								code: 'click()',
-								dependencies: [
-									{
-										code: 'click()',
-										root: 'click',
-									},
-								],
-							},
+							expression: 'click()',
 						},
 					},
 					parent: null,
@@ -288,15 +264,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 'class',
 							originalName: 'class',
 							value: 'type',
-							expression: {
-								code: 'type',
-								dependencies: [
-									{
-										code: 'type',
-										root: 'type',
-									},
-								],
-							},
+							expression: 'type',
 						},
 					},
 					parent: null,
@@ -316,15 +284,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 'class',
 							originalName: 'class',
 							value: '"alert alert-"+(type)',
-							expression: {
-								code: '"alert alert-"+(type)',
-								dependencies: [
-									{
-										code: 'type',
-										root: 'type',
-									},
-								],
-							},
+							expression: '"alert alert-"+(type)',
 						},
 					},
 					parent: null,
@@ -344,10 +304,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 'if',
 							originalName: 'if',
 							value: 'true',
-							expression: {
-								code: 'true',
-								dependencies: [],
-							},
+							expression: 'true',
 						},
 					},
 					parent: null,
@@ -361,10 +318,7 @@ describe('#Tokenizer/HTMLParser', () => {
 									name: 'for',
 									originalName: 'for',
 									value: 'false',
-									expression: {
-										code: 'false',
-										dependencies: [],
-									},
+									expression: 'false',
 								},
 							},
 							parent: null,
@@ -420,10 +374,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 's:for',
 							originalName: 's:for',
 							value: '',
-							expression: {
-								code: '',
-								dependencies: [],
-							},
+							expression: '',
 						},
 						item: {
 							type: HTMLAttributeType.EXPORT,
@@ -436,30 +387,14 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 's:forOf',
 							originalName: 's:forOf',
 							value: 'items',
-							expression: {
-								code: 'items',
-								dependencies: [
-									{
-										code: 'items',
-										root: 'items',
-									},
-								],
-							},
+							expression: 'items',
 						},
 						's:forTrackBy': {
 							type: HTMLAttributeType.PROPERTY,
 							name: 's:forTrackBy',
 							originalName: 's:forTrackBy',
 							value: 'trackByFn',
-							expression: {
-								code: 'trackByFn',
-								dependencies: [
-									{
-										code: 'trackByFn',
-										root: 'trackByFn',
-									},
-								],
-							},
+							expression: 'trackByFn',
 						},
 						i: {
 							type: HTMLAttributeType.EXPORT,
@@ -490,15 +425,7 @@ describe('#Tokenizer/HTMLParser', () => {
 			expect(html).to.be.eql([
 				{
 					type: HTMLTokenType.T_EXPRESSION,
-					expression: {
-						code: 'filter(filter(name, "lower", []), "truncate", [33, "..."])',
-						dependencies: [
-							{
-								code: 'name',
-								root: 'name',
-							},
-						],
-					},
+					expression: 'filter(filter(name, "lower", []), "truncate", [33, "..."])',
 					parent: null,
 				},
 			]);
@@ -601,15 +528,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							type: HTMLAttributeType.EVENT,
 							preventDefault: false,
 							value: 'press()',
-							expression: {
-								code: 'press()',
-								dependencies: [
-									{
-										code: 'press()',
-										root: 'press',
-									},
-								],
-							},
+							expression: 'press()',
 						},
 						keypress: {
 							name: 'keypress',
@@ -617,15 +536,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							type: HTMLAttributeType.EVENT,
 							preventDefault: false,
 							value: 'press()',
-							expression: {
-								code: 'press()',
-								dependencies: [
-									{
-										code: 'press()',
-										root: 'press',
-									},
-								],
-							},
+							expression: 'press()',
 						},
 					},
 					parent: null,
@@ -646,15 +557,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							type: HTMLAttributeType.EVENT,
 							preventDefault: true,
 							value: 'press()',
-							expression: {
-								code: 'press()',
-								dependencies: [
-									{
-										code: 'press()',
-										root: 'press',
-									},
-								],
-							},
+							expression: 'press()',
 						},
 						keypress: {
 							name: 'keypress',
@@ -662,15 +565,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							type: HTMLAttributeType.EVENT,
 							preventDefault: true,
 							value: 'press()',
-							expression: {
-								code: 'press()',
-								dependencies: [
-									{
-										code: 'press()',
-										root: 'press',
-									},
-								],
-							},
+							expression: 'press()',
 						},
 					},
 					parent: null,
@@ -690,15 +585,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							originalName: 'article-title',
 							type: HTMLAttributeType.PROPERTY,
 							value: 'title',
-							expression: {
-								code: 'title',
-								dependencies: [
-									{
-										code: 'title',
-										root: 'title',
-									},
-								],
-							},
+							expression: 'title',
 						},
 						articleTitleChange: {
 							name: 'articleTitleChange',
@@ -706,19 +593,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							preventDefault: true,
 							type: HTMLAttributeType.EVENT,
 							value: 'title=$value',
-							expression: {
-								code: 'title=$value',
-								dependencies: [
-									{
-										code: 'title',
-										root: 'title',
-									},
-									{
-										code: '$value',
-										root: '$value',
-									},
-								],
-							},
+							expression: 'title=$value',
 						},
 					},
 					parent: null,

@@ -13,29 +13,13 @@ describe('#ExpressionParser.braces', () => {
 		it('should parse expression inside of braces', () => {
 			let expr = ExpressionParser.parse('{a}');
 
-			expect(expr).to.be.eql({
-				code: '{a}',
-				dependencies: [
-					{
-						code: 'a',
-						root: 'a',
-					},
-				],
-			});
+			expect(expr).to.be.eql('{a}');
 		});
 
 		it('should parse expression with braces', () => {
 			let expr = ExpressionParser.parse('a{"b"}');
 
-			expect(expr).to.be.eql({
-				code: 'a{"b"}',
-				dependencies: [
-					{
-						code: 'a',
-						root: 'a',
-					},
-				],
-			});
+			expect(expr).to.be.eql('a{"b"}');
 		});
 
 	});

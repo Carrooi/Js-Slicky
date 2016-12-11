@@ -25,12 +25,12 @@ describe('#Templating/Compilers/ComponentCompiler.buildInDirectives', () => {
 				visible: true,
 			};
 
-			var template = createTemplate(parent, '<div *s:if="visible">visible</div>', scope, [IfDirective]);
+			let template = createTemplate(parent, '<div *s:if="visible">visible</div>', scope, [IfDirective]);
 
 			expect(parent.innerText).to.be.equal('visible');
 
 			scope.visible = false;
-			template.changeDetector.check();
+			template.checkWatchers();
 
 			expect(parent.innerText).to.be.equal('');
 		});

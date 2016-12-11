@@ -118,4 +118,57 @@ export class Helpers
 		return obj;
 	}
 
+
+	public static compare(a: any, b: any): boolean
+	{
+		let compareObjects = (a: any, b: any): boolean => {
+			for (let name in a) {
+				if (a.hasOwnProperty(name)) {
+					if (!b.hasOwnProperty(name)) {
+						return true;
+
+					} else if (b[name] !== a[name]) {
+						return true;
+					}
+				}
+			}
+
+			for (let name in b) {
+				if (b.hasOwnProperty(name) && !a.hasOwnProperty(name)) {
+					return true;
+				}
+			}
+
+			return false;
+		};
+
+		let compareArrays = (a: Array<any>, b: Array<any>): boolean => {
+			for (let k = 0; k < a.length; k++) {
+				if (typeof b[k] === 'undefined') {
+					return true;
+
+				} else if (b[k] !== a[k]) {
+					return true;
+				}
+			}
+
+			for (let k = 0; k < b.length; k++) {
+				if (typeof a[k] === 'undefined') {
+					return true;
+				}
+			}
+
+			return false;
+		};
+
+		if (Helpers.isObject(a)) {
+			return compareObjects(a, b == null ? {} : b);
+
+		} else if (Helpers.isArray(a)) {
+			return compareArrays(a, b == null ? [] : b);
+		}
+
+		return a !== b;
+	}
+
 }

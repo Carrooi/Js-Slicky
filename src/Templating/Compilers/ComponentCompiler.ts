@@ -1,7 +1,6 @@
 import {Strings} from '../../Util/Strings';
 import {DirectiveDefinition, DirectiveParser, DirectiveType} from '../../Entity/DirectiveParser';
 import {ClassGenerator} from '../../Util/CodeGenerator/ClassGenerator';
-import {Expression} from '../../Interfaces';
 import {AbstractComponentTemplate} from '../Templates/AbstractComponentTemplate';
 import {ElementRef} from '../ElementRef';
 import {TemplateRef} from '../TemplateRef';
@@ -178,7 +177,7 @@ export class ComponentCompiler extends AbstractCompiler
 		let mainBody = main.getBody();
 
 		if (definition.metadata.changeDetection !== null) {
-			mainBody.append('_r.changeDetector.strategy = ' + definition.metadata.changeDetection + ';');
+			mainBody.append('_r.changeDetectorStrategy = ' + definition.metadata.changeDetection + ';');
 		}
 
 		if (Object.keys(definition.metadata.translations)) {
@@ -266,8 +265,8 @@ export class ComponentCompiler extends AbstractCompiler
 	{
 		appendTo.append([
 			'_t.appendText(_n, "", ' + (dynamic ? '_b' : 'null') + ', function(_n) {',
-				'\t_t.watchText(' + JSON.stringify(node.expression.dependencies) + ', _n, function(_t) {' +
-					'return (' + node.expression.code + ');' +
+				'\t_t.watchText(_n, function(_t) {' +
+					'return (' + node.expression + ');' +
 				'});',
 			'});',
 		]);
@@ -366,8 +365,8 @@ export class ComponentCompiler extends AbstractCompiler
 					break;
 				case HTMLAttributeType.EXPRESSION:
 					buffer.append(
-						'_t.watchAttribute(_n, ' + JSON.stringify(attribute.expression.dependencies) + ', "' + originalName + '", function(_t) {' +
-							'return (' + (attribute.expression.code !== '' ? attribute.expression.code : 'null') + ');' +
+						'_t.watchAttribute(_n, "' + originalName + '", function(_t) {' +
+							'return (' + (attribute.expression !== '' ? attribute.expression : 'null') + ');' +
 						'});'
 					);
 
@@ -380,8 +379,8 @@ export class ComponentCompiler extends AbstractCompiler
 					}
 
 					buffer.append(
-						'_t.watchProperty(_n, ' + JSON.stringify(attribute.expression.dependencies) + ', "' + originalName + '", function(_t) {' +
-							'return (' + (attribute.expression.code !== '' ? attribute.expression.code : 'null') + ');' +
+						'_t.watchProperty(_n, "' + originalName + '", function(_t) {' +
+							'return (' + (attribute.expression !== '' ? attribute.expression : 'null') + ');' +
 						'});'
 					);
 
@@ -400,12 +399,12 @@ export class ComponentCompiler extends AbstractCompiler
 							directiveEvents[directiveOutput.directiveLocalName] = [];
 						}
 
-						directiveEvents[directiveOutput.directiveLocalName].push({event: directiveOutput.property, call: attribute.expression.code});
+						directiveEvents[directiveOutput.directiveLocalName].push({event: directiveOutput.property, call: attribute.expression});
 					} else {
 						buffer.append(
 							'_t.addEventListener(_er, "' + attribute.name + '", function($event, $this, _t) {' +
 								(attribute.preventDefault ? '$event.preventDefault(); ' : '') +
-								attribute.expression.code +
+								attribute.expression +
 							'});'
 						);
 					}
@@ -554,8 +553,8 @@ export class ComponentCompiler extends AbstractCompiler
 				case HTMLAttributeType.PROPERTY:
 				case HTMLAttributeType.EXPRESSION:
 					appendTo.append(
-						'_t' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.watchInput(' + JSON.stringify(attribute.expression.dependencies) + ', ' + directiveLocalName + ', "' + name + '", function(_t) {' +
-							'return (' + (attribute.expression.code !== '' ? attribute.expression.code : 'null' ) + ');' +
+						'_t' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.watchInput(' + directiveLocalName + ', "' + name + '", function(_t) {' +
+							'return (' + (attribute.expression !== '' ? attribute.expression : 'null' ) + ');' +
 						'});'
 					);
 					break;
@@ -677,7 +676,7 @@ export class ComponentCompiler extends AbstractCompiler
 		let imports = node.attributes['import'];
 		let importsCode = '{}';
 		if (typeof imports !== 'undefined') {
-			importsCode = imports.expression.code;
+			importsCode = imports.expression;
 		}
 
 		appendTo.append([
@@ -712,16 +711,6 @@ export class ComponentCompiler extends AbstractCompiler
 				}
 			}
 		}, directiveLocalNames);
-	}
-
-
-	private fixCall(code: string): string
-	{
-		if (typeof code !== 'string') {
-			code = JSON.stringify(code);
-		}
-
-		return Strings.addSlashes(code);
 	}
 
 

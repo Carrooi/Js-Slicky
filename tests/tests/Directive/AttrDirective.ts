@@ -26,7 +26,7 @@ describe('#Directives/AttrDirective', () => {
 		expect(parent.children[0]['test']).to.be.equal(true);
 
 		scope.test = false;
-		template.changeDetector.check();
+		template.checkWatchers();
 
 		expect(parent.children[0]['test']).to.be.equal(false);
 	});

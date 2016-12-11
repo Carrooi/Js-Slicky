@@ -15,15 +15,7 @@ describe('#ExpressionParser.update', () => {
 				replaceGlobalRoot: 'this.scope.%root',
 			});
 
-			expect(expr).to.be.eql({
-				code: 'this.scope.a',
-				dependencies: [
-					{
-						code: 'a',
-						root: 'a',
-					},
-				],
-			});
+			expect(expr).to.be.eql('this.scope.a');
 		});
 
 		it('should parse simple expression and not update local variable', () => {
@@ -31,19 +23,7 @@ describe('#ExpressionParser.update', () => {
 				replaceGlobalRoot: 'this.scope.%root',
 			});
 
-			expect(expr).to.be.eql({
-				code: 'this.scope.a + $local',
-				dependencies: [
-					{
-						code: 'a',
-						root: 'a',
-					},
-					{
-						code: '$local',
-						root: '$local',
-					},
-				],
-			});
+			expect(expr).to.be.eql('this.scope.a + $local');
 		});
 
 		it('should correctly update compile object with keys', () => {
@@ -51,19 +31,7 @@ describe('#ExpressionParser.update', () => {
 				replaceGlobalRoot: 'this.scope.%root',
 			});
 
-			expect(expr).to.be.eql({
-				code: '{one: this.scope.first, two: this.scope.second}',
-				dependencies: [
-					{
-						code: 'first',
-						root: 'first',
-					},
-					{
-						code: 'second',
-						root: 'second',
-					},
-				],
-			});
+			expect(expr).to.be.eql('{one: this.scope.first, two: this.scope.second}');
 		});
 
 		it('should parse another simple expression', () => {
@@ -71,15 +39,7 @@ describe('#ExpressionParser.update', () => {
 				replaceGlobalRoot: 'this.scope.%root',
 			});
 
-			expect(expr).to.be.eql({
-				code: 'this.scope.s + "-"',
-				dependencies: [
-					{
-						code: 's',
-						root: 's',
-					},
-				],
-			});
+			expect(expr).to.be.eql('this.scope.s + "-"');
 		});
 
 		it('should parse expression with object access', () => {
@@ -87,15 +47,7 @@ describe('#ExpressionParser.update', () => {
 				replaceGlobalRoot: 'this.scope.%root',
 			});
 
-			expect(expr).to.be.eql({
-				code: 'this.scope.a.b',
-				dependencies: [
-					{
-						code: 'a.b',
-						root: 'a',
-					},
-				],
-			});
+			expect(expr).to.be.eql('this.scope.a.b');
 		});
 
 		it('should parse expression with multiple inner dependencies', () => {
@@ -103,27 +55,7 @@ describe('#ExpressionParser.update', () => {
 				replaceGlobalRoot: 'this.scope.%root',
 			});
 
-			expect(expr).to.be.eql({
-				code: 'this.scope.a.b(this.scope.c["d"])("e").f[5](this.scope.g(this.scope.h["i"]))',
-				dependencies: [
-					{
-						code: 'c["d"]',
-						root: 'c',
-					},
-					{
-						code: 'h["i"]',
-						root: 'h',
-					},
-					{
-						code: 'g(this.scope.h["i"])',
-						root: 'g',
-					},
-					{
-						code: 'a.b(this.scope.c["d"])("e").f[5](this.scope.g(this.scope.h["i"]))',
-						root: 'a',
-					},
-				],
-			});
+			expect(expr).to.be.eql('this.scope.a.b(this.scope.c["d"])("e").f[5](this.scope.g(this.scope.h["i"]))');
 		});
 
 		it('should include filters', () => {
@@ -132,15 +64,7 @@ describe('#ExpressionParser.update', () => {
 				filterProvider: 'filter(%value, "%filter", [%args])',
 			});
 
-			expect(expr).to.be.eql({
-				code: 'filter(filter(param("a"), "b", []), "c", [])',
-				dependencies: [
-					{
-						code: 'a',
-						root: 'a',
-					},
-				],
-			});
+			expect(expr).to.be.eql('filter(filter(param("a"), "b", []), "c", [])');
 		});
 
 		it('should include filters with arguments', () => {
@@ -149,19 +73,7 @@ describe('#ExpressionParser.update', () => {
 				filterProvider: 'filter(%value, "%filter", [%args])',
 			});
 
-			expect(expr).to.be.eql({
-				code: 'filter(filter(param("a"), "b", ["test", 5]), "c", [5, "hello" + " " + "world", param("d")])',
-				dependencies: [
-					{
-						code: 'a',
-						root: 'a',
-					},
-					{
-						code: 'd',
-						root: 'd',
-					},
-				],
-			});
+			expect(expr).to.be.eql('filter(filter(param("a"), "b", ["test", 5]), "c", [5, "hello" + " " + "world", param("d")])');
 		});
 
 	});

@@ -45,9 +45,7 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 		use.push({
 			service: ChangeDetectorRef,
 			options: {
-				useFactory: () => new ChangeDetectorRef(() => {
-					this.changeDetector.check();
-				}),
+				useFactory: () => new ChangeDetectorRef(() => this.checkWatchers()),
 			},
 		});
 

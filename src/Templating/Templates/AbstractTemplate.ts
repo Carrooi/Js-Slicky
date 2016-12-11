@@ -1,12 +1,21 @@
 import {Scope} from '../../Util/Scope';
 import {Dom} from '../../Util/Dom';
-import {ChangeDetector} from '../../ChangeDetection/ChangeDetector';
-import {ParametersList, OnDestroy, ExpressionDependency} from '../../Interfaces';
+import {Realm} from '../../Util/Realm';
+import {Helpers} from '../../Util/Helpers';
+import {ParametersList, OnDestroy} from '../../Interfaces';
 import {Container, CustomServiceDefinition} from '../../DI/Container';
 import {ElementRef} from '../ElementRef';
-import {Realm} from '../../Util/Realm';
 import {EventEmitter} from '../../Util/EventEmitter';
 import {ChangeDetectionStrategy} from '../../constants';
+
+
+declare interface Watcher
+{
+	watcher: (previous: any, copy: any) => {current: any},
+	callback: (data: any) => any,
+	current: any,
+	copy: any
+}
 
 
 export abstract class AbstractTemplate
@@ -31,24 +40,26 @@ export abstract class AbstractTemplate
 
 	public translations: {[locale: string]: any} = {};
 
-	public changeDetector: ChangeDetector;
+	public changeDetectorStrategy: ChangeDetectionStrategy = ChangeDetectionStrategy.Default;
+
+	private watchers: Array<Watcher> = [];
 
 
 	constructor(container: Container, parameters: ParametersList = {}, parent?: AbstractTemplate)
 	{
 		this.container = container;
 		this.scope = new Scope(parameters, parent ? parent.scope : null);
-		this.changeDetector = new ChangeDetector(this.scope, parent ? parent.changeDetector : null);
 
 		this.realm = new Realm(this.parent ? this.parent.realm : null, null, () => {
-			if (this.changeDetector.strategy === ChangeDetectionStrategy.Default) {
-				this.changeDetector.check();
+			if (this.changeDetectorStrategy === ChangeDetectionStrategy.Default) {
+				this.checkWatchers();
 			}
 		});
 
 		if (parent) {
 			this.parent = parent;
 			this.parent.attachChild(this);
+			this.changeDetectorStrategy = this.parent.changeDetectorStrategy;
 		}
 	}
 
@@ -76,7 +87,7 @@ export abstract class AbstractTemplate
 
 	public destroy(): void
 	{
-		this.changeDetector.disable();
+		this.watchers = [];
 
 		if (this.parent) {
 			this.parent.detachChild(this);
@@ -188,9 +199,53 @@ export abstract class AbstractTemplate
 	}
 
 
-	public watch(dependencies: Array<ExpressionDependency>, listener: () => void): void
+	public checkWatchers(): void
 	{
-		this.changeDetector.watch(dependencies, listener);
+		for (let i = 0; i < this.watchers.length; i++) {
+			let watcher = this.watchers[i];
+
+			let check = watcher.watcher(watcher.current, watcher.copy);
+			if (check !== null) {
+				watcher.current = check.current;
+				watcher.copy = Helpers.clone(check.current);
+
+				watcher.callback(check.current);
+			}
+		}
+
+		for (let i = 0; i < this.children.length; i++) {
+			if (this.children[i].changeDetectorStrategy === ChangeDetectionStrategy.Default) {
+				this.children[i].checkWatchers();
+			}
+		}
+	}
+
+
+	public watch(getter: (template: AbstractTemplate) => any, fn: (data: any) => any, initValue?: any): void
+	{
+		let current = typeof initValue === 'undefined' ? getter(this) : initValue;
+		let copy = Helpers.clone(current);
+
+		let watcher = (previous: any, copy: any): {current: any} => {
+			let current = getter(this);
+
+			if (current !== previous) {
+				return {current: current};
+			}
+
+			if (Helpers.compare(current, copy)) {
+				return {current: current};
+			}
+
+			return null;
+		};
+
+		this.watchers.push({
+			watcher: watcher,
+			callback: fn,
+			current: current,
+			copy: copy,
+		});
 	}
 
 
@@ -216,13 +271,15 @@ export abstract class AbstractTemplate
 	}
 
 
-	public watchText(dependencies: Array<ExpressionDependency>, el: Text, getter: (template: AbstractTemplate) => string): void
+	public watchText(el: Text, getter: (template: AbstractTemplate) => string): void
 	{
-		this.setText(el, getter(this));
+		let text = getter(this);
 
-		this.watch(dependencies, () => {
-			this.setText(el, getter(this));
-		})
+		this.setText(el, text);
+
+		this.watch(getter, (text: string) => {
+			this.setText(el, text);
+		}, text);
 	}
 
 
@@ -236,12 +293,14 @@ export abstract class AbstractTemplate
 	}
 
 
-	public watchAttribute(el: HTMLElement, dependencies: Array<ExpressionDependency>, attr: string, getter: (template: AbstractTemplate) => any): void
+	public watchAttribute(el: HTMLElement, attr: string, getter: (template: AbstractTemplate) => any): void
 	{
-		this.setAttribute(el, attr, getter(this));
+		let value = getter(this);
 
-		this.watch(dependencies, () => {
-			this.setAttribute(el, attr, getter(this));
+		this.setAttribute(el, attr, value);
+
+		this.watch(getter, (value: any) => {
+			this.setAttribute(el, attr, value);
 		});
 	}
 
@@ -286,12 +345,14 @@ export abstract class AbstractTemplate
 	}
 
 
-	public watchProperty(el: HTMLElement, dependencies: Array<ExpressionDependency>, property: string, getter: (template: AbstractTemplate) => any): void
+	public watchProperty(el: HTMLElement, property: string, getter: (template: AbstractTemplate) => any): void
 	{
-		this.setProperty(el, property, getter(this));
+		let value = getter(this);
 
-		this.watch(dependencies, () => {
-			this.setProperty(el, property, getter(this));
+		this.setProperty(el, property, value);
+
+		this.watch(getter, (value: any) => {
+			this.setProperty(el, property, value);
 		});
 	}
 
@@ -306,12 +367,14 @@ export abstract class AbstractTemplate
 	}
 
 
-	public watchInput(dependencies: Array<ExpressionDependency>, directive: any, property: string, getter: (template: AbstractTemplate) => any): void
+	public watchInput(directive: any, property: string, getter: (template: AbstractTemplate) => any): void
 	{
-		this.setInput(directive, property, getter(this), false);
+		let input = getter(this);
 
-		this.watch(dependencies, () => {
-			this.setInput(directive, property, getter(this));
+		this.setInput(directive, property, input, false);
+
+		this.watch(getter, (input: any) => {
+			this.setInput(directive, property, input);
 		});
 	}
 
