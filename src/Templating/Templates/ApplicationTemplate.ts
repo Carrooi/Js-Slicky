@@ -47,4 +47,9 @@ export class ApplicationTemplate extends AbstractTemplate
 		}
 	}
 
+
+	public checkWatchers(): void
+	{
+	}
+
 }
