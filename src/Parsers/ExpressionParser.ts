@@ -213,6 +213,8 @@ export class ExpressionParser
 			code = this.reference(code);
 		}
 
+		let isRoot = !this.processingVariable;
+
 		this.processingVariable = true;
 
 		while (this.iterator.lookahead) {
@@ -224,7 +226,9 @@ export class ExpressionParser
 			code += this.parseToken();
 		}
 
-		this.processingVariable = false;
+		if (isRoot) {
+			this.processingVariable = false;
+		}
 
 		return code;
 	}
