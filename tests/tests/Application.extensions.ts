@@ -48,6 +48,9 @@ describe('#Application.extensions', () => {
 				getServices() {
 					return [TestService];
 				}
+				getParameters() {
+					return {url: 'localhost'};
+				}
 				getFilters() {
 					return [TestFilter];
 				}
@@ -65,7 +68,7 @@ describe('#Application.extensions', () => {
 
 			@Component({
 				selector: 'component',
-				template: '{{ "hello" | append : " world" }}, <extension></extension>',
+				template: '{{ "hello" | append : " world" }} from {{ url }}, <extension></extension>',
 			})
 			class TestComponent implements OnInit {
 				constructor(private testService: TestService, private testComponentService: TestComponentService) {}
@@ -86,7 +89,7 @@ describe('#Application.extensions', () => {
 			});
 
 			expect(called).to.be.equal(true);
-			expect(parent.innerText).to.be.equal('hello world, David');
+			expect(parent.innerText).to.be.equal('hello world from localhost, David');
 		});
 		
 	});

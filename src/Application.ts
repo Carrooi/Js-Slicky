@@ -72,8 +72,11 @@ export class Application
 			options.filters = [];
 		}
 
-		let template = new ApplicationTemplate(this.container, options.parentElement, options.parameters);
+		let template = new ApplicationTemplate(this.container, options.parentElement);
 		let templatesStorage = new TemplatesStorage;
+
+		template.scope.setParameters(this.extensions.getParameters());
+		template.scope.setParameters(options.parameters);
 
 		let extensionsFilters = this.extensions.getFilters();
 		let extensionsDirectives = this.extensions.getDirectives();

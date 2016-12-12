@@ -10,16 +10,6 @@ export declare interface ParametersList
 }
 
 
-// ------------ PARSING
-
-
-export declare interface ExpressionFilter
-{
-	name: string,
-	arguments: Array<string>,
-}
-
-
 // ------------ CHANGE DETECTION
 
 

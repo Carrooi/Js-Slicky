@@ -62,6 +62,16 @@ export class Scope
 	}
 
 
+	public setParameters(parameters: ParametersList): void
+	{
+		for (let name in parameters) {
+			if (parameters.hasOwnProperty(name)) {
+				this.setParameter(name, parameters[name]);
+			}
+		}
+	}
+
+
 	public findParameter(name: string): any
 	{
 		let scope: Scope = this;
