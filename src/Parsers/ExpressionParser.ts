@@ -5,9 +5,11 @@ import {TokensIterator} from '../Tokenizer/TokensIterator';
 
 export declare interface ExpressionParserOptions
 {
-	variableProvider?: {replacement: string, exclude?: RegExp},
+	variableProvider?: {replacement?: string, exclude?: RegExp, storeLocally?: boolean},
+	rootIntoLocalScope?: boolean,
 	filterProvider?: string,
 	allowFilters?: boolean,
+	referencesStorage?: Array<string>;
 }
 
 
@@ -15,11 +17,14 @@ export class ExpressionParser
 {
 
 
+	private static REFERENCE_PREFIX = '_ref';
+
+
 	private code: string;
 
 	private result: string = '';
 
-	private variableProvider: {replacement: string, exclude?: RegExp};
+	private variableProvider: {replacement?: string, exclude?: RegExp, storeLocally?: boolean};
 
 	private filterProvider: string;
 
@@ -28,6 +33,8 @@ export class ExpressionParser
 	private iterator: TokensIterator;
 
 	private processingVariable: boolean = false;
+
+	private references: Array<string> = [];
 
 
 	constructor(code: string, options: ExpressionParserOptions = {})
@@ -45,12 +52,28 @@ export class ExpressionParser
 		if (typeof options.allowFilters !== 'undefined') {
 			this.allowFilters = options.allowFilters;
 		}
+
+		if (typeof options.referencesStorage !== 'undefined') {
+			this.references = options.referencesStorage;
+		}
 	}
 
 
 	public parse(): string
 	{
-		return this.processTokens(ExpressionParser.createTokensIterator(this.code));
+		let result = '';
+		let code = this.processTokens(ExpressionParser.createTokensIterator(this.code));
+
+		let references = [];
+		for (let i = 0; i < this.references.length; i++) {
+			references.push(ExpressionParser.REFERENCE_PREFIX + i + '=' + this.references[i]);
+		}
+
+		if (references.length) {
+			result += 'var ' + references.join(',') + ';';
+		}
+
+		return result + code;
 	}
 
 
@@ -126,15 +149,21 @@ export class ExpressionParser
 
 		// replace root with variable provider
 		if (
-			!this.processingVariable && this.variableProvider &&
+			!this.processingVariable && this.variableProvider && this.variableProvider.replacement &&
 			(!this.variableProvider.exclude || !this.variableProvider.exclude.test(code))
 		) {
 			code = this.variableProvider.replacement.replace(/%root/g, code);
 		}
 
-		if (!this.processingVariable) {
-			this.processingVariable = true;
+		// store root into local scope
+		if (
+			!this.processingVariable && this.variableProvider && this.variableProvider.storeLocally &&
+			(!this.variableProvider.exclude || !this.variableProvider.exclude.test(code))
+		) {
+			code = this.reference(code);
 		}
+
+		this.processingVariable = true;
 
 		while (this.iterator.lookahead) {
 			if (!this.iterator.isNext(continuousTokens)) {
@@ -198,11 +227,14 @@ export class ExpressionParser
 		let innerIterator = new TokensIterator(this.iterator.tokens.slice(this.iterator.position, endPosition));
 
 		if (innerIterator.token) {
-			let inner = (new ExpressionParser(this.code, {
+			let innerParser = new ExpressionParser(this.code, {
 				variableProvider: this.variableProvider,
 				filterProvider: this.filterProvider,
+				referencesStorage: this.references,
 				allowFilters: openingToken === TokenType.T_OPEN_PARENTHESIS,
-			})).processTokens(innerIterator);
+			});
+
+			let inner = innerParser.processTokens(innerIterator);
 
 			this.iterator.moveBy(innerIterator.position + 1);
 
@@ -262,6 +294,19 @@ export class ExpressionParser
 		;
 
 		return '';
+	}
+
+
+	private reference(variable: string): string
+	{
+		let old = this.references.indexOf(variable);
+
+		if (old >= 0) {
+			return ExpressionParser.REFERENCE_PREFIX + old;
+		}
+
+		this.references.push(variable);
+		return ExpressionParser.REFERENCE_PREFIX + (this.references.length - 1);
 	}
 
 
