@@ -14,6 +14,7 @@ import {TemplatesStorage} from '../Templates/TemplatesStorage';
 import {Errors} from '../../Errors';
 import {ExtensionsManager} from '../../Extensions/ExtensionsManager';
 import {SafeEval} from '../../Util/SafeEval';
+import {DEFAULT_EXPRESSION_OPTIONS} from '../../constants';
 
 
 export class RootCompiler extends AbstractCompiler
@@ -67,12 +68,7 @@ export class RootCompiler extends AbstractCompiler
 	{
 		let compiler = new ComponentCompiler(this.container, this.templatesStorage, this.directiveType);
 		let elementRef = ElementRef.get(el);
-		let node = HTMLParser.parseElement(el, {
-			variableProvider: {
-				replacement: ComponentCompiler.VARIABLE_PROVIDER,
-				exclude: /^\$/,
-			},
-		});
+		let node = HTMLParser.parseElement(el, DEFAULT_EXPRESSION_OPTIONS);
 
 		Helpers.each(this.definition.elements, (property: string, el: HostElementMetadataDefinition) => {
 			if (el.selector) {
@@ -117,12 +113,7 @@ export class RootCompiler extends AbstractCompiler
 
 	private processInputs(el: HTMLElement, directive: any): void
 	{
-		let attributes = HTMLParser.parseAttributes(el, {
-			variableProvider: {
-				replacement: ComponentCompiler.VARIABLE_PROVIDER,
-				exclude: /^\$/,
-			},
-		});
+		let attributes = HTMLParser.parseAttributes(el, DEFAULT_EXPRESSION_OPTIONS);
 
 		Helpers.each(this.definition.inputs, (name: string, input: InputMetadataDefinition) => {
 			let attributeName = input.name === null ? name : input.name;

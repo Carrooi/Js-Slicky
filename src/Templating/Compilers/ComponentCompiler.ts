@@ -5,10 +5,7 @@ import {AbstractComponentTemplate} from '../Templates/AbstractComponentTemplate'
 import {ElementRef} from '../ElementRef';
 import {TemplateRef} from '../TemplateRef';
 import {Helpers} from '../../Util/Helpers';
-import {
-	HostElementMetadataDefinition, InputMetadataDefinition, HostEventMetadataDefinition,
-	OutputMetadataDefinition
-} from '../../Entity/Metadata';
+import {HostElementMetadataDefinition, InputMetadataDefinition, HostEventMetadataDefinition, OutputMetadataDefinition} from '../../Entity/Metadata';
 import {Annotations} from '../../Util/Annotations';
 import {HTMLParser, StringToken, ExpressionToken, ElementToken, HTMLTokenType, HTMLAttributeType, AttributeToken} from '../../Parsers/HTMLParser';
 import {QuerySelector} from '../QuerySelector';
@@ -20,6 +17,7 @@ import {Buffer} from '../../Util/Buffer';
 import {AbstractCompiler} from './AbstractCompiler';
 import {TemplatesStorage} from '../Templates/TemplatesStorage';
 import {Errors} from '../../Errors';
+import {DEFAULT_EXPRESSION_OPTIONS} from '../../constants';
 
 
 enum ChildRequestType
@@ -90,10 +88,6 @@ export class ComponentCompiler extends AbstractCompiler
 
 	public static PLACEHOLDER_COMMENT = '__slicky_data__';
 
-	public static VARIABLE_PROVIDER = '_t.scope.findParameter("%root")';
-
-	public static FILTER_PROVIDER = '_t.filter(%value, "%filter", [%args])';
-
 
 	private templates: Array<ElementToken> = [];
 
@@ -161,13 +155,7 @@ export class ComponentCompiler extends AbstractCompiler
 		this.template = new ClassGenerator(this.getName(), 'Template');
 
 		let definition = this.getDefinition();
-		let html = HTMLParser.parse(definition.metadata.template, {
-			variableProvider: {
-				replacement: ComponentCompiler.VARIABLE_PROVIDER,
-				exclude: /^\$/,
-			},
-			filterProvider: ComponentCompiler.FILTER_PROVIDER,
-		});
+		let html = HTMLParser.parse(definition.metadata.template, DEFAULT_EXPRESSION_OPTIONS);
 
 		let main = this.template.addMethod('main', ['onBeforeRender', 'onReady'], [
 			'var _r, _t = _r = this;',
