@@ -504,10 +504,12 @@ export class ComponentCompiler extends AbstractCompiler
 					realType = names[0];
 
 				} else {
-					realType = '_n';
+					realType = '_er';
+					elementDefinition.elementRef = true;
 				}
 			} else if (type === '$this') {
-				realType = '_n';
+				realType = '_er';
+				elementDefinition.elementRef = true;
 
 			} else if (type !== '') {
 				for (let i = 0; i < names.length; i++) {

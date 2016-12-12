@@ -1,5 +1,6 @@
 import {Directive} from '../../../../src/Entity/Metadata';
 import {TemplateRef} from '../../../../src/Templating/TemplateRef';
+import {ElementRef} from '../../../../src/Templating/ElementRef';
 
 import {createTemplate} from '../../_testHelpers';
 
@@ -23,14 +24,15 @@ describe('#Templating/Compilers/ComponentCompiler.exports', () => {
 			let scope = createTemplate(parent, '<div #div></div>').scope;
 
 			expect(scope.hasParameter('div')).to.be.equal(true);
-			expect(scope.findParameter('div')).to.be.an.instanceOf(HTMLDivElement);
+			expect(scope.findParameter('div')).to.be.an.instanceOf(ElementRef);
+			expect((<ElementRef<HTMLDivElement>>scope.findParameter('div')).nativeElement).to.be.an.instanceof(HTMLDivElement);
 		});
 
 		it('should export element with $this', () => {
 			let scope = createTemplate(parent, '<div #div="$this"></div>').scope;
 
-			expect(scope.hasParameter('div')).to.be.equal(true);
-			expect(scope.findParameter('div')).to.be.an.instanceOf(HTMLDivElement);
+			expect(scope.findParameter('div')).to.be.an.instanceOf(ElementRef);
+			expect((<ElementRef<HTMLDivElement>>scope.findParameter('div')).nativeElement).to.be.an.instanceof(HTMLDivElement);
 		});
 
 		it('should export one directive when no type is provided', () => {
@@ -103,7 +105,8 @@ describe('#Templating/Compilers/ComponentCompiler.exports', () => {
 
 			expect(scope).to.not.have.property('tmpl');
 			expect(embeddedScope).to.have.property('tmpl');
-			expect(embeddedScope['tmpl']).to.be.equal(parent.childNodes[0]);
+			expect(embeddedScope['tmpl']).to.be.an.instanceOf(ElementRef);
+			expect((<ElementRef<HTMLTemplateElement>>embeddedScope['tmpl']).nativeElement).to.be.equal(parent.childNodes[0]);
 		});
 
 		it('should export dynamic parameter into embedded template', () => {
