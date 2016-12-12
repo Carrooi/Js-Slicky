@@ -1,9 +1,6 @@
-import {ExpressionParser} from '../../../src/Parsers/ExpressionParser';
+import {expectExpression, expectExpressionError} from '../_testHelpers';
 
 import chai = require('chai');
-
-
-let expect = chai.expect;
 
 
 describe('#ExpressionParser', () => {
@@ -11,55 +8,51 @@ describe('#ExpressionParser', () => {
 	describe('parse()', () => {
 
 		it('should parse simple expression', () => {
-			let expr = ExpressionParser.parse('a');
-
-			expect(expr).to.be.eql('a');
+			expectExpression('a', 'a');
 		});
 
 		it('should parse another simple expression', () => {
-			let expr = ExpressionParser.parse('s + "-"');
-
-			expect(expr).to.be.eql('s + "-"');
+			expectExpression('s + "-"', 's+"-"');
 		});
 
 		it('should parse expression with object access', () => {
-			let expr = ExpressionParser.parse('a.b');
+			expectExpression('a.b', 'a.b');
+		});
 
-			expect(expr).to.be.eql('a.b');
+		it('should parse array', () => {
+			expectExpression('["a", "b", "c"]', '["a","b","c"]');
+		});
+
+		it('should parse object', () => {
+			expectExpression('{a: "a", b: "b", c: "c"}', '{a:"a",b:"b",c:"c"}');
+		});
+
+		it('should parse only textual expression', () => {
+			expectExpression('"hello" + " " + "world"', '"hello"+" "+"world"');
+		});
+
+		it('should parse groups', () => {
+			expectExpression('(1) + (2)', '(1)+(2)');
+		});
+
+		it('should parse stacked groups', () => {
+			expectExpression('(((1)))', '(((1)))');
+		});
+
+		it('should throw error about missing closing parenthesis', () => {
+			expectExpressionError('(((1))', 'Expression "(((1))": missing ending ")".');
 		});
 
 		it('should parse expression with multiple inner dependencies', () => {
-			let expr = ExpressionParser.parse('a.b(c["d"])("e").f[5](g(h["i"]))');
-
-			expect(expr).to.be.eql('a.b(c["d"])("e").f[5](g(h["i"]))');
+			expectExpression('a.b(c["d"])("e").f[5](g(h["i"]))', 'a.b(c["d"])("e").f[5](g(h["i"]))');
 		});
 
-		it('should include filters', () => {
-			let expr = ExpressionParser.parse('a | b | c', {
-				filterProvider: 'filter(%value, "%filter", [%args])',
-			});
-
-			expect(expr).to.be.eql('filter(filter(a, "b", []), "c", [])');
+		it('should parse empty expression', () => {
+			expectExpression('', '');
 		});
 
-		it('should include filters with arguments', () => {
-			let expr = ExpressionParser.parse('a | b : "test" : 5 | c : 5 : "hello" + " " + "world" : d', {
-				filterProvider: 'filter(%value, "%filter", [%args])',
-			});
-
-			expect(expr).to.be.eql('filter(filter(a, "b", ["test", 5]), "c", [5, "hello" + " " + "world", d])');
-		});
-
-		it('should correctly compile object keys', () => {
-			let expr = ExpressionParser.parse('{key: "value"}');
-
-			expect(expr).to.be.eql('{key: "value"}');
-		});
-
-		it('should correctly compile object keys with whitespace', () => {
-			let expr = ExpressionParser.parse('{key : "value"}');
-
-			expect(expr).to.be.eql('{key : "value"}');
+		it('should keep whitespace after keyword', () => {
+			expectExpression('typeof a === "undefined"', 'typeof a==="undefined"');
 		});
 
 	});

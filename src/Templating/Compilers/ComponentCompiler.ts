@@ -90,7 +90,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 	public static PLACEHOLDER_COMMENT = '__slicky_data__';
 
-	public static GLOBAL_ROOT_REPLACEMENT = '_t.scope.findParameter("%root")';
+	public static VARIABLE_PROVIDER = '_t.scope.findParameter("%root")';
 
 	public static FILTER_PROVIDER = '_t.filter(%value, "%filter", [%args])';
 
@@ -162,7 +162,10 @@ export class ComponentCompiler extends AbstractCompiler
 
 		let definition = this.getDefinition();
 		let html = HTMLParser.parse(definition.metadata.template, {
-			replaceGlobalRoot: ComponentCompiler.GLOBAL_ROOT_REPLACEMENT,
+			variableProvider: {
+				replacement: ComponentCompiler.VARIABLE_PROVIDER,
+				exclude: /^\$/,
+			},
 			filterProvider: ComponentCompiler.FILTER_PROVIDER,
 		});
 

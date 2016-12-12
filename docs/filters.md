@@ -6,6 +6,14 @@ There are some template filters which can be used in text expressions like this:
 <span>{{ message | truncate : '300' : '...' | replace : '_' : '-' }}</span>
 ```
 
+It is also possible to use them for example in function arguments and everywhere else in you templates. Just wrap the code 
+into parenthesis:
+
+```html
+{{ getData("icon" | trim) }}
+{{ (5 | plus : 2) / (2 | multiply : 4) }}
+```
+
 This expression truncates `message` variable to max 300 letters, adds `...` if 
 text is longer than that and replaces all underscore letters with dashes.
 

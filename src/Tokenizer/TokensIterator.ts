@@ -31,12 +31,58 @@ export class TokensIterator
 	}
 
 
+	public is(token: Array<any>|any): boolean
+	{
+		if (!this.token) {
+			return false;
+		}
+
+		if (!Helpers.isArray(token)) {
+			token = [token];
+		}
+
+		return token.indexOf(this.token.type) >= 0;
+	}
+
+
+	public isNext(token: Array<any>|any): boolean
+	{
+		if (!this.lookahead) {
+			return false;
+		}
+
+		if (!Helpers.isArray(token)) {
+			token = [token];
+		}
+
+		return token.indexOf(this.lookahead.type) >= 0;
+	}
+
+
+	public isPrevious(token: Array<any>|any): boolean
+	{
+		if (typeof this.tokens[this.position - 1] === 'undefined') {
+			return false;
+		}
+
+		if (!Helpers.isArray(token)) {
+			token = [token];
+		}
+
+		return token.indexOf(this.tokens[this.position - 1].type) >= 0;
+	}
+
+
 	public nextToken(): Token
 	{
-		if (typeof this.tokens[++this.position] === 'undefined') {
+		if (typeof this.tokens[this.position + 1] === 'undefined') {
 			this.token = null;
 			return null;
 		}
+
+		this.resetPeek();
+		this.position++;
+		this.lookahead = this.glimpse();
 
 		return this.token = this.tokens[this.position];
 	}

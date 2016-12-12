@@ -8,6 +8,9 @@ import {AbstractComponentTemplate} from '../../src/Templating/Templates/Abstract
 import {ApplicationTemplate} from '../../src/Templating/Templates/ApplicationTemplate';
 import {TemplatesStorage} from '../../src/Templating/Templates/TemplatesStorage';
 import {ExtensionsManager} from '../../src/Extensions/ExtensionsManager';
+import {ExpressionParser, ExpressionParserOptions} from '../../src/Parsers/ExpressionParser';
+
+import chai = require('chai');
 
 
 let prepareCompiler = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}, container?: Container): RootCompiler => {
@@ -55,4 +58,18 @@ export let createTemplate = (parent: HTMLElement, html: string, parameters: Para
 	let template = compiler.processComponent(parent);
 
 	return template;
+};
+
+
+export let expectExpression = (code: string, expected: string, options: ExpressionParserOptions = {}) => {
+	chai.expect(new ExpressionParser(code, options).parse()).to.be.equal(expected);
+};
+
+
+export let expectExpressionError = (code: string, message: string, options: ExpressionParserOptions = {}) => {
+	let parser = new ExpressionParser(code, options);
+
+	chai.expect(() => {
+		parser.parse();
+	}).to.throw(Error, message);
 };

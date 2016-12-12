@@ -1,14 +1,13 @@
-import {Parser} from '../Tokenizer/Parser';
-import {TokensIterator} from '../Tokenizer/TokensIterator';
-import {Token} from '../Tokenizer/Tokenizer';
+import {Tokenizer, Token} from '../Tokenizer/Tokenizer';
 import {TokenType} from '../Tokenizer/Tokens';
-import {ExpressionFilter} from '../Interfaces';
+import {TokensIterator} from '../Tokenizer/TokensIterator';
 
 
 export declare interface ExpressionParserOptions
 {
-	replaceGlobalRoot?: string,
+	variableProvider?: {replacement: string, exclude?: RegExp},
 	filterProvider?: string,
+	allowFilters?: boolean,
 }
 
 
@@ -16,222 +15,292 @@ export class ExpressionParser
 {
 
 
-	public static parse(code: string, options: ExpressionParserOptions = {}): string
+	private code: string;
+
+	private result: string = '';
+
+	private variableProvider: {replacement: string, exclude?: RegExp};
+
+	private filterProvider: string;
+
+	private allowFilters: boolean = true;
+
+	private iterator: TokensIterator;
+
+	private processingVariable: boolean = false;
+
+
+	constructor(code: string, options: ExpressionParserOptions = {})
 	{
-		return ExpressionParser.parseGroup(new Parser(code), options, true);
+		this.code = code;
+
+		if (typeof options.variableProvider !== 'undefined') {
+			this.variableProvider = options.variableProvider;
+		}
+
+		if (typeof options.filterProvider !== 'undefined') {
+			this.filterProvider = options.filterProvider;
+		}
+
+		if (typeof options.allowFilters !== 'undefined') {
+			this.allowFilters = options.allowFilters;
+		}
 	}
 
 
-	private static parseGroup(parser: TokensIterator, options: ExpressionParserOptions, allowFilters: boolean = false, exitToken?: string): string
+	public parse(): string
 	{
-		let parts = ExpressionParser.split(parser.tokens, '|');
-		parser.tokens = parts.shift();
+		return this.processTokens(ExpressionParser.createTokensIterator(this.code));
+	}
 
-		let token: Token;
-		let previousToken: Token;
-		let position = 0;
 
-		let currentDependency = null;
-		let currentExpression = {
-			code: '',
-		};
+	protected processTokens(iterator: TokensIterator): string
+	{
+		this.iterator = iterator;
+		this.result = '';
 
-		let next = () => {
-			previousToken = parser.token;
-			position++;
-			parser.nextToken();
-		};
+		while (this.iterator.token) {
+			let code = this.parseToken();
 
-		while (token = parser.token) {
-			parser.resetPeek();
+			this.result += code;
+			this.iterator.nextToken();
+		}
 
-			let isDependency = false;
-			let isObjectKey = false;
-			let peek: Token = null;
-			let value = token.value;
+		return this.result;
+	}
 
-			if (token.type === TokenType.T_NAME) {
-				if (
-					((peek = parser.peek()) && peek.type === TokenType.T_CHARACTER && peek.value === ':') ||
-					(
-						(peek && peek.type === TokenType.T_WHITESPACE) &&
-						((peek = parser.peek()) && peek.type === TokenType.T_CHARACTER && peek.value === ':')
-					)
-				) {
-					isObjectKey = true;
-				}
-			}
 
-			if (token.type === TokenType.T_NAME && !isObjectKey && !currentDependency) {
-				isDependency = true;
-				currentDependency = {
-					code: '',
-					root: token.value,
-				};
+	private parseToken(): string
+	{
+		let code = this.iterator.token.value;
 
-				if (options.replaceGlobalRoot && token.value.charAt(0) !== '$') {
-					value = options.replaceGlobalRoot.replace('%root', value);
-				}
+		if (this.iterator.is(TokenType.T_WHITESPACE)) {
+			code = this.parseWhitespace();
 
-			} else if (
-				currentDependency && previousToken &&
-				(
-					(token.type === TokenType.T_NAME && previousToken.type === TokenType.T_DOT) ||
-					(
-						token.type === TokenType.T_DOT &&
-						[TokenType.T_NAME, TokenType.T_CLOSE_PARENTHESIS, TokenType.T_CLOSE_SQUARE_BRACKET].indexOf(previousToken.type) > -1
-					)
-				)
-			) {
-				isDependency = true;
-			}
+		} else if (this.iterator.is([TokenType.T_NAME, TokenType.T_DOT])) {
+			code = this.parseVariable();
 
-			if (currentDependency && previousToken && position) {
-				let exitInnerExpressionWith = null;
+		} else if (this.iterator.is([TokenType.T_OPEN_PARENTHESIS, TokenType.T_OPEN_SQUARE_BRACKET, TokenType.T_OPEN_BRACES])) {
+			code = this.parseGroup();
 
-				if (
-					token.type === TokenType.T_OPEN_PARENTHESIS &&
-					([TokenType.T_NAME, TokenType.T_CLOSE_PARENTHESIS, TokenType.T_CLOSE_SQUARE_BRACKET].indexOf(previousToken.type) > -1)
-				) {
-					exitInnerExpressionWith = TokenType.T_CLOSE_PARENTHESIS;
+		} else if (this.iterator.is(TokenType.T_PIPE) && this.allowFilters && this.filterProvider) {
+			code = this.parseFilter();
+		}
 
-				} else if (
-					token.type === TokenType.T_OPEN_SQUARE_BRACKET &&
-					([TokenType.T_NAME, TokenType.T_CLOSE_SQUARE_BRACKET, TokenType.T_CLOSE_PARENTHESIS].indexOf(previousToken.type) > -1)
-				) {
-					exitInnerExpressionWith = TokenType.T_CLOSE_SQUARE_BRACKET;
-				}
+		return code;
+	}
 
-				if (exitInnerExpressionWith !== null) {
-					let innerExpression = ExpressionParser.parseGroup(parser, options, false, exitInnerExpressionWith);
-					token = parser.token;
-					currentDependency.code += innerExpression;
-					currentExpression.code += innerExpression;
 
-					next();
-					continue;
-				}
-			}
+	private parseWhitespace(): string
+	{
+		if (this.iterator.isPrevious(TokenType.T_KEYWORD)) {
+			return this.iterator.token.value;
+		}
 
-			if (isDependency) {
-				currentDependency.code += token.value;
-			}
+		return '';
+	}
 
-			if (!isDependency && currentDependency !== null) {
-				currentDependency = null;
-			}
 
-			currentExpression.code += value;
+	private parseVariable(): string
+	{
+		let continuousTokens = [
+			TokenType.T_DOT, TokenType.T_NAME, TokenType.T_WHITESPACE,
+			TokenType.T_OPEN_PARENTHESIS, TokenType.T_OPEN_SQUARE_BRACKET,
+		];
 
-			if (token.type === exitToken) {
+		let code = this.iterator.token.value;
+		let peek: Token;
+
+		// object key
+		if (
+			(peek = this.iterator.peek()) &&
+			(
+				(peek.type === TokenType.T_COLON) ||
+				(peek.type === TokenType.T_WHITESPACE && (peek = this.iterator.peek()) && peek.type === TokenType.T_COLON)
+			)
+		) {
+			return code;
+		}
+
+		this.iterator.resetPeek();
+
+		// replace root with variable provider
+		if (
+			!this.processingVariable && this.variableProvider &&
+			(!this.variableProvider.exclude || !this.variableProvider.exclude.test(code))
+		) {
+			code = this.variableProvider.replacement.replace(/%root/g, code);
+		}
+
+		if (!this.processingVariable) {
+			this.processingVariable = true;
+		}
+
+		while (this.iterator.lookahead) {
+			if (!this.iterator.isNext(continuousTokens)) {
 				break;
 			}
 
-			next();
+			this.iterator.nextToken();
+			code += this.parseToken();
 		}
 
-		if (allowFilters && options.filterProvider) {
-			for (let i = 0; i < parts.length; i++) {
-				let filter = ExpressionParser.parseFilter(parts[i], options);
+		this.processingVariable = false;
 
-				currentExpression.code = options.filterProvider
-					.replace(/%value/g, currentExpression.code.trim())
-					.replace(/%filter/g, filter.name)
-					.replace(/%args/g, filter.arguments.join(', '));
-			}
-		}
-
-		currentExpression.code = currentExpression.code.trim();
-
-		return currentExpression.code;
+		return code;
 	}
 
 
-	private static parseFilter(tokens: Array<Token>, options: ExpressionParserOptions): ExpressionFilter
+	private parseGroup(): string
 	{
-		let parts = ExpressionParser.split(tokens, ':');
+		let code = this.iterator.token.value;
+		let endPosition: number = null;
+		let groups = 1;
+		let peek: Token;
 
-		tokens = parts.shift();
+		let openingToken = this.iterator.token.type;
+		let closingToken: TokenType;
 
-		let name = ExpressionParser.trim(tokens);
-		if (name.length !== 1 || name[0].type !== TokenType.T_NAME) {
-			throw new Error('Invalid name of filter');
+		if (openingToken === TokenType.T_OPEN_PARENTHESIS) {
+			closingToken = TokenType.T_CLOSE_PARENTHESIS;
+
+		} else if (openingToken === TokenType.T_OPEN_SQUARE_BRACKET) {
+			closingToken = TokenType.T_CLOSE_SQUARE_BRACKET;
+
+		} else if (openingToken === TokenType.T_OPEN_BRACES) {
+			closingToken = TokenType.T_CLOSE_BRACES;
+
+		} else {
+			throw this.error('invalid group start "' + this.iterator.token.value + '"');
 		}
+
+		while (peek = this.iterator.peek()) {
+			if (peek.type === openingToken) {
+				groups++;
+			}
+
+			if (peek.type === closingToken) {
+				groups--;
+
+				if (groups === 0) {
+					endPosition = this.iterator.position + this.iterator.peekPosition;
+					break;
+				}
+			}
+		}
+
+		if (endPosition === null) {
+			throw this.error('missing ending ")"');
+		}
+
+		this.iterator.nextToken();
+
+		let innerIterator = new TokensIterator(this.iterator.tokens.slice(this.iterator.position, endPosition));
+
+		if (innerIterator.token) {
+			let inner = (new ExpressionParser(this.code, {
+				variableProvider: this.variableProvider,
+				filterProvider: this.filterProvider,
+				allowFilters: openingToken === TokenType.T_OPEN_PARENTHESIS,
+			})).processTokens(innerIterator);
+
+			this.iterator.moveBy(innerIterator.position + 1);
+
+			code += inner;
+		}
+
+		return code + this.iterator.token.value;
+	}
+
+
+	private parseFilter(): string
+	{
+		if (this.iterator.isNext(TokenType.T_WHITESPACE)) {
+			this.iterator.nextToken();
+		}
+
+		this.iterator.nextToken();
+
+		if (!this.iterator.is(TokenType.T_NAME)) {
+			throw this.error('filter name expected after "|", got "' + this.iterator.token.value + '"');
+		}
+
+		let filter = this.iterator.token.value;
+
+		this.iterator.nextToken();
 
 		let args = [];
-		for (let i = 0; i < parts.length; i++) {
-			let arg = ExpressionParser.parseGroup(new TokensIterator(parts[i]), options);
+		let arg = '';
 
-			args.push(arg);
-		}
-
-		return {
-			name: name[0].value.trim(),
-			arguments: args,
-		};
-	}
-
-
-	private static split(tokens: Array<Token>, delimiter: string): Array<Array<Token>>
-	{
-		let result: Array<Array<Token>> = [];
-		let inGroup = 0;
-
-		for (let i = 0, j = 0; i < tokens.length; i++) {
-			let token = tokens[i];
-
-			if (token.type === TokenType.T_OPEN_PARENTHESIS || token.type === TokenType.T_OPEN_SQUARE_BRACKET || token.type === TokenType.T_OPEN_BRACES) {
-				inGroup++;
-
-			} else if (token.type === TokenType.T_CLOSE_PARENTHESIS || token.type === TokenType.T_CLOSE_SQUARE_BRACKET || token.type === TokenType.T_CLOSE_BRACES) {
-				inGroup--;
+		while (this.iterator.token) {
+			if (this.iterator.isNext(TokenType.T_PIPE)) {
+				break;
 			}
 
-			if (token.value === delimiter && !inGroup && (!tokens[i + 1] || tokens[i + 1].value !== delimiter) && (!tokens[i - 1] || tokens[i - 1].value !== delimiter)) {
-				j++;
+			if (this.iterator.is(TokenType.T_COLON)) {
+				if (arg !== '') {
+					args.push(arg);
+					arg = '';
+				}
+
+				this.iterator.nextToken();
 				continue;
 			}
 
-			if (typeof result[j] === 'undefined') {
-				result[j] = [];
-			}
-
-			result[j].push(token);
+			arg += this.parseToken();
+			this.iterator.nextToken();
 		}
 
-		return result;
+		if (arg !== '') {
+			args.push(arg);
+		}
+
+		this.result = this.filterProvider
+			.replace(/%value/g, this.result.trim())
+			.replace(/%filter/g, filter)
+			.replace(/%args/g, args.join(', '))
+		;
+
+		return '';
 	}
 
 
-	private static trim(tokens: Array<Token>): Array<Token>
+	private error(message: string): Error
 	{
-		if (!tokens.length) {
-			return [];
-		}
+		return new Error('Expression "' + this.code + '": ' + message + '.');
+	}
 
-		if (tokens[0].type === TokenType.T_WHITESPACE) {
-			let i = 0;
-			for (; i < tokens.length; i++) {
-				if (tokens[i].type !== TokenType.T_WHITESPACE) {
-					break;
-				}
-			}
 
-			tokens = tokens.slice(i);
-		}
+	private static createTokensIterator(code: string): any
+	{
+		let t = new Tokenizer;
 
-		if (tokens[tokens.length - 1].type === TokenType.T_WHITESPACE) {
-			let i = tokens.length - 1;
-			for (; i >= 0; i--) {
-				if (tokens[i].type !== TokenType.T_WHITESPACE) {
-					break;
-				}
-			}
+		t.addRule(TokenType.T_STRING, /(?:"(?:(?:\\\n|\\"|[^"\n]))*?")|(?:'(?:(?:\\\n|\\'|[^'\n]))*?')/);
+		t.addRule(TokenType.T_REGEXP, /\/(?:(?:\\\/|[^\n\/]))*?\//);
+		t.addRule(TokenType.T_COMMENT, /(?:\/\*[\s\S]*?\*\/)|(?:\/\/.*?\n)/);
+		t.addRule(TokenType.T_WHITESPACE, /\s+/);
 
-			tokens = tokens.slice(0, i + 1);
-		}
+		t.addRule(TokenType.T_KEYWORD, /\b(?:do|if|in|of|for|let|new|try|var|case|else|enum|eval|false|null|true|void|with|break|catch|class|const|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)\b/);
 
-		return tokens;
+		t.addRule(TokenType.T_NAME, /[a-zA-Z_\$][a-zA-Z_\$0-9]*/);
+		t.addRule(TokenType.T_NUMBER, /\d+(?:\.\d+)?(?:e[+-]?\d+)?/);
+
+		t.addRule(TokenType.T_AND, /&{2}/);
+		t.addRule(TokenType.T_OR, /\|{2}/);
+
+		t.addRule(TokenType.T_CHARACTER, /[;\?\^%<>=!&+\-,~]/);
+		t.addRule(TokenType.T_PIPE, /\|/);
+		t.addRule(TokenType.T_DOT, /\./);
+		t.addRule(TokenType.T_COLON, /:/);
+
+		t.addRule(TokenType.T_OPEN_PARENTHESIS, /\(/);
+		t.addRule(TokenType.T_CLOSE_PARENTHESIS, /\)/);
+		t.addRule(TokenType.T_OPEN_BRACES, /\{/);
+		t.addRule(TokenType.T_CLOSE_BRACES, /}/);
+		t.addRule(TokenType.T_OPEN_SQUARE_BRACKET, /\[/);
+		t.addRule(TokenType.T_CLOSE_SQUARE_BRACKET, /]/);
+
+		return new TokensIterator(t.tokenize(code));
 	}
 
 }

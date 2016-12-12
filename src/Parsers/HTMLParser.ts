@@ -123,7 +123,7 @@ export class HTMLParser
 			if (tokens[0].type === TextParser.TYPE_BINDING) {
 				return [{
 					type: HTMLTokenType.T_EXPRESSION,
-					expression: ExpressionParser.parse(tokens[0].value, options),
+					expression: (new ExpressionParser(tokens[0].value, options)).parse(),
 					parent: parent,
 				}];
 
@@ -144,7 +144,7 @@ export class HTMLParser
 				if (token.type === TextParser.TYPE_BINDING) {
 					buffer.push({
 						type: HTMLTokenType.T_EXPRESSION,
-						expression: ExpressionParser.parse(token.value, options),
+						expression: (new ExpressionParser(token.value, options)).parse(),
 						parent: parent,
 					});
 
@@ -272,7 +272,7 @@ export class HTMLParser
 		}
 
 		if ([HTMLAttributeType.EXPRESSION, HTMLAttributeType.PROPERTY, HTMLAttributeType.EVENT].indexOf(type) > -1) {
-			expression = ExpressionParser.parse(value, options);
+			expression = (new ExpressionParser(value, options)).parse();
 		}
 
 		let attributes = [];
