@@ -43,6 +43,7 @@ export declare interface DirectiveDefinitionMetadata
 {
 	selector: string,
 	controllerAs?: string,
+	exportAs?: string,
 	changeDetection?: ChangeDetectionStrategy,
 	template?: string,
 	directives?: Array<any>,
@@ -155,6 +156,7 @@ export class DirectiveParser
 		}
 
 		data.selector = metadata.selector;
+		data.exportAs = metadata.exportAs;
 
 		return {
 			type: type,

@@ -6,6 +6,7 @@ import {ChangeDetectionStrategy} from '../constants';
 export declare interface DirectiveOptions
 {
 	selector: string,
+	exportAs?: string,
 }
 
 
@@ -28,10 +29,13 @@ export class DirectiveMetadataDefinition
 
 	public selector: string;
 
+	public exportAs: string;
+
 
 	constructor(options: DirectiveOptions)
 	{
 		this.selector = options.selector;
+		this.exportAs = typeof options.exportAs !== 'undefined' ? options.exportAs : null;
 	}
 
 }

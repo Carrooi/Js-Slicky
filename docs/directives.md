@@ -124,6 +124,31 @@ public onChildClick(e: Event): void
 }
 ```
 
+## Export into parent template
+
+Directives (and [components](./components.md)) could be exported into parent template. This is usefull
+when you want to have access to child directive from parent.
+
+```ts
+@Directive({
+	selector: 'directive',
+	exportAs: 'dir',
+})
+export class TestDirective
+{
+
+	public text: string = 'lorem ipsum';
+
+}
+```
+
+```html
+<directive #d="dir"></directive>
+<code>{{ d.text }}</code>
+```
+
+Output will be `lorem ipsum`.
+
 ## Build in directives
 
 See in [templates](./templates.md).

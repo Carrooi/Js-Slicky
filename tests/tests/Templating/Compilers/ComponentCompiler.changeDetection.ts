@@ -143,6 +143,7 @@ describe('#Templating/Compilers/ComponentCompiler.changeDetection', () => {
 			@Component({
 				selector: 'component',
 				template: '',
+				exportAs: 'cmp',
 			})
 			class TestComponent implements OnInit {
 				count = 0;

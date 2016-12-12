@@ -446,7 +446,7 @@ export class ComponentCompiler extends AbstractCompiler
 			this.compileDirective(buffer, directive.localName, definition, node, hasTemplateRef, directive.directiveType, typeof directiveEvents[directive.localName] !== 'undefined' ? directiveEvents[directive.localName] : []);
 		}
 
-		this.compileExports(buffer, node, exports, localDirectives);
+		this.compileExports(buffer, node, elementDefinition, exports);
 
 		if (node.name !== 'template' && node.children.length) {
 			this.compileBranch(buffer, node.children, node.name === 'template');
@@ -476,9 +476,21 @@ export class ComponentCompiler extends AbstractCompiler
 	}
 
 
-	private compileExports(appendTo: Buffer<string>, node: ElementToken, exports: {[name: string]: string}, directives: {[localName: string]: string}): void
+	private compileExports(appendTo: Buffer<string>, node: ElementToken, elementDefinition: ElementDefinition, exports: {[name: string]: string}): void
 	{
 		let realType, names;
+		let directives = {};
+
+		for (let i = 0; i < elementDefinition.directives.length; i++) {
+			let directive = elementDefinition.directives[i];
+			if (directive.definition.metadata.exportAs) {
+				directives[directive.localName] = directive.definition.metadata.exportAs;
+			}
+		}
+
+		if (elementDefinition.component && elementDefinition.component.definition.metadata.exportAs) {
+			directives[elementDefinition.component.localName] = elementDefinition.component.definition.metadata.exportAs;
+		}
 
 		Helpers.each(exports, (name: string, type: string) => {
 			realType = null;

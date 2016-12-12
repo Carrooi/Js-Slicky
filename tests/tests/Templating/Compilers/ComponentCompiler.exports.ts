@@ -36,6 +36,7 @@ describe('#Templating/Compilers/ComponentCompiler.exports', () => {
 		it('should export one directive when no type is provided', () => {
 			@Directive({
 				selector: 'directive',
+				exportAs: 'dir',
 			})
 			class TestDirective {}
 
@@ -48,11 +49,13 @@ describe('#Templating/Compilers/ComponentCompiler.exports', () => {
 		it('should throw an error when no type is provided and element has many directives', () => {
 			@Directive({
 				selector: 'directive[a]',
+				exportAs: 'a',
 			})
 			class TestDirectiveA {}
 
 			@Directive({
 				selector: 'directive[b]',
+				exportAs: 'b',
 			})
 			class TestDirectiveB {}
 
@@ -70,15 +73,17 @@ describe('#Templating/Compilers/ComponentCompiler.exports', () => {
 		it('should export exact directive', () => {
 			@Directive({
 				selector: 'directive[a]',
+				exportAs: 'dirA',
 			})
 			class TestDirectiveA {}
 
 			@Directive({
 				selector: 'directive[b]',
+				exportAs: 'dirB',
 			})
 			class TestDirectiveB {}
 
-			let scope = createTemplate(parent, '<directive #directive-a="TestDirectiveA" #directive-b="TestDirectiveB" a b></directive>', {}, [TestDirectiveA, TestDirectiveB]).scope;
+			let scope = createTemplate(parent, '<directive #directive-a="dirA" #directive-b="dirB" a b></directive>', {}, [TestDirectiveA, TestDirectiveB]).scope;
 
 			expect(scope.hasParameter('directiveA')).to.be.equal(true);
 			expect(scope.hasParameter('directiveB')).to.be.equal(true);
