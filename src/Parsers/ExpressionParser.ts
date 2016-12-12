@@ -6,10 +6,11 @@ import {TokensIterator} from '../Tokenizer/TokensIterator';
 export declare interface ExpressionParserOptions
 {
 	variableProvider?: {replacement?: string, exclude?: RegExp, storeLocally?: boolean},
-	rootIntoLocalScope?: boolean,
 	filterProvider?: string,
+	autoWrap?: boolean,
 	allowFilters?: boolean,
 	referencesStorage?: Array<string>;
+	autoReturn?: boolean,
 }
 
 
@@ -18,6 +19,8 @@ export class ExpressionParser
 
 
 	private static REFERENCE_PREFIX = '_ref';
+
+	private static TEMP_RETURN = '%expr_return%';
 
 
 	private code: string;
@@ -30,11 +33,19 @@ export class ExpressionParser
 
 	private allowFilters: boolean = true;
 
+	private autoWrap: boolean = true;
+
+	private autoReturn: boolean = true;
+
 	private iterator: TokensIterator;
 
 	private processingVariable: boolean = false;
 
 	private references: Array<string> = [];
+
+	private hasReturn: boolean = false;
+
+	private isMultiExpression: boolean = false;
 
 
 	constructor(code: string, options: ExpressionParserOptions = {})
@@ -56,24 +67,57 @@ export class ExpressionParser
 		if (typeof options.referencesStorage !== 'undefined') {
 			this.references = options.referencesStorage;
 		}
+
+		if (typeof options.autoReturn !== 'undefined') {
+			this.autoReturn = options.autoReturn;
+		}
+
+		if (typeof options.autoWrap !== 'undefined') {
+			this.autoWrap = options.autoWrap;
+		}
 	}
 
 
 	public parse(): string
 	{
-		let result = '';
 		let code = this.processTokens(ExpressionParser.createTokensIterator(this.code));
+		let prepend = '';
 
+		// add collected references
 		let references = [];
 		for (let i = 0; i < this.references.length; i++) {
 			references.push(ExpressionParser.REFERENCE_PREFIX + i + '=' + this.references[i]);
 		}
 
 		if (references.length) {
-			result += 'var ' + references.join(',') + ';';
+			prepend += 'var ' + references.join(',') + ';';
 		}
 
-		return result + code;
+		// add return to last command
+		if (this.autoReturn && code !== '') {
+			if (this.isMultiExpression) {
+				if (!this.hasReturn) {
+					let split = code.lastIndexOf(ExpressionParser.TEMP_RETURN);
+					code = code.substring(0, split) + 'return ' + code.substring(split + ExpressionParser.TEMP_RETURN.length);
+				}
+
+				code = code.replace(new RegExp(ExpressionParser.TEMP_RETURN, 'g'), '');
+			} else {
+				prepend += 'return ';
+			}
+		}
+
+		if (code === '') {
+			code = 'return undefined';
+		}
+
+		code = prepend + code;
+
+		if (this.autoWrap) {
+			code = '(function() {' + code + '})()';
+		}
+
+		return code;
 	}
 
 
@@ -105,6 +149,12 @@ export class ExpressionParser
 
 		} else if (this.iterator.is([TokenType.T_OPEN_PARENTHESIS, TokenType.T_OPEN_SQUARE_BRACKET, TokenType.T_OPEN_BRACES])) {
 			code = this.parseGroup();
+
+		} else if (this.iterator.is(TokenType.T_SEMICOLON)) {
+			code = this.parseSemicolon();
+
+		} else if (this.iterator.is(TokenType.T_KEYWORD) && this.iterator.token.value === 'return') {
+			code = this.parseReturn();
 
 		} else if (this.iterator.is(TokenType.T_PIPE) && this.allowFilters && this.filterProvider) {
 			code = this.parseFilter();
@@ -180,6 +230,41 @@ export class ExpressionParser
 	}
 
 
+	private parseSemicolon(): string
+	{
+		if (!this.autoReturn) {
+			return this.iterator.token.value;
+		}
+
+		let isLast = true;
+		let peek: Token;
+		while (peek = this.iterator.peek()) {
+			if (peek.type !== TokenType.T_WHITESPACE) {
+				isLast = false;
+				break;
+			}
+		}
+
+		if (isLast) {
+			return this.iterator.token.value;
+		}
+
+		this.isMultiExpression = true;
+
+		return this.iterator.token.value + ExpressionParser.TEMP_RETURN;
+	}
+
+
+	private parseReturn(): string
+	{
+		if (this.autoReturn) {
+			this.hasReturn = true;
+		}
+
+		return this.iterator.token.value;
+	}
+
+
 	private parseGroup(): string
 	{
 		let code = this.iterator.token.value;
@@ -232,6 +317,7 @@ export class ExpressionParser
 				filterProvider: this.filterProvider,
 				referencesStorage: this.references,
 				allowFilters: openingToken === TokenType.T_OPEN_PARENTHESIS,
+				autoReturn: false,
 			});
 
 			let inner = innerParser.processTokens(innerIterator);
@@ -333,10 +419,11 @@ export class ExpressionParser
 		t.addRule(TokenType.T_AND, /&{2}/);
 		t.addRule(TokenType.T_OR, /\|{2}/);
 
-		t.addRule(TokenType.T_CHARACTER, /[;\?\^%<>=!&+\-,~]/);
+		t.addRule(TokenType.T_CHARACTER, /[\?\^%<>=!&+\-,~]/);
 		t.addRule(TokenType.T_PIPE, /\|/);
 		t.addRule(TokenType.T_DOT, /\./);
 		t.addRule(TokenType.T_COLON, /:/);
+		t.addRule(TokenType.T_SEMICOLON, /;/);
 
 		t.addRule(TokenType.T_OPEN_PARENTHESIS, /\(/);
 		t.addRule(TokenType.T_CLOSE_PARENTHESIS, /\)/);

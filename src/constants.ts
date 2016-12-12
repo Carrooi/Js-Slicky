@@ -21,6 +21,7 @@ export const DEFAULT_EXPRESSION_OPTIONS: ExpressionParserOptions = {
 	variableProvider: {
 		replacement: '_t.scope.findParameter("%root")',
 		exclude: /^\$/,
+		storeLocally: true,
 	},
 	filterProvider: '_t.filter(%value, "%filter", [%args])',
 };

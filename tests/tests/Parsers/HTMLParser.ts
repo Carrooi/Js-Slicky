@@ -7,7 +7,7 @@ import chai = require('chai');
 let expect = chai.expect;
 
 
-let parse = (html: string, options: ExpressionParserOptions = {}): Array<StringToken|ElementToken> => {
+let parse = (html: string, options?: ExpressionParserOptions): Array<StringToken|ElementToken> => {
 	function process(branch: Array<StringToken|ElementToken>) {
 		for (let i = 0; i < branch.length; i++) {
 			let node = branch[i];
@@ -28,6 +28,12 @@ let parse = (html: string, options: ExpressionParserOptions = {}): Array<StringT
 		}
 
 		return branch;
+	}
+
+	if (!options) {
+		options = {
+			autoWrap: false,
+		};
 	}
 
 	return process(HTMLParser.parse(html, options));
@@ -58,7 +64,7 @@ describe('#Tokenizer/HTMLParser', () => {
 				{
 					type: HTMLTokenType.T_EXPRESSION,
 					parent: null,
-					expression: 'name',
+					expression: 'return name',
 				},
 				{
 					type: HTMLTokenType.T_STRING,
@@ -211,7 +217,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 'data',
 							originalName: 'data',
 							value: 'data',
-							expression: 'data',
+							expression: 'return data',
 						},
 						div: {
 							type: HTMLAttributeType.EXPORT,
@@ -225,7 +231,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							originalName: 'click',
 							preventDefault: false,
 							value: 'click()',
-							expression: 'click()',
+							expression: 'return click()',
 						},
 					},
 					parent: null,
@@ -264,7 +270,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 'class',
 							originalName: 'class',
 							value: 'type',
-							expression: 'type',
+							expression: 'return type',
 						},
 					},
 					parent: null,
@@ -284,7 +290,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 'class',
 							originalName: 'class',
 							value: '"alert alert-"+(type)',
-							expression: '"alert alert-"+(type)',
+							expression: 'return "alert alert-"+(type)',
 						},
 					},
 					parent: null,
@@ -304,7 +310,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 'if',
 							originalName: 'if',
 							value: 'true',
-							expression: 'true',
+							expression: 'return true',
 						},
 					},
 					parent: null,
@@ -318,7 +324,7 @@ describe('#Tokenizer/HTMLParser', () => {
 									name: 'for',
 									originalName: 'for',
 									value: 'false',
-									expression: 'false',
+									expression: 'return false',
 								},
 							},
 							parent: null,
@@ -374,7 +380,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 's:for',
 							originalName: 's:for',
 							value: '',
-							expression: '',
+							expression: 'return undefined',
 						},
 						item: {
 							type: HTMLAttributeType.EXPORT,
@@ -387,14 +393,14 @@ describe('#Tokenizer/HTMLParser', () => {
 							name: 's:forOf',
 							originalName: 's:forOf',
 							value: 'items',
-							expression: 'items',
+							expression: 'return items',
 						},
 						's:forTrackBy': {
 							type: HTMLAttributeType.PROPERTY,
 							name: 's:forTrackBy',
 							originalName: 's:forTrackBy',
 							value: 'trackByFn',
-							expression: 'trackByFn',
+							expression: 'return trackByFn',
 						},
 						i: {
 							type: HTMLAttributeType.EXPORT,
@@ -420,12 +426,13 @@ describe('#Tokenizer/HTMLParser', () => {
 		it('should parse text expression with filters', () => {
 			let html = parse('{{ name | lower | truncate : 33 : "..." }}', {
 				filterProvider: 'filter(%value, "%filter", [%args])',
+				autoWrap: false,
 			});
 
 			expect(html).to.be.eql([
 				{
 					type: HTMLTokenType.T_EXPRESSION,
-					expression: 'filter(filter(name, "lower", []), "truncate", [33, "..."])',
+					expression: 'return filter(filter(name, "lower", []), "truncate", [33, "..."])',
 					parent: null,
 				},
 			]);
@@ -528,7 +535,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							type: HTMLAttributeType.EVENT,
 							preventDefault: false,
 							value: 'press()',
-							expression: 'press()',
+							expression: 'return press()',
 						},
 						keypress: {
 							name: 'keypress',
@@ -536,7 +543,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							type: HTMLAttributeType.EVENT,
 							preventDefault: false,
 							value: 'press()',
-							expression: 'press()',
+							expression: 'return press()',
 						},
 					},
 					parent: null,
@@ -557,7 +564,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							type: HTMLAttributeType.EVENT,
 							preventDefault: true,
 							value: 'press()',
-							expression: 'press()',
+							expression: 'return press()',
 						},
 						keypress: {
 							name: 'keypress',
@@ -565,7 +572,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							type: HTMLAttributeType.EVENT,
 							preventDefault: true,
 							value: 'press()',
-							expression: 'press()',
+							expression: 'return press()',
 						},
 					},
 					parent: null,
@@ -585,7 +592,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							originalName: 'article-title',
 							type: HTMLAttributeType.PROPERTY,
 							value: 'title',
-							expression: 'title',
+							expression: 'return title',
 						},
 						articleTitleChange: {
 							name: 'articleTitleChange',
@@ -593,7 +600,7 @@ describe('#Tokenizer/HTMLParser', () => {
 							preventDefault: true,
 							type: HTMLAttributeType.EVENT,
 							value: 'title=$value',
-							expression: 'title=$value',
+							expression: 'return title=$value',
 						},
 					},
 					parent: null,

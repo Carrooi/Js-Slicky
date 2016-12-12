@@ -8,11 +8,11 @@ describe('#ExpressionParser.braces', () => {
 	describe('parse()', () => {
 		
 		it('should parse expression inside of braces', () => {
-			expectExpression('{a}' ,'{a}');
+			expectExpression('{a}' ,'return {a}');
 		});
 
 		it('should parse expression with braces', () => {
-			expectExpression('a{"b"}', 'a{"b"}');
+			expectExpression('a{"b"}', 'return a{"b"}');
 		});
 
 	});

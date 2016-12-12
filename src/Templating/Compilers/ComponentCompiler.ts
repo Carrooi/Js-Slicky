@@ -257,7 +257,7 @@ export class ComponentCompiler extends AbstractCompiler
 		appendTo.append([
 			'_t.appendText(_n, "", ' + (dynamic ? '_b' : 'null') + ', function(_n) {',
 				'\t_t.watchText(_n, function(_t) {' +
-					'return (' + node.expression + ');' +
+					'return ' + node.expression +
 				'});',
 			'});',
 		]);
@@ -357,7 +357,7 @@ export class ComponentCompiler extends AbstractCompiler
 				case HTMLAttributeType.EXPRESSION:
 					buffer.append(
 						'_t.watchAttribute(_n, "' + originalName + '", function(_t) {' +
-							'return (' + (attribute.expression !== '' ? attribute.expression : 'null') + ');' +
+							'return ' + attribute.expression +
 						'});'
 					);
 
@@ -371,7 +371,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 					buffer.append(
 						'_t.watchProperty(_n, "' + originalName + '", function(_t) {' +
-							'return (' + (attribute.expression !== '' ? attribute.expression : 'null') + ');' +
+							'return ' + attribute.expression +
 						'});'
 					);
 
@@ -559,7 +559,7 @@ export class ComponentCompiler extends AbstractCompiler
 				case HTMLAttributeType.EXPRESSION:
 					appendTo.append(
 						'_t' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.watchInput(' + directiveLocalName + ', "' + name + '", function(_t) {' +
-							'return (' + (attribute.expression !== '' ? attribute.expression : 'null' ) + ');' +
+							'return ' + attribute.expression +
 						'});'
 					);
 					break;

@@ -61,7 +61,13 @@ export let createTemplate = (parent: HTMLElement, html: string, parameters: Para
 };
 
 
-export let expectExpression = (code: string, expected: string, options: ExpressionParserOptions = {}) => {
+export let expectExpression = (code: string, expected: string, options?: ExpressionParserOptions) => {
+	if (!options) {
+		options = {
+			autoWrap: false,
+		};
+	}
+
 	chai.expect(new ExpressionParser(code, options).parse()).to.be.equal(expected);
 };
 
