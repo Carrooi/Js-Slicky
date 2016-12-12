@@ -2,6 +2,7 @@ import {Component, Input, Output, HostElement, Required, HostEvent} from '../../
 import {OnInit, OnUpdate} from '../../../../src/Interfaces';
 import {ChangeDetectionStrategy} from '../../../../src/constants';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
+import {Filter} from '../../../../src/Templating/Filters/Metadata';
 import {Dom} from '../../../../src/Util/Dom';
 import {EventEmitter} from '../../../../src/Util/EventEmitter';
 import {IfDirective} from '../../../../src/Directives/IfDirective';
@@ -153,6 +154,40 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			template.checkWatchers();
 
 			expect(calledUpdate).to.be.equal(2);
+		});
+
+		it('should use filter inside of input', () => {
+			let scope = {
+				number: 1,
+				append: 1,
+			};
+
+			@Component({
+				selector: 'component',
+				controllerAs: 'cmp',
+				template: '{{ cmp.input }}',
+			})
+			class TestComponent {
+				@Input() input;
+			}
+
+			@Filter({
+				name: 'filter',
+			})
+			class TestFilter {
+				transform(input: any) {
+					return input + scope.append;
+				}
+			}
+
+			let template = createTemplate(parent, '<component [input]="number | filter"></component>', scope, [TestComponent], [], [TestFilter]);
+
+			expect(parent.innerText).to.be.equal('2');
+
+			scope.append++;
+			template.checkWatchers();
+
+			expect(parent.innerText).to.be.equal('3');
 		});
 
 		it('should throw an error when required input does not exists', () => {
@@ -547,6 +582,40 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			createTemplate(parent, '<component *s:for="#c of items" [item]="c"></component>', {items: [1]}, [ForDirective, TestComponent], [IterableDifferFactory]);
 
 			expect(parent.innerText).to.be.equal('1');
+		});
+
+		it('should use filters in ForDirective', () => {
+			@Component({
+				selector: 'component',
+				controllerAs: 'cmp',
+				template: '- {{ cmp.input }} -',
+			})
+			class TestComponent {
+				@Input() input;
+			}
+
+			@Filter({
+				name: 'filter',
+			})
+			class TestFilter {
+				transform(items, pattern) {
+					return items.filter((item) => pattern.test(item));
+				}
+			}
+
+			let scope = {
+				items: ['abc', 'bcd', 'cde', 'acd', 'hid', 'aoj', 'bjd'],
+				pattern: /^a/,
+			};
+
+			let template = createTemplate(parent, '<component *s:for="#item of items | filter : pattern" [input]="item"></component>', scope, [TestComponent, ForDirective], [IterableDifferFactory], [TestFilter]);
+
+			expect(parent.innerText).to.be.equal('- abc -- acd -- aoj -');
+
+			scope.pattern = /^b/;
+			template.checkWatchers();
+
+			expect(parent.innerText).to.be.equal('- bcd -- bjd -');
 		});
 
 		it('should add two way data binding', () => {

@@ -35,6 +35,23 @@ describe('#Parsers/TemplateAttributeParser', () => {
 			]);
 		});
 
+		it('should parse template attributes with filters', () => {
+			expect(TemplateAttributeParser.parse('*s:for', '#hero of heroes | filter : "name" | sort')).to.be.eql([
+				{
+					name: '[s:for]',
+					value: '',
+				},
+				{
+					name: '#hero',
+					value: '',
+				},
+				{
+					name: '[s:forOf]',
+					value: 'heroes | filter : "name" | sort',
+				},
+			]);
+		});
+
 		it('should parse template with advanced expressions', () => {
 			expect(TemplateAttributeParser.parse('*s:a', 'one; two (a - b; 5); three')).to.be.eql([
 				{
