@@ -17,6 +17,10 @@ describe('#ExpressionParser.filterProvider', () => {
 			expectExpressionError('a | 5', 'Expression "a | 5": filter name expected after "|", got "5".', PARSER_OPTIONS);
 		});
 
+		it('should use filter with dash', () => {
+			expectExpression('a | filter-a', 'return filter(a, "filter-a", [])', PARSER_OPTIONS);
+		});
+
 		it('should include filters', () => {
 			expectExpression('a || c | filterA | filterB', 'return filter(filter(a||c, "filterA", []), "filterB", [])', PARSER_OPTIONS);
 		});

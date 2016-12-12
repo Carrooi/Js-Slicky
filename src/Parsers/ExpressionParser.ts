@@ -347,9 +347,12 @@ export class ExpressionParser
 			throw this.error('filter name expected after "|", got "' + this.iterator.token.value + '"');
 		}
 
-		let filter = this.iterator.token.value;
+		let filter = '';
 
-		this.iterator.nextToken();
+		while (this.iterator.token && this.iterator.is([TokenType.T_NAME, TokenType.T_DASH])) {
+			filter += this.iterator.token.value;
+			this.iterator.nextToken();
+		}
 
 		let args = [];
 		let arg = '';
@@ -423,11 +426,12 @@ export class ExpressionParser
 		t.addRule(TokenType.T_AND, /&{2}/);
 		t.addRule(TokenType.T_OR, /\|{2}/);
 
-		t.addRule(TokenType.T_CHARACTER, /[\?\^%<>=!&+\-,~]/);
+		t.addRule(TokenType.T_CHARACTER, /[\?\^%<>=!&+,~]/);
 		t.addRule(TokenType.T_PIPE, /\|/);
 		t.addRule(TokenType.T_DOT, /\./);
 		t.addRule(TokenType.T_COLON, /:/);
 		t.addRule(TokenType.T_SEMICOLON, /;/);
+		t.addRule(TokenType.T_DASH, /-/);
 
 		t.addRule(TokenType.T_OPEN_PARENTHESIS, /\(/);
 		t.addRule(TokenType.T_CLOSE_PARENTHESIS, /\)/);
