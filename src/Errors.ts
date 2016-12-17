@@ -85,4 +85,16 @@ export class Errors
 		return new Error(definitionName + '.' + property + ': can not use @ParentComponent() for root directives.');
 	}
 
+
+	public static missingRequiredChildDirective(definitionName: string, property: string, directiveName: string): Error
+	{
+		return new Error(definitionName + '.' + property + ': can not import child directive "' + directiveName + '", it is not included inside of template.');
+	}
+
+
+	public static childDirectiveInEmbeddedTemplate(definitionName: string, property: string, directiveName: string): Error
+	{
+		return new Error(definitionName + '.' + property + ': can not import child directive "' + directiveName + '" from embedded template.');
+	}
+
 }

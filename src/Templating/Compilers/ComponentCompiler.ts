@@ -5,7 +5,10 @@ import {AbstractComponentTemplate} from '../Templates/AbstractComponentTemplate'
 import {ElementRef} from '../ElementRef';
 import {TemplateRef} from '../TemplateRef';
 import {Helpers} from '../../Util/Helpers';
-import {HostElementMetadataDefinition, InputMetadataDefinition, HostEventMetadataDefinition, OutputMetadataDefinition} from '../../Entity/Metadata';
+import {
+	HostElementMetadataDefinition, InputMetadataDefinition, HostEventMetadataDefinition, OutputMetadataDefinition,
+	ChildDirectiveDefinition
+} from '../../Entity/Metadata';
 import {Annotations} from '../../Util/Annotations';
 import {HTMLParser, StringToken, ExpressionToken, ElementToken, HTMLTokenType, HTMLAttributeType, AttributeToken} from '../../Parsers/HTMLParser';
 import {QuerySelector} from '../QuerySelector';
@@ -113,6 +116,8 @@ export class ComponentCompiler extends AbstractCompiler
 
 	private templateImports: {[localName: string]: any} = {};
 
+	private inTemplate: boolean = false;
+
 
 	constructor(container: Container, storage: TemplatesStorage, component: any, parent?: ComponentCompiler)
 	{
@@ -181,6 +186,12 @@ export class ComponentCompiler extends AbstractCompiler
 
 		this.compileBranch(mainBody, html, false);
 		this.checkDirectiveRequests(mainBody, ['_r.component']);
+
+		Helpers.each(definition.childDirectives, (property: string, child: ChildDirectiveDefinition) => {
+			if (child.required && !child.imported) {
+				throw Errors.missingRequiredChildDirective(definition.name, property, Functions.getName(child.type));
+			}
+		});
 
 		mainBody.append('onReady(_r, _t);');
 		mainBody.append('return _r;');
@@ -574,9 +585,13 @@ export class ComponentCompiler extends AbstractCompiler
 
 		appendTo.append('var _tr = _r._template_' + templateName + ' = new TemplateRef(_t, _er, function(_t, _n, _b) {');
 
+		this.inTemplate = true;
+
 		let buffer = new Buffer<string>();
 		this.compileBranch(buffer, node.children, true);
 		Strings.indent(buffer);
+
+		this.inTemplate = false;
 
 		appendTo.merge(buffer);
 		appendTo.append('});');
@@ -616,6 +631,19 @@ export class ComponentCompiler extends AbstractCompiler
 
 		Helpers.each(definition.elements, (property: string, el: HostElementMetadataDefinition) => {
 			requestsStorage.storeElementDirectiveRequest(localName, definition, node, el.selector, property);
+		});
+
+		// process child directives
+
+		Helpers.each(this.getDefinition().childDirectives, (property: string, childDirective: ChildDirectiveDefinition) => {
+			if (childDirective.type === directiveType) {
+				if (this.inTemplate) {
+					throw Errors.childDirectiveInEmbeddedTemplate(this.getDefinition().name, property, Functions.getName(childDirective.type));
+				}
+
+				onBeforeRenderBuffer.append('_r' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.component.' + property + ' = ' + localName + ';');
+				childDirective.imported = true;
+			}
 		});
 
 		// process inputs

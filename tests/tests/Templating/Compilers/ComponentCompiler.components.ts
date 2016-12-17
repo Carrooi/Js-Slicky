@@ -1,4 +1,4 @@
-import {Component, Input, Output, HostElement, Required, HostEvent, ParentComponent} from '../../../../src/Entity/Metadata';
+import {Component, Directive, Input, Output, HostElement, Required, HostEvent, ParentComponent, ChildDirective} from '../../../../src/Entity/Metadata';
 import {OnInit, OnUpdate} from '../../../../src/Interfaces';
 import {ChangeDetectionStrategy} from '../../../../src/constants';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
@@ -699,6 +699,82 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			expect(() => {
 				createTemplate(parent, '<invalid-parent></invalid-parent>', {}, [TestInvalidParentComponent]);
 			}).to.throw(Error, 'TestChildComponent.parent: expected parent to be an instance of "TestValidParentComponent", but directive is used inside of "TestInvalidParentComponent" component.');
+		});
+
+		it('should include child component', () => {
+			let called = false;
+
+			@Component({
+				selector: 'component',
+				template: '',
+			})
+			class TestChildComponent {}
+
+			@Directive({
+				selector: 'directive',
+			})
+			class TestChildDirective {}
+
+			@Component({
+				selector: 'parent',
+				template: '<component></component><directive></directive>',
+				directives: [TestChildComponent, TestChildDirective],
+			})
+			class TestParentComponent implements OnInit {
+				@ChildDirective(TestChildComponent) component;
+				@ChildDirective(TestChildDirective) directive;
+				onInit() {
+					expect(this.component).to.be.an.instanceOf(TestChildComponent);
+					expect(this.directive).to.be.an.instanceOf(TestChildDirective);
+					called = true;
+				}
+			}
+
+			createTemplate(parent, '<parent></parent>', {}, [TestParentComponent]);
+
+			expect(called).to.be.equal(true);
+		});
+
+		it('should throw an error when child component is missing', () => {
+			@Component({
+				selector: 'child',
+				template: '',
+			})
+			class TestChildComponent {}
+
+			@Component({
+				selector: 'component',
+				template: '',
+			})
+			class TestParentComponent {
+				@Required() @ChildDirective(TestChildComponent) child;
+			}
+
+			expect(() => {
+				createTemplate(parent, '<component></component>', {}, [TestParentComponent]);
+			}).to.throw(Error, 'TestParentComponent.child: can not import child directive "TestChildComponent", it is not included inside of template.');
+		});
+
+		it('should not include child directive from embedded template', () => {
+			@Component({
+				selector: 'child',
+				template: '',
+			})
+			class TestChildComponent {}
+
+			@Component({
+				selector: 'component',
+				directives: [TestChildComponent],
+				template:
+					'<template><child></child></template>',
+			})
+			class TestParentComponent {
+				@Required() @ChildDirective(TestChildComponent) child;
+			}
+
+			expect(() => {
+				createTemplate(parent, '<component></component>', {}, [TestParentComponent]);
+			}).to.throw(Error, 'TestParentComponent.child: can not import child directive "TestChildComponent" from embedded template.');
 		});
 
 	});

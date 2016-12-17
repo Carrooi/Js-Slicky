@@ -1,9 +1,8 @@
-import {Directive, Component, HostEvent, HostElement, Input, Output, Required, ChangeDetectionStrategy, ParentComponent} from '../../../core';
-import {EventEmitter} from '../../../utils';
+import {Directive, Component, HostEvent, HostElement, Input, Output, Required, ChangeDetectionStrategy, ParentComponent, ChildDirective} from '../../../core';
 import {DirectiveParser, DirectiveType} from '../../../src/Entity/DirectiveParser';
 import {
 	HostEventMetadataDefinition, HostElementMetadataDefinition, InputMetadataDefinition, OutputMetadataDefinition,
-	ParentComponentDefinition
+	ParentComponentDefinition, ChildDirectiveDefinition
 } from '../../../src/Entity/Metadata';
 
 import chai = require('chai');
@@ -31,6 +30,8 @@ describe('#Entity/DirectiveParser', () => {
 			class TestDirective {
 				@Input() @Required() input;
 				@Input('custom-name') customInput;
+				@Output() removed;
+				@Output('custom-name') customOutput;
 				@HostElement() me;
 				@HostElement('button') btn;
 				@ParentComponent() parent;
@@ -42,6 +43,7 @@ describe('#Entity/DirectiveParser', () => {
 
 			let definition = DirectiveParser.parse(TestDirective);
 			let inputs = definition.inputs;
+			let outputs = definition.outputs;
 			let elements = definition.elements;
 			let events = definition.events;
 
@@ -56,6 +58,12 @@ describe('#Entity/DirectiveParser', () => {
 			expect((<InputMetadataDefinition>inputs['input']).required).to.be.equal(true);
 			expect((<InputMetadataDefinition>inputs['customInput']).name).to.be.equal('custom-name');
 			expect((<InputMetadataDefinition>inputs['customInput']).required).to.be.equal(false);
+
+			expect(outputs).to.have.all.keys('removed', 'customOutput');
+			expect(outputs['removed']).to.be.an.instanceOf(OutputMetadataDefinition);
+			expect(outputs['customOutput']).to.be.an.instanceOf(OutputMetadataDefinition);
+			expect((<OutputMetadataDefinition>outputs['removed']).name).to.be.equal(null);
+			expect((<OutputMetadataDefinition>outputs['customOutput']).name).to.be.equal('custom-name');
 
 			expect(elements).to.have.all.keys('me', 'btn');
 			expect(elements['me']).to.be.an.instanceOf(HostElementMetadataDefinition);
@@ -106,12 +114,12 @@ describe('#Entity/DirectiveParser', () => {
 				translations: {en: {hello: 'hello world'}},
 			})
 			class TestComponent {
-				@Output() removed = new EventEmitter<any>();
-				@Output('custom-name') customOutput = new EventEmitter<any>();
+				@ChildDirective('a') childA;
+				@ChildDirective('b') @Required() childB;
 			}
 
 			let definition = DirectiveParser.parse(TestComponent);
-			let outputs = definition.outputs;
+			let childDirectives = definition.childDirectives;
 
 			expect(definition.name).to.be.equal('TestComponent');
 			expect(definition.type).to.be.equal(DirectiveType.Component);
@@ -123,11 +131,13 @@ describe('#Entity/DirectiveParser', () => {
 			expect(definition.metadata.filters).to.be.eql([TestFilter]);
 			expect(definition.metadata.translations).to.be.eql({en: {hello: 'hello world'}});
 
-			expect(outputs).to.have.all.keys('removed', 'customOutput');
-			expect(outputs['removed']).to.be.an.instanceOf(OutputMetadataDefinition);
-			expect(outputs['customOutput']).to.be.an.instanceOf(OutputMetadataDefinition);
-			expect((<OutputMetadataDefinition>outputs['removed']).name).to.be.equal(null);
-			expect((<OutputMetadataDefinition>outputs['customOutput']).name).to.be.equal('custom-name');
+			expect(childDirectives).to.have.all.keys('childA', 'childB');
+			expect(childDirectives['childA']).to.be.an.instanceOf(ChildDirectiveDefinition);
+			expect(childDirectives['childB']).to.be.an.instanceOf(ChildDirectiveDefinition);
+			expect(childDirectives['childA'].type).to.be.equal('a');
+			expect(childDirectives['childA'].required).to.be.equal(false);
+			expect(childDirectives['childB'].type).to.be.equal('b');
+			expect(childDirectives['childB'].required).to.be.equal(true);
 		});
 
 	});

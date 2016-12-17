@@ -6,7 +6,7 @@ import {ChangeDetectionStrategy} from '../constants';
 import {
 	DirectiveMetadataDefinition, HostEventMetadataDefinition, HostElementMetadataDefinition, InputMetadataDefinition,
 	RequiredMetadataDefinition, ComponentMetadataDefinition, OutputMetadataDefinition,
-	ParentComponentDefinition
+	ParentComponentDefinition, ChildDirectiveDefinition
 } from './Metadata';
 
 
@@ -41,6 +41,12 @@ export declare interface OutputList
 }
 
 
+export declare interface ChildDirectivesList
+{
+	[name: string]: ChildDirectiveDefinition;
+}
+
+
 export declare interface DirectiveDefinitionMetadata
 {
 	selector: string,
@@ -67,6 +73,7 @@ export declare interface DirectiveDefinition
 		property: string,
 		definition: ParentComponentDefinition,
 	},
+	childDirectives: ChildDirectivesList,
 }
 
 
@@ -87,15 +94,21 @@ export class DirectiveParser
 		let events: EventsList = {};
 		let elements: ElementsList = {};
 		let parentComponent: {properties: Array<string>, definition: ParentComponentDefinition} = {properties: [], definition: null};
+		let childDirectives: ChildDirectivesList = {};
 
 		for (let propName in propMetadata) {
 			if (propMetadata.hasOwnProperty(propName)) {
 				let inputMetadata: InputMetadataDefinition = null;
+				let childMetadata: ChildDirectiveDefinition = null;
 				let requiredMetadata: RequiredMetadataDefinition = null;
 
 				for (let i = 0; i < propMetadata[propName].length; i++) {
 					if (propMetadata[propName][i] instanceof InputMetadataDefinition) {
 						inputMetadata = propMetadata[propName][i];
+					}
+
+					if (propMetadata[propName][i] instanceof ChildDirectiveDefinition && metadata.type === DirectiveType.Component) {
+						childMetadata = propMetadata[propName][i];
 					}
 
 					if (propMetadata[propName][i] instanceof RequiredMetadataDefinition) {
@@ -129,6 +142,14 @@ export class DirectiveParser
 
 					inputs[propName] = inputMetadata;
 				}
+
+				if (childMetadata !== null) {
+					if (requiredMetadata !== null) {
+						childMetadata.required = true;
+					}
+
+					childDirectives[propName] = childMetadata;
+				}
 			}
 		}
 
@@ -140,6 +161,7 @@ export class DirectiveParser
 			elements: elements,
 			inputs: inputs,
 			outputs: outputs,
+			childDirectives: childDirectives,
 		};
 
 		if (parentComponent.definition) {
