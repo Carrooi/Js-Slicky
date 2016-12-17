@@ -1,8 +1,11 @@
-import {Directive, Component, HostEvent, HostElement, Input, Output, Required, ChangeDetectionStrategy, ParentComponent, ChildDirective} from '../../../core';
+import {
+	Directive, Component, HostEvent, HostElement, Input, Output, Required, ChangeDetectionStrategy,
+	ParentComponent, ChildDirective, ChildrenDirective
+} from '../../../core';
 import {DirectiveParser, DirectiveType} from '../../../src/Entity/DirectiveParser';
 import {
 	HostEventMetadataDefinition, HostElementMetadataDefinition, InputMetadataDefinition, OutputMetadataDefinition,
-	ParentComponentDefinition, ChildDirectiveDefinition
+	ParentComponentDefinition, ChildDirectiveDefinition, ChildrenDirectiveDefinition
 } from '../../../src/Entity/Metadata';
 
 import chai = require('chai');
@@ -116,10 +119,12 @@ describe('#Entity/DirectiveParser', () => {
 			class TestComponent {
 				@ChildDirective('a') childA;
 				@ChildDirective('b') @Required() childB;
+				@ChildrenDirective('a') childrenA;
 			}
 
 			let definition = DirectiveParser.parse(TestComponent);
 			let childDirectives = definition.childDirectives;
+			let childrenDirectives = definition.childrenDirectives;
 
 			expect(definition.name).to.be.equal('TestComponent');
 			expect(definition.type).to.be.equal(DirectiveType.Component);
@@ -138,6 +143,10 @@ describe('#Entity/DirectiveParser', () => {
 			expect(childDirectives['childA'].required).to.be.equal(false);
 			expect(childDirectives['childB'].type).to.be.equal('b');
 			expect(childDirectives['childB'].required).to.be.equal(true);
+
+			expect(childrenDirectives).to.have.all.keys('childrenA');
+			expect(childrenDirectives['childrenA']).to.be.an.instanceOf(ChildrenDirectiveDefinition);
+			expect(childrenDirectives['childrenA'].type).to.be.equal('a');
 		});
 
 	});

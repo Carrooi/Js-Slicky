@@ -1,4 +1,4 @@
-import {Component, Directive, Input, Output, HostElement, Required, HostEvent, ParentComponent, ChildDirective} from '../../../../src/Entity/Metadata';
+import {Component, Directive, Input, Output, HostElement, Required, HostEvent, ParentComponent, ChildDirective, ChildrenDirective} from '../../../../src/Entity/Metadata';
 import {OnInit, OnUpdate} from '../../../../src/Interfaces';
 import {ChangeDetectionStrategy} from '../../../../src/constants';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
@@ -8,6 +8,7 @@ import {EventEmitter} from '../../../../src/Util/EventEmitter';
 import {IfDirective} from '../../../../src/Directives/IfDirective';
 import {ForDirective} from '../../../../src/Directives/ForDirective';
 import {IterableDifferFactory} from '../../../../src/ChangeDetection/IterableDiffer';
+import {ChildrenDirectivesQuery} from '../../../../src/Templating/ChildrenDirectivesQuery';
 
 import {createTemplate} from '../../_testHelpers';
 
@@ -775,6 +776,191 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			expect(() => {
 				createTemplate(parent, '<component></component>', {}, [TestParentComponent]);
 			}).to.throw(Error, 'TestParentComponent.child: can not import child directive "TestChildComponent" from embedded template.');
+		});
+
+		it('should include children directives', () => {
+			let called = false;
+
+			@Component({
+				selector: 'child',
+				template: '',
+			})
+			class TestChildComponent {
+				@Input() id;
+			}
+
+			@Component({
+				selector: 'parent',
+				template: '<child [id]="1"></child><child [id]="2"></child>',
+				directives: [TestChildComponent],
+			})
+			class TestParentComponent implements OnInit {
+				@ChildrenDirective(TestChildComponent) children = new ChildrenDirectivesQuery<TestChildComponent>();
+				onInit() {
+					expect(this.children.directives).to.have.length(2);
+					expect(this.children.directives[0]).to.be.an.instanceOf(TestChildComponent);
+					expect(this.children.directives[0].id).to.be.equal(1);
+					expect(this.children.directives[1]).to.be.an.instanceOf(TestChildComponent);
+					expect(this.children.directives[1].id).to.be.equal(2);
+
+					called = true;
+				}
+			}
+
+			createTemplate(parent, '<parent></parent>', {}, [TestParentComponent]);
+
+			expect(called).to.be.equal(true);
+		});
+
+		it('should include children components dynamically', () => {
+			let called = {
+				add: [],
+				remove: [],
+			};
+
+			let directives = [];
+
+			@Component({
+				selector: 'child',
+				template: '',
+			})
+			class TestChildComponent {
+				@Input() id;
+			}
+
+			@Component({
+				selector: 'parent',
+				template:
+				'<template #child [s:for] [s:for-of]="data">' +
+					'<child [id]="child"></child>' +
+				'</template>'
+				,
+				directives: [ForDirective, TestChildComponent],
+			})
+			class TestParentComponent {
+				@ChildrenDirective(TestChildComponent) children = new ChildrenDirectivesQuery<TestChildComponent>();
+				constructor() {
+					this.children.added.subscribe((child: TestChildComponent) => called.add.push(child.id));
+					this.children.removed.subscribe((child: TestChildComponent) => called.remove.push(child.id));
+
+					this.children.updated.subscribe((children: Array<TestChildComponent>) => {
+						directives = children.map((child: TestChildComponent) => child.id);
+					});
+				}
+			}
+
+			let scope = {
+				data: [1, 2],
+			};
+
+			let template = createTemplate(parent, '<parent></parent>', scope, [TestParentComponent], [IterableDifferFactory]);
+
+			expect(called.add).to.be.eql([1, 2]);
+			expect(called.remove).to.be.eql([]);
+			expect(directives).to.be.eql([1, 2]);
+
+			scope.data.push(3);
+			template.checkWatchers();
+
+			expect(called.add).to.be.eql([1, 2, 3]);
+			expect(called.remove).to.be.eql([]);
+			expect(directives).to.be.eql([1, 2, 3]);
+
+			scope.data.splice(2, 1);
+			template.checkWatchers();
+
+			expect(called.add).to.be.eql([1, 2, 3]);
+			expect(called.remove).to.be.eql([3]);
+			expect(directives).to.be.eql([1, 2]);
+
+			scope.data.push(3);
+			template.checkWatchers();
+
+			expect(called.add).to.be.eql([1, 2, 3, 3]);
+			expect(called.remove).to.be.eql([3]);
+			expect(directives).to.be.eql([1, 2, 3]);
+
+			scope.data.splice(1, 2);
+			template.checkWatchers();
+
+			expect(called.add).to.be.eql([1, 2, 3, 3]);
+			expect(called.remove).to.be.eql([3, 2, 3]);
+			expect(directives).to.be.eql([1]);
+		});
+
+		it('should include children directives dynamically', () => {
+			let called = {
+				add: [],
+				remove: [],
+			};
+
+			let directives = [];
+
+			@Directive({
+				selector: 'directive',
+			})
+			class TestChildDirective {
+				@Input() id;
+			}
+
+			@Component({
+				selector: 'component',
+				template:
+				'<template #child [s:for] [s:for-of]="data">' +
+					'<directive [id]="child"></directive>' +
+				'</template>'
+				,
+				directives: [ForDirective, TestChildDirective],
+			})
+			class TestParentComponent {
+				@ChildrenDirective(TestChildDirective) children = new ChildrenDirectivesQuery<TestChildDirective>();
+				constructor() {
+					this.children.added.subscribe((child: TestChildDirective) => called.add.push(child.id));
+					this.children.removed.subscribe((child: TestChildDirective) => called.remove.push(child.id));
+
+					this.children.updated.subscribe((children: Array<TestChildDirective>) => {
+						directives = children.map((child: TestChildDirective) => child.id);
+					});
+				}
+			}
+
+			let scope = {
+				data: [1, 2],
+			};
+
+			let template = createTemplate(parent, '<component></component>', scope, [TestParentComponent], [IterableDifferFactory]);
+
+			expect(called.add).to.be.eql([1, 2]);
+			expect(called.remove).to.be.eql([]);
+			expect(directives).to.be.eql([1, 2]);
+
+			scope.data.push(3);
+			template.checkWatchers();
+
+			expect(called.add).to.be.eql([1, 2, 3]);
+			expect(called.remove).to.be.eql([]);
+			expect(directives).to.be.eql([1, 2, 3]);
+
+			scope.data.splice(2, 1);
+			template.checkWatchers();
+
+			expect(called.add).to.be.eql([1, 2, 3]);
+			expect(called.remove).to.be.eql([3]);
+			expect(directives).to.be.eql([1, 2]);
+
+			scope.data.push(3);
+			template.checkWatchers();
+
+			expect(called.add).to.be.eql([1, 2, 3, 3]);
+			expect(called.remove).to.be.eql([3]);
+			expect(directives).to.be.eql([1, 2, 3]);
+
+			scope.data.splice(1, 2);
+			template.checkWatchers();
+
+			expect(called.add).to.be.eql([1, 2, 3, 3]);
+			expect(called.remove).to.be.eql([3, 2, 3]);
+			expect(directives).to.be.eql([1]);
 		});
 
 	});

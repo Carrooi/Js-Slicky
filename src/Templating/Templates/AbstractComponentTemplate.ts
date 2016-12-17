@@ -1,7 +1,7 @@
 import {TemplateRef} from '../TemplateRef';
 import {AbstractTemplate} from './AbstractTemplate';
 import {Container, CustomServiceDefinition} from '../../DI/Container';
-import {ParametersList, OnDestroy} from '../../Interfaces';
+import {ParametersList} from '../../Interfaces';
 import {ElementRef} from '../ElementRef';
 import {ChangeDetectorRef} from '../../ChangeDetection/ChangeDetectorRef';
 import {ExtensionsManager} from '../../Extensions/ExtensionsManager';
@@ -70,17 +70,8 @@ export abstract class AbstractComponentTemplate extends AbstractTemplate
 
 	public abstract main(
 		onBeforeRender: (rootTemplate: AbstractComponentTemplate, template: AbstractComponentTemplate) => void,
-		onReady: (rootTemplate: AbstractComponentTemplate, template: AbstractComponentTemplate) => void
+		onReady: (rootTemplate: AbstractComponentTemplate, template: AbstractComponentTemplate) => void,
+		onDestroy: (rootTemplate: AbstractComponentTemplate, template: AbstractComponentTemplate) => void
 	): void;
-
-
-	public destroy(): void
-	{
-		super.destroy();
-
-		if (typeof this.component.__proto__.onDestroy === 'function') {
-			(<OnDestroy>this.component).onDestroy();
-		}
-	}
 
 }

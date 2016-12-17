@@ -5,7 +5,7 @@ import {ComponentCompiler} from './ComponentCompiler';
 import {HTMLParser, HTMLAttributeType} from '../../Parsers/HTMLParser';
 import {ElementRef} from '../ElementRef';
 import {AbstractComponentTemplate} from '../Templates/AbstractComponentTemplate';
-import {ParametersList, OnInit} from '../../Interfaces';
+import {ParametersList, OnInit, OnDestroy} from '../../Interfaces';
 import {ApplicationTemplate} from '../Templates/ApplicationTemplate';
 import {Helpers} from '../../Util/Helpers';
 import {InputMetadataDefinition, HostElementMetadataDefinition, HostEventMetadataDefinition} from '../../Entity/Metadata';
@@ -109,11 +109,19 @@ export class RootCompiler extends AbstractCompiler
 			}
 		});
 
-		template.main(() => {}, () => {
-			if (typeof template.component['onInit'] === 'function') {
-				template.run(() => (<OnInit>template.component).onInit());
+		template.main(
+			() => {},
+			() => {
+				if (typeof template.component['onInit'] === 'function') {
+					template.run(() => (<OnInit>template.component).onInit());
+				}
+			},
+			() => {
+				if (typeof template.component['onDestroy'] === 'function') {
+					(<OnDestroy>template.component).onDestroy();
+				}
 			}
-		});
+		);
 
 		return template;
 	}

@@ -44,6 +44,8 @@ export abstract class AbstractTemplate
 
 	private watchers: Array<Watcher> = [];
 
+	public onDestroy: Array<(rootTemplate: AbstractTemplate, template: AbstractTemplate) => void> = [];
+
 
 	constructor(container: Container, parameters: ParametersList = {}, parent?: AbstractTemplate)
 	{
@@ -107,9 +109,14 @@ export abstract class AbstractTemplate
 			this.children[i].destroy();
 		}
 
+		for (let i = 0; i < this.onDestroy.length; i++) {
+			this.onDestroy[i](this, this);
+		}
+
 		this.directives = [];
 		this.listeners = [];
 		this.children = [];
+		this.onDestroy = [];
 	}
 
 

@@ -1,4 +1,4 @@
-export {Component, HostElement, HostEvent, Input, Output, Required, Directive, ParentComponent, ChildDirective} from './src/Entity/Metadata';
+export {Component, HostElement, HostEvent, Input, Output, Required, Directive, ParentComponent, ChildDirective, ChildrenDirective} from './src/Entity/Metadata';
 export {Filter} from './src/Templating/Filters/Metadata';
 export {Application} from './src/Application';
 export {ApplicationTemplate} from './src/Templating/Templates/ApplicationTemplate';
@@ -9,5 +9,6 @@ export {Translator} from './src/Translations/Translator';
 export {ElementRef} from './src/Templating/ElementRef';
 export {TemplateRef} from './src/Templating/TemplateRef';
 export {ChangeDetectorRef} from './src/ChangeDetection/ChangeDetectorRef';
+export {ChildrenDirectivesQuery} from './src/Templating/ChildrenDirectivesQuery';
 export {ChangeDetectionStrategy} from './src/constants';
 export {OnInit, OnDestroy, OnUpdate} from './src/Interfaces';

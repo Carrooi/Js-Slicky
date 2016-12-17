@@ -7,7 +7,7 @@ import {TemplateRef} from '../TemplateRef';
 import {Helpers} from '../../Util/Helpers';
 import {
 	HostElementMetadataDefinition, InputMetadataDefinition, HostEventMetadataDefinition, OutputMetadataDefinition,
-	ChildDirectiveDefinition
+	ChildDirectiveDefinition, ChildrenDirectiveDefinition
 } from '../../Entity/Metadata';
 import {Annotations} from '../../Util/Annotations';
 import {HTMLParser, StringToken, ExpressionToken, ElementToken, HTMLTokenType, HTMLAttributeType, AttributeToken} from '../../Parsers/HTMLParser';
@@ -75,6 +75,7 @@ declare interface ElementDefinition
  * Compiles template class for given component
  *
  * Local variables:
+ * 		- _c: instance of current component
  * 		- _r: instance of root component template
  * 		- _t: current template (may be EmbeddedTemplate)
  * 		- _d: current local directive instance
@@ -162,8 +163,10 @@ export class ComponentCompiler extends AbstractCompiler
 		let definition = this.getDefinition();
 		let html = HTMLParser.parse(definition.metadata.template, DEFAULT_EXPRESSION_OPTIONS);
 
-		let main = this.template.addMethod('main', ['onBeforeRender', 'onReady'], [
+		let main = this.template.addMethod('main', ['onBeforeRender', 'onReady', 'onDestroy'], [
+			'this.onDestroy.push(onDestroy);',
 			'var _r, _t = _r = this;',
+			'var _c = _r.component;',
 			'var _n = this.elementRef.nativeElement;',
 			'var _er = this.elementRef;',
 			'var _tr = this.templateRef;',
@@ -606,12 +609,14 @@ export class ComponentCompiler extends AbstractCompiler
 		let componentCompiler: ComponentCompiler = null;
 		let onBeforeRenderBuffer = appendTo;
 
+		let isComponent = definition.type === DirectiveType.Component;
+
 		// create instance of directive
 
 		let name = 'Directive_' + ComponentCompiler.createDirectiveHash(definition);
 		this.templateImports[name] = directiveType;
 
-		if (definition.type === DirectiveType.Component) {
+		if (isComponent) {
 			componentCompiler = new ComponentCompiler(this.container, this.storage, directiveType, this);
 
 			let innerTemplateName = componentCompiler.getName();
@@ -633,19 +638,6 @@ export class ComponentCompiler extends AbstractCompiler
 			requestsStorage.storeElementDirectiveRequest(localName, definition, node, el.selector, property);
 		});
 
-		// process child directives
-
-		Helpers.each(this.getDefinition().childDirectives, (property: string, childDirective: ChildDirectiveDefinition) => {
-			if (childDirective.type === directiveType) {
-				if (this.inTemplate) {
-					throw Errors.childDirectiveInEmbeddedTemplate(this.getDefinition().name, property, Functions.getName(childDirective.type));
-				}
-
-				onBeforeRenderBuffer.append('_r' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.component.' + property + ' = ' + localName + ';');
-				childDirective.imported = true;
-			}
-		});
-
 		// process inputs
 
 		this.compileInputs(onBeforeRenderBuffer, node, definition, localName);
@@ -657,8 +649,30 @@ export class ComponentCompiler extends AbstractCompiler
 				throw Errors.invalidParentComponent(definition.name, definition.parentComponent.property, Functions.getName(definition.parentComponent.definition.type), this.getDefinition().name);
 			}
 
-			onBeforeRenderBuffer.append(localName + '.' + definition.parentComponent.property + ' = ' + (definition.type === DirectiveType.Component ? '_r.parent.component' : '_r.component') + ';');
+			onBeforeRenderBuffer.append(localName + '.' + definition.parentComponent.property + ' = _r' + (isComponent ? '.parent' : '') + '.component;');
 		}
+
+		// process child directives
+
+		Helpers.each(this.getDefinition().childDirectives, (property: string, child: ChildDirectiveDefinition) => {
+			if (child.type === directiveType) {
+				if (this.inTemplate) {
+					throw Errors.childDirectiveInEmbeddedTemplate(this.getDefinition().name, property, Functions.getName(child.type));
+				}
+
+				onBeforeRenderBuffer.append('_r' + (isComponent ? '.parent' : '') + '.component.' + property + ' = ' + localName + ';');
+				child.imported = true;
+			}
+		});
+
+		// process children directives
+
+		Helpers.each(this.getDefinition().childrenDirectives, (property: string, children: ChildrenDirectiveDefinition) => {
+			if (children.type === directiveType) {
+				onBeforeRenderBuffer.append('_c.' + property + '._add(' + localName + ');');
+				onBeforeRenderBuffer.append('_t.onDestroy.push(function() {_c.' + property + '._remove(' + localName + ');});');
+			}
+		});
 
 		// process host events
 
@@ -679,8 +693,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 		for (let i = 0; i < directiveEvents.length; i++) {
 			onBeforeRenderBuffer.append(
-				//'_r' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.addDirectiveEventListener(' + localName + ', "' + directiveEvents[i].event + '", "' + directiveEvents[i].call + '");' +
-				'_r' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.addDirectiveEventListener(' + localName + ', "' + directiveEvents[i].event + '", function($value, $this, _t) {' +
+				'_r' + (isComponent ? '.parent' : '') + '.addDirectiveEventListener(' + localName + ', "' + directiveEvents[i].event + '", function($value, $this, _t) {' +
 					directiveEvents[i].call +
 				'});'
 			);
@@ -688,7 +701,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 		// finish
 
-		if (definition.type === DirectiveType.Component) {
+		if (isComponent) {
 			Strings.indent(onBeforeRenderBuffer);
 			appendTo.merge(onBeforeRenderBuffer);
 
@@ -696,6 +709,12 @@ export class ComponentCompiler extends AbstractCompiler
 
 			if (typeof directiveType.prototype.onInit === 'function') {
 				appendTo.append('\t_t.run(function() {_r.component.onInit();});');
+			}
+
+			appendTo.append('}, function(_r, _t) {');
+
+			if (typeof directiveType.prototype.onDestroy === 'function') {
+				appendTo.append('\t_t.run(function() {_r.component.onDestroy();});');
 			}
 
 			appendTo.append('}).component;');

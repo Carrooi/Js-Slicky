@@ -6,7 +6,7 @@ import {ChangeDetectionStrategy} from '../constants';
 import {
 	DirectiveMetadataDefinition, HostEventMetadataDefinition, HostElementMetadataDefinition, InputMetadataDefinition,
 	RequiredMetadataDefinition, ComponentMetadataDefinition, OutputMetadataDefinition,
-	ParentComponentDefinition, ChildDirectiveDefinition
+	ParentComponentDefinition, ChildDirectiveDefinition, ChildrenDirectiveDefinition
 } from './Metadata';
 
 
@@ -47,6 +47,12 @@ export declare interface ChildDirectivesList
 }
 
 
+export declare interface ChildrenDirectivesList
+{
+	[name: string]: ChildrenDirectiveDefinition;
+}
+
+
 export declare interface DirectiveDefinitionMetadata
 {
 	selector: string,
@@ -73,7 +79,8 @@ export declare interface DirectiveDefinition
 		property: string,
 		definition: ParentComponentDefinition,
 	},
-	childDirectives: ChildDirectivesList,
+	childDirectives?: ChildDirectivesList,
+	childrenDirectives?: ChildrenDirectivesList,
 }
 
 
@@ -95,6 +102,7 @@ export class DirectiveParser
 		let elements: ElementsList = {};
 		let parentComponent: {properties: Array<string>, definition: ParentComponentDefinition} = {properties: [], definition: null};
 		let childDirectives: ChildDirectivesList = {};
+		let childrenDirectives: ChildrenDirectivesList = {};
 
 		for (let propName in propMetadata) {
 			if (propMetadata.hasOwnProperty(propName)) {
@@ -109,6 +117,10 @@ export class DirectiveParser
 
 					if (propMetadata[propName][i] instanceof ChildDirectiveDefinition && metadata.type === DirectiveType.Component) {
 						childMetadata = propMetadata[propName][i];
+					}
+
+					if (propMetadata[propName][i] instanceof ChildrenDirectiveDefinition && metadata.type === DirectiveType.Component) {
+						childrenDirectives[propName] = propMetadata[propName][i];
 					}
 
 					if (propMetadata[propName][i] instanceof RequiredMetadataDefinition) {
@@ -161,8 +173,12 @@ export class DirectiveParser
 			elements: elements,
 			inputs: inputs,
 			outputs: outputs,
-			childDirectives: childDirectives,
 		};
+
+		if (directive.type === DirectiveType.Component) {
+			directive.childDirectives = childDirectives;
+			directive.childrenDirectives = childrenDirectives;
+		}
 
 		if (parentComponent.definition) {
 			if (parentComponent.properties.length > 1) {

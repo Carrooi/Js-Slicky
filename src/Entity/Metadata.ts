@@ -193,6 +193,21 @@ export class ChildDirectiveDefinition
 }
 
 
+export class ChildrenDirectiveDefinition
+{
+
+
+	public type: any;
+
+
+	constructor(type: any)
+	{
+		this.type = type;
+	}
+
+}
+
+
 export let Directive = makeDecorator(DirectiveMetadataDefinition);
 export let Component = makeDecorator(ComponentMetadataDefinition);
 export let HostEvent = makePropDecorator(HostEventMetadataDefinition);
@@ -202,3 +217,4 @@ export let Output = makePropDecorator(OutputMetadataDefinition);
 export let Required = makePropDecorator(RequiredMetadataDefinition);
 export let ParentComponent = makePropDecorator(ParentComponentDefinition);
 export let ChildDirective = makePropDecorator(ChildDirectiveDefinition);
+export let ChildrenDirective = makePropDecorator(ChildrenDirectiveDefinition);
