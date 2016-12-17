@@ -1,4 +1,4 @@
-export var PluralForms: {[locale: string]: {count: number, form: string}} = {
+export let PluralForms: {[locale: string]: {count: number, form: string}} = {
 	ach: {count: 2, form: "(n > 1)"},
 	af: {count: 2, form: "(n !== 1)"},
 	k: {count: 2, form: "(n > 1)"},

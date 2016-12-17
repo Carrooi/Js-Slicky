@@ -152,7 +152,7 @@ export class JsonFilter
 }
 
 
-export var DefaultFilters: Array<any> = [
+export let DefaultFilters: Array<any> = [
 	TruncateFilter,
 	SubstrFilter,
 	TrimFilter,

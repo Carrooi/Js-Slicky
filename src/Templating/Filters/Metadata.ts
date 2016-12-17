@@ -28,4 +28,4 @@ export class FilterMetadataDefinition
 }
 
 
-export var Filter = makeDecorator(FilterMetadataDefinition);
+export let Filter = makeDecorator(FilterMetadataDefinition);

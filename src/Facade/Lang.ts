@@ -20,11 +20,11 @@ export interface BrowserNodeGlobal {
 
 // Need to declare a new variable for global here since TypeScript
 // exports the original value of the symbol.
-var _global: BrowserNodeGlobal = <any>window;
+let _global: BrowserNodeGlobal = <any>window;
 
 export {_global as global};
 
-export var Type = Function;
+export let Type = Function;
 
 /**
  * Runtime representation a type that a Component or other object is instances of.
@@ -63,7 +63,7 @@ export function stringify(token): string {
 		return token.overriddenName;
 	}
 
-	var res = token.toString();
-	var newLineIndex = res.indexOf("\n");
+	let res = token.toString();
+	let newLineIndex = res.indexOf("\n");
 	return (newLineIndex === -1) ? res : res.substring(0, newLineIndex);
 }

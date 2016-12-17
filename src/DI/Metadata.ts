@@ -17,5 +17,5 @@ export class InjectMetadataDefinition
 }
 
 
-export var Injectable = makeDecorator(InjectableMetadataDefinition);
-export var Inject = makePropDecorator(InjectMetadataDefinition);
+export let Injectable = makeDecorator(InjectableMetadataDefinition);
+export let Inject = makePropDecorator(InjectMetadataDefinition);

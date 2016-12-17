@@ -158,10 +158,10 @@ export class RequiredMetadataDefinition
 }
 
 
-export var Directive = makeDecorator(DirectiveMetadataDefinition);
-export var Component = makeDecorator(ComponentMetadataDefinition);
-export var HostEvent = makePropDecorator(HostEventMetadataDefinition);
-export var HostElement = makePropDecorator(HostElementMetadataDefinition);
-export var Input = makePropDecorator(InputMetadataDefinition);
-export var Output = makePropDecorator(OutputMetadataDefinition);
-export var Required = makePropDecorator(RequiredMetadataDefinition);
+export let Directive = makeDecorator(DirectiveMetadataDefinition);
+export let Component = makeDecorator(ComponentMetadataDefinition);
+export let HostEvent = makePropDecorator(HostEventMetadataDefinition);
+export let HostElement = makePropDecorator(HostElementMetadataDefinition);
+export let Input = makePropDecorator(InputMetadataDefinition);
+export let Output = makePropDecorator(OutputMetadataDefinition);
+export let Required = makePropDecorator(RequiredMetadataDefinition);

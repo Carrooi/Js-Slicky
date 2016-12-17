@@ -6,7 +6,7 @@
 
 import {ConcreteType, global, Type, isFunction, stringify} from '../Facade/Lang';
 
-var _nextClassId = 0;
+let _nextClassId = 0;
 
 /**
  * Declares the interface to be used with {@link Class}.
@@ -43,7 +43,7 @@ export interface ClassDefinition {
  * DSL syntax:
  *
  * ```
- * var MyClass = ng
+ * let MyClass = ng
  *   .Component({...})
  *   .View({...})
  *   .Class({...});
@@ -98,24 +98,24 @@ function applyParams(fnOrArray: (Function | any[]), key: string): Function {
 	if (isFunction(fnOrArray)) {
 		return <Function>fnOrArray;
 	} else if (fnOrArray instanceof Array) {
-		var annotations: any[] = fnOrArray;
-		var fn: Function = fnOrArray[fnOrArray.length - 1];
+		let annotations: any[] = fnOrArray;
+		let fn: Function = fnOrArray[fnOrArray.length - 1];
 		if (!isFunction(fn)) {
 			throw new Error(
 				`Last position of Class method array must be Function in key ${key} was '${stringify(fn)}'`);
 		}
-		var annoLength = annotations.length - 1;
+		let annoLength = annotations.length - 1;
 		if (annoLength != fn.length) {
 			throw new Error(
 				`Number of annotations (${annoLength}) does not match number of arguments (${fn.length}) in the function: ${stringify(fn)}`);
 		}
-		var paramsAnnotations: any[][] = [];
-		for (var i = 0, ii = annotations.length - 1; i < ii; i++) {
-			var paramAnnotations: any[] = [];
+		let paramsAnnotations: any[][] = [];
+		for (let i = 0, ii = annotations.length - 1; i < ii; i++) {
+			let paramAnnotations: any[] = [];
 			paramsAnnotations.push(paramAnnotations);
-			var annotation = annotations[i];
+			let annotation = annotations[i];
 			if (annotation instanceof Array) {
-				for (var j = 0; j < annotation.length; j++) {
+				for (let j = 0; j < annotation.length; j++) {
 					paramAnnotations.push(extractAnnotation(annotation[j]));
 				}
 			} else if (isFunction(annotation)) {
@@ -138,7 +138,7 @@ function applyParams(fnOrArray: (Function | any[]), key: string): Function {
  * ## Basic Example
  *
  * ```
- * var Greeter = ng.Class({
+ * let Greeter = ng.Class({
  *   constructor: function(name) {
  *     this.name = name;
  *   },
@@ -166,7 +166,7 @@ function applyParams(fnOrArray: (Function | any[]), key: string): Function {
  * or equivalent to ES5:
  *
  * ```
- * var Greeter = function (name) {
+ * let Greeter = function (name) {
  *   this.name = name;
  * }
  *
@@ -178,7 +178,7 @@ function applyParams(fnOrArray: (Function | any[]), key: string): Function {
  * ### Example with parameter annotations
  *
  * ```
- * var MyService = ng.Class({
+ * let MyService = ng.Class({
  *   constructor: [String, [new Query(), QueryList], function(name, queryList) {
  *     ...
  *   }]
@@ -198,13 +198,13 @@ function applyParams(fnOrArray: (Function | any[]), key: string): Function {
  * ### Example with inheritance
  *
  * ```
- * var Shape = ng.Class({
+ * let Shape = ng.Class({
  *   constructor: (color) {
  *     this.color = color;
  *   }
  * });
  *
- * var Square = ng.Class({
+ * let Square = ng.Class({
  *   extends: Shape,
  *   constructor: function(color, size) {
  *     Shape.call(this, color);
@@ -214,9 +214,9 @@ function applyParams(fnOrArray: (Function | any[]), key: string): Function {
  * ```
  */
 export function Class(clsDef: ClassDefinition): ConcreteType {
-	var constructor = applyParams(
+	let constructor = applyParams(
 		clsDef.hasOwnProperty('constructor') ? clsDef.constructor : undefined, 'constructor');
-	var proto = constructor.prototype;
+	let proto = constructor.prototype;
 	if (clsDef.hasOwnProperty('extends')) {
 		if (isFunction(clsDef.extends)) {
 			(<Function>constructor).prototype = proto =
@@ -226,7 +226,7 @@ export function Class(clsDef: ClassDefinition): ConcreteType {
 				`Class definition 'extends' property must be a constructor function was: ${stringify(clsDef.extends)}`);
 		}
 	}
-	for (var key in clsDef) {
+	for (let key in clsDef) {
 		if (key != 'extends' && key != 'prototype' && clsDef.hasOwnProperty(key)) {
 			proto[key] = applyParams(<any>clsDef[key], key);
 		}
@@ -243,7 +243,7 @@ export function Class(clsDef: ClassDefinition): ConcreteType {
 	return <ConcreteType>constructor;
 }
 
-var Reflect = global.Reflect;
+let Reflect = global.Reflect;
 if (!(Reflect && Reflect.getMetadata)) {
 	throw 'reflect-metadata shim is required when using class decorators';
 }
@@ -251,15 +251,15 @@ if (!(Reflect && Reflect.getMetadata)) {
 export function makeDecorator(
 	annotationCls, chainFn: (fn: Function) => void = null): (...args: any[]) => (cls: any) => any {
 	function DecoratorFactory(objOrType): (cls: any) => any {
-		var annotationInstance = new (<any>annotationCls)(objOrType);
+		let annotationInstance = new (<any>annotationCls)(objOrType);
 		if (this instanceof annotationCls) {
 			return annotationInstance;
 		} else {
-			var chainAnnotation =
+			let chainAnnotation =
 				isFunction(this) && this.annotations instanceof Array ? this.annotations : [];
 			chainAnnotation.push(annotationInstance);
-			var TypeDecorator: TypeDecorator = <TypeDecorator>function TypeDecorator(cls) {
-				var annotations = Reflect.getOwnMetadata('annotations', cls);
+			let TypeDecorator: TypeDecorator = <TypeDecorator>function TypeDecorator(cls) {
+				let annotations = Reflect.getOwnMetadata('annotations', cls);
 				annotations = annotations || [];
 				annotations.push(annotationInstance);
 				Reflect.defineMetadata('annotations', annotations, cls);
@@ -277,7 +277,7 @@ export function makeDecorator(
 
 export function makeParamDecorator(annotationCls): any {
 	function ParamDecoratorFactory(...args): any {
-		var annotationInstance = Object.create(annotationCls.prototype);
+		let annotationInstance = Object.create(annotationCls.prototype);
 		annotationCls.apply(annotationInstance, args);
 		if (this instanceof annotationCls) {
 			return annotationInstance;
@@ -288,7 +288,7 @@ export function makeParamDecorator(annotationCls): any {
 
 
 		function ParamDecorator(cls, unusedKey, index): any {
-			var parameters: any[][] = Reflect.getMetadata('parameters', cls);
+			let parameters: any[][] = Reflect.getMetadata('parameters', cls);
 			parameters = parameters || [];
 
 			// there might be gaps if some in between parameters do not have annotations.
@@ -298,7 +298,7 @@ export function makeParamDecorator(annotationCls): any {
 			}
 
 			parameters[index] = parameters[index] || [];
-			var annotationsForParam: any[] = parameters[index];
+			let annotationsForParam: any[] = parameters[index];
 			annotationsForParam.push(annotationInstance);
 
 			Reflect.defineMetadata('parameters', parameters, cls);
@@ -311,14 +311,14 @@ export function makeParamDecorator(annotationCls): any {
 
 export function makePropDecorator(decoratorCls): any {
 	function PropDecoratorFactory(...args): any {
-		var decoratorInstance = Object.create(decoratorCls.prototype);
+		let decoratorInstance = Object.create(decoratorCls.prototype);
 		decoratorCls.apply(decoratorInstance, args);
 
 		if (this instanceof decoratorCls) {
 			return decoratorInstance;
 		} else {
 			return function PropDecorator(target: any, name: string) {
-				var meta = Reflect.getOwnMetadata('propMetadata', target.constructor);
+				let meta = Reflect.getOwnMetadata('propMetadata', target.constructor);
 				meta = meta || {};
 				meta[name] = meta[name] || [];
 				meta[name].unshift(decoratorInstance);
