@@ -1,7 +1,7 @@
 import {Dom} from '../../../../src/Util/Dom';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {OnInit, OnUpdate} from '../../../../src/Interfaces';
-import {Directive, HostElement, Input, Required, HostEvent} from '../../../../src/Entity/Metadata';
+import {Directive, HostElement, Input, Required, HostEvent, ParentComponent} from '../../../../src/Entity/Metadata';
 
 import {processDirective} from '../../_testHelpers';
 
@@ -295,6 +295,21 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 			processDirective(parent, TestDirective);
 
 			parent.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
+		});
+
+		it('should throw an error when having parent request', () => {
+			@Directive({
+				selector: 'directive',
+			})
+			class TestDirective {
+				@ParentComponent() parent;
+			}
+
+			parent.innerHTML = '<directive></directive>';
+
+			expect(() => {
+				processDirective(parent, TestDirective);
+			}).to.throw(Error, 'TestDirective.parent: can not use @ParentComponent() for root directives.');
 		});
 
 	});

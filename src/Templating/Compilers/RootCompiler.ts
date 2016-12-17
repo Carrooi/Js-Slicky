@@ -52,6 +52,10 @@ export class RootCompiler extends AbstractCompiler
 		let elementRef = ElementRef.get(el);
 		let directive = this.template.attachDirective(this.directiveType, elementRef);
 
+		if (this.definition.parentComponent) {
+			throw Errors.parentComponentInRoot(this.definition.name, this.definition.parentComponent.property);
+		}
+
 		this.processInputs(el, directive);
 		this.processElements(elementRef, directive);
 		this.processEvents(el, elementRef, directive);
@@ -69,6 +73,10 @@ export class RootCompiler extends AbstractCompiler
 		let compiler = new ComponentCompiler(this.container, this.templatesStorage, this.directiveType);
 		let elementRef = ElementRef.get(el);
 		let node = HTMLParser.parseElement(el, DEFAULT_EXPRESSION_OPTIONS);
+
+		if (this.definition.parentComponent) {
+			throw Errors.parentComponentInRoot(this.definition.name, this.definition.parentComponent.property);
+		}
 
 		Helpers.each(this.definition.elements, (property: string, el: HostElementMetadataDefinition) => {
 			if (el.selector) {

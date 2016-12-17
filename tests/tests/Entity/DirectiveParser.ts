@@ -1,7 +1,10 @@
-import {Directive, Component, HostEvent, HostElement, Input, Output, Required, ChangeDetectionStrategy} from '../../../core';
+import {Directive, Component, HostEvent, HostElement, Input, Output, Required, ChangeDetectionStrategy, ParentComponent} from '../../../core';
 import {EventEmitter} from '../../../utils';
 import {DirectiveParser, DirectiveType} from '../../../src/Entity/DirectiveParser';
-import {HostEventMetadataDefinition, HostElementMetadataDefinition, InputMetadataDefinition, OutputMetadataDefinition} from '../../../src/Entity/Metadata';
+import {
+	HostEventMetadataDefinition, HostElementMetadataDefinition, InputMetadataDefinition, OutputMetadataDefinition,
+	ParentComponentDefinition
+} from '../../../src/Entity/Metadata';
 
 import chai = require('chai');
 
@@ -30,6 +33,7 @@ describe('#Entity/DirectiveParser', () => {
 				@Input('custom-name') customInput;
 				@HostElement() me;
 				@HostElement('button') btn;
+				@ParentComponent() parent;
 				@HostEvent('mouseover')
 				onMouseOver() {}
 				@HostEvent('a', 'click')
@@ -59,6 +63,11 @@ describe('#Entity/DirectiveParser', () => {
 			expect((<HostElementMetadataDefinition>elements['me']).selector).to.be.equal(null);
 			expect((<HostElementMetadataDefinition>elements['btn']).selector).to.be.equal('button');
 
+			expect(definition.parentComponent).to.not.be.eql(null);
+			expect(definition.parentComponent.property).to.be.equal('parent');
+			expect(definition.parentComponent.definition).to.be.an.instanceOf(ParentComponentDefinition);
+			expect(definition.parentComponent.definition.type).to.be.equal(null);
+
 			expect(events).to.have.all.keys('onMouseOver', 'onClick');
 			expect(events['onMouseOver']).to.be.an.instanceOf(HostEventMetadataDefinition);
 			expect(events['onClick']).to.be.an.instanceOf(HostEventMetadataDefinition);
@@ -66,6 +75,21 @@ describe('#Entity/DirectiveParser', () => {
 			expect((<HostEventMetadataDefinition>events['onMouseOver']).name).to.be.equal('mouseover');
 			expect((<HostEventMetadataDefinition>events['onClick']).el).to.be.equal('a');
 			expect((<HostEventMetadataDefinition>events['onClick']).name).to.be.equal('click');
+		});
+
+		it('should throw an error when trying to use more parent components inside of directive', () => {
+			@Directive({
+				selector: 'directive',
+			})
+			class TestDirective {
+				@ParentComponent() parentA;
+				@ParentComponent() parentB;
+				@ParentComponent() parentC;
+			}
+
+			expect(() => {
+				DirectiveParser.parse(TestDirective);
+			}).to.throw(Error, 'TestDirective: can not import more than one parent component into parentA, parentB, parentC.');
 		});
 
 		it('should parse component', () => {

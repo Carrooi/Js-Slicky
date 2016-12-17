@@ -1,4 +1,4 @@
-import {Component, Input, Output, HostElement, Required, HostEvent} from '../../../../src/Entity/Metadata';
+import {Component, Input, Output, HostElement, Required, HostEvent, ParentComponent} from '../../../../src/Entity/Metadata';
 import {OnInit, OnUpdate} from '../../../../src/Interfaces';
 import {ChangeDetectionStrategy} from '../../../../src/constants';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
@@ -645,6 +645,60 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			createTemplate(parent, '<parent></parent>', {}, [TestParentComponent]);
 
 			expect(parent.innerText).to.be.equal('1');
+		});
+
+		it('should include any parent component into child component', () => {
+			let called = false;
+
+			@Component({
+				selector: 'child',
+				template: '',
+			})
+			class TestChildComponent implements OnInit {
+				@ParentComponent() parent;
+				onInit() {
+					expect(this.parent).to.be.an.instanceOf(TestParentComponent);
+					called = true;
+				}
+			}
+
+			@Component({
+				selector: 'parent',
+				template: '<child></child>',
+				directives: [TestChildComponent],
+			})
+			class TestParentComponent {}
+
+			createTemplate(parent, '<parent></parent>', {}, [TestParentComponent]);
+
+			expect(called).to.be.equal(true);
+		});
+
+		it('should throw an error when requested parent does not match actual parent', () => {
+			@Component({
+				selector: 'valid-parent',
+				template: '',
+			})
+			class TestValidParentComponent {}
+
+			@Component({
+				selector: 'child',
+				template: '',
+			})
+			class TestChildComponent {
+				@ParentComponent(TestValidParentComponent) parent;
+			}
+
+			@Component({
+				selector: 'invalid-parent',
+				template: '<child></child>',
+				directives: [TestChildComponent],
+			})
+			class TestInvalidParentComponent {}
+
+			expect(() => {
+				createTemplate(parent, '<invalid-parent></invalid-parent>', {}, [TestInvalidParentComponent]);
+			}).to.throw(Error, 'TestChildComponent.parent: expected parent to be an instance of "TestValidParentComponent", but directive is used inside of "TestInvalidParentComponent" component.');
 		});
 
 	});

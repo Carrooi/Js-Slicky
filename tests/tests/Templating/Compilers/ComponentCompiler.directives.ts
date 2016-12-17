@@ -1,5 +1,5 @@
 import {OnInit, OnUpdate, OnDestroy} from '../../../../src/Interfaces';
-import {Directive, HostElement, Input, Required, HostEvent, Output, Component} from '../../../../src/Entity/Metadata';
+import {Directive, HostElement, Input, Required, HostEvent, Output, Component, ParentComponent} from '../../../../src/Entity/Metadata';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {Dom} from '../../../../src/Util/Dom';
 import {TemplateRef} from '../../../../src/Templating/TemplateRef';
@@ -379,6 +379,58 @@ describe('#Templating/Compilers/ComponentCompiler.directives', () => {
 			embeddedTemplate.remove();
 
 			expect(calledDestroy).to.be.equal(true);
+		});
+
+		it('should include any parent component into child directive', () => {
+			let called = false;
+
+			@Directive({
+				selector: 'directive',
+			})
+			class TestDirective implements OnInit {
+				@ParentComponent() parent;
+				onInit() {
+					expect(this.parent).to.be.an.instanceOf(TestComponent);
+					called = true;
+				}
+			}
+
+			@Component({
+				selector: 'component',
+				template: '<directive></directive>',
+				directives: [TestDirective],
+			})
+			class TestComponent {}
+
+			createTemplate(parent, '<component></component>', {}, [TestComponent]);
+
+			expect(called).to.be.equal(true);
+		});
+
+		it('should throw an error when requested parent does not match actual parent', () => {
+			@Component({
+				selector: 'valid-component',
+				template: '',
+			})
+			class TestValidComponent {}
+
+			@Directive({
+				selector: 'directive',
+			})
+			class TestDirective {
+				@ParentComponent(TestValidComponent) parent;
+			}
+
+			@Component({
+				selector: 'invalid-component',
+				template: '<directive></directive>',
+				directives: [TestDirective],
+			})
+			class TestInvalidComponent {}
+
+			expect(() => {
+				createTemplate(parent, '<invalid-component></invalid-component>', {}, [TestInvalidComponent]);
+			}).to.throw(Error, 'TestDirective.parent: expected parent to be an instance of "TestValidComponent", but directive is used inside of "TestInvalidComponent" component.');
 		});
 
 	});

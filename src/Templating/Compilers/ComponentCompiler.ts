@@ -622,6 +622,16 @@ export class ComponentCompiler extends AbstractCompiler
 
 		this.compileInputs(onBeforeRenderBuffer, node, definition, localName);
 
+		// process parent component
+
+		if (definition.parentComponent) {
+			if (definition.parentComponent.definition.type && definition.parentComponent.definition.type !== this.component) {
+				throw Errors.invalidParentComponent(definition.name, definition.parentComponent.property, Functions.getName(definition.parentComponent.definition.type), this.getDefinition().name);
+			}
+
+			onBeforeRenderBuffer.append(localName + '.' + definition.parentComponent.property + ' = ' + (definition.type === DirectiveType.Component ? '_r.parent.component' : '_r.component') + ';');
+		}
+
 		// process host events
 
 		Helpers.each(definition.events, (name: string, event: HostEventMetadataDefinition) => {

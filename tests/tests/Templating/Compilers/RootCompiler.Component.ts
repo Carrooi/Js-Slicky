@@ -1,7 +1,7 @@
 import {Dom} from '../../../../src/Util/Dom';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
 import {OnInit, OnUpdate} from '../../../../src/Interfaces';
-import {HostElement, Input, Required, HostEvent, Component} from '../../../../src/Entity/Metadata';
+import {HostElement, Input, Required, HostEvent, Component, ParentComponent} from '../../../../src/Entity/Metadata';
 
 import {processComponent} from '../../_testHelpers';
 
@@ -363,6 +363,22 @@ third`,
 			checkbox.dispatchEvent(Dom.createMouseEvent('click'));
 
 			expect(checkbox.checked).to.be.equal(false);
+		});
+
+		it('should throw an error when having parent request', () => {
+			@Component({
+				selector: 'component',
+				template: '',
+			})
+			class TestComponent {
+				@ParentComponent() parent;
+			}
+
+			parent.innerHTML = '<component></component>';
+
+			expect(() => {
+				processComponent(parent, TestComponent);
+			}).to.throw(Error, 'TestComponent.parent: can not use @ParentComponent() for root directives.');
 		});
 
 	});

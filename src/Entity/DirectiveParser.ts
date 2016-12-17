@@ -1,10 +1,12 @@
 import {Annotations} from '../Util/Annotations';
 import {Functions} from '../Util/Functions';
+import {Errors} from '../Errors';
 import {global} from '../Facade/Lang';
 import {ChangeDetectionStrategy} from '../constants';
 import {
 	DirectiveMetadataDefinition, HostEventMetadataDefinition, HostElementMetadataDefinition, InputMetadataDefinition,
-	RequiredMetadataDefinition, ComponentMetadataDefinition, OutputMetadataDefinition
+	RequiredMetadataDefinition, ComponentMetadataDefinition, OutputMetadataDefinition,
+	ParentComponentDefinition
 } from './Metadata';
 
 
@@ -61,6 +63,10 @@ export declare interface DirectiveDefinition
 	elements: ElementsList,
 	inputs: InputsList,
 	outputs: OutputList,
+	parentComponent?: {
+		property: string,
+		definition: ParentComponentDefinition,
+	},
 }
 
 
@@ -71,15 +77,16 @@ export class DirectiveParser
 {
 
 
-	public static parse(directive: Function): DirectiveDefinition
+	public static parse(directiveType: Function): DirectiveDefinition
 	{
-		let metadata = DirectiveParser.getMetadata(directive);
-		let propMetadata = Reflect.getMetadata('propMetadata', directive);
+		let metadata = DirectiveParser.getMetadata(directiveType);
+		let propMetadata = Reflect.getMetadata('propMetadata', directiveType);
 
 		let inputs: InputsList = {};
 		let outputs: OutputList = {};
 		let events: EventsList = {};
 		let elements: ElementsList = {};
+		let parentComponent: {properties: Array<string>, definition: ParentComponentDefinition} = {properties: [], definition: null};
 
 		for (let propName in propMetadata) {
 			if (propMetadata.hasOwnProperty(propName)) {
@@ -108,6 +115,11 @@ export class DirectiveParser
 					if (propMetadata[propName][i] instanceof OutputMetadataDefinition) {
 						outputs[propName] = propMetadata[propName][i];
 					}
+
+					if (propMetadata[propName][i] instanceof ParentComponentDefinition) {
+						parentComponent.properties.push(propName);
+						parentComponent.definition = propMetadata[propName][i];
+					}
 				}
 
 				if (inputMetadata !== null) {
@@ -120,8 +132,8 @@ export class DirectiveParser
 			}
 		}
 
-		return {
-			name: Functions.getName(directive),
+		let directive: DirectiveDefinition = {
+			name: Functions.getName(directiveType),
 			type: metadata.type,
 			metadata: metadata.metadata,
 			events: events,
@@ -129,10 +141,23 @@ export class DirectiveParser
 			inputs: inputs,
 			outputs: outputs,
 		};
+
+		if (parentComponent.definition) {
+			if (parentComponent.properties.length > 1) {
+				throw Errors.tooManyParentComponentsRequests(directive.name, parentComponent.properties);
+			}
+
+			directive.parentComponent = {
+				property: parentComponent.properties[0],
+				definition: parentComponent.definition,
+			};
+		}
+
+		return directive;
 	}
 
 
-	private static getMetadata(directive: any): {type: DirectiveType, metadata: DirectiveDefinitionMetadata}
+	private static getMetadata(directiveType: any): {type: DirectiveType, metadata: DirectiveDefinitionMetadata}
 	{
 		let type = DirectiveType.Directive;
 		let metadata;
@@ -140,9 +165,9 @@ export class DirectiveParser
 			selector: '',
 		};
 
-		if (!(metadata = Annotations.getAnnotation(directive, ComponentMetadataDefinition))) {
-			if (!(metadata = Annotations.getAnnotation(directive, DirectiveMetadataDefinition))) {
-				throw new Error('Directive ' + Functions.getName(directive) + ' is not valid directive, please add @Directive() or @Component() annotation.');
+		if (!(metadata = Annotations.getAnnotation(directiveType, ComponentMetadataDefinition))) {
+			if (!(metadata = Annotations.getAnnotation(directiveType, DirectiveMetadataDefinition))) {
+				throw new Error('Directive ' + Functions.getName(directiveType) + ' is not valid directive, please add @Directive() or @Component() annotation.');
 			}
 		} else {
 			type = DirectiveType.Component;

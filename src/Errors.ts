@@ -67,4 +67,22 @@ export class Errors
 		return new Error('Can not include more than one component (' + components.join(', ') + ' to element "' + element + '".');
 	}
 
+
+	public static tooManyParentComponentsRequests(definitionName: string, propertyNames: Array<string>): Error
+	{
+		return new Error(definitionName + ': can not import more than one parent component into ' + propertyNames.join(', ') + '.');
+	}
+
+
+	public static invalidParentComponent(definitionName: string, property: string, expectedParent: string, actualParent: string): Error
+	{
+		return new Error(definitionName + '.' + property + ': expected parent to be an instance of "' + expectedParent + '", but directive is used inside of "' + actualParent + '" component.');
+	}
+
+
+	public static parentComponentInRoot(definitionName: string, property: string): Error
+	{
+		return new Error(definitionName + '.' + property + ': can not use @ParentComponent() for root directives.');
+	}
+
 }
