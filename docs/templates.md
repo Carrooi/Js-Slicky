@@ -70,6 +70,7 @@ class Child
 {
 
 	@Input() data;
+	
 	@Output() dataChange = new EventEmitter<any>();
 
 }

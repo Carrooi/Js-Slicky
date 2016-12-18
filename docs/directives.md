@@ -126,7 +126,7 @@ public onChildClick(e: Event): void
 
 ## Export into parent template
 
-Directives (and [components](./components.md)) could be exported into parent template. This is usefull
+Directives (and [components](./components.md)) could be exported into parent template. This is useful
 when you want to have access to child directive from parent.
 
 ```ts

@@ -24,7 +24,7 @@ class App implements OnInit
 	
 	public onInit(): void
 	{
-		this.elementRef.nativeEl.style.border = '1px solid red';
+		this.elementRef.nativeElement.style.border = '1px solid red';
 	}
 
 }
