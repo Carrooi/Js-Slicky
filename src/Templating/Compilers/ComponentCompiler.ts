@@ -545,7 +545,7 @@ export class ComponentCompiler extends AbstractCompiler
 					appendTo.append('_tr.scope.addParameter("' + name + '", ' + realType + ');');
 				}
 			} else {
-				appendTo.append('_t.scope.addParameter("' + name + '", ' + realType + ');');
+				appendTo.append('_r.scope.addParameter("' + name + '", ' + realType + ');');
 			}
 		});
 	}

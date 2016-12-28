@@ -140,6 +140,19 @@ describe('#Templating/Compilers/ComponentCompiler.exports', () => {
 			}).to.throw(Error, 'Can not export dynamic parameter "letterA" into template. Parameter of type "a" is missing.');
 		});
 
+		it('should export element into parent scope', () => {
+			let template = createTemplate(parent, '<template><span #el></span></template>');
+			let scope = template.scope.getParameters();
+
+			expect(scope).to.not.have.property('el');
+
+			TemplateRef.get(<HTMLTemplateElement>parent.childNodes[0]).createEmbeddedTemplate();
+
+			expect(scope).to.have.property('el');
+			expect(scope['el']).to.be.an.instanceOf(ElementRef);
+			expect(scope['el'].nativeElement).to.be.an.instanceOf(HTMLSpanElement);
+		});
+
 	});
 
 });
