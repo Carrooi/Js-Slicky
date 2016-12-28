@@ -213,7 +213,7 @@ describe('#Templating/Compilers/ComponentCompiler.changeDetection', () => {
 			expect(parent.innerText).to.be.equal('hello');
 		});
 
-		it('should disable all change detection', () => {
+		it('should disable change detection', () => {
 			@Component({
 				selector: 'component',
 				controllerAs: 'c',
@@ -222,14 +222,41 @@ describe('#Templating/Compilers/ComponentCompiler.changeDetection', () => {
 			})
 			class TestComponent implements OnInit {
 				number = 1;
+				constructor(private changeDetector: ChangeDetectorRef) {}
 				onInit() {
 					this.number++;
+					this.changeDetector.refresh();
 				}
 			}
 
 			createTemplate(parent, '<component></component>', {}, [TestComponent]);
 
 			expect(parent.innerText).to.be.equal('1');
+		});
+
+		it('should use manual change detection strategy', () => {
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '{{ c.number }}<button (click)="c.number++"></button>',
+				changeDetection: ChangeDetectionStrategy.Manual,
+			})
+			class TestComponent {
+				number = 1;
+				constructor(private changeDetector: ChangeDetectorRef) {}
+				onInit() {
+					this.number++;
+					this.changeDetector.refresh();
+				}
+			}
+
+			createTemplate(parent, '<component></component>', {}, [TestComponent]);
+
+			let button = parent.querySelector('button');
+
+			button.dispatchEvent(Dom.createMouseEvent('click'));
+
+			expect(parent.innerText).to.be.equal('2');
 		});
 
 	});
