@@ -53,7 +53,7 @@ export abstract class AbstractTemplate
 		this.scope = new Scope(parameters, parent ? parent.scope : null);
 
 		this.realm = new Realm(this.parent ? this.parent.realm : null, null, () => {
-			if (this.changeDetectorStrategy === ChangeDetectionStrategy.Default) {
+			if (this.changeDetectorStrategy === ChangeDetectionStrategy.Default) {		// todo: make compatible with angular
 				this.checkWatchers();
 			}
 		});
@@ -208,6 +208,10 @@ export abstract class AbstractTemplate
 
 	public checkWatchers(): void
 	{
+		if (this.changeDetectorStrategy === ChangeDetectionStrategy.Disabled) {
+			return;
+		}
+
 		for (let i = 0; i < this.watchers.length; i++) {
 			let watcher = this.watchers[i];
 
@@ -231,7 +235,11 @@ export abstract class AbstractTemplate
 	public watch(getter: (template: AbstractTemplate) => any, fn: (data: any) => any, initValue?: any): void
 	{
 		let current = typeof initValue === 'undefined' ? getter(this) : initValue;
-		let copy = Helpers.clone(current);
+		let copy = undefined;
+
+		if (this.changeDetectorStrategy !== ChangeDetectionStrategy.Disabled) {
+			copy = Helpers.clone(current);
+		}
 
 		let watcher = (previous: any, copy: any): {current: any} => {
 			let current = getter(this);

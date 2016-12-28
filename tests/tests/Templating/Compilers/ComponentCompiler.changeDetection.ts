@@ -213,6 +213,25 @@ describe('#Templating/Compilers/ComponentCompiler.changeDetection', () => {
 			expect(parent.innerText).to.be.equal('hello');
 		});
 
+		it('should disable all change detection', () => {
+			@Component({
+				selector: 'component',
+				controllerAs: 'c',
+				template: '{{ c.number }}',
+				changeDetection: ChangeDetectionStrategy.Disabled,
+			})
+			class TestComponent implements OnInit {
+				number = 1;
+				onInit() {
+					this.number++;
+				}
+			}
+
+			createTemplate(parent, '<component></component>', {}, [TestComponent]);
+
+			expect(parent.innerText).to.be.equal('1');
+		});
+
 	});
 
 });

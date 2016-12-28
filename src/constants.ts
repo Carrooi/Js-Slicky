@@ -5,6 +5,7 @@ export enum ChangeDetectionStrategy
 {
 	Default,
 	OnPush,
+	Disabled,
 }
 
 
