@@ -831,9 +831,9 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			@Component({
 				selector: 'parent',
 				template:
-				'<template #child [s:for] [s:for-of]="data">' +
-					'<child [id]="child"></child>' +
-				'</template>'
+					'<template #child [s:for] [s:for-of]="data">' +
+						'<child [id]="child"></child>' +
+					'</template>'
 				,
 				directives: [ForDirective, TestChildComponent],
 			})
@@ -853,7 +853,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 				data: [1, 2],
 			};
 
-			let template = createTemplate(parent, '<parent></parent>', scope, [TestParentComponent], [IterableDifferFactory]);
+			let template = createTemplate(parent, '<parent></parent>', scope, [TestParentComponent], [IterableDifferFactory]).children[0];
 
 			expect(called.add).to.be.eql([1, 2]);
 			expect(called.remove).to.be.eql([]);
@@ -906,9 +906,9 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			@Component({
 				selector: 'component',
 				template:
-				'<template #child [s:for] [s:for-of]="data">' +
-					'<directive [id]="child"></directive>' +
-				'</template>'
+					'<template #child [s:for] [s:for-of]="data">' +
+						'<directive [id]="child"></directive>' +
+					'</template>'
 				,
 				directives: [ForDirective, TestChildDirective],
 			})
@@ -928,7 +928,7 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 				data: [1, 2],
 			};
 
-			let template = createTemplate(parent, '<component></component>', scope, [TestParentComponent], [IterableDifferFactory]);
+			let template = createTemplate(parent, '<component></component>', scope, [TestParentComponent], [IterableDifferFactory]).children[0];
 
 			expect(called.add).to.be.eql([1, 2]);
 			expect(called.remove).to.be.eql([]);

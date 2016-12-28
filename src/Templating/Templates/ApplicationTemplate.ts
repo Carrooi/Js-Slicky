@@ -48,8 +48,9 @@ export class ApplicationTemplate extends AbstractTemplate
 	}
 
 
-	public checkWatchers(): void
+	public checkWatchers(): boolean
 	{
+		return false;
 	}
 
 }

@@ -26,7 +26,7 @@ export abstract class AbstractTemplate
 
 	private parent: AbstractTemplate;
 
-	protected children: Array<AbstractTemplate> = [];
+	public children: Array<AbstractTemplate> = [];
 
 	public realm: Realm;
 
@@ -206,11 +206,25 @@ export abstract class AbstractTemplate
 	}
 
 
-	public checkWatchers(): void
+	public checkWatchers(): boolean
 	{
 		if (this.changeDetectorStrategy === ChangeDetectionStrategy.Disabled) {
 			return;
 		}
+
+		let changed = this.checkOwnWatchers();
+
+		if (this.checkChildrenWatchers(changed)) {
+			changed = true;
+		}
+
+		return changed;
+	}
+
+
+	protected checkOwnWatchers(): boolean
+	{
+		let changed = false;
 
 		for (let i = 0; i < this.watchers.length; i++) {
 			let watcher = this.watchers[i];
@@ -221,14 +235,35 @@ export abstract class AbstractTemplate
 				watcher.copy = Helpers.clone(check.current);
 
 				watcher.callback(check.current);
+
+				changed = true;
 			}
 		}
 
+		return changed;
+	}
+
+
+	protected checkChildrenWatchers(ownWatchersChanged: boolean): boolean
+	{
+		let changed = false;
+
 		for (let i = 0; i < this.children.length; i++) {
-			if (this.children[i].changeDetectorStrategy === ChangeDetectionStrategy.Default) {
-				this.children[i].checkWatchers();
+			let child = this.children[i];
+
+			// skip change detection for children components when nothing changed in current component
+			if (typeof child['component'] !== 'undefined' && !ownWatchersChanged) {
+				continue;
+			}
+
+			if (child.changeDetectorStrategy === ChangeDetectionStrategy.Default) {
+				if (child.checkWatchers()) {
+					changed = true;
+				}
 			}
 		}
+
+		return changed;
 	}
 
 
