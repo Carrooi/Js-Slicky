@@ -572,7 +572,7 @@ export class ComponentCompiler extends AbstractCompiler
 				case HTMLAttributeType.PROPERTY:
 				case HTMLAttributeType.EXPRESSION:
 					appendTo.append(
-						'_t' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.watchInput(' + directiveLocalName + ', "' + name + '", function(_t) {' +
+						'_t' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.watchInput(_t, ' + directiveLocalName + ', "' + name + '", function(_t) {' +
 							'return ' + attribute.expression +
 						'});'
 					);

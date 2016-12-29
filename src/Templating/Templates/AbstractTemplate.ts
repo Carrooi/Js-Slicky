@@ -206,19 +206,14 @@ export abstract class AbstractTemplate
 	}
 
 
-	public checkWatchers(): boolean
+	public checkWatchers(): void
 	{
 		if (this.changeDetectorStrategy === ChangeDetectionStrategy.Disabled) {
 			return;
 		}
 
-		let changed = this.checkOwnWatchers();
-
-		if (this.checkChildrenWatchers(changed)) {
-			changed = true;
-		}
-
-		return changed;
+		this.checkOwnWatchers();
+		this.checkChildrenWatchers()
 	}
 
 
@@ -244,26 +239,19 @@ export abstract class AbstractTemplate
 	}
 
 
-	protected checkChildrenWatchers(ownWatchersChanged: boolean): boolean
+	protected checkChildrenWatchers(): void
 	{
-		let changed = false;
-
 		for (let i = 0; i < this.children.length; i++) {
 			let child = this.children[i];
 
-			// skip change detection for children components when nothing changed in current component
-			if (typeof child['component'] !== 'undefined' && !ownWatchersChanged) {
+			if (typeof child['component'] !== 'undefined') {
 				continue;
 			}
 
 			if (child.changeDetectorStrategy === ChangeDetectionStrategy.Default) {
-				if (child.checkWatchers()) {
-					changed = true;
-				}
+				child.checkWatchers()
 			}
 		}
-
-		return changed;
 	}
 
 
@@ -417,7 +405,7 @@ export abstract class AbstractTemplate
 	}
 
 
-	public watchInput(directive: any, property: string, getter: (template: AbstractTemplate) => any): void
+	public watchInput(template: AbstractTemplate, directive: any, property: string, getter: (template: AbstractTemplate) => any): void
 	{
 		let input = getter(this);
 
@@ -425,6 +413,10 @@ export abstract class AbstractTemplate
 
 		this.watch(getter, (input: any) => {
 			this.setInput(directive, property, input);
+
+			if (template !== this && template.changeDetectorStrategy === ChangeDetectionStrategy.Default && typeof template['component'] !== 'undefined') {
+				template.checkWatchers();
+			}
 		});
 	}
 

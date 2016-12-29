@@ -7,6 +7,7 @@ import {ElementRef} from '../ElementRef';
 import {AbstractComponentTemplate} from '../Templates/AbstractComponentTemplate';
 import {ParametersList, OnInit, OnDestroy} from '../../Interfaces';
 import {ApplicationTemplate} from '../Templates/ApplicationTemplate';
+import {AbstractTemplate} from '../Templates/AbstractTemplate';
 import {Helpers} from '../../Util/Helpers';
 import {InputMetadataDefinition, HostElementMetadataDefinition, HostEventMetadataDefinition} from '../../Entity/Metadata';
 import {Dom} from '../../Util/Dom';
@@ -56,7 +57,7 @@ export class RootCompiler extends AbstractCompiler
 			throw Errors.parentComponentInRoot(this.definition.name, this.definition.parentComponent.property);
 		}
 
-		this.processInputs(el, directive);
+		this.processInputs(this.template, el, directive);
 		this.processElements(elementRef, directive);
 		this.processEvents(el, elementRef, directive);
 
@@ -93,7 +94,7 @@ export class RootCompiler extends AbstractCompiler
 		let TemplateType = <any>compiler.compile();
 		let template: AbstractComponentTemplate = new TemplateType(this.template, this.directiveType, elementRef, this.container, this.extensions, parameters, null, this.definition.metadata.controllerAs, use);
 
-		this.processInputs(el, template.component);
+		this.processInputs(template, el, template.component);
 
 		Helpers.each(this.definition.elements, (property: string, el: HostElementMetadataDefinition) => {
 			if (!el.selector) {
@@ -127,7 +128,7 @@ export class RootCompiler extends AbstractCompiler
 	}
 
 
-	private processInputs(el: HTMLElement, directive: any): void
+	private processInputs(template: AbstractTemplate, el: HTMLElement, directive: any): void
 	{
 		let attributes = HTMLParser.parseAttributes(el, DEFAULT_EXPRESSION_OPTIONS);
 
@@ -149,7 +150,7 @@ export class RootCompiler extends AbstractCompiler
 					break;
 				case HTMLAttributeType.PROPERTY:
 				case HTMLAttributeType.EXPRESSION:
-					this.template.watchInput(directive, name, (_t) => {
+					this.template.watchInput(template, directive, name, (_t) => {
 						return SafeEval.run('return ' + attribute.expression, {
 							_t: _t,
 						});
