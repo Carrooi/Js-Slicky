@@ -1,7 +1,6 @@
 import {TextParser} from '../Parsers/TextParser';
 import {Strings} from '../Util/Strings';
 import {TemplateAttributeParser} from '../Parsers/TemplateAttributeParser';
-import {ExpressionParser, ExpressionParserOptions} from './ExpressionParser';
 import {Helpers} from '../Util/Helpers';
 
 
@@ -31,7 +30,6 @@ export declare interface AttributeToken
 	name: string,
 	originalName: string,
 	value: string,
-	expression?: string,
 	preventDefault?: boolean,
 }
 
@@ -40,14 +38,6 @@ export declare interface StringToken
 {
 	type: HTMLTokenType,
 	value: string,
-	parent: ElementToken,
-}
-
-
-export declare interface ExpressionToken
-{
-	type: HTMLTokenType,
-	expression: string,
 	parent: ElementToken,
 }
 
@@ -69,15 +59,7 @@ export class HTMLParser
 	private static TWO_WAY_BINDING_CHANGE = 'change';
 
 
-	private options: ExpressionParserOptions;
-
 	private exports: Array<string> = [];
-
-
-	constructor(options: ExpressionParserOptions = {})
-	{
-		this.options = options;
-	}
 
 
 	public parse(html: string): {exports: Array<string>, tree: Array<StringToken|ElementToken>}
@@ -126,7 +108,7 @@ export class HTMLParser
 	}
 
 
-	private parseText(node: Text, parent: ElementToken = null): Array<StringToken|ExpressionToken>
+	private parseText(node: Text, parent: ElementToken = null): Array<StringToken>
 	{
 		let tokens = TextParser.parse(node.nodeValue);
 
@@ -137,7 +119,7 @@ export class HTMLParser
 			if (tokens[0].type === TextParser.TYPE_BINDING) {
 				return [{
 					type: HTMLTokenType.T_EXPRESSION,
-					expression: (new ExpressionParser(tokens[0].value, this.options)).parse(),
+					value: tokens[0].value,
 					parent: parent,
 				}];
 
@@ -150,7 +132,7 @@ export class HTMLParser
 			}
 
 		} else {
-			let buffer: Array<StringToken|ExpressionToken> = [];
+			let buffer: Array<StringToken> = [];
 
 			for (let i = 0; i < tokens.length; i++) {
 				let token = tokens[i];
@@ -158,7 +140,7 @@ export class HTMLParser
 				if (token.type === TextParser.TYPE_BINDING) {
 					buffer.push({
 						type: HTMLTokenType.T_EXPRESSION,
-						expression: (new ExpressionParser(token.value, this.options)).parse(),
+						value: token.value,
 						parent: parent,
 					});
 
@@ -254,7 +236,6 @@ export class HTMLParser
 	{
 		let type = HTMLAttributeType.NATIVE;
 		let preventDefault = false;
-		let expression: string = null;
 		let match;
 
 		if (match = name.match(/^\[\((.+)\)]$/)) {
@@ -285,10 +266,6 @@ export class HTMLParser
 			value = attr.value;
 		}
 
-		if ([HTMLAttributeType.EXPRESSION, HTMLAttributeType.PROPERTY, HTMLAttributeType.EVENT].indexOf(type) > -1) {
-			expression = (new ExpressionParser(value, this.options)).parse();
-		}
-
 		let attributes = [];
 
 		if (type === HTMLAttributeType.EVENT) {
@@ -299,7 +276,6 @@ export class HTMLParser
 					name: Strings.hyphensToCamelCase(events[i]),
 					originalName: events[i],
 					value: value,
-					expression: expression,
 					preventDefault: preventDefault,
 				});
 			}
@@ -311,10 +287,6 @@ export class HTMLParser
 				originalName: name,
 				value: value,
 			};
-
-			if (expression !== null) {
-				attribute.expression = expression;
-			}
 
 			attributes.push(attribute);
 

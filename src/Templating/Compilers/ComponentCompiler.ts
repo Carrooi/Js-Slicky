@@ -10,7 +10,7 @@ import {
 	ChildDirectiveDefinition, ChildrenDirectiveDefinition
 } from '../../Entity/Metadata';
 import {Annotations} from '../../Util/Annotations';
-import {HTMLParser, StringToken, ExpressionToken, ElementToken, HTMLTokenType, HTMLAttributeType, AttributeToken} from '../../Parsers/HTMLParser';
+import {HTMLParser, StringToken, ElementToken, HTMLTokenType, HTMLAttributeType, AttributeToken} from '../../Parsers/HTMLParser';
 import {QuerySelector} from '../QuerySelector';
 import {Container} from '../../DI/Container';
 import {Dom} from '../../Util/Dom';
@@ -165,7 +165,7 @@ export class ComponentCompiler extends AbstractCompiler
 		this.template = new ClassGenerator(this.getName(), 'Template');
 
 		let definition = this.getDefinition();
-		let html = (new HTMLParser(DEFAULT_EXPRESSION_OPTIONS)).parse(definition.metadata.template);
+		let html = (new HTMLParser).parse(definition.metadata.template);
 
 		let main = this.template.addMethod('main', ['onBeforeRender', 'onReady', 'onDestroy'], [
 			'this.onDestroy.push(onDestroy);',
@@ -203,7 +203,7 @@ export class ComponentCompiler extends AbstractCompiler
 		mainBody.append('onReady(_r, _t);');
 		mainBody.append('return _r;');
 
-		console.log(this.template.toString());
+		//console.log(this.template.toString());
 
 		let scope = {
 			Template: AbstractComponentTemplate,
@@ -247,10 +247,10 @@ export class ComponentCompiler extends AbstractCompiler
 			node = nodes[i];
 
 			if (node.type === HTMLTokenType.T_STRING) {
-				this.compileStringNode(appendTo, <StringToken>node, dynamic);
+				this.compileStringNode(appendTo, node, dynamic);
 
 			} else if (node.type === HTMLTokenType.T_EXPRESSION) {
-				this.compileExpressionNode(appendTo, <ExpressionToken>node, dynamic);
+				this.compileExpressionNode(appendTo, node, dynamic);
 
 			} else if (node.type === HTMLTokenType.T_ELEMENT) {
 				if ((<ElementToken>node).name === 'content') {
@@ -270,12 +270,12 @@ export class ComponentCompiler extends AbstractCompiler
 	}
 
 
-	private compileExpressionNode(appendTo: Buffer<string>, node: ExpressionToken, dynamic: boolean = true): void
+	private compileExpressionNode(appendTo: Buffer<string>, node: StringToken, dynamic: boolean = true): void
 	{
 		appendTo.append([
 			'_t.appendText(_n, "", ' + (dynamic ? '_b' : 'null') + ', function(_n) {',
 				'\t_t.watchText(_n, function(_t) {' +
-					'return ' + node.expression +
+					'return ' + this.compileExpression(node.value) +
 				'});',
 			'});',
 		]);
@@ -375,7 +375,7 @@ export class ComponentCompiler extends AbstractCompiler
 				case HTMLAttributeType.EXPRESSION:
 					buffer.append(
 						'_t.watchAttribute(_n, "' + originalName + '", function(_t) {' +
-							'return ' + attribute.expression +
+							'return ' + this.compileExpression(attribute.value) +
 						'});'
 					);
 
@@ -389,7 +389,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 					buffer.append(
 						'_t.watchProperty(_n, "' + originalName + '", function(_t) {' +
-							'return ' + attribute.expression +
+							'return ' + this.compileExpression(attribute.value) +
 						'});'
 					);
 
@@ -408,12 +408,15 @@ export class ComponentCompiler extends AbstractCompiler
 							directiveEvents[directiveOutput.directiveLocalName] = [];
 						}
 
-						directiveEvents[directiveOutput.directiveLocalName].push({event: directiveOutput.property, call: attribute.expression});
+						directiveEvents[directiveOutput.directiveLocalName].push({
+							event: directiveOutput.property,
+							call: this.compileExpression(attribute.value),
+						});
 					} else {
 						buffer.append(
 							'_t.addEventListener(_er, "' + attribute.name + '", function($event, $this, _t) {' +
 								(attribute.preventDefault ? '$event.preventDefault(); ' : '') +
-								attribute.expression +
+								this.compileExpression(attribute.value) +
 							'});'
 						);
 					}
@@ -577,7 +580,7 @@ export class ComponentCompiler extends AbstractCompiler
 				case HTMLAttributeType.EXPRESSION:
 					appendTo.append(
 						'_t' + (definition.type === DirectiveType.Component ? '.parent' : '') + '.watchInput(_t, ' + directiveLocalName + ', "' + name + '", function(_t) {' +
-							'return ' + attribute.expression +
+							'return ' + this.compileExpression(attribute.value) +
 						'});'
 					);
 					break;
@@ -742,7 +745,7 @@ export class ComponentCompiler extends AbstractCompiler
 		let imports = node.attributes['import'];
 		let importsCode = '{}';
 		if (typeof imports !== 'undefined') {
-			importsCode = imports.expression;
+			importsCode = this.compileExpression(imports.value);
 		}
 
 		appendTo.append([

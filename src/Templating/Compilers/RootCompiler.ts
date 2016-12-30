@@ -73,7 +73,7 @@ export class RootCompiler extends AbstractCompiler
 	{
 		let compiler = new ComponentCompiler(this.container, this.templatesStorage, this.directiveType);
 		let elementRef = ElementRef.get(el);
-		let node = (new HTMLParser(DEFAULT_EXPRESSION_OPTIONS)).parseElement(el);
+		let node = (new HTMLParser).parseElement(el);
 
 		if (this.definition.parentComponent) {
 			throw Errors.parentComponentInRoot(this.definition.name, this.definition.parentComponent.property);
@@ -130,7 +130,7 @@ export class RootCompiler extends AbstractCompiler
 
 	private processInputs(template: AbstractTemplate, el: HTMLElement, directive: any): void
 	{
-		let attributes = (new HTMLParser(DEFAULT_EXPRESSION_OPTIONS)).parseAttributes(el);
+		let attributes = (new HTMLParser).parseAttributes(el);
 
 		Helpers.each(this.definition.inputs, (name: string, input: InputMetadataDefinition) => {
 			let attributeName = input.name === null ? name : input.name;
@@ -151,7 +151,7 @@ export class RootCompiler extends AbstractCompiler
 				case HTMLAttributeType.PROPERTY:
 				case HTMLAttributeType.EXPRESSION:
 					this.template.watchInput(template, directive, name, (_t) => {
-						return SafeEval.run('return ' + attribute.expression, {
+						return SafeEval.run('return ' + this.compileExpression(attribute.value), {
 							_t: _t,
 						});
 					});
