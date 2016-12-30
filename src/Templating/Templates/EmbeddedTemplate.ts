@@ -19,7 +19,7 @@ export class EmbeddedTemplate extends AbstractTemplate
 
 	constructor(container: Container, parent: AbstractTemplate, templateRef: TemplateRef, parameters: ParametersList = {})
 	{
-		super(container, parameters, parent);
+		super(container, parameters, parent, parent.scope);
 
 		this.templateRef = templateRef;
 		this.realm = parent.realm;

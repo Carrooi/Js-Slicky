@@ -47,10 +47,10 @@ export abstract class AbstractTemplate
 	public onDestroy: Array<(rootTemplate: AbstractTemplate, template: AbstractTemplate) => void> = [];
 
 
-	constructor(container: Container, parameters: ParametersList = {}, parent?: AbstractTemplate)
+	constructor(container: Container, parameters: ParametersList = {}, parent?: AbstractTemplate, parentScope?: Scope)
 	{
 		this.container = container;
-		this.scope = new Scope(parameters, parent ? parent.scope : null);
+		this.scope = new Scope(parameters, parentScope);
 
 		this.realm = new Realm(this.parent ? this.parent.realm : null, null, () => {
 			if (this.changeDetectorStrategy === ChangeDetectionStrategy.Default) {		// todo: make compatible with angular

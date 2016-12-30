@@ -9,6 +9,7 @@ import {IfDirective} from '../../../../src/Directives/IfDirective';
 import {ForDirective} from '../../../../src/Directives/ForDirective';
 import {IterableDifferFactory} from '../../../../src/ChangeDetection/IterableDiffer';
 import {ChildrenDirectivesQuery} from '../../../../src/Templating/ChildrenDirectivesQuery';
+import {AbstractComponentTemplate} from '../../../../src/Templating/Templates/AbstractComponentTemplate';
 
 import {createTemplate} from '../../_testHelpers';
 
@@ -448,28 +449,6 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			parent.querySelector('button').dispatchEvent(Dom.createMouseEvent('click'));
 		});
 
-		it('should have access to parent component in template', () => {
-			@Component({
-				selector: 'child',
-				template: '{{ p.type }}',
-			})
-			class TestComponentChild {}
-
-			@Component({
-				selector: 'parent',
-				template: '<child></child>',
-				controllerAs: 'p',
-				directives: [TestComponentChild],
-			})
-			class TestComponentParent {
-				type = 'parent';
-			}
-
-			createTemplate(parent, '<parent></parent>', {}, [TestComponentParent]);
-
-			expect(parent.innerText).to.be.equal('parent');
-		});
-
 		it('should be able to use directives from any parent', () => {
 			@Component({
 				selector: 'component',
@@ -830,14 +809,16 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 
 			@Component({
 				selector: 'parent',
+				controllerAs: 'p',
 				template:
-					'<template #child [s:for] [s:for-of]="data">' +
+					'<template #child [s:for] [s:for-of]="p.data">' +
 						'<child [id]="child"></child>' +
 					'</template>'
 				,
 				directives: [ForDirective, TestChildComponent],
 			})
 			class TestParentComponent {
+				data = [1, 2];
 				@ChildrenDirective(TestChildComponent) children = new ChildrenDirectivesQuery<TestChildComponent>();
 				constructor() {
 					this.children.added.subscribe((child: TestChildComponent) => called.add.push(child.id));
@@ -849,38 +830,35 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 				}
 			}
 
-			let scope = {
-				data: [1, 2],
-			};
-
-			let template = createTemplate(parent, '<parent></parent>', scope, [TestParentComponent], [IterableDifferFactory]).children[0];
+			let template = <AbstractComponentTemplate>createTemplate(parent, '<parent></parent>', {}, [TestParentComponent], [IterableDifferFactory]).children[0];
+			let parentComponent = <TestParentComponent>template.component;
 
 			expect(called.add).to.be.eql([1, 2]);
 			expect(called.remove).to.be.eql([]);
 			expect(directives).to.be.eql([1, 2]);
 
-			scope.data.push(3);
+			parentComponent.data.push(3);
 			template.checkWatchers();
 
 			expect(called.add).to.be.eql([1, 2, 3]);
 			expect(called.remove).to.be.eql([]);
 			expect(directives).to.be.eql([1, 2, 3]);
 
-			scope.data.splice(2, 1);
+			parentComponent.data.splice(2, 1);
 			template.checkWatchers();
 
 			expect(called.add).to.be.eql([1, 2, 3]);
 			expect(called.remove).to.be.eql([3]);
 			expect(directives).to.be.eql([1, 2]);
 
-			scope.data.push(3);
+			parentComponent.data.push(3);
 			template.checkWatchers();
 
 			expect(called.add).to.be.eql([1, 2, 3, 3]);
 			expect(called.remove).to.be.eql([3]);
 			expect(directives).to.be.eql([1, 2, 3]);
 
-			scope.data.splice(1, 2);
+			parentComponent.data.splice(1, 2);
 			template.checkWatchers();
 
 			expect(called.add).to.be.eql([1, 2, 3, 3]);
@@ -905,14 +883,16 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 
 			@Component({
 				selector: 'component',
+				controllerAs: 'p',
 				template:
-					'<template #child [s:for] [s:for-of]="data">' +
+					'<template #child [s:for] [s:for-of]="p.data">' +
 						'<directive [id]="child"></directive>' +
 					'</template>'
 				,
 				directives: [ForDirective, TestChildDirective],
 			})
 			class TestParentComponent {
+				data = [1, 2];
 				@ChildrenDirective(TestChildDirective) children = new ChildrenDirectivesQuery<TestChildDirective>();
 				constructor() {
 					this.children.added.subscribe((child: TestChildDirective) => called.add.push(child.id));
@@ -924,38 +904,35 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 				}
 			}
 
-			let scope = {
-				data: [1, 2],
-			};
-
-			let template = createTemplate(parent, '<component></component>', scope, [TestParentComponent], [IterableDifferFactory]).children[0];
+			let template = <AbstractComponentTemplate>createTemplate(parent, '<component></component>', {}, [TestParentComponent], [IterableDifferFactory]).children[0];
+			let parentComponent = <TestParentComponent>template.component;
 
 			expect(called.add).to.be.eql([1, 2]);
 			expect(called.remove).to.be.eql([]);
 			expect(directives).to.be.eql([1, 2]);
 
-			scope.data.push(3);
+			parentComponent.data.push(3);
 			template.checkWatchers();
 
 			expect(called.add).to.be.eql([1, 2, 3]);
 			expect(called.remove).to.be.eql([]);
 			expect(directives).to.be.eql([1, 2, 3]);
 
-			scope.data.splice(2, 1);
+			parentComponent.data.splice(2, 1);
 			template.checkWatchers();
 
 			expect(called.add).to.be.eql([1, 2, 3]);
 			expect(called.remove).to.be.eql([3]);
 			expect(directives).to.be.eql([1, 2]);
 
-			scope.data.push(3);
+			parentComponent.data.push(3);
 			template.checkWatchers();
 
 			expect(called.add).to.be.eql([1, 2, 3, 3]);
 			expect(called.remove).to.be.eql([3]);
 			expect(directives).to.be.eql([1, 2, 3]);
 
-			scope.data.splice(1, 2);
+			parentComponent.data.splice(1, 2);
 			template.checkWatchers();
 
 			expect(called.add).to.be.eql([1, 2, 3, 3]);
