@@ -1,6 +1,6 @@
 import {Dom} from '../../../../src/Util/Dom';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
-import {OnInit, OnUpdate} from '../../../../src/Interfaces';
+import {OnInit} from '../../../../src/Interfaces';
 import {HostElement, Input, Required, HostEvent, Component, ParentComponent} from '../../../../src/Entity/Metadata';
 
 import {processComponent} from '../../_testHelpers';
@@ -107,17 +107,12 @@ describe('#Templating/Compilers/RootCompiler.Component', () => {
 
 		it('should import all inputs', () => {
 			let called = false;
-			let calledUpdate = 0;
-			let scope = {
-				prop: 'property',
-				attr: 'attribute',
-			};
 
 			@Component({
 				selector: 'component',
 				template: '',
 			})
-			class TestComponent implements OnInit, OnUpdate {
+			class TestComponent implements OnInit {
 				@Input() property;
 				@Input('attributeCustom') attribute;
 				@Input() simpleAttribute;
@@ -125,28 +120,16 @@ describe('#Templating/Compilers/RootCompiler.Component', () => {
 				onInit() {
 					called = true;
 
-					expect(this.property).to.be.equal(scope.prop);
-					expect(this.attribute).to.be.equal(scope.attr);
+					expect(this.property).to.be.equal('prop');
+					expect(this.attribute).to.be.equal('attr');
 					expect(this.simpleAttribute).to.be.equal('simple');
 					expect(this.withDefault).to.be.equal('default value');
 				}
-				onUpdate(prop: string, value: any)
-				{
-					calledUpdate++;
-
-					expect(prop).to.be.oneOf(['property', 'attribute']);
-
-					if (prop === 'property') {
-						expect(value).to.be.equal(scope.prop);
-					} else {
-						expect(value).to.be.equal(scope.attr);
-					}
-				}
 			}
 
-			parent.innerHTML = '<component [property]="prop" attribute-custom="{{ attr }}" simple-attribute="simple"></component>';
+			parent.innerHTML = '<component [property]="\'prop\'" attribute-custom="{{ \'attr\' }}" simple-attribute="simple"></component>';
 
-			processComponent(<HTMLElement>parent.children[0], TestComponent, scope);
+			processComponent(<HTMLElement>parent.children[0], TestComponent);
 
 			expect(called).to.be.equal(true);
 		});

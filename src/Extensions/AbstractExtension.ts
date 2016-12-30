@@ -15,12 +15,6 @@ export abstract class AbstractExtension
 	}
 
 
-	public getParameters(): ParametersList
-	{
-		return {};
-	}
-
-
 	public getFilters(): Array<any>
 	{
 		return [];

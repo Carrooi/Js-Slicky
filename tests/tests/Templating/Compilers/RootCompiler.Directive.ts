@@ -1,6 +1,6 @@
 import {Dom} from '../../../../src/Util/Dom';
 import {ElementRef} from '../../../../src/Templating/ElementRef';
-import {OnInit, OnUpdate} from '../../../../src/Interfaces';
+import {OnInit} from '../../../../src/Interfaces';
 import {Directive, HostElement, Input, Required, HostEvent, ParentComponent} from '../../../../src/Entity/Metadata';
 
 import {processDirective} from '../../_testHelpers';
@@ -104,16 +104,11 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 
 		it('should import all inputs', () => {
 			let called = false;
-			let calledUpdate = 0;
-			let scope = {
-				prop: 'property',
-				attr: 'attribute',
-			};
 
 			@Directive({
 				selector: 'directive',
 			})
-			class TestDirective implements OnInit, OnUpdate {
+			class TestDirective implements OnInit {
 				@Input() property;
 				@Input('attributeCustom') attribute;
 				@Input() simpleAttribute;
@@ -121,28 +116,16 @@ describe('#Templating/Compilers/RootCompiler.Directive', () => {
 				onInit() {
 					called = true;
 
-					expect(this.property).to.be.equal(scope.prop);
-					expect(this.attribute).to.be.equal(scope.attr);
+					expect(this.property).to.be.equal('prop');
+					expect(this.attribute).to.be.equal('attr');
 					expect(this.simpleAttribute).to.be.equal('simple');
 					expect(this.withDefault).to.be.equal('default value');
 				}
-				onUpdate(prop: string, value: any)
-				{
-					calledUpdate++;
-
-					expect(prop).to.be.oneOf(['property', 'attribute']);
-
-					if (prop === 'property') {
-						expect(value).to.be.equal(scope.prop);
-					} else {
-						expect(value).to.be.equal(scope.attr);
-					}
-				}
 			}
 
-			parent.innerHTML = '<directive [property]="prop" attribute-custom="{{ attr }}" simple-attribute="simple"></directive>';
+			parent.innerHTML = '<directive [property]="\'prop\'" attribute-custom="{{ \'attr\' }}" simple-attribute="simple"></directive>';
 
-			processDirective(<HTMLElement>parent.children[0], TestDirective, scope);
+			processDirective(<HTMLElement>parent.children[0], TestDirective);
 
 			expect(called).to.be.equal(true);
 		});

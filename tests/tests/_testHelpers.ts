@@ -13,12 +13,12 @@ import {ExpressionParser, ExpressionParserOptions} from '../../src/Parsers/Expre
 import chai = require('chai');
 
 
-let prepareCompiler = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}, container?: Container): RootCompiler => {
+let prepareCompiler = (parent: HTMLElement, directiveType: any, container?: Container): RootCompiler => {
 	if (!container) {
 		container = new Container;
 	}
 
-	let applicationTemplate = new ApplicationTemplate(container, parent, parameters);
+	let applicationTemplate = new ApplicationTemplate(container, parent);
 	let templatesStorage = new TemplatesStorage;
 	let extensions = new ExtensionsManager;
 
@@ -26,13 +26,13 @@ let prepareCompiler = (parent: HTMLElement, directiveType: any, parameters: Para
 };
 
 
-export let processDirective = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}): any => {
-	return prepareCompiler(parent, directiveType, parameters).processDirective(parent);
+export let processDirective = (parent: HTMLElement, directiveType: any): any => {
+	return prepareCompiler(parent, directiveType).processDirective(parent);
 };
 
 
-export let processComponent = (parent: HTMLElement, directiveType: any, parameters: ParametersList = {}): any => {
-	return prepareCompiler(parent, directiveType, parameters).processComponent(parent);
+export let processComponent = (parent: HTMLElement, directiveType: any): any => {
+	return prepareCompiler(parent, directiveType).processComponent(parent);
 };
 
 
@@ -54,8 +54,8 @@ export let createTemplate = (parent: HTMLElement, html: string, parameters: Para
 		useFactory: () => new Translator('en'),
 	});
 
-	let compiler = prepareCompiler(parent, SuperTestComponent, parameters, container);
-	let template = compiler.processComponent(parent);
+	let compiler = prepareCompiler(parent, SuperTestComponent, container);
+	let template = compiler.processComponent(parent, parameters);
 
 	return template;
 };

@@ -1,6 +1,5 @@
 import {AbstractTemplate} from './AbstractTemplate';
 import {Container} from '../../DI/Container';
-import {ParamsList} from '../../Translations/Translator';
 import {OnDestroy} from '../../Interfaces';
 import {Errors} from '../../Errors';
 import {Dom} from '../../Util/Dom';
@@ -14,9 +13,9 @@ export class ApplicationTemplate extends AbstractTemplate
 	private el: HTMLElement;
 
 
-	constructor(container: Container, el: HTMLElement, parameters: ParamsList = {})
+	constructor(container: Container, el: HTMLElement)
 	{
-		super(container, parameters);
+		super(container);
 
 		this.el = el;
 	}

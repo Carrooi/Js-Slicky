@@ -5,7 +5,6 @@ import {IterableDifferFactory} from './ChangeDetection/IterableDiffer';
 import {Dom} from './Util/Dom';
 import {DirectiveParser, DirectiveType} from './Entity/DirectiveParser';
 import {ApplicationTemplate} from './Templating/Templates/ApplicationTemplate';
-import {ParamsList} from './Translations/Translator';
 import {FilterMetadataDefinition} from './Templating/Filters/Metadata';
 import {Annotations} from './Util/Annotations';
 import {TemplatesStorage} from './Templating/Templates/TemplatesStorage';
@@ -19,7 +18,6 @@ export declare interface ApplicationOptions
 {
 	parentElement?: HTMLElement,
 	filters?: Array<any>,
-	parameters?: ParamsList,
 }
 
 
@@ -74,9 +72,6 @@ export class Application
 
 		let template = new ApplicationTemplate(this.container, options.parentElement);
 		let templatesStorage = new TemplatesStorage;
-
-		template.scope.setParameters(this.extensions.getParameters());
-		template.scope.setParameters(options.parameters);
 
 		let extensionsFilters = this.extensions.getFilters();
 		let extensionsDirectives = this.extensions.getDirectives();

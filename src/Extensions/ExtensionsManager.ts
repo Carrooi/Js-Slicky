@@ -18,23 +18,6 @@ export class ExtensionsManager
 	}
 
 
-	public getParameters(): ParametersList
-	{
-		let parameters = {};
-
-		for (let i = 0; i < this.extensions.length; i++) {
-			let extensionParameters = this.extensions[i].getParameters();
-			for (let name in extensionParameters) {
-				if (extensionParameters.hasOwnProperty(name)) {
-					parameters[name] = extensionParameters[name];
-				}
-			}
-		}
-
-		return parameters;
-	}
-
-
 	public getFilters(): Array<any>
 	{
 		let filters = [];
