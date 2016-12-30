@@ -92,6 +92,8 @@ export class ComponentCompiler extends AbstractCompiler
 
 	public static PLACEHOLDER_COMMENT = '__slicky_data__';
 
+	private static counter = 0;
+
 
 	private templates: Array<ElementToken> = [];
 
@@ -124,6 +126,8 @@ export class ComponentCompiler extends AbstractCompiler
 	{
 		super();
 
+		ComponentCompiler.counter++;
+
 		this.container = container;
 		this.storage = storage;
 		this.component = component;
@@ -137,7 +141,7 @@ export class ComponentCompiler extends AbstractCompiler
 	public getName(): string
 	{
 		if (this.name === null) {
-			this.name = 'Template_' + ComponentCompiler.createDirectiveHash(this.getDefinition());
+			this.name = 'Template_' + this.getDefinition().name + '_' + ComponentCompiler.counter;
 		}
 
 		return this.name;
@@ -613,7 +617,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 		// create instance of directive
 
-		let name = 'Directive_' + ComponentCompiler.createDirectiveHash(definition);
+		let name = 'Directive_' + definition.name + '_' + Object.keys(this.templateImports).length;
 		this.templateImports[name] = directiveType;
 
 		if (isComponent) {
@@ -916,12 +920,6 @@ export class ComponentCompiler extends AbstractCompiler
 	private escape(str: string): string
 	{
 		return str.replace(/\n/g, '\\n');
-	}
-
-
-	public static createDirectiveHash(component: DirectiveDefinition): number
-	{
-		return Strings.hash(component.name + '_' + component.metadata.selector);
 	}
 
 }
