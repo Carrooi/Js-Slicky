@@ -73,7 +73,7 @@ export class RootCompiler extends AbstractCompiler
 	{
 		let compiler = new ComponentCompiler(this.container, this.templatesStorage, this.directiveType);
 		let elementRef = ElementRef.get(el);
-		let node = HTMLParser.parseElement(el, DEFAULT_EXPRESSION_OPTIONS);
+		let node = (new HTMLParser(DEFAULT_EXPRESSION_OPTIONS)).parseElement(el);
 
 		if (this.definition.parentComponent) {
 			throw Errors.parentComponentInRoot(this.definition.name, this.definition.parentComponent.property);
@@ -130,7 +130,7 @@ export class RootCompiler extends AbstractCompiler
 
 	private processInputs(template: AbstractTemplate, el: HTMLElement, directive: any): void
 	{
-		let attributes = HTMLParser.parseAttributes(el, DEFAULT_EXPRESSION_OPTIONS);
+		let attributes = (new HTMLParser(DEFAULT_EXPRESSION_OPTIONS)).parseAttributes(el);
 
 		Helpers.each(this.definition.inputs, (name: string, input: InputMetadataDefinition) => {
 			let attributeName = input.name === null ? name : input.name;

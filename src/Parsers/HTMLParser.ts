@@ -69,22 +69,36 @@ export class HTMLParser
 	private static TWO_WAY_BINDING_CHANGE = 'change';
 
 
-	public static parse(html: string, options: ExpressionParserOptions = {}): Array<StringToken|ElementToken>
+	private options: ExpressionParserOptions;
+
+	private exports: Array<string> = [];
+
+
+	constructor(options: ExpressionParserOptions = {})
+	{
+		this.options = options;
+	}
+
+
+	public parse(html: string): {exports: Array<string>, tree: Array<StringToken|ElementToken>}
 	{
 		let parent = document.createElement('div');
 		parent.innerHTML = html;
 
-		return HTMLParser.parseBranch(parent, options);
+		return {
+			exports: this.exports,
+			tree: this.parseBranch(parent),
+		};
 	}
 
 
-	public static parseElement(element: Element, options: ExpressionParserOptions = {}): ElementToken
+	public parseElement(element: Element): ElementToken
 	{
-		return HTMLParser._parseElement(element, options, null, false);
+		return this._parseElement(element, null, false);
 	}
 
 
-	private static parseBranch(node: Node, options: ExpressionParserOptions, parent: ElementToken = null): Array<StringToken|ElementToken>
+	private parseBranch(node: Node, parent: ElementToken = null): Array<StringToken|ElementToken>
 	{
 		let branch = [];
 		let child: Node;
@@ -97,13 +111,13 @@ export class HTMLParser
 			child = node.childNodes[i];
 
 			if (child.nodeType === Node.TEXT_NODE) {
-				let items = HTMLParser.parseText(<Text>child, options, parent);
+				let items = this.parseText(<Text>child, parent);
 				for (let i = 0; i < items.length; i++) {
 					branch.push(items[i]);
 				}
 
 			} else if (child.nodeType === Node.ELEMENT_NODE) {
-				branch.push(HTMLParser._parseElement(<Element>child, options, parent));
+				branch.push(this._parseElement(<Element>child, parent));
 
 			}
 		}
@@ -112,7 +126,7 @@ export class HTMLParser
 	}
 
 
-	private static parseText(node: Text, options: ExpressionParserOptions, parent: ElementToken = null): Array<StringToken|ExpressionToken>
+	private parseText(node: Text, parent: ElementToken = null): Array<StringToken|ExpressionToken>
 	{
 		let tokens = TextParser.parse(node.nodeValue);
 
@@ -123,7 +137,7 @@ export class HTMLParser
 			if (tokens[0].type === TextParser.TYPE_BINDING) {
 				return [{
 					type: HTMLTokenType.T_EXPRESSION,
-					expression: (new ExpressionParser(tokens[0].value, options)).parse(),
+					expression: (new ExpressionParser(tokens[0].value, this.options)).parse(),
 					parent: parent,
 				}];
 
@@ -144,7 +158,7 @@ export class HTMLParser
 				if (token.type === TextParser.TYPE_BINDING) {
 					buffer.push({
 						type: HTMLTokenType.T_EXPRESSION,
-						expression: (new ExpressionParser(token.value, options)).parse(),
+						expression: (new ExpressionParser(token.value, this.options)).parse(),
 						parent: parent,
 					});
 
@@ -162,9 +176,9 @@ export class HTMLParser
 	}
 
 
-	private static _parseElement(node: Element, options: ExpressionParserOptions, parent: ElementToken = null, parseChildren: boolean = true): ElementToken
+	private _parseElement(node: Element, parent: ElementToken = null, parseChildren: boolean = true): ElementToken
 	{
-		let attributes = HTMLParser.parseAttributes(node, options);
+		let attributes = this.parseAttributes(node);
 
 		let nodeToken: ElementToken = {
 			type: HTMLTokenType.T_ELEMENT,
@@ -175,7 +189,7 @@ export class HTMLParser
 		};
 
 		if (parseChildren) {
-			nodeToken.children = HTMLParser.parseBranch(node, options, nodeToken);
+			nodeToken.children = this.parseBranch(node, nodeToken);
 		}
 
 		let rootTemplate: ElementToken;
@@ -197,7 +211,7 @@ export class HTMLParser
 
 			let templateAttributes = TemplateAttributeParser.parse('*' + attribute.name, attribute.value);
 			for (let i = 0; i < templateAttributes.length; i++) {
-				let appendTemplateAttributes = HTMLParser.parseAttribute(templateAttributes[i].name, templateAttributes[i].value, options);
+				let appendTemplateAttributes = this.parseAttribute(templateAttributes[i].name, templateAttributes[i].value);
 				for (let j = 0; j < appendTemplateAttributes.length; j++) {
 					template.attributes[appendTemplateAttributes[j].name] = appendTemplateAttributes[j];
 				}
@@ -221,12 +235,12 @@ export class HTMLParser
 	}
 
 
-	public static parseAttributes(node: Element, options: ExpressionParserOptions = {}): {[name: string]: AttributeToken}
+	public parseAttributes(node: Element): {[name: string]: AttributeToken}
 	{
 		let attributes = {};
 
 		for (let i = 0; i < node.attributes.length; i++) {
-			let append = HTMLParser.parseAttribute(node.attributes[i].name, node.attributes[i].value, options);
+			let append = this.parseAttribute(node.attributes[i].name, node.attributes[i].value);
 			for (let j = 0; j < append.length; j++) {
 				attributes[append[j].name] = append[j];
 			}
@@ -236,7 +250,7 @@ export class HTMLParser
 	}
 
 
-	private static parseAttribute(name: string, value: string, options: ExpressionParserOptions): Array<AttributeToken>
+	private parseAttribute(name: string, value: string): Array<AttributeToken>
 	{
 		let type = HTMLAttributeType.NATIVE;
 		let preventDefault = false;
@@ -245,8 +259,8 @@ export class HTMLParser
 
 		if (match = name.match(/^\[\((.+)\)]$/)) {
 			return [
-				HTMLParser.parseAttribute('[' + match[1] + ']', value, options)[0],
-				HTMLParser.parseAttribute('(' + match[1] + '-' + HTMLParser.TWO_WAY_BINDING_CHANGE + ')!', value + '=$value', options)[0],
+				this.parseAttribute('[' + match[1] + ']', value)[0],
+				this.parseAttribute('(' + match[1] + '-' + HTMLParser.TWO_WAY_BINDING_CHANGE + ')!', value + '=$value')[0],
 			];
 		}
 
@@ -266,13 +280,13 @@ export class HTMLParser
 		}
 
 		if (type === HTMLAttributeType.NATIVE) {
-			let attr = HTMLParser.parseAttributeValue(value);
+			let attr = this.parseAttributeValue(value);
 			type = attr.type;
 			value = attr.value;
 		}
 
 		if ([HTMLAttributeType.EXPRESSION, HTMLAttributeType.PROPERTY, HTMLAttributeType.EVENT].indexOf(type) > -1) {
-			expression = (new ExpressionParser(value, options)).parse();
+			expression = (new ExpressionParser(value, this.options)).parse();
 		}
 
 		let attributes = [];
@@ -302,14 +316,18 @@ export class HTMLParser
 				attribute.expression = expression;
 			}
 
-			attributes.push(attribute)
+			attributes.push(attribute);
+
+			if (attribute.type === HTMLAttributeType.EXPORT && this.exports.indexOf(attribute.name) < 0) {
+				this.exports.push(attribute.name);
+			}
 		}
 
 		return attributes;
 	}
 
 
-	private static parseAttributeValue(value: string): {type: HTMLAttributeType, value: string}
+	private parseAttributeValue(value: string): {type: HTMLAttributeType, value: string}
 	{
 		let tokens = TextParser.parse(value);
 		let type = HTMLAttributeType.NATIVE;

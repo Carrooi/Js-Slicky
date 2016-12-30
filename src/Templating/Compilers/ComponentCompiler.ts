@@ -165,7 +165,7 @@ export class ComponentCompiler extends AbstractCompiler
 		this.template = new ClassGenerator(this.getName(), 'Template');
 
 		let definition = this.getDefinition();
-		let html = HTMLParser.parse(definition.metadata.template, DEFAULT_EXPRESSION_OPTIONS);
+		let html = (new HTMLParser(DEFAULT_EXPRESSION_OPTIONS)).parse(definition.metadata.template);
 
 		let main = this.template.addMethod('main', ['onBeforeRender', 'onReady', 'onDestroy'], [
 			'this.onDestroy.push(onDestroy);',
@@ -191,7 +191,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 		mainBody.append('onBeforeRender(_r, _t);');
 
-		this.compileBranch(mainBody, html, false);
+		this.compileBranch(mainBody, html.tree, false);
 		this.checkDirectiveRequests(mainBody, ['_r.component']);
 
 		Helpers.each(definition.childDirectives, (property: string, child: ChildDirectiveDefinition) => {

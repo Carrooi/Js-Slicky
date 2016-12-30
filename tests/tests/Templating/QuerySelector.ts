@@ -8,7 +8,7 @@ let expect = chai.expect;
 
 
 let el = (html: string): ElementToken => {
-	return (<Array<ElementToken>>HTMLParser.parse(html))[0];
+	return (<Array<ElementToken>>(new HTMLParser).parse(html).tree)[0];
 };
 
 
@@ -118,7 +118,7 @@ describe('#Templating/QuerySelector', () => {
 		});
 
 		it('should not match element by selector outside of parent boundary', () => {
-			let dom = HTMLParser.parse('<div><ul><li><span><button></button></span></li></ul></div>');
+			let dom = (new HTMLParser).parse('<div><ul><li><span><button></button></span></li></ul></div>').tree;
 			let boundary = <ElementToken>(<any>dom[0]).children[0].children[0].children[0];			// span
 			let btn = <ElementToken>(<any>dom[0]).children[0].children[0].children[0].children[0];	// button
 
