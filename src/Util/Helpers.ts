@@ -62,27 +62,35 @@ export class Helpers
 	}
 
 
-	public static clone(obj: any): any
+	public static clone<T>(obj: T, deep: boolean = false): T
 	{
 		if (Helpers.isArray(obj)) {
 			let clone = [];
 
-			for (let i = 0; i < obj.length; i++) {
-				clone.push(obj[i]);
+			for (let i = 0; i < (<any>obj).length; i++) {
+				if (deep && (Helpers.isArray(obj[i]) || Helpers.isObject(obj[i]))) {
+					clone.push(Helpers.clone(obj[i], deep));
+				} else {
+					clone.push(obj[i]);
+				}
 			}
 
-			return clone;
+			return <any>clone;
 
 		} else if (Helpers.isObject(obj)) {
 			let clone = {};
 
 			for (let key in obj) {
 				if (obj.hasOwnProperty(key)) {
-					clone[key] = obj[key];
+					if (deep && (Helpers.isArray(obj[key]) || Helpers.isObject(obj[key]))) {
+						clone[key] = Helpers.clone(obj[key], deep);
+					} else {
+						clone[key] = obj[key];
+					}
 				}
 			}
 
-			return clone;
+			return <any>clone;
 
 		} else {
 			return obj;

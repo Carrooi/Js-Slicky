@@ -20,10 +20,10 @@ export enum ChangeDetectionAction
 
 
 export const DEFAULT_EXPRESSION_OPTIONS: ExpressionParserOptions = {
-	variableProvider: {
+	variableProviders: [{
 		replacement: '_t.scope.findParameter("%root")',
 		exclude: /^\$/,
 		storeLocally: true,
-	},
+	}],
 	filterProvider: '_t.filter(%value, "%filter", [%args])',
 };

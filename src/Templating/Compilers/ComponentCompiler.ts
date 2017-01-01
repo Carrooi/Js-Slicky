@@ -20,7 +20,6 @@ import {Buffer} from '../../Util/Buffer';
 import {AbstractCompiler} from './AbstractCompiler';
 import {TemplatesStorage} from '../Templates/TemplatesStorage';
 import {Errors} from '../../Errors';
-import {DEFAULT_EXPRESSION_OPTIONS} from '../../constants';
 
 
 enum ChildRequestType
@@ -167,6 +166,8 @@ export class ComponentCompiler extends AbstractCompiler
 		let definition = this.getDefinition();
 		let html = (new HTMLParser).parse(definition.metadata.template);
 
+		this.templateExports = html.exports;
+
 		let main = this.template.addMethod('main', ['onBeforeRender', 'onReady', 'onDestroy'], [
 			'this.onDestroy.push(onDestroy);',
 			'var _r, _t = _r = this;',
@@ -203,7 +204,7 @@ export class ComponentCompiler extends AbstractCompiler
 		mainBody.append('onReady(_r, _t);');
 		mainBody.append('return _r;');
 
-		//console.log(this.template.toString());
+		console.log(this.template.toString());
 
 		let scope = {
 			Template: AbstractComponentTemplate,

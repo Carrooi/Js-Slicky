@@ -3,9 +3,17 @@ import {TokenType} from '../Tokenizer/Tokens';
 import {TokensIterator} from '../Tokenizer/TokensIterator';
 
 
+export declare interface VariableProvider
+{
+	replacement?: string,
+	roots?: Array<string>,
+	exclude?: RegExp,
+	storeLocally?: boolean,
+}
+
 export declare interface ExpressionParserOptions
 {
-	variableProvider?: {replacement?: string, exclude?: RegExp, storeLocally?: boolean},
+	variableProviders?: Array<VariableProvider>,
 	filterProvider?: string,
 	autoWrap?: boolean,
 	allowFilters?: boolean,
@@ -27,7 +35,7 @@ export class ExpressionParser
 
 	private result: string = '';
 
-	private variableProvider: {replacement?: string, exclude?: RegExp, storeLocally?: boolean};
+	private variableProviders: Array<VariableProvider> = [];
 
 	private filterProvider: string;
 
@@ -52,8 +60,8 @@ export class ExpressionParser
 	{
 		this.code = code;
 
-		if (typeof options.variableProvider !== 'undefined') {
-			this.variableProvider = options.variableProvider;
+		if (typeof options.variableProviders !== 'undefined') {
+			this.variableProviders = options.variableProviders;
 		}
 
 		if (typeof options.filterProvider !== 'undefined') {
@@ -183,6 +191,7 @@ export class ExpressionParser
 
 		let code = this.iterator.token.value;
 		let peek: Token;
+		let variableProvider: VariableProvider;
 
 		// object key
 		if (
@@ -197,20 +206,17 @@ export class ExpressionParser
 
 		this.iterator.resetPeek();
 
-		// replace root with variable provider
-		if (
-			!this.processingVariable && this.variableProvider && this.variableProvider.replacement &&
-			(!this.variableProvider.exclude || !this.variableProvider.exclude.test(code))
-		) {
-			code = this.variableProvider.replacement.replace(/%root/g, code);
-		}
+		if (!this.processingVariable && (variableProvider = this.findVariableProvider(code))) {
 
-		// store root into local scope
-		if (
-			!this.processingVariable && this.variableProvider && this.variableProvider.storeLocally &&
-			(!this.variableProvider.exclude || !this.variableProvider.exclude.test(code))
-		) {
-			code = this.reference(code);
+			// replace root with variable provider
+			if (variableProvider.replacement) {
+				code = variableProvider.replacement.replace(/%root/g, code);
+			}
+
+			// store root into local scope
+			if (variableProvider.storeLocally) {
+				code = this.reference(code);
+			}
 		}
 
 		let isRoot = !this.processingVariable;
@@ -317,7 +323,7 @@ export class ExpressionParser
 
 		if (innerIterator.token) {
 			let innerParser = new ExpressionParser(this.code, {
-				variableProvider: this.variableProvider,
+				variableProviders: this.variableProviders,
 				filterProvider: this.filterProvider,
 				referencesStorage: this.references,
 				allowFilters: openingToken === TokenType.T_OPEN_PARENTHESIS,
@@ -400,6 +406,26 @@ export class ExpressionParser
 
 		this.references.push(variable);
 		return ExpressionParser.REFERENCE_PREFIX + (this.references.length - 1);
+	}
+
+
+	private findVariableProvider(code: string): VariableProvider
+	{
+		for (let i = 0; i < this.variableProviders.length; i++) {
+			let variableProvider = this.variableProviders[i];
+
+			if (typeof variableProvider.roots !== 'undefined' && variableProvider.roots.indexOf(code) < 0) {
+				continue;
+			}
+
+			if (typeof variableProvider.exclude !== 'undefined' && variableProvider.exclude.test(code)) {
+				continue;
+			}
+
+			return variableProvider;
+		}
+
+		return null;
 	}
 
 

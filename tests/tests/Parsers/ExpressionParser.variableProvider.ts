@@ -5,11 +5,11 @@ import chai = require('chai');
 
 const PARSER_OPTIONS = {
 	filterProvider: 'filter(%value, "%filter", [%args])',
-	variableProvider: {
+	variableProviders: [{
 		replacement: 'scope.%root',
 		storeLocally: true,
 		exclude: /^\$/,
-	},
+	}],
 	autoWrap: false,
 };
 
