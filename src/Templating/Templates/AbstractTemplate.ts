@@ -9,8 +9,18 @@ import {EventEmitter} from '../../Util/EventEmitter';
 import {ChangeDetectionStrategy} from '../../constants';
 
 
+enum WatcherType
+{
+	Expression,
+	Attribute,
+	Property,
+	Input,
+}
+
 declare interface Watcher
 {
+	type: WatcherType,
+	template: AbstractTemplate,
 	watcher: (previous: any, copy: any) => {current: any},
 	callback: (data: any) => any,
 	current: any,
@@ -212,15 +222,6 @@ export abstract class AbstractTemplate
 			return;
 		}
 
-		this.checkOwnWatchers();
-		this.checkChildrenWatchers()
-	}
-
-
-	protected checkOwnWatchers(): boolean
-	{
-		let changed = false;
-
 		for (let i = 0; i < this.watchers.length; i++) {
 			let watcher = this.watchers[i];
 
@@ -230,32 +231,20 @@ export abstract class AbstractTemplate
 				watcher.copy = Helpers.clone(check.current);
 
 				watcher.callback(check.current);
-
-				changed = true;
 			}
 		}
 
-		return changed;
-	}
-
-
-	protected checkChildrenWatchers(): void
-	{
 		for (let i = 0; i < this.children.length; i++) {
 			let child = this.children[i];
 
-			if (typeof child['component'] !== 'undefined') {
-				continue;
-			}
-
 			if (child.changeDetectorStrategy === ChangeDetectionStrategy.Default) {
-				child.checkWatchers()
+				child.checkWatchers();
 			}
 		}
 	}
 
 
-	public watch(getter: (template: AbstractTemplate) => any, fn: (data: any) => any, initValue?: any): void
+	public watch(type: WatcherType, template: AbstractTemplate, getter: (template: AbstractTemplate) => any, fn: (data: any) => any, initValue?: any): void
 	{
 		let current = typeof initValue === 'undefined' ? getter(this) : initValue;
 		let copy = undefined;
@@ -279,6 +268,8 @@ export abstract class AbstractTemplate
 		};
 
 		this.watchers.push({
+			type: type,
+			template: template,
 			watcher: watcher,
 			callback: fn,
 			current: current,
@@ -315,7 +306,7 @@ export abstract class AbstractTemplate
 
 		this.setText(el, text);
 
-		this.watch(getter, (text: string) => {
+		this.watch(WatcherType.Expression, this, getter, (text: string) => {
 			this.setText(el, text);
 		}, text);
 	}
@@ -337,7 +328,7 @@ export abstract class AbstractTemplate
 
 		this.setAttribute(el, attr, value);
 
-		this.watch(getter, (value: any) => {
+		this.watch(WatcherType.Attribute, this, getter, (value: any) => {
 			this.setAttribute(el, attr, value);
 		});
 	}
@@ -389,7 +380,7 @@ export abstract class AbstractTemplate
 
 		this.setProperty(el, property, value);
 
-		this.watch(getter, (value: any) => {
+		this.watch(WatcherType.Property, this, getter, (value: any) => {
 			this.setProperty(el, property, value);
 		});
 	}
@@ -411,12 +402,8 @@ export abstract class AbstractTemplate
 
 		this.setInput(directive, property, input, false);
 
-		this.watch(getter, (input: any) => {
+		this.watch(WatcherType.Input, template, getter, (input: any) => {
 			this.setInput(directive, property, input);
-
-			if (template !== this && template.changeDetectorStrategy === ChangeDetectionStrategy.Default && typeof template['component'] !== 'undefined') {
-				template.checkWatchers();
-			}
 		});
 	}
 

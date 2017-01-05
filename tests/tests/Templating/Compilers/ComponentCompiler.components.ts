@@ -940,6 +940,43 @@ describe('#Templating/Compilers/ComponentCompiler.components', () => {
 			expect(directives).to.be.eql([1]);
 		});
 
+		it('should refresh component when calling methods on export', () => {
+			@Component({
+				selector: 'child',
+				exportAs: 'child',
+				controllerAs: 'c',
+				template: '{{ c.current }}',
+			})
+			class TestChildComponent {
+				current = 0;
+				set(num: number) {
+					this.current = num;
+				}
+			}
+
+			@Component({
+				selector: 'parent',
+				controllerAs: 'p',
+				template:
+					'<child #c></child>' +
+					'<button (click)="p.count++; c.set(p.count)"></button>'
+				,
+				directives: [TestChildComponent],
+			})
+			class TestParentComponent {
+				count = 0;
+			}
+
+			createTemplate(parent, '<parent></parent>', {}, [TestParentComponent]);
+			let button = parent.querySelector('button');
+
+			expect(parent.innerText).to.be.equal('0');
+
+			button.dispatchEvent(Dom.createMouseEvent('click'));
+
+			expect(parent.innerText).to.be.equal('1');
+		});
+
 	});
 
 });
