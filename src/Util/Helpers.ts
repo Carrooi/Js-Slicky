@@ -83,9 +83,9 @@ export class Helpers
 			for (let key in obj) {
 				if (obj.hasOwnProperty(key)) {
 					if (deep && (Helpers.isArray(obj[key]) || Helpers.isObject(obj[key]))) {
-						clone[key] = Helpers.clone(obj[key], deep);
+						clone[<string>key] = Helpers.clone(obj[key], deep);
 					} else {
-						clone[key] = obj[key];
+						clone[<string>key] = obj[key];
 					}
 				}
 			}
