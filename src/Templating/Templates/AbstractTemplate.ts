@@ -9,7 +9,7 @@ import {EventEmitter} from '../../Util/EventEmitter';
 import {ChangeDetectionStrategy} from '../../constants';
 
 
-enum WatcherType
+export enum WatcherType
 {
 	Expression,
 	Attribute,
