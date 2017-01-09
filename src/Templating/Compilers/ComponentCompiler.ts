@@ -204,8 +204,6 @@ export class ComponentCompiler extends AbstractCompiler
 		mainBody.append('onReady(_r, _t);');
 		mainBody.append('return _r;');
 
-		console.log(this.template.toString());
-
 		let scope = {
 			Template: AbstractComponentTemplate,
 			ElementRef: ElementRef,
