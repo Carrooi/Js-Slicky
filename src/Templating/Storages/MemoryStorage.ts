@@ -1,4 +1,7 @@
-export class TemplatesStorage
+import {ITemplateStorage} from './ITemplateStorage';
+
+
+export class MemoryStorage implements ITemplateStorage
 {
 
 

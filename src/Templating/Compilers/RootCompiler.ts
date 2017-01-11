@@ -11,11 +11,10 @@ import {AbstractTemplate} from '../Templates/AbstractTemplate';
 import {Helpers} from '../../Util/Helpers';
 import {InputMetadataDefinition, HostElementMetadataDefinition, HostEventMetadataDefinition} from '../../Entity/Metadata';
 import {Dom} from '../../Util/Dom';
-import {TemplatesStorage} from '../Templates/TemplatesStorage';
+import {ITemplateStorage} from '../Storages/ITemplateStorage';
 import {Errors} from '../../Errors';
 import {ExtensionsManager} from '../../Extensions/ExtensionsManager';
 import {SafeEval} from '../../Util/SafeEval';
-import {DEFAULT_EXPRESSION_OPTIONS} from '../../constants';
 
 
 export class RootCompiler extends AbstractCompiler
@@ -24,7 +23,7 @@ export class RootCompiler extends AbstractCompiler
 
 	private container: Container;
 
-	private templatesStorage: TemplatesStorage;
+	private templatesStorage: ITemplateStorage;
 
 	private extensions: ExtensionsManager;
 
@@ -35,7 +34,7 @@ export class RootCompiler extends AbstractCompiler
 	private definition: DirectiveDefinition;
 
 
-	constructor(container: Container, templatesStorage: TemplatesStorage, extensions: ExtensionsManager, template: ApplicationTemplate, directiveType: any, definition: DirectiveDefinition)
+	constructor(container: Container, templatesStorage: ITemplateStorage, extensions: ExtensionsManager, template: ApplicationTemplate, directiveType: any, definition: DirectiveDefinition)
 	{
 		super();
 

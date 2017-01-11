@@ -7,7 +7,7 @@ import {DirectiveParser, DirectiveType} from './Entity/DirectiveParser';
 import {ApplicationTemplate} from './Templating/Templates/ApplicationTemplate';
 import {FilterMetadataDefinition} from './Templating/Filters/Metadata';
 import {Annotations} from './Util/Annotations';
-import {TemplatesStorage} from './Templating/Templates/TemplatesStorage';
+import {MemoryStorage} from './Templating/Storages/MemoryStorage';
 import {CompilerFactory} from './Templating/Compilers/CompilerFactory';
 import {ExtensionsManager} from './Extensions/ExtensionsManager';
 import {AbstractExtension} from './Extensions/AbstractExtension';
@@ -71,7 +71,7 @@ export class Application
 		}
 
 		let template = new ApplicationTemplate(this.container, options.parentElement);
-		let templatesStorage = new TemplatesStorage;
+		let storage = new MemoryStorage;
 
 		let extensionsFilters = this.extensions.getFilters();
 		let extensionsDirectives = this.extensions.getDirectives();
@@ -98,7 +98,7 @@ export class Application
 		this.el = options.parentElement;
 		this.directives = directives;
 		this.template = template;
-		this.compilerFactory = new CompilerFactory(this.container, templatesStorage, this.extensions, template);
+		this.compilerFactory = new CompilerFactory(this.container, storage, this.extensions, template);
 
 		this.container.provide([
 			[

@@ -1,6 +1,6 @@
 import {RootCompiler} from './RootCompiler';
 import {ApplicationTemplate} from '../Templates/ApplicationTemplate';
-import {TemplatesStorage} from '../Templates/TemplatesStorage';
+import {ITemplateStorage} from '../Storages/ITemplateStorage';
 import {Container} from '../../DI/Container';
 import {DirectiveDefinition} from '../../Entity/DirectiveParser';
 import {ExtensionsManager} from '../../Extensions/ExtensionsManager';
@@ -12,14 +12,14 @@ export class CompilerFactory
 
 	private container: Container;
 
-	private templatesStorage: TemplatesStorage;
+	private templatesStorage: ITemplateStorage;
 
 	private extensions: ExtensionsManager;
 
 	private applicationTemplate: ApplicationTemplate;
 
 
-	public constructor(container: Container, templatesStorage: TemplatesStorage, extensions: ExtensionsManager, applicationTemplate: ApplicationTemplate)
+	public constructor(container: Container, templatesStorage: ITemplateStorage, extensions: ExtensionsManager, applicationTemplate: ApplicationTemplate)
 	{
 		this.container = container;
 		this.templatesStorage = templatesStorage;

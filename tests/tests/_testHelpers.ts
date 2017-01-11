@@ -6,7 +6,7 @@ import {RootCompiler} from '../../src/Templating/Compilers/RootCompiler';
 import {DirectiveParser} from '../../src/Entity/DirectiveParser';
 import {AbstractComponentTemplate} from '../../src/Templating/Templates/AbstractComponentTemplate';
 import {ApplicationTemplate} from '../../src/Templating/Templates/ApplicationTemplate';
-import {TemplatesStorage} from '../../src/Templating/Templates/TemplatesStorage';
+import {MemoryStorage} from '../../src/Templating/Storages/MemoryStorage';
 import {ExtensionsManager} from '../../src/Extensions/ExtensionsManager';
 import {ExpressionParser, ExpressionParserOptions} from '../../src/Parsers/ExpressionParser';
 
@@ -19,7 +19,7 @@ let prepareCompiler = (parent: HTMLElement, directiveType: any, container?: Cont
 	}
 
 	let applicationTemplate = new ApplicationTemplate(container, parent);
-	let templatesStorage = new TemplatesStorage;
+	let templatesStorage = new MemoryStorage;
 	let extensions = new ExtensionsManager;
 
 	return new RootCompiler(container, templatesStorage, extensions, applicationTemplate, directiveType, DirectiveParser.parse(directiveType));

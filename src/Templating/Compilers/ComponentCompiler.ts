@@ -18,7 +18,7 @@ import {FilterMetadataDefinition} from '../Filters/Metadata';
 import {Functions} from '../../Util/Functions';
 import {Buffer} from '../../Util/Buffer';
 import {AbstractCompiler} from './AbstractCompiler';
-import {TemplatesStorage} from '../Templates/TemplatesStorage';
+import {ITemplateStorage} from '../Storages/ITemplateStorage';
 import {Errors} from '../../Errors';
 import {ParametersList} from '../../Interfaces';
 
@@ -99,7 +99,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 	private directivesCount: number = 0;
 
-	private storage: TemplatesStorage;
+	private storage: ITemplateStorage;
 
 	private container: Container;
 
@@ -120,7 +120,7 @@ export class ComponentCompiler extends AbstractCompiler
 	private inTemplate: boolean = false;
 
 
-	constructor(container: Container, storage: TemplatesStorage, component: any, parent?: ComponentCompiler)
+	constructor(container: Container, storage: ITemplateStorage, component: any, parent?: ComponentCompiler)
 	{
 		super();
 
