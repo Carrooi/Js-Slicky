@@ -20,6 +20,7 @@ import {Buffer} from '../../Util/Buffer';
 import {AbstractCompiler} from './AbstractCompiler';
 import {TemplatesStorage} from '../Templates/TemplatesStorage';
 import {Errors} from '../../Errors';
+import {ParametersList} from '../../Interfaces';
 
 
 enum ChildRequestType
@@ -116,8 +117,6 @@ export class ComponentCompiler extends AbstractCompiler
 
 	private directiveRequests: ChildRequests = {};
 
-	private templateImports: {[localName: string]: any} = {};
-
 	private inTemplate: boolean = false;
 
 
@@ -140,7 +139,7 @@ export class ComponentCompiler extends AbstractCompiler
 	public getName(): string
 	{
 		if (this.name === null) {
-			this.name = 'Template_' + this.getDefinition().name + '_' + ComponentCompiler.counter;
+			this.name = this.getCompilerTemplateName(this.getDefinition());
 		}
 
 		return this.name;
@@ -204,37 +203,47 @@ export class ComponentCompiler extends AbstractCompiler
 		mainBody.append('onReady(_r, _t);');
 		mainBody.append('return _r;');
 
+		let scope = this.getTemplateScope();
+
+		return this.template.generate(scope);
+	}
+
+
+	public getTemplateScope(): ParametersList
+	{
 		let scope = {
 			Template: AbstractComponentTemplate,
 			ElementRef: ElementRef,
 			TemplateRef: TemplateRef,
 		};
 
-		Helpers.each(this.templateImports, (localName: string, value: any) => {
-			scope[localName] = value;
+		this.eachFilter((filterType, definition) => {
+			scope[this.getFilterTemplateImportName(definition)] = filterType;
 		});
 
-		return this.template.generate(scope);
+		this.eachDirective((directiveType, definition) => {
+			scope[this.getDirectiveTemplateImportName(definition)] = directiveType;
+
+			if (definition.type === DirectiveType.Component) {
+				let templateName = this.getCompilerTemplateName(definition);
+
+				if (this.storage.isTemplateExists(templateName)) {
+					scope[templateName] = this.storage.getTemplate(templateName);
+				}
+			}
+		});
+
+		return scope;
 	}
 
 
 	private compileFilters(appendTo: Buffer<string>): void
 	{
-		let filters = this.getDefinition().metadata.filters;
+		this.eachFilter((filterType, definition) => {
+			let name = this.getFilterTemplateImportName(definition);
 
-		for (let i = 0; i < filters.length; i++) {
-			let filter = filters[i];
-			let metadata: FilterMetadataDefinition = Annotations.getAnnotation(filter, FilterMetadataDefinition);
-
-			if (!metadata) {
-				throw Errors.invalidFilter(Functions.getName(filter));
-			}
-
-			let name = 'Filter_' + Strings.hash(metadata.name);
-			this.templateImports[name] = filter;
-
-			appendTo.append('_t.addFilter("' + metadata.name + '", _t.createInstance(' + name + '), ' + (metadata.injectTemplate ? 'true' : 'false') + ');');
-		}
+			appendTo.append('_t.addFilter("' + definition.name + '", _t.createInstance(' + name + '), ' + (definition.injectTemplate ? 'true' : 'false') + ');');
+		});
 	}
 
 
@@ -619,8 +628,7 @@ export class ComponentCompiler extends AbstractCompiler
 
 		// create instance of directive
 
-		let name = 'Directive_' + definition.name + '_' + Object.keys(this.templateImports).length;
-		this.templateImports[name] = directiveType;
+		let name = this.getDirectiveTemplateImportName(definition);
 
 		if (isComponent) {
 			componentCompiler = new ComponentCompiler(this.container, this.storage, directiveType, this);
@@ -727,7 +735,7 @@ export class ComponentCompiler extends AbstractCompiler
 		}
 
 		if (componentCompiler) {
-			this.templateImports[componentCompiler.getName()] = componentCompiler.compile();
+			componentCompiler.compile();
 		}
 	}
 
@@ -907,6 +915,23 @@ export class ComponentCompiler extends AbstractCompiler
 	}
 
 
+	private eachFilter(fn: (filterType: any, definition: FilterMetadataDefinition) => void): void
+	{
+		let filters = this.getDefinition().metadata.filters;
+
+		for (let i = 0; i < filters.length; i++) {
+			let filter = filters[i];
+			let metadata: FilterMetadataDefinition = Annotations.getAnnotation(filter, FilterMetadataDefinition);
+
+			if (!metadata) {
+				throw Errors.invalidFilter(Functions.getName(filter));
+			}
+
+			fn(filter, metadata);
+		}
+	}
+
+
 	private findTemplate(selector: string): number
 	{
 		for (let i = 0; i < this.templates.length; i++) {
@@ -922,6 +947,47 @@ export class ComponentCompiler extends AbstractCompiler
 	private escape(str: string): string
 	{
 		return str.replace(/\n/g, '\\n');
+	}
+
+
+	private getDirectiveHash(definition: DirectiveDefinition): number
+	{
+		let parts = [
+			definition.name,
+			definition.metadata.selector
+		];
+
+		if (definition.metadata.controllerAs) {
+			parts.push(definition.metadata.controllerAs);
+		}
+
+		if (definition.metadata.exportAs) {
+			parts.push(definition.metadata.exportAs);
+		}
+
+		if (definition.metadata.template) {
+			parts.push(definition.metadata.template.length + '');
+		}
+
+		return Strings.hash(parts.join('-'));
+	}
+
+
+	private getCompilerTemplateName(definition: DirectiveDefinition): string
+	{
+		return 'Template_' + definition.name + '_' + this.getDirectiveHash(definition);
+	}
+
+
+	private getDirectiveTemplateImportName(definition: DirectiveDefinition): string
+	{
+		return 'Directive_' + definition.name + '_' + this.getDirectiveHash(definition);
+	}
+
+
+	private getFilterTemplateImportName(definition: FilterMetadataDefinition): string
+	{
+		return 'Filter_' + Strings.hash(definition.name);
 	}
 
 }
