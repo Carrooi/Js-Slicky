@@ -1,22 +1,19 @@
-import {Application, Component, OnInit} from '../../../core';
-import {Container} from '../../../di';
+import {Component, OnInit} from '../../../core';
 import {TranslationsExtension} from '../../../src/Translations/TranslationsExtension';
 import {ComponentTranslator} from '../../../src/Translations/ComponentTranslator';
+import {runApplication} from '../_testHelpers';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 let parent: HTMLDivElement;
-let application: Application = null;
 
 
 describe('#Translations/Translations.extension', () => {
 
 	beforeEach(() => {
 		parent = document.createElement('div');
-		let container = new Container;
-		application = new Application(container);
 	});
 	
 	describe('run()', () => {
@@ -42,15 +39,15 @@ describe('#Translations/Translations.extension', () => {
 				}
 			}
 
-			application.addExtension(new TranslationsExtension({
-				locale: 'en',
-			}));
-
 			parent.innerHTML = '<component></component>';
 
-			application.run([TestComponent], {
+			runApplication([TestComponent], {
 				parentElement: parent,
-			});
+			}, [
+				new TranslationsExtension({
+					locale: 'en',
+				}),
+			]);
 
 			expect(called).to.be.equal(true);
 			expect(parent.innerText).to.be.equal('Apples');

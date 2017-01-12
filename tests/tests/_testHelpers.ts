@@ -1,6 +1,7 @@
 import {ParametersList} from '../../src/Interfaces';
 import {Component} from '../../src/Entity/Metadata';
 import {Container} from '../../src/DI/Container';
+import {Application, ApplicationOptions} from '../../src/Application';
 import {Translator} from '../../src/Translations/Translator';
 import {RootCompiler} from '../../src/Templating/Compilers/RootCompiler';
 import {DirectiveParser} from '../../src/Entity/DirectiveParser';
@@ -9,6 +10,7 @@ import {ApplicationTemplate} from '../../src/Templating/Templates/ApplicationTem
 import {MemoryStorage} from '../../src/Templating/Storages/MemoryStorage';
 import {ExtensionsManager} from '../../src/Extensions/ExtensionsManager';
 import {ExpressionParser, ExpressionParserOptions} from '../../src/Parsers/ExpressionParser';
+import {AbstractExtension} from '../../src/Extensions/AbstractExtension';
 
 import chai = require('chai');
 
@@ -58,6 +60,20 @@ export let createTemplate = (parent: HTMLElement, html: string, parameters: Para
 	let template = compiler.processComponent(parent, parameters);
 
 	return template;
+};
+
+
+export let runApplication = (directives: Array<any>, options: ApplicationOptions = {}, extensions: Array<AbstractExtension> = []): Application => {
+	let container = new Container;
+	let application = new Application(container, directives, options);
+
+	for (let i = 0; i < extensions.length; i++) {
+		application.addExtension(extensions[i]);
+	}
+
+	application.run();
+
+	return application;
 };
 
 

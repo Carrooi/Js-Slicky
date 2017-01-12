@@ -18,7 +18,9 @@ import {Container} from 'slicky/di';
 import {AppComponent} from './components/AppComponent';
 
 let container = new Container;
-let app = new Application(container);
+let app = new Application(container, [
+	AppComponent,
+]);
 
-app.run(AppComponent);
+app.run();
 ```

@@ -1,65 +1,26 @@
-import {Application, Component, Directive, Filter, OnInit, OnDestroy, ElementRef, Input} from '../../core';
-import {Container, Injectable} from '../../di';
+import {Component, Directive, Filter, OnInit, OnDestroy, ElementRef, Input} from '../../core';
+import {Injectable} from '../../di';
 import {CompilerFactory} from '../../src/Templating/Compilers/CompilerFactory';
 import {DirectiveParser} from '../../src/Entity/DirectiveParser';
 import {TranslationsExtension} from '../../src/Translations/TranslationsExtension';
 import {ComponentTranslator} from '../../src/Translations/ComponentTranslator';
 import {Dom} from '../../src/Util/Dom';
+import {runApplication} from './_testHelpers';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 let parent: HTMLDivElement;
-let container: Container;
-let application: Application = null;
 
 
 describe('#Application', () => {
 
 	beforeEach(() => {
 		parent = document.createElement('div');
-		container = new Container;
-		application = new Application(container);
 	});
 	
 	describe('run()', () => {
-		
-		it('should compile application with one root component', () => {
-			@Component({
-				selector: 'component',
-				template: 'Hello world',
-			})
-			class TestComponent {}
-
-			parent.innerHTML = '<component></component>';
-			
-			application.run(TestComponent, {
-				parentElement: parent,
-			});
-
-			expect(parent.innerHTML).to.be.equal('<component>Hello world</component>');
-		});
-
-		it('should compile application with one root directive', () => {
-			@Directive({
-				selector: 'directive',
-			})
-			class TestDirective implements OnInit {
-				constructor(private el: ElementRef<HTMLElement>) {}
-				onInit() {
-					(<HTMLElement>this.el.nativeElement).innerText = 'Hello world';
-				}
-			}
-
-			parent.innerHTML = '<directive></directive>';
-
-			application.run(TestDirective, {
-				parentElement: parent,
-			});
-
-			expect(parent.innerHTML).to.be.equal('<directive>Hello world</directive>');
-		});
 
 		it('should compile application with directives and components', () => {
 			@Component({
@@ -80,7 +41,7 @@ describe('#Application', () => {
 
 			parent.innerHTML = '<component></component><directive></directive>';
 
-			application.run([TestComponent, TestDirective], {
+			runApplication([TestComponent, TestDirective], {
 				parentElement: parent,
 			});
 
@@ -96,7 +57,7 @@ describe('#Application', () => {
 
 			parent.innerHTML = '<component></component>';
 
-			application.run([TestComponent], {
+			runApplication([TestComponent], {
 				parentElement: parent,
 			});
 
@@ -124,7 +85,7 @@ describe('#Application', () => {
 
 			parent.innerHTML = '<component></component>';
 
-			application.run([TestComponent], {
+			runApplication([TestComponent], {
 				parentElement: parent,
 				filters: [TestFilter],
 			});
@@ -159,7 +120,7 @@ describe('#Application', () => {
 
 			parent.innerHTML = '<component></component> <div id="first"></div>, <div id="second"></div>';
 
-			application.run([TestComponent], {
+			runApplication([TestComponent], {
 				parentElement: parent,
 			});
 
@@ -204,7 +165,7 @@ describe('#Application', () => {
 
 			parent.innerHTML = '<component></component><div></div>';
 
-			application.run([TestComponent], {
+			runApplication([TestComponent], {
 				parentElement: parent,
 			});
 
@@ -259,7 +220,7 @@ describe('#Application', () => {
 				'<component name="cb"></component>'
 			;
 
-			application.run([TestDirective, TestComponent], {
+			let application = runApplication([TestDirective, TestComponent], {
 				parentElement: parent,
 			});
 
@@ -325,13 +286,13 @@ describe('#Application', () => {
 
 			parent.innerHTML = '<parent></parent>';
 
-			application.addExtension(new TranslationsExtension({
-				locale: 'en',
-			}));
-
-			application.run([TestParentComponent], {
+			runApplication([TestParentComponent], {
 				parentElement: parent,
-			});
+			}, [
+				new TranslationsExtension({
+					locale: 'en',
+				}),
+			]);
 
 			expect(called.child).to.be.equal(true);
 			expect(called.parent).to.be.equal(true);
@@ -350,13 +311,13 @@ describe('#Application', () => {
 
 			parent.innerHTML = '<component></component>';
 
-			application.addExtension(new TranslationsExtension({
-				locale: 'en',
-			}));
-
-			application.run([TestComponent], {
+			runApplication([TestComponent], {
 				parentElement: parent,
-			});
+			}, [
+				new TranslationsExtension({
+					locale: 'en',
+				})
+			]);
 
 			expect(parent.innerText).to.be.equal('car');
 		});
@@ -384,7 +345,7 @@ describe('#Application', () => {
 
 			parent.innerHTML = '<component></component>';
 
-			application.run([TestComponent], {
+			runApplication([TestComponent], {
 				parentElement: parent,
 			});
 

@@ -1,23 +1,20 @@
-import {Application, Component, OnInit} from '../../core';
-import {Container} from '../../di';
+import {Component, OnInit} from '../../core';
 import {Injectable} from '../../src/DI/Metadata';
 import {AbstractExtension} from '../../src/Extensions/AbstractExtension';
 import {Filter} from '../../src/Templating/Filters/Metadata';
+import {runApplication} from './_testHelpers';
 
 import chai = require('chai');
 
 
 let expect = chai.expect;
 let parent: HTMLDivElement;
-let application: Application = null;
 
 
 describe('#Application.extensions', () => {
 
 	beforeEach(() => {
 		parent = document.createElement('div');
-		let container = new Container;
-		application = new Application(container);
 	});
 	
 	describe('run()', () => {
@@ -77,13 +74,13 @@ describe('#Application.extensions', () => {
 				}
 			}
 
-			application.addExtension(new TestExtension);
-
 			parent.innerHTML = '<component></component>';
 
-			application.run([TestComponent], {
+			runApplication([TestComponent], {
 				parentElement: parent,
-			});
+			}, [
+				new TestExtension,
+			]);
 
 			expect(called).to.be.equal(true);
 			expect(parent.innerText).to.be.equal('hello world, David');

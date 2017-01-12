@@ -2,7 +2,6 @@ import {CustomServiceDefinition, ProvideOptions} from '../DI/Container';
 import {AbstractComponentTemplate} from '../Templating/Templates/AbstractComponentTemplate';
 import {ElementRef} from '../Templating/ElementRef';
 import {ConcreteType} from '../Facade/Lang';
-import {ParametersList} from '../Interfaces';
 
 
 export abstract class AbstractExtension

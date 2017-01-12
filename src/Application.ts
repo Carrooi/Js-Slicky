@@ -34,35 +34,24 @@ export class Application
 
 	private template: ApplicationTemplate;
 
-	private directives: Array<any>;
+	private directives: Array<any> = [];
+
+	private directivesLoaded: boolean = false;
+
+	private filters: Array<any> = [];
+
+	private filtersLoaded: boolean = false;
+
+	private options: ApplicationOptions;
 
 	private el: HTMLElement;
 
 	private running: boolean = false;
 
 
-	constructor(container: Container)
+	constructor(container: Container, directives: Array<any>, options: ApplicationOptions = {})
 	{
-		this.container = container;
-		this.container.provide(IterableDifferFactory);
-		this.container.provide(Application, {
-			useFactory: () => this,
-		});
-
-		this.extensions = new ExtensionsManager;
-	}
-
-
-	public addExtension(extension: AbstractExtension): void
-	{
-		this.container.provide(extension.getServices());
-		this.extensions.addExtension(extension);
-	}
-
-
-	private prepare(directives: Array<any>, options: ApplicationOptions = {}): void
-	{
-		if (typeof options.parentElement === 'undefined') {
+		if (typeof options.parentElement === 'undefined' && document) {
 			options.parentElement = <any>document;
 		}
 
@@ -70,33 +59,97 @@ export class Application
 			options.filters = [];
 		}
 
-		let template = new ApplicationTemplate(this.container, options.parentElement);
+		this.container = container;
+		this.options = options;
+		this.container.provide(IterableDifferFactory);
+		this.container.provide(Application, {
+			useFactory: () => this,
+		});
+
+		this.extensions = new ExtensionsManager;
+
+		Helpers.each(directives, (i, directive) => {
+			if (this.directives.indexOf(directive) < 0) {
+				this.directives.push(directive);
+			}
+		});
+
+		Helpers.each(this.options.filters, (i, filter) => {
+			if (this.filters.indexOf(filter) < 0) {
+				this.filters.push(filter);
+			}
+		});
+	}
+
+
+	public addExtension(extension: AbstractExtension): void
+	{
+		if (this.running) {
+			throw new Error('Application.addExtension: can not add new extension when application is running.');
+		}
+
+		if (this.directivesLoaded) {
+			throw new Error('Application.addExtension: can not add new extension when application is ready to run.');
+		}
+
+		this.container.provide(extension.getServices());
+		this.extensions.addExtension(extension);
+	}
+
+
+	public getDirectives(): Array<any>
+	{
+		if (!this.directivesLoaded) {
+			let extensionsDirectives = this.extensions.getDirectives();
+
+			for (let i = 0; i < extensionsDirectives.length; i++) {
+				if (this.directives.indexOf(extensionsDirectives[i]) < 0) {
+					this.directives.push(extensionsDirectives[i]);
+				}
+			}
+
+			this.directivesLoaded = true;
+		}
+
+		return this.directives;
+	}
+
+
+	public getFilters(): Array<any>
+	{
+		if (!this.filtersLoaded) {
+			let extensionsFilters = this.extensions.getFilters();
+
+			for (let i = 0; i < extensionsFilters.length; i++) {
+				this.filters.push(extensionsFilters[i]);
+			}
+
+			for (let i = 0; i < DefaultFilters.length; i++) {
+				this.filters.push(DefaultFilters[i]);
+			}
+
+			this.filtersLoaded = true;
+		}
+
+		return this.filters;
+	}
+
+
+	private prepare(): void
+	{
+		let template = new ApplicationTemplate(this.container, this.options.parentElement);
 		let storage = new MemoryStorage;
 
-		let extensionsFilters = this.extensions.getFilters();
-		let extensionsDirectives = this.extensions.getDirectives();
+		let filters = this.getFilters();
 
-		for (let i = 0; i < extensionsFilters.length; i++) {
-			options.filters.push(extensionsFilters[i]);
-		}
-
-		for (let i = 0; i < DefaultFilters.length; i++) {
-			options.filters.push(DefaultFilters[i]);
-		}
-
-		for (let i = 0; i < extensionsDirectives.length; i++) {
-			directives.push(extensionsDirectives[i]);
-		}
-
-		for (let i = 0; i < options.filters.length; i++) {
-			let filter = options.filters[i];
+		for (let i = 0; i < filters.length; i++) {
+			let filter = filters[i];
 			let metadata: FilterMetadataDefinition = Annotations.getAnnotation(filter, FilterMetadataDefinition);
 
 			template.addFilter(metadata.name, template.createInstance(filter), metadata.injectTemplate);
 		}
 
-		this.el = options.parentElement;
-		this.directives = directives;
+		this.el = this.options.parentElement;
 		this.template = template;
 		this.compilerFactory = new CompilerFactory(this.container, storage, this.extensions, template);
 
@@ -117,17 +170,13 @@ export class Application
 	}
 
 
-	public run(directives: Array<any>|any, options: ApplicationOptions = {}): void
+	public run(): void
 	{
 		if (this.running) {
 			throw new Error('Application.run: can not run application more than once.');
 		}
 
-		if (!Helpers.isArray(directives)) {
-			directives = [directives];
-		}
-
-		this.prepare(directives, options);
+		this.prepare();
 		this.compile(this.el);
 
 		this.running = true;
@@ -136,20 +185,30 @@ export class Application
 
 	public attachElement(el: HTMLElement): void
 	{
+		if (!this.running) {
+			throw new Error('Application.attachElement: can not attach element when application is not running.');
+		}
+
 		this.compile(el);
 	}
 
 
 	public detachElement(el: HTMLElement): void
 	{
+		if (!this.running) {
+			throw new Error('Application.detachElement: can not detach element when application is not running.');
+		}
+
 		this.template.detachElement(el);
 	}
 
 
 	private compile(el: HTMLElement): void
 	{
-		for (let i = 0; i < this.directives.length; i++) {
-			let directive = this.directives[i];
+		let directives = this.getDirectives();
+
+		for (let i = 0; i < directives.length; i++) {
+			let directive = directives[i];
 			let definition = DirectiveParser.parse(directive);
 			let found = Dom.querySelectorAll(definition.metadata.selector, el);
 
