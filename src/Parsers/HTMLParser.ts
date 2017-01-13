@@ -1,65 +1,11 @@
 import {TextParser} from '../Parsers/TextParser';
-import {Strings} from '../Util/Strings';
 import {TemplateAttributeParser} from '../Parsers/TemplateAttributeParser';
 import {Helpers} from '../Util/Helpers';
+import {AbstractHTMLParser, HTMLAttributeType, HTMLTokenType, AttributeToken, StringToken, ElementToken} from './AbstractHTMLParser';
 
 
-export enum HTMLAttributeType
+export class HTMLParser extends AbstractHTMLParser
 {
-	NATIVE,
-	EXPRESSION,
-	PROPERTY,
-	EVENT,
-	EXPORT,
-	TEMPLATE,
-}
-
-
-export enum HTMLTokenType
-{
-	T_ELEMENT,
-	T_STRING,
-	T_EXPRESSION,
-	T_COMMENT,
-}
-
-
-export declare interface AttributeToken
-{
-	type: HTMLAttributeType,
-	name: string,
-	originalName: string,
-	value: string,
-	preventDefault?: boolean,
-}
-
-
-export declare interface StringToken
-{
-	type: HTMLTokenType,
-	value: string,
-	parent: ElementToken,
-}
-
-
-export declare interface ElementToken
-{
-	type: HTMLTokenType,
-	name: string,
-	attributes: {[name: string]: AttributeToken},
-	parent: ElementToken,
-	children: Array<StringToken|ElementToken>,
-}
-
-
-export class HTMLParser
-{
-
-
-	private static TWO_WAY_BINDING_CHANGE = 'change';
-
-
-	private exports: Array<string> = [];
 
 
 	public parse(html: string): {exports: Array<string>, tree: Array<StringToken|ElementToken>}
@@ -71,12 +17,6 @@ export class HTMLParser
 			exports: this.exports,
 			tree: this.parseBranch(parent),
 		};
-	}
-
-
-	public parseElement(element: Element): ElementToken
-	{
-		return this._parseElement(element, null, false);
 	}
 
 
@@ -99,7 +39,7 @@ export class HTMLParser
 				}
 
 			} else if (child.nodeType === Node.ELEMENT_NODE) {
-				branch.push(this._parseElement(<Element>child, parent));
+				branch.push(this.parseElement(<Element>child, parent));
 
 			}
 		}
@@ -158,7 +98,7 @@ export class HTMLParser
 	}
 
 
-	private _parseElement(node: Element, parent: ElementToken = null, parseChildren: boolean = true): ElementToken
+	private parseElement(node: Element, parent: ElementToken = null): ElementToken
 	{
 		let attributes = this.parseAttributes(node);
 
@@ -170,9 +110,7 @@ export class HTMLParser
 			children: [],
 		};
 
-		if (parseChildren) {
-			nodeToken.children = this.parseBranch(node, nodeToken);
-		}
+		nodeToken.children = this.parseBranch(node, nodeToken);
 
 		let rootTemplate: ElementToken;
 		let parentTemplate: ElementToken;
@@ -217,7 +155,7 @@ export class HTMLParser
 	}
 
 
-	public parseAttributes(node: Element): {[name: string]: AttributeToken}
+	private parseAttributes(node: Element): {[name: string]: AttributeToken}
 	{
 		let attributes = {};
 
@@ -229,112 +167,6 @@ export class HTMLParser
 		}
 
 		return <any>attributes;
-	}
-
-
-	private parseAttribute(name: string, value: string): Array<AttributeToken>
-	{
-		let type = HTMLAttributeType.NATIVE;
-		let preventDefault = false;
-		let match;
-
-		if (match = name.match(/^\[\((.+)\)]$/)) {
-			return [
-				this.parseAttribute('[' + match[1] + ']', value)[0],
-				this.parseAttribute('(' + match[1] + '-' + HTMLParser.TWO_WAY_BINDING_CHANGE + ')!', value + '=$value')[0],
-			];
-		}
-
-		if (match = name.match(/^\*(.+)/)) {
-			type = HTMLAttributeType.TEMPLATE;
-			name = match[1];
-		} else if (match = name.match(/^#(.+)/)) {
-			type = HTMLAttributeType.EXPORT;
-			name = match[1];
-		} else if (match = name.match(/^\[(.+)]$/)) {
-			type = HTMLAttributeType.PROPERTY;
-			name = match[1];
-		} else if (match = name.match(/^\((.+)\)!?$/)) {
-			preventDefault = name.slice(-1) === '!';
-			type = HTMLAttributeType.EVENT;
-			name = match[1];
-		}
-
-		if (type === HTMLAttributeType.NATIVE) {
-			let attr = this.parseAttributeValue(value);
-			type = attr.type;
-			value = attr.value;
-		}
-
-		let attributes = [];
-
-		if (type === HTMLAttributeType.EVENT) {
-			let events = name.split('|');
-			for (let i = 0; i < events.length; i++) {
-				attributes.push({
-					type: type,
-					name: Strings.hyphensToCamelCase(events[i]),
-					originalName: events[i],
-					value: value,
-					preventDefault: preventDefault,
-				});
-			}
-
-		} else {
-			let attribute: AttributeToken = {
-				type: type,
-				name: Strings.hyphensToCamelCase(name),
-				originalName: name,
-				value: value,
-			};
-
-			attributes.push(attribute);
-
-			if (attribute.type === HTMLAttributeType.EXPORT && this.exports.indexOf(attribute.name) < 0) {
-				this.exports.push(attribute.name);
-			}
-		}
-
-		return attributes;
-	}
-
-
-	private parseAttributeValue(value: string): {type: HTMLAttributeType, value: string}
-	{
-		let tokens = TextParser.parse(value);
-		let type = HTMLAttributeType.NATIVE;
-
-		if (tokens.length === 0) {
-			// skip
-
-		} else if (tokens.length === 1) {
-			if (tokens[0].type === TextParser.TYPE_BINDING) {
-				type = HTMLAttributeType.EXPRESSION;
-				value = tokens[0].value;
-			}
-
-		} else {
-			let buffer = [];
-
-			for (let i = 0; i < tokens.length; i++) {
-				let token = tokens[i];
-
-				if (token.type === TextParser.TYPE_TEXT) {
-					buffer.push('"' + token.value + '"');
-
-				} else if (token.type === TextParser.TYPE_BINDING) {
-					buffer.push('(' + token.value + ')');
-				}
-			}
-
-			type = HTMLAttributeType.EXPRESSION;
-			value = buffer.join('+');
-		}
-
-		return {
-			type: type,
-			value: value,
-		};
 	}
 
 }

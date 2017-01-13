@@ -1,5 +1,6 @@
 import {QuerySelector} from '../../../src/Templating/QuerySelector';
-import {HTMLParser, ElementToken} from '../../../src/Parsers/HTMLParser';
+import {HTMLParser} from '../../../src/Parsers/HTMLParser';
+import {ElementToken} from '../../../src/Parsers/AbstractHTMLParser';
 
 import chai = require('chai');
 

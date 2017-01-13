@@ -2,7 +2,8 @@ import {Container, CustomServiceDefinition} from '../../DI/Container';
 import {DirectiveDefinition} from '../../Entity/DirectiveParser';
 import {AbstractCompiler} from './AbstractCompiler';
 import {ComponentCompiler} from './ComponentCompiler';
-import {HTMLParser, HTMLAttributeType} from '../../Parsers/HTMLParser';
+import {HTMLAttributeType, AttributeToken} from '../../Parsers/AbstractHTMLParser';
+import {BrowserElementParser} from '../../Parsers/BrowserElementParser';
 import {ElementRef} from '../ElementRef';
 import {AbstractComponentTemplate} from '../Templates/AbstractComponentTemplate';
 import {ParametersList, OnInit, OnDestroy} from '../../Interfaces';
@@ -51,12 +52,13 @@ export class RootCompiler extends AbstractCompiler
 	{
 		let elementRef = ElementRef.get(el);
 		let directive = this.template.attachDirective(this.directiveType, elementRef);
+		let node = (new BrowserElementParser).parse(el);
 
 		if (this.definition.parentComponent) {
 			throw Errors.parentComponentInRoot(this.definition.name, this.definition.parentComponent.property);
 		}
 
-		this.processInputs(this.template, el, directive);
+		this.processInputs(this.template, el, node.attributes, directive);
 		this.processElements(elementRef, directive);
 		this.processEvents(el, elementRef, directive);
 
@@ -72,7 +74,7 @@ export class RootCompiler extends AbstractCompiler
 	{
 		let compiler = new ComponentCompiler(this.container, this.templatesStorage, this.directiveType);
 		let elementRef = ElementRef.get(el);
-		let node = (new HTMLParser).parseElement(el);
+		let node = (new BrowserElementParser).parse(el);
 
 		if (this.definition.parentComponent) {
 			throw Errors.parentComponentInRoot(this.definition.name, this.definition.parentComponent.property);
@@ -93,7 +95,7 @@ export class RootCompiler extends AbstractCompiler
 		let TemplateType = <any>compiler.compile();
 		let template: AbstractComponentTemplate = new TemplateType(this.template, this.directiveType, elementRef, this.container, this.extensions, parameters, null, this.definition.metadata.controllerAs, use);
 
-		this.processInputs(template, el, template.component);
+		this.processInputs(template, el, node.attributes, template.component);
 
 		Helpers.each(this.definition.elements, (property: string, el: HostElementMetadataDefinition) => {
 			if (!el.selector) {
@@ -127,10 +129,8 @@ export class RootCompiler extends AbstractCompiler
 	}
 
 
-	private processInputs(template: AbstractTemplate, el: HTMLElement, directive: any): void
+	private processInputs(template: AbstractTemplate, el: HTMLElement, attributes: {[name: string]: AttributeToken}, directive: any): void
 	{
-		let attributes = (new HTMLParser).parseAttributes(el);
-
 		Helpers.each(this.definition.inputs, (name: string, input: InputMetadataDefinition) => {
 			let attributeName = input.name === null ? name : input.name;
 			let attribute = attributes[attributeName];

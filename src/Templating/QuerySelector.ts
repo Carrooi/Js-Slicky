@@ -1,5 +1,5 @@
 import {SelectorParser, SelectorType, SelectorItem, ChildType, ElementSelector} from '../Parsers/SelectorParser';
-import {ElementToken, AttributeToken} from '../Parsers/HTMLParser';
+import {AttributeToken, ElementToken} from '../Parsers/AbstractHTMLParser';
 
 
 export class QuerySelector

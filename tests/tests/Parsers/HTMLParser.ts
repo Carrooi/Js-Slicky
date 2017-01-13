@@ -1,4 +1,5 @@
-import {HTMLParser, HTMLTokenType, HTMLAttributeType, StringToken, ElementToken} from '../../../src/Parsers/HTMLParser';
+import {HTMLParser} from '../../../src/Parsers/HTMLParser';
+import {HTMLAttributeType, HTMLTokenType, StringToken, ElementToken} from '../../../src/Parsers/AbstractHTMLParser';
 
 import chai = require('chai');
 
@@ -36,7 +37,7 @@ let parse = (html: string): {exports: Array<string>, tree: Array<StringToken|Ele
 };
 
 
-describe('#Tokenizer/HTMLParser', () => {
+describe('#Parsers/HTMLParser', () => {
 
 	describe('parse()', () => {
 
