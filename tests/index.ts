@@ -36,6 +36,7 @@ import './tests/Parsers/ExpressionParser.variableProvider';
 import './tests/Parsers/ExpressionParser.filterProvider';
 import './tests/Parsers/TemplateAttributeParser';
 import './tests/Parsers/TextParser';
+import './tests/Parsers/BrowserElementParser';
 import './tests/Parsers/HTMLParser';
 import './tests/Parsers/SelectorParser';
 

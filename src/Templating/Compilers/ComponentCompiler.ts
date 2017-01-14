@@ -10,7 +10,8 @@ import {
 	ChildDirectiveDefinition, ChildrenDirectiveDefinition
 } from '../../Entity/Metadata';
 import {Annotations} from '../../Util/Annotations';
-import {HTMLParser, StringToken, ElementToken, HTMLTokenType, HTMLAttributeType, AttributeToken} from '../../Parsers/HTMLParser';
+import {HTMLAttributeType, HTMLTokenType, AttributeToken, StringToken, ElementToken} from '../../Parsers/AbstractHTMLParser';
+import {HTMLParser} from '../../Parsers/HTMLParser';
 import {QuerySelector} from '../QuerySelector';
 import {Container} from '../../DI/Container';
 import {Dom} from '../../Util/Dom';
