@@ -1,3 +1,4 @@
+import * as parse5 from 'parse5';
 import {TextParser} from '../Parsers/TextParser';
 import {TemplateAttributeParser} from '../Parsers/TemplateAttributeParser';
 import {Helpers} from '../Util/Helpers';
@@ -10,37 +11,49 @@ export class HTMLParser extends AbstractHTMLParser
 
 	public parse(html: string): {exports: Array<string>, tree: Array<StringToken|ElementToken>}
 	{
-		let parent = document.createElement('div');
-		parent.innerHTML = html;
-
 		return {
 			exports: this.exports,
-			tree: this.parseBranch(parent),
+			tree: this.parseDocument(<parse5.AST.Default.DocumentFragment>parse5.parseFragment(html)),
 		};
 	}
 
 
-	private parseBranch(node: Node, parent: ElementToken = null): Array<StringToken|ElementToken>
+	private parseDocument(document: parse5.AST.Default.DocumentFragment): Array<StringToken|ElementToken>
 	{
-		let branch = [];
-		let child: Node;
+		return this.parseBranch(document.childNodes);
+	}
 
-		if (node.nodeName.toLowerCase() === 'template' && typeof node['content'] !== 'undefined') {
-			node = document.importNode(node, true)['content'];
+
+	private parseChildren(element: parse5.AST.Default.Element, parent: ElementToken = null): Array<StringToken|ElementToken>
+	{
+		if (element.nodeName.toLowerCase() === 'template') {
+			return this.parseDocument(element['content']);
 		}
 
-		for (let i = 0; i < node.childNodes.length; i++) {
-			child = node.childNodes[i];
+		return this.parseBranch(element.childNodes, parent);
+	}
 
-			if (child.nodeType === Node.TEXT_NODE) {
-				let items = this.parseText(<Text>child, parent);
-				for (let i = 0; i < items.length; i++) {
-					branch.push(items[i]);
+
+	private parseBranch(children: Array<parse5.AST.Default.Node>, parent: ElementToken = null): Array<StringToken|ElementToken>
+	{
+		let branch = [];
+		let child: parse5.AST.Default.Node;
+
+		for (let i = 0; i < children.length; i++) {
+			child = children[i];
+
+			if (child.nodeName === '#comment') {
+				continue;
+			}
+
+			if (child.nodeName === '#text') {
+				let items = this.parseText(<parse5.AST.Default.TextNode>child, parent);
+				for (let j = 0; j < items.length; j++) {
+					branch.push(items[j]);
 				}
 
-			} else if (child.nodeType === Node.ELEMENT_NODE) {
-				branch.push(this.parseElement(<Element>child, parent));
-
+			} else {
+				branch.push(this.parseElement(<parse5.AST.Default.Element>child, parent));
 			}
 		}
 
@@ -48,9 +61,9 @@ export class HTMLParser extends AbstractHTMLParser
 	}
 
 
-	private parseText(node: Text, parent: ElementToken = null): Array<StringToken>
+	private parseText(node: parse5.AST.Default.TextNode, parent: ElementToken = null): Array<StringToken>
 	{
-		let tokens = TextParser.parse(node.nodeValue);
+		let tokens = TextParser.parse(node.value);
 
 		if (tokens.length === 0) {
 			// skip
@@ -66,11 +79,10 @@ export class HTMLParser extends AbstractHTMLParser
 			} else {
 				return [{
 					type: HTMLTokenType.T_STRING,
-					value: node.nodeValue,
+					value: node.value,
 					parent: parent,
 				}];
 			}
-
 		} else {
 			let buffer: Array<StringToken> = [];
 
@@ -98,19 +110,19 @@ export class HTMLParser extends AbstractHTMLParser
 	}
 
 
-	private parseElement(node: Element, parent: ElementToken = null): ElementToken
+	private parseElement(element: parse5.AST.Default.Element, parent: ElementToken = null): ElementToken
 	{
-		let attributes = this.parseAttributes(node);
+		let attributes = this.parseAttributes(element);
 
 		let nodeToken: ElementToken = {
 			type: HTMLTokenType.T_ELEMENT,
-			name: node.nodeName.toLowerCase(),
+			name: element.nodeName.toLowerCase(),
 			attributes: {},
 			parent: !parent || parent.name === 'template' ? null : parent,
 			children: [],
 		};
 
-		nodeToken.children = this.parseBranch(node, nodeToken);
+		nodeToken.children = this.parseChildren(element, nodeToken);
 
 		let rootTemplate: ElementToken;
 		let parentTemplate: ElementToken;
@@ -155,18 +167,18 @@ export class HTMLParser extends AbstractHTMLParser
 	}
 
 
-	private parseAttributes(node: Element): {[name: string]: AttributeToken}
+	private parseAttributes(element: parse5.AST.Default.Element): {[name: string]: AttributeToken}
 	{
 		let attributes = {};
 
-		for (let i = 0; i < node.attributes.length; i++) {
-			let append = this.parseAttribute(node.attributes[i].name, node.attributes[i].value);
+		for (let i = 0; i < element.attrs.length; i++) {
+			let append = this.parseAttribute(element.attrs[i].name, element.attrs[i].value);
 			for (let j = 0; j < append.length; j++) {
 				attributes[append[j].name] = append[j];
 			}
 		}
 
-		return <any>attributes;
+		return attributes;
 	}
 
 }
